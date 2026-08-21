@@ -8,7 +8,11 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
-    "splash": { "image": "./assets/splash-icon.png", "resizeMode": "contain", "backgroundColor": "#FAFAF7" },
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FAFAF7"
+    },
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "io.langora.mochi",
@@ -20,15 +24,39 @@
         "ITSAppUsesNonExemptEncryption": false
       }
     },
-    "android": { "package": "io.langora.mochi" },
+    "android": {
+      "package": "io.langora.mochi",
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
+    },
     "plugins": [
       "expo-router",
       "expo-dev-client",
       "expo-apple-authentication",
       "expo-secure-store",
-      ["expo-notifications", { "color": "#E97A6A" }],
-      ["expo-image-picker", { "photosPermission": "mochi utilise ta photothèque pour choisir ta photo de profil, visible par ton binôme." }]
+      [
+        "expo-notifications",
+        {
+          "color": "#E97A6A"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "mochi utilise ta photothèque pour choisir ta photo de profil, visible par ton binôme."
+        }
+      ]
     ],
-    "experiments": { "typedRoutes": false }
+    "experiments": {
+      "typedRoutes": false
+    },
+    "owner": "jeannegourmande",
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "4c878ab4-58da-4b7a-a546-ff3046e9bf88"
+      }
+    }
   }
 }
