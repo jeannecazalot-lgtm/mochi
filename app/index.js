@@ -21,6 +21,8 @@ export default function Index() {
     loadProfile().then(setProfile).catch(() => setProfile(null));
   }, [session]);
 
+  // Phase « app navigable » : en dev, on entre par le Plan des écrans (données de démo)
+  if (__DEV__) return <Redirect href="/plan" />;
   if (!SUPABASE_READY) return <Redirect href="/(setup)/identite" />;
   if (session === undefined || profile === undefined) {
     return <View style={{ flex: 1, backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator /></View>;
