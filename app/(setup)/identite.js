@@ -5,7 +5,8 @@ import { View, Text, TextInput, Pressable, Image, StyleSheet } from 'react-nativ
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import Svg, { Path, Circle } from 'react-native-svg';
-import { GlowBg, SetupHeader, Card, Micro, CTAPrimary, Mochi } from '../../src/components/ui';
+import { GlowBg, SetupHeader, Card, Micro, CTAPrimary } from '../../src/components/ui';
+import { LiveMochi } from '../../src/components/motion';
 import { saveIdentity, loadProfile } from '../../src/profile';
 import copy from '../../src/data/copy.json';
 import { colors, space, radius, alpha, font } from '../../src/theme';
@@ -71,7 +72,7 @@ export default function Identite() {
           </Pressable>
         </View>
 
-        <View pointerEvents="none" style={s.mochi}><Mochi size={88} mood="wink" /></View>
+        <View pointerEvents="none" style={s.mochi}><LiveMochi size={88} mood="happy" lean={-0.75} /></View>
 
         <View style={s.ctaWrap}>
           {error ? <Text style={[font.caption, { color: colors.coralDeep, textAlign: 'center', marginBottom: 8 }]}>{error}</Text> : null}
