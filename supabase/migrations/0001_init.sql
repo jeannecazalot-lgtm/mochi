@@ -57,7 +57,8 @@ create table household_members (
   joined_at       timestamptz not null default now(),
   updated_at      timestamptz not null default now(),
   primary key (household_id, user_id),
-  unique (household_id, slot)
+  unique (household_id, slot),
+  unique (user_id)                                           -- UN SEUL foyer à la fois (décision Jeanne) : on quitte avant d'en rejoindre un autre
 );
 -- 2 à 10 membres : le max est garanti ici, le min (2) est une règle d'app (l'app attend le 2e membre)
 create or replace function check_household_size() returns trigger language plpgsql as $$
@@ -314,6 +315,12 @@ language sql stable security definer set search_path = public as $$
   select exists (select 1 from household_members where household_id = h and user_id = auth.uid());
 $$;
 
+-- quitter son foyer (pour en rejoindre un autre) : supprime sa ligne de membre
+create or replace function leave_household() returns void
+language sql security definer set search_path = public as $$
+  delete from household_members where user_id = auth.uid();
+$$;
+
 create or replace function my_households() returns setof uuid
 language sql stable security definer set search_path = public as $$
   select household_id from household_members where user_id = auth.uid();
@@ -347,6 +354,7 @@ declare inv invitations; free_slot smallint;
 begin
   select * into inv from invitations where code = upper(p_code) and accepted_at is null and expires_at > now();
   if inv.id is null then raise exception 'invitation_invalid'; end if;
+  if exists (select 1 from household_members where user_id = auth.uid()) then raise exception 'already_in_household'; end if;
   if (select count(*) from household_members where household_id = inv.household_id) >= 10 then raise exception 'household_full'; end if;
   select min(s) into free_slot from generate_series(1,10) s
     where not exists (select 1 from household_members where household_id = inv.household_id and slot = s);

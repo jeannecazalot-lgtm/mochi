@@ -55,7 +55,7 @@ SQL complet : `supabase/migrations/0001_init.sql`. Rien n'est appliqué tant que
 ## Réponses de Jeanne (21 août 2026)
 1. Duo+ : **un seul paie, tout le foyer en profite** → `households.premium_until` / `premium_by`.
 2. **Minimum 2 membres**, maximum 10 (pas de mode solo).
-3. Multi-foyers : en attente (explication redonnée).
+3. **Un seul foyer à la fois** par personne (`unique(user_id)`) ; pour en rejoindre un autre où l'on est invité, on quitte le sien (`leave_household()`), puis on accepte l'invitation.
 4. Devise : **USD par défaut, modifiable par foyer** (`households.currency`), copiée dans chaque dépense.
 5. Occurrences à l'avance : en attente (14 ou 30 jours).
 
