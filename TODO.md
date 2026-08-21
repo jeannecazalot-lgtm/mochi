@@ -16,7 +16,7 @@ Numéros d'écran = numéros d'artboard du canvas. Les écrans « v2 » du canva
 - [ ] GitHub : créer le repo privé `jeannecazalot-lgtm/mochi` puis pousser (commandes dans README.md).
 - [ ] Supabase : créer le projet, me donner URL + clé publishable dans `.env` (jamais dans le chat).
 - [ ] Valider le modèle de données (`docs/MODELE_DONNEES.md`) + répondre aux 5 questions.
-- [ ] EAS : `npx eas login` sur ce Mac (compte Expo) — `eas init`, `eas build` suivent.
+- [x] EAS : connectée (jeannegourmande), projet lié `@jeannegourmande/mochi` — 21 août 2026
 - [ ] Apple : confirmer le bundle id ; création de l'app ASC et build 1 TestFlight ensuite.
 
 ## Backlog priorisé (un item = un écran, validation explicite de Jeanne à chaque fois)
@@ -87,6 +87,7 @@ Numéros d'écran = numéros d'artboard du canvas. Les écrans « v2 » du canva
 - [ ] Dashboard interne — quand le modèle de données est stable
 
 ## Fragile / à surveiller
+- Build local impossible (pas de CocoaPods) : tous les builds passent par EAS (dev simulateur + production).
 - `react-dom` pinné à 19.2.3 (expo-router tirait 19.2.8, incompatible avec react 19.2.3 du SDK 57).
 - `src/store.js` = squelette offline-first ; la gestion de conflits se précisera avec les premiers écrans.
 - Apple Sign-In : `expo-apple-authentication` installé, pas encore branché à Supabase.
