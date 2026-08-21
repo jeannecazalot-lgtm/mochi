@@ -6,7 +6,6 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { Card, Avatar, Micro } from '../src/components/ui';
-import { Animated, FadeIn, SlideInDown } from '../src/components/motion';
 import { SheetHandle, ReplyChip, Chevron, social } from '../src/components/social/extra';
 import { occurrences, taskById, byId, partner, me } from '../src/demo';
 import { pingOptions } from '../src/demo-social';
@@ -37,14 +36,10 @@ export default function Ping() {
     .map(k => ({ key: k, emoji: k === 'reminder' ? '🌷' : k === 'turn' ? (task?.emoji || '🍽') : k === 'deadline' ? '⏰' : '🤝', label: fill(t.options[k].label, { time }), sub: t.options[k].sub }));
 
   return (
-    <View style={{ flex: 1 }}>
-      <Animated.View entering={FadeIn.duration(motion.micro)} style={[StyleSheet.absoluteFill, { backgroundColor: social.scrim }]}>
-        <Pressable style={{ flex: 1 }} onPress={close} accessibilityLabel={copy.common.cancel} />
-      </Animated.View>
-
+    <View style={{ backgroundColor: colors.card }}>
       {task ? (
-        <Animated.View entering={FadeIn.duration(motion.micro)} pointerEvents="none" style={[s.raised, { top: insets.top + 150 }]}>
-          <Card r={radius.card} padding={0} style={[social.raisedShadow, { transform: [{ scale: 1.02 }] }]}>
+        <View style={{ paddingHorizontal: space.screenX, paddingTop: 14 }}>
+          <Card r={radius.card} padding={0}>
             <View style={s.raisedRow}>
               <Text style={{ fontSize: 19 }}>{task.emoji}</Text>
               <View style={{ flex: 1 }}>
@@ -54,10 +49,10 @@ export default function Ping() {
               <Avatar initial={who.initial} color={who.color} size={26} />
             </View>
           </Card>
-        </Animated.View>
+        </View>
       ) : null}
 
-      <Animated.View entering={SlideInDown.duration(motion.screen)} style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 31) }]}>
+      <View style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 31) }]}>
         <SheetHandle />
         <View style={s.titleRow}>
           <Micro style={{ flex: 1 }}>{fill(t.sheetTitle, { name: who.id === me.id ? copy.common.partner : who.first_name })}</Micro>
@@ -77,7 +72,7 @@ export default function Ping() {
             </Card>
           </Pressable>
         ))}
-      </Animated.View>
+      </View>
     </View>
   );
 }
@@ -87,7 +82,7 @@ const s = StyleSheet.create({
   raisedRow: { flexDirection: 'row', alignItems: 'center', gap: 13, paddingVertical: 13, paddingHorizontal: 16 },
   raisedTitle: { fontSize: 16, fontWeight: '600', color: colors.ink },
   raisedSub: { fontSize: 12, fontWeight: '400', color: colors.muted, marginTop: 3 },
-  sheet: { position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: colors.bg, borderTopLeftRadius: radius.sheet, borderTopRightRadius: radius.sheet, borderTopWidth: 1, borderTopColor: colors.sheetLine, paddingTop: 10, paddingHorizontal: space.screenX },
+  sheet: { backgroundColor: colors.card, paddingTop: 10, paddingHorizontal: space.screenX },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 11 },
   optRow: { flexDirection: 'row', alignItems: 'center', gap: 13, paddingVertical: 13, paddingHorizontal: 14 },
   optLabel: { fontSize: 15.5, fontWeight: '600', color: colors.ink },

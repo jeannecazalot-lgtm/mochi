@@ -86,3 +86,18 @@ function Particle({ i, palette, size, duration }) {
   const st = useAnimatedStyle(() => ({ opacity: 1 - p.value, transform: [{ translateY: p.value * 520 }, { translateX: p.value * drift }, { rotate: `${p.value * 540}deg` }] }));
   return <Animated.View style={[{ position: 'absolute', top: -10, left: `${x0}%`, width: size, height: size * 1.6, borderRadius: 2, backgroundColor: palette[i % palette.length] }, st]} />;
 }
+
+// 6bis · sheet modale (routes transparentModal) : scrim 0→1 (200 ms) + feuille qui monte (spring).
+// Les animations `entering` de reanimated ne se déclenchent pas de façon fiable sur un écran
+// présenté en modale transparente : on anime explicitement au montage.
+export function useSheetIn({ travel = 420 } = {}) {
+  const scrim = useSharedValue(0);
+  const y = useSharedValue(reduceMotion ? 0 : travel);
+  useEffect(() => {
+    scrim.value = withTiming(1, { duration: motion.micro });
+    y.value = withSpring(0, { damping: 18, stiffness: 180, mass: 0.9 });
+  }, []);
+  const scrimStyle = useAnimatedStyle(() => ({ opacity: scrim.value }));
+  const sheetStyle = useAnimatedStyle(() => ({ transform: [{ translateY: y.value }] }));
+  return { scrimStyle, sheetStyle };
+}

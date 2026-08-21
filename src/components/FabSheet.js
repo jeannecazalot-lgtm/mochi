@@ -5,7 +5,7 @@
 //   <FabSheet open={fab.open} onClose={fab.hide} />   (en frère de <Tabs>, dans un fragment)
 import React, { useState, useEffect } from 'react';
 import { router } from 'expo-router';
-import { View, Text, Pressable, Modal, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSharedValue, useAnimatedStyle, withTiming, withSpring, runOnJS } from 'react-native-reanimated';
@@ -43,17 +43,20 @@ export default function FabSheet({ open, onClose }) {
       y.value = withSpring(0, { duration: motion.screen, dampingRatio: 0.8 });
     } else {
       scrim.value = withTiming(0, { duration: motion.micro });
-      y.value = withTiming(SHEET_TRAVEL, { duration: motion.micro }, f => { if (f) runOnJS(setMounted)(false); });
+      y.value = withTiming(SHEET_TRAVEL, { duration: motion.micro });
+      const id = setTimeout(() => setMounted(false), motion.micro + 40); // démontage par timer JS : fiable même si l'animation est interrompue
+      return () => clearTimeout(id);
     }
   }, [open]);
 
   const scrimStyle = useAnimatedStyle(() => ({ opacity: scrim.value }));
   const sheetStyle = useAnimatedStyle(() => ({ transform: [{ translateY: y.value }] }));
-  const go = route => { onClose(); router.push(route); };
+  // ferme d'abord, pousse ensuite (sinon la route s'ouvre pendant la fermeture du sheet)
+  const go = route => { onClose(); setTimeout(() => router.push(route), motion.micro); };
 
   if (!mounted) return null;
   return (
-    <Modal transparent visible statusBarTranslucent animationType="none" onRequestClose={onClose}>
+    <View pointerEvents={open ? 'auto' : 'none'} style={[StyleSheet.absoluteFill, { zIndex: 50, elevation: 50 }]}>
       <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: alpha(colors.ink, 0.35) }, scrimStyle]}>
         <Pressable style={StyleSheet.absoluteFill} onPress={onClose} accessibilityLabel={t.closeA11y} />
       </Animated.View>
@@ -84,7 +87,7 @@ export default function FabSheet({ open, onClose }) {
           </LinearGradient>
         </Animated.View>
       </Pressable>
-    </Modal>
+    </View>
   );
 }
 

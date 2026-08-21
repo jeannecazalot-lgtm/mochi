@@ -5,10 +5,12 @@ import React from 'react';
 import { Stack } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
-import { colors, motion } from '../src/theme';
+import { colors, motion, radius } from '../src/theme';
 
 const base = { headerShown: false, contentStyle: { backgroundColor: colors.bg }, animationDuration: motion.screen };
-const sheet = { presentation: 'transparentModal', animation: 'fade', contentStyle: { backgroundColor: 'transparent' } };
+// sheets natives iOS (formSheet) : fond assombri, coins 26, montée native, touches garanties
+const sheet = { presentation: 'formSheet', sheetAllowedDetents: 'fitToContents', sheetCornerRadius: radius.sheet, sheetGrabberVisible: false, contentStyle: { backgroundColor: colors.card } };
+const tallSheet = { ...sheet, sheetAllowedDetents: [0.92] };
 const full = { presentation: 'fullScreenModal', animation: 'fade' };
 
 export default function RootLayout() {
@@ -21,8 +23,8 @@ export default function RootLayout() {
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="onboarding/index" options={{ animation: 'fade' }} />
         <Stack.Screen name="ping" options={sheet} />
-        <Stack.Screen name="event" options={sheet} />
-        <Stack.Screen name="depense" options={sheet} />
+        <Stack.Screen name="event" options={tallSheet} />
+        <Stack.Screen name="depense" options={tallSheet} />
         <Stack.Screen name="mood" options={sheet} />
         <Stack.Screen name="wrapped" options={full} />
         <Stack.Screen name="celebration" options={full} />

@@ -28,15 +28,12 @@ export const cream = (a) => `rgba(255,252,245,${a})`;
 export const sageA = (a) => `rgba(159,201,168,${a})`;
 
 // ─── sheet modale : scrim (tap = back) + sheet bas radius 26, séparation 0 -1 encre 8 % ─
-export function ModalSheet({ children, maxHeight = '82%', onClose = () => router.back() }) {
+// Présentée en formSheet natif par app/_layout.js : pas de scrim ni d'animation maison.
+export function ModalSheet({ children }) {
   return (
-    <View style={{ flex: 1, justifyContent: 'flex-end' }}>
-      <Pressable onPress={onClose} style={[StyleSheet.absoluteFill, { backgroundColor: extraColors.scrim }]} />
-      <View style={[x.sheet, { maxHeight }]}>
-        <View style={x.sheetLine} />
-        <View style={x.grabber} />
-        {children}
-      </View>
+    <View style={[x.sheet, { flex: 1 }]}>
+      <View style={x.grabber} />
+      {children}
     </View>
   );
 }

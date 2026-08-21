@@ -5,7 +5,7 @@ import { router } from 'expo-router';
 import { View, Text, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ScreenTitle, Micro, Card, Avatar, CTAPrimary, Footer } from '../src/components/ui';
-import { Animated, FadeIn, SlideInDown } from '../src/components/motion';
+
 import { Icon, ICON, Chip, RoundButton, SheetHandle } from '../src/components/core/extra';
 import { me, members } from '../src/demo';
 import { expenseCategories } from '../src/demo-core';
@@ -29,12 +29,8 @@ export default function Depense() {
 
   return (
     <View style={{ flex: 1 }}>
-      <Animated.View entering={FadeIn.duration(motion.micro)} style={[StyleSheet.absoluteFill, { backgroundColor: alpha(colors.ink, 0.35) }]}>
-        <Pressable style={StyleSheet.absoluteFill} onPress={() => router.back()} accessibilityLabel={copy.common.cancel} />
-      </Animated.View>
-
-      <KeyboardAvoidingView style={{ flex: 1, justifyContent: 'flex-end' }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <Animated.View entering={SlideInDown.duration(motion.screen)} style={[s.sheet, { maxHeight: '92%', marginTop: insets.top + 24 }]}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <View style={[s.sheet, { flex: 1 }]}>
           <SheetHandle />
           <View style={s.header}>
             <ScreenTitle style={{ letterSpacing: -1.1 }}>{t.title}</ScreenTitle>
@@ -45,7 +41,7 @@ export default function Depense() {
             <Micro style={s.label}>{t.titleLabel}</Micro>
             <Card padding={0}>
               <TextInput value={title} onChangeText={setTitle} placeholder={t.titlePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)}
-                autoFocus autoCapitalize="sentences" returnKeyType="next" cursorColor={colors.coral} selectionColor={colors.coral} style={s.input} />
+                autoCapitalize="sentences" returnKeyType="next" cursorColor={colors.coral} selectionColor={colors.coral} style={s.input} />
             </Card>
 
             <Micro style={s.label}>{t.amountLabel}</Micro>
@@ -85,14 +81,14 @@ export default function Depense() {
           </ScrollView>
 
           <Footer bottom={Math.max(insets.bottom, space.footerBottom)}><CTAPrimary label={t.cta} disabled={!valid} onPress={submit} /></Footer>
-        </Animated.View>
+        </View>
       </KeyboardAvoidingView>
     </View>
   );
 }
 
 const s = StyleSheet.create({
-  sheet: { backgroundColor: colors.card, borderTopLeftRadius: radius.sheet, borderTopRightRadius: radius.sheet, borderTopWidth: 1, borderTopColor: colors.sheetLine, paddingTop: 10, overflow: 'hidden' },
+  sheet: { backgroundColor: colors.card, paddingTop: 10 },
   header: { paddingHorizontal: space.headerX, paddingBottom: 4, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   label: { marginTop: 18, marginBottom: 9 },
   input: { paddingVertical: 15, paddingHorizontal: 18, fontSize: 17, fontWeight: '600', color: colors.ink },
