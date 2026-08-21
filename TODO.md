@@ -17,7 +17,7 @@ Numéros d'écran = numéros d'artboard du canvas. Les écrans « v2 » du canva
 - [ ] Supabase : créer le projet, me donner URL + clé publishable dans `.env` (jamais dans le chat).
 - [ ] Valider le modèle de données (`docs/MODELE_DONNEES.md`) + répondre aux 5 questions.
 - [x] EAS : connectée (jeannegourmande), projet lié `@jeannegourmande/mochi` — 21 août 2026
-- [ ] Apple : confirmer le bundle id ; création de l'app ASC et build 1 TestFlight ensuite.
+- [ ] Apple : confirmer le bundle id `io.langora.mochi` (avant le premier build production).
 
 ## Backlog priorisé (un item = un écran, validation explicite de Jeanne à chaque fois)
 ### P0 — chaîne technique
@@ -26,14 +26,14 @@ Numéros d'écran = numéros d'artboard du canvas. Les écrans « v2 » du canva
 - [x] 3. Squelette câblé : theme.js, ui.js, copy.json, purchases.js, supabase.js/auth.js, eas.json, legal/ — 21 août 2026
 - [ ] 4. Migration appliquée sur le projet Supabase validé
 - [x] 5a. Build dev simulateur EAS validé à l'écran (glow, tab bar, FAB, 4 onglets) — 21 août 2026
-- [ ] 5b. App ASC + build 1 TestFlight : `npx eas-cli build --platform ios --profile production` en interactif (Apple ID + 2FA, par Jeanne)
+- [ ] 5b. App ASC + build 1 TestFlight — **reporté après l'audit visuel #1** (décision Jeanne, 21 août 2026) : `npx eas-cli build --platform ios --profile production` en interactif (Apple ID + 2FA)
 
 ### P1 — entrée dans l'app (setup)
 - [ ] Connexion (Apple + e-mail) — pas d'artboard, style écran 06
 - [ ] 06 · Setup A — Identité (prénom + photo)
 - [ ] 07 · Setup B — Dispos & énergie (tap-cycle + slider temps/sem)
 - [ ] 08 · Setup C — Préférences (aimées/détestées → pénibilité perso, heure de rappel → permission notifs)
-- [ ] → audit cohérence visuelle #1 (titres, marges, boutons)
+- [ ] → audit cohérence visuelle #1 (titres, marges, boutons) · puis TestFlight (5b)
 - [ ] 09 · Inviter son binôme (lien + QR, code 7 j)
 - [ ] 09b · Duo formé
 - [ ] 10 · Choisir les tâches (catalogue ~50 tâches en JSON + custom)
