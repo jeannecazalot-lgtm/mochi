@@ -26,7 +26,8 @@ export async function saveIdentity({ firstName, photoUri }) {
   const session = await ensureSession();
   const userId = session.user.id;
   const avatar_url = photoUri && !photoUri.startsWith('http') ? await uploadAvatar(userId, photoUri) : photoUri || null;
-  const { error } = await supabase.from('profiles').upsert({ id: userId, first_name: firstName.trim(), avatar_url });
+  // update (pas upsert) : la ligne existe déjà, créée par le trigger à l'inscription ; la RLS n'autorise que la modif de son propre profil
+  const { error } = await supabase.from('profiles').update({ first_name: firstName.trim(), avatar_url }).eq('id', userId);
   if (error) throw error;
   return { userId, avatar_url };
 }

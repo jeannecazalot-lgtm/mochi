@@ -1,15 +1,29 @@
-// Gate : session Supabase ? → onglets ; sinon → connexion.
-// Onboarding/setup viendront s'intercaler ici (écrans 01-13).
-import React from 'react';
+// Porte d'entrée. Parcours « anonyme d'abord » (décision du 21 août 2026) :
+//  · pas de session, ou profil sans prénom → setup (écran 06), la session
+//    anonyme est créée au moment d'enregistrer ;
+//  · profil complet → onglets. (Le foyer et l'onboarding viendront s'intercaler.)
+// L'écran de connexion (lien e-mail / Apple) sert à relier un compte, plus tard.
+import React, { useEffect, useState } from 'react';
 import { Redirect } from 'expo-router';
 import { View, ActivityIndicator } from 'react-native';
 import { useSession } from '../src/auth';
+import { loadProfile } from '../src/profile';
 import { SUPABASE_READY } from '../src/supabase';
 import { colors } from '../src/theme';
 
 export default function Index() {
   const session = useSession();
-  if (!SUPABASE_READY) return <Redirect href="/(setup)/identite" />; // sans .env : écran en cours de validation
-  if (session === undefined) return <View style={{ flex: 1, backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator /></View>;
-  return <Redirect href={session ? '/(tabs)' : '/(auth)/login'} />;
+  const [profile, setProfile] = useState(undefined);
+
+  useEffect(() => {
+    if (session === undefined) return;
+    if (!session) { setProfile(null); return; }
+    loadProfile().then(setProfile).catch(() => setProfile(null));
+  }, [session]);
+
+  if (!SUPABASE_READY) return <Redirect href="/(setup)/identite" />;
+  if (session === undefined || profile === undefined) {
+    return <View style={{ flex: 1, backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator /></View>;
+  }
+  return <Redirect href={profile?.first_name ? '/(tabs)' : '/(setup)/identite'} />;
 }
