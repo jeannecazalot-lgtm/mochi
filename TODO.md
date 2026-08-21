@@ -25,7 +25,8 @@ Numéros d'écran = numéros d'artboard du canvas. Les écrans « v2 » du canva
 - [x] 2. Proposition modèle de données (`supabase/migrations/0001_init.sql`) — 21 août 2026
 - [x] 3. Squelette câblé : theme.js, ui.js, copy.json, purchases.js, supabase.js/auth.js, eas.json, legal/ — 21 août 2026
 - [ ] 4. Migration appliquée sur le projet Supabase validé
-- [ ] 5. App ASC + build 1 TestFlight (chaîne Mac → EAS → Apple)
+- [x] 5a. Build dev simulateur EAS validé à l'écran (glow, tab bar, FAB, 4 onglets) — 21 août 2026
+- [ ] 5b. App ASC + build 1 TestFlight : `npx eas-cli build --platform ios --profile production` en interactif (Apple ID + 2FA, par Jeanne)
 
 ### P1 — entrée dans l'app (setup)
 - [ ] Connexion (Apple + e-mail) — pas d'artboard, style écran 06
