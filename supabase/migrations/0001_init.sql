@@ -29,7 +29,6 @@ create table profiles (
   avatar_url    text,                                        -- Storage bucket « avatars »
   reminder_time time,                                        -- heure de rappel perso (écran 08)
   cross_reminder_optin boolean not null default false,       -- rappel croisé (écran 38)
-  premium_until timestamptz,                                 -- miroir RevenueCat (gating Duo+)
   created_at    timestamptz not null default now(),
   updated_at    timestamptz not null default now()
 );
@@ -41,6 +40,9 @@ create table households (
   created_by      uuid not null references profiles(id),
   review_weekday  smallint not null default 0 check (review_weekday between 0 and 6), -- 0 = dimanche
   review_time     time not null default '20:00',
+  currency        text not null default 'USD',               -- modifiable par le foyer (écran 38)
+  premium_until   timestamptz,                               -- Duo+ : un seul paie, tout le foyer en profite
+  premium_by      uuid references profiles(id),
   created_at      timestamptz not null default now(),
   updated_at      timestamptz not null default now(),
   deleted_at      timestamptz
@@ -49,14 +51,23 @@ create table households (
 create table household_members (
   household_id    uuid not null references households(id) on delete cascade,
   user_id         uuid not null references profiles(id) on delete cascade,
-  slot            member_slot not null,                      -- couleur auto : a = sky, b = lavender
+  slot            smallint not null check (slot between 1 and 10), -- couleur auto par ordre d'arrivée (1 sky, 2 lavender, 3 sage…)
   availability    jsonb not null default '{}',               -- {"mon":[0,1,2,...]} tap-cycle 0/1/2 par créneau (écran 07)
   weekly_minutes  int not null default 300,                  -- slider temps/semaine (écran 07)
   joined_at       timestamptz not null default now(),
   updated_at      timestamptz not null default now(),
   primary key (household_id, user_id),
-  unique (household_id, slot)                                -- max 2 membres, garanti par l'enum
+  unique (household_id, slot)
 );
+-- 2 à 10 membres : le max est garanti ici, le min (2) est une règle d'app (l'app attend le 2e membre)
+create or replace function check_household_size() returns trigger language plpgsql as $$
+begin
+  if (select count(*) from household_members where household_id = new.household_id) >= 10 then
+    raise exception 'household_full';
+  end if;
+  return new;
+end $$;
+create trigger household_size before insert on household_members for each row execute function check_household_size();
 
 -- ─── invitations (écran 09 / 09b) ───────────────────────────────────
 create table invitations (
@@ -176,7 +187,7 @@ create table weekly_reviews (
   id            uuid primary key,
   household_id  uuid not null references households(id) on delete cascade,
   week_start    date not null,
-  debtor_id     uuid references profiles(id),                -- celui qui doit le geste (null = égalité)
+  debtor_id     uuid references profiles(id),                -- celui qui a le plus de malus (null = égalité)
   gesture       text,                                        -- geste symbolique choisi (exemple suggéré ou saisi)
   settled_by    uuid references profiles(id),
   settled_at    timestamptz,
@@ -193,7 +204,7 @@ create table expenses (
   title         text not null,
   emoji         text,
   amount_cents  int not null check (amount_cents > 0),
-  currency      text not null default 'EUR',
+  currency      text not null,                               -- copiée du foyer au moment de la saisie
   paid_by       uuid not null references profiles(id),
   split_mode    text not null default 'equal' check (split_mode in ('equal','payer_only','custom')),
   split         jsonb,                                       -- custom : {"<user_id>": cents}
@@ -332,12 +343,13 @@ create policy "invit : création par membre" on invitations for insert with chec
 -- acceptation par code : RPC security definer (l'invité n'est pas encore membre)
 create or replace function accept_invitation(p_code text) returns uuid
 language plpgsql security definer set search_path = public as $$
-declare inv invitations; free_slot member_slot;
+declare inv invitations; free_slot smallint;
 begin
   select * into inv from invitations where code = upper(p_code) and accepted_at is null and expires_at > now();
   if inv.id is null then raise exception 'invitation_invalid'; end if;
-  if (select count(*) from household_members where household_id = inv.household_id) >= 2 then raise exception 'household_full'; end if;
-  select case when exists (select 1 from household_members where household_id = inv.household_id and slot = 'a') then 'b' else 'a' end into free_slot;
+  if (select count(*) from household_members where household_id = inv.household_id) >= 10 then raise exception 'household_full'; end if;
+  select min(s) into free_slot from generate_series(1,10) s
+    where not exists (select 1 from household_members where household_id = inv.household_id and slot = s);
   insert into household_members (household_id, user_id, slot) values (inv.household_id, auth.uid(), free_slot)
     on conflict do nothing;
   update invitations set accepted_by = auth.uid(), accepted_at = now() where id = inv.id;

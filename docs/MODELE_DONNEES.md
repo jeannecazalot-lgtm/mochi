@@ -3,8 +3,10 @@
 SQL complet : `supabase/migrations/0001_init.sql`. Rien n'est appliqué tant que tu n'as pas dit OK.
 
 ## Principes
-1. **Un foyer (`households`) = l'unité de partage.** Solo = foyer à 1 membre ; couple = 2 membres max
-   (slot `a` → sky, slot `b` → lavender, attribués automatiquement à l'arrivée, jamais choisis).
+1. **Un foyer (`households`) = l'unité de partage.** De **2 à 10 membres** (couple, famille, coloc).
+   Chaque membre reçoit un `slot` 1→10 par ordre d'arrivée, qui fixe sa couleur (1 sky, 2 lavender,
+   3 sage, 4 coral, 5 butter… palette de 10 dans `theme.js`), jamais choisie. Le max 10 est garanti en
+   base ; le min 2 est une règle d'app : tant que le 2e membre n'a pas accepté, on reste sur l'écran 09.
 2. **Tout est relié au foyer** (`household_id`) et la RLS dit : *membre du foyer ⇒ lecture/écriture de
    tout ce qui est dans le foyer*, rien d'autre. Le profil d'une personne n'est visible que d'elle et
    de son binôme.
@@ -19,8 +21,8 @@ SQL complet : `supabase/migrations/0001_init.sql`. Rien n'est appliqué tant que
 ## Tables (15)
 | Table | Rôle | Écrans |
 |---|---|---|
-| `profiles` | prénom, photo, heure de rappel, rappel croisé opt-in, miroir premium | 06, 08, 38 |
-| `households` | le foyer, jour/heure du point hebdo | 09, 38 |
+| `profiles` | prénom, photo, heure de rappel, rappel croisé opt-in | 06, 08, 38 |
+| `households` | le foyer, jour/heure du point hebdo, **devise** (défaut USD, modifiable), **Duo+ du foyer** (un seul paie) | 09, 37, 38 |
 | `household_members` | qui est dans le foyer, slot couleur, dispos (tap-cycle), temps/semaine | 07, 09b |
 | `invitations` | code 6 caractères (lien + QR), expire 7 j, acceptation via RPC `accept_invitation` | 09 |
 | `tasks` | fiche tâche : fréquence, durée, importance, mental, mode d'assignation, divisible, fenêtre, dépense associée, note, checklist | 10, 14, 15 |
@@ -37,6 +39,7 @@ SQL complet : `supabase/migrations/0001_init.sql`. Rien n'est appliqué tant que
 
 ## Ce qui est dérivé (pas de table)
 - **Balance** (score = Σ durée × (1 + pénibilité × 0,15), ×1,5 si mental), seuils 10 % / 25 %.
+  À N membres : part de chacun comparée à la part idéale 1/N (à 2, ça redonne le 50/50 du design).
 - **Streak** : jours consécutifs où toutes les occurrences dues des deux sont `done`.
 - **Dispatch Mochi** : calcul côté app à partir de `tasks` + `task_pains` + `household_members.availability`,
   résultat écrit dans `occurrences.assignee_id`.
@@ -49,13 +52,14 @@ SQL complet : `supabase/migrations/0001_init.sql`. Rien n'est appliqué tant que
 - Photos de profil : bucket Storage `avatars`, chacun écrit uniquement dans son dossier `uid/`.
 - Realtime activé sur les tables vivantes (tâches, occurrences, activité, dépenses…).
 
-## Questions ouvertes (réponds par numéro)
-1. **Duo+ : par personne ou par foyer ?** Proposé : si l'un des deux paie, le foyer est Duo+
-   (`profiles.premium_until` + vérif côté app sur les deux membres). Sinon : gating individuel.
-2. **Solo** : autorisé durablement (foyer à 1) ou seulement en attendant l'invitation ? Proposé :
-   durable, l'app marche à 1, la balance s'affiche « en attente de ton binôme ».
-3. **Multi-foyers** (Duo+ dans SPECS §9) : je le laisse possible en base (un user ↔ N foyers) mais
-   l'app v1 n'en gère qu'un. OK ?
-4. **Devise** : EUR par défaut, stockée par dépense. OK ?
-5. **Occurrences générées à l'avance** : je propose 14 jours glissants, générés côté app à
-   l'ouverture (pas de cron serveur — pas de serveur custom). OK ?
+## Réponses de Jeanne (21 août 2026)
+1. Duo+ : **un seul paie, tout le foyer en profite** → `households.premium_until` / `premium_by`.
+2. **Minimum 2 membres**, maximum 10 (pas de mode solo).
+3. Multi-foyers : en attente (explication redonnée).
+4. Devise : **USD par défaut, modifiable par foyer** (`households.currency`), copiée dans chaque dépense.
+5. Occurrences à l'avance : en attente (14 ou 30 jours).
+
+## Impact « jusqu'à 10 » sur le design (à trancher écran par écran)
+Le canvas est dessiné pour 2 (« Côté Jeanne », balance à 2 plateaux, wrapped couple, point hebdo à deux).
+À 3+ il faudra décider : liste « côté des autres », balance en barres par personne, geste du point hebdo
+pour celui qui a le plus de malus. Je le signalerai à chaque écran concerné.
