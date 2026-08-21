@@ -51,11 +51,20 @@ export const gradients = {
   iridescent: { colors: ['#FBE49A', '#F5A89A', '#E2D6F0', '#C9DFEA'], locations: [0, 0.4, 0.75, 1], start: { x: 0, y: 0 }, end: { x: 1, y: 1 } },
 };
 
-// personne A = sky, personne B = lavender (slots auto, jamais choisis)
-export const slotColors = {
-  a: { main: colors.sky, deep: colors.skyDeep },
-  b: { main: colors.lavender, deep: colors.lavenderDeep },
-};
+// couleur par slot d'arrivée (1→10), jamais choisie : 1 sky, 2 lavender (= le design à 2), puis la palette
+export const slotColors = [
+  null,
+  { main: colors.sky, deep: colors.skyDeep },
+  { main: colors.lavender, deep: colors.lavenderDeep },
+  { main: colors.sage, deep: colors.sageDeep },
+  { main: colors.coral, deep: colors.coralDeep },
+  { main: colors.butter, deep: '#B98A2E' },
+  { main: '#E8A5C4', deep: '#B5587F' },   // rose
+  { main: '#F2B08A', deep: '#B9652F' },   // pêche
+  { main: '#8FCFD0', deep: '#3F8A8C' },   // menthe
+  { main: '#C9B38A', deep: '#7F6A3E' },   // sable
+  { main: '#A9B7D9', deep: '#5A6BA0' },   // pervenche
+];
 
 // alpha 16 % pour les PillLabel (« couleur28 » en hex)
 export const alpha = (hex, a) => {
