@@ -2,7 +2,7 @@
 // scrim + sheet qui monte, fermeture router.back(). Recette : docs/recettes/30b-depense.md
 import React, { useState } from 'react';
 import { router } from 'expo-router';
-import { View, Text, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Pressable, ScrollView, Platform, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ScreenTitle, Micro, Card, Avatar, CTAPrimary, Footer } from '../src/components/ui';
 
@@ -29,15 +29,13 @@ export default function Depense() {
 
   return (
     <View style={{ flex: 1 }}>
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View style={[s.sheet, { flex: 1 }]}>
           <SheetHandle />
-          <View style={s.header}>
-            <ScreenTitle style={{ letterSpacing: -1.1 }}>{t.title}</ScreenTitle>
-            <RoundButton size={32} onPress={() => router.back()} accessibilityLabel={copy.common.cancel}><Icon d={ICON.close} size={15} sw={2} /></RoundButton>
-          </View>
-
-          <ScrollView contentContainerStyle={{ paddingHorizontal: space.headerX, paddingBottom: 24 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+          <ScrollView contentInsetAdjustmentBehavior="never" automaticallyAdjustKeyboardInsets contentContainerStyle={{ paddingHorizontal: space.headerX, paddingBottom: 24 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+            <View style={s.header}>
+              <ScreenTitle style={{ letterSpacing: -1.1 }}>{t.title}</ScreenTitle>
+              <RoundButton size={32} onPress={() => router.back()} accessibilityLabel={copy.common.cancel}><Icon d={ICON.close} size={15} sw={2} /></RoundButton>
+            </View>
             <Micro style={s.label}>{t.titleLabel}</Micro>
             <Card padding={0}>
               <TextInput value={title} onChangeText={setTitle} placeholder={t.titlePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)}
@@ -82,14 +80,13 @@ export default function Depense() {
 
           <Footer bottom={Math.max(insets.bottom, space.footerBottom)}><CTAPrimary label={t.cta} disabled={!valid} onPress={submit} /></Footer>
         </View>
-      </KeyboardAvoidingView>
     </View>
   );
 }
 
 const s = StyleSheet.create({
   sheet: { backgroundColor: colors.card, paddingTop: 10 },
-  header: { paddingHorizontal: space.headerX, paddingBottom: 4, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  header: { paddingTop: 6, paddingBottom: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   label: { marginTop: 18, marginBottom: 9 },
   input: { paddingVertical: 15, paddingHorizontal: 18, fontSize: 17, fontWeight: '600', color: colors.ink },
   amount: { flex: 1, paddingHorizontal: 0, fontSize: 24, fontWeight: '700', letterSpacing: -1.2, fontVariant: ['tabular-nums'] },

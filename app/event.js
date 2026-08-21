@@ -1,7 +1,7 @@
 // Écran 30 · Événement social (modal sheet). Recette : docs/recettes/30-event.md
 import React, { useState } from 'react';
 import { router } from 'expo-router';
-import { View, Text, TextInput, Pressable, ScrollView, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, Pressable, ScrollView, StyleSheet, Platform } from 'react-native';
 import { PillLabel, Divider, Avatar } from '../src/components/ui';
 import { ModalSheet, SectionLabel, EmbossedCard, CtaModal, extraColors } from '../src/components/modaux/extra';
 import { me, partner, byId, fmtMin, fmtMoney } from '../src/demo';
@@ -24,8 +24,7 @@ export default function Event() {
 
   return (
     <ModalSheet>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={s.body} showsVerticalScrollIndicator={false}>
+        <ScrollView contentInsetAdjustmentBehavior="never" automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled" contentContainerStyle={s.body} showsVerticalScrollIndicator={false}>
           <View style={s.eyebrow}>
             <PillLabel color={colors.lavender}>{t.eyebrow}</PillLabel>
             <Pressable onPress={() => router.back()} hitSlop={8}><Text style={s.cancel}>{copy.common.cancel}</Text></Pressable>
@@ -77,7 +76,6 @@ export default function Event() {
 
           <CtaModal label={t.cta} disabled={!title.trim()} onPress={() => router.back()} />
         </ScrollView>
-      </KeyboardAvoidingView>
     </ModalSheet>
   );
 }

@@ -1,7 +1,7 @@
 // Écran 33 · Mood check-in du dimanche soir (modal sheet). Recette : docs/recettes/33-mood.md
 import React, { useState } from 'react';
 import { router } from 'expo-router';
-import { View, Text, TextInput, Pressable, ScrollView, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, Pressable, ScrollView, StyleSheet, Platform } from 'react-native';
 import { PillLabel } from '../src/components/ui';
 import { ModalSheet, SectionLabel, CtaModal, Chip, extraColors } from '../src/components/modaux/extra';
 import { partner } from '../src/demo';
@@ -18,8 +18,7 @@ export default function Mood() {
 
   return (
     <ModalSheet>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={s.body} showsVerticalScrollIndicator={false}>
+        <ScrollView contentInsetAdjustmentBehavior="never" automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled" contentContainerStyle={s.body} showsVerticalScrollIndicator={false}>
           <View style={{ marginBottom: 6 }}><PillLabel color={colors.coral}>{t.eyebrow}</PillLabel></View>
           <Text style={[font.screenTitle, { lineHeight: 23 }]}>{t.title}</Text>
           <Text style={s.sub}>{t.sub.replace('{partner}', partner.first_name)}</Text>
@@ -48,7 +47,6 @@ export default function Mood() {
 
           <CtaModal label={t.cta} disabled={!level} onPress={() => router.back()} />
         </ScrollView>
-      </KeyboardAvoidingView>
     </ModalSheet>
   );
 }
