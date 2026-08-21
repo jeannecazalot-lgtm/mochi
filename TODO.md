@@ -13,9 +13,9 @@ Numéros d'écran = numéros d'artboard du canvas. Les écrans « v2 » du canva
 - **21 août 2026** — Entitlement RevenueCat : `duoplus`, packages `$rc_monthly` / `$rc_annual`.
 
 ## Bloquants (actions Jeanne)
-- [ ] GitHub : créer le repo privé `jeannecazalot-lgtm/mochi` puis pousser (commandes dans README.md).
+- [x] GitHub : repo privé `jeannecazalot-lgtm/mochi` en ligne, push OK — 21 août 2026
 - [ ] Supabase : créer le projet, me donner URL + clé publishable dans `.env` (jamais dans le chat).
-- [ ] Valider le modèle de données (`docs/MODELE_DONNEES.md`) + répondre aux 5 questions.
+- [x] Modèle de données validé (16 tables, foyers 2→10, un foyer/personne, Duo+ par foyer, USD, planning hebdo) — 21 août 2026
 - [x] EAS : connectée (jeannegourmande), projet lié `@jeannegourmande/mochi` — 21 août 2026
 - [ ] Apple : confirmer le bundle id `io.langora.mochi` (avant le premier build production).
 

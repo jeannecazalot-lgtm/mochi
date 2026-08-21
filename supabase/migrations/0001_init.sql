@@ -1,6 +1,5 @@
 -- ═══════════════════════════════════════════════════════════════════
--- mochi · schéma initial — PROPOSITION À VALIDER (21 août 2026)
--- Ne pas appliquer avant validation de Jeanne (docs/MODELE_DONNEES.md).
+-- mochi · schéma initial — VALIDÉ par Jeanne le 21 août 2026 (docs/MODELE_DONNEES.md)
 -- Conventions :
 --  · toutes les tables métier portent household_id → partage couple/foyer
 --  · id uuid généré CÔTÉ CLIENT (offline-first : on crée hors ligne, on

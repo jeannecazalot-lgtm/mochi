@@ -1,6 +1,6 @@
-# mochi — modèle de données Supabase (proposition du 21 août 2026, À VALIDER)
+# mochi — modèle de données Supabase (VALIDÉ par Jeanne le 21 août 2026)
 
-SQL complet : `supabase/migrations/0001_init.sql`. Rien n'est appliqué tant que tu n'as pas dit OK.
+SQL complet : `supabase/migrations/0001_init.sql`. Toute évolution passe par une nouvelle migration validée.
 
 ## Principes
 1. **Un foyer (`households`) = l'unité de partage.** De **2 à 10 membres** (couple, famille, coloc).
