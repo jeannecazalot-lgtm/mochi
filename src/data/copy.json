@@ -7,14 +7,16 @@
       "cancel": "Annuler",
       "save": "Enregistrer",
       "partner": "Comment on appelle l'autre AVANT qu'il ait accepté l'invitation (jamais un prénom)",
-      "mochi": "Nom de la mascotte"
+      "mochi": "Nom de la mascotte",
+      "saveError": "Message d'erreur générique quand l'enregistrement échoue (réseau)"
     },
     "continue": "Continuer",
     "back": "Retour",
     "cancel": "Annuler",
     "save": "Enregistrer",
     "partner": "ton binôme",
-    "mochi": "Mochi"
+    "mochi": "Mochi",
+    "saveError": "Impossible d'enregistrer pour l'instant. Réessaie dans un instant."
   },
   "auth": {
     "_labels": {

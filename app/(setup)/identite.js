@@ -1,17 +1,31 @@
 // Écran 06 · Setup A — Identité. Recette : docs/recettes/06-identite.md
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { router } from 'expo-router';
 import { View, Text, TextInput, Pressable, Image, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { GlowBg, SetupHeader, Card, Micro, CTAPrimary, Mochi } from '../../src/components/ui';
+import { saveIdentity, loadProfile } from '../../src/profile';
 import copy from '../../src/data/copy.json';
 import { colors, space, radius, alpha, font } from '../../src/theme';
 
 export default function Identite() {
   const [firstName, setFirstName] = useState('');
   const [photo, setPhoto] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
   const t = copy.setup;
+
+  // pré-remplit si on revient sur l'écran
+  useEffect(() => { loadProfile().then(p => { if (p) { setFirstName(p.first_name || ''); setPhoto(p.avatar_url || null); } }).catch(() => {}); }, []);
+
+  const onContinue = async () => {
+    setSaving(true); setError(null);
+    try { await saveIdentity({ firstName, photoUri: photo }); router.push('/(setup)/dispos'); }
+    catch (e) { setError(copy.common.saveError); }
+    finally { setSaving(false); }
+  };
 
   const pickPhoto = async () => {
     const r = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: true, aspect: [1, 1], quality: 0.8 });
@@ -60,7 +74,8 @@ export default function Identite() {
         <View pointerEvents="none" style={s.mochi}><Mochi size={88} mood="wink" /></View>
 
         <View style={s.ctaWrap}>
-          <CTAPrimary label={copy.common.continue} disabled={!firstName.trim()} onPress={() => {}} big />
+          {error ? <Text style={[font.caption, { color: colors.coralDeep, textAlign: 'center', marginBottom: 8 }]}>{error}</Text> : null}
+          <CTAPrimary label={copy.common.continue} disabled={!firstName.trim() || saving} onPress={onContinue} big />
         </View>
       </SafeAreaView>
     </View>
