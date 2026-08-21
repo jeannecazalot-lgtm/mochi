@@ -9,7 +9,7 @@ import { colors } from '../src/theme';
 
 export default function Index() {
   const session = useSession();
-  if (!SUPABASE_READY) return <Redirect href="/(tabs)" />; // squelette sans .env : on montre les onglets
+  if (!SUPABASE_READY) return <Redirect href="/(setup)/identite" />; // sans .env : écran en cours de validation
   if (session === undefined) return <View style={{ flex: 1, backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator /></View>;
   return <Redirect href={session ? '/(tabs)' : '/(auth)/login'} />;
 }

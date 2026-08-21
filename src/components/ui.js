@@ -54,11 +54,11 @@ export function PillLabel({ children, color = colors.ink, tint }) {
 }
 
 // ─── CTA primaire : gradient Mochi, radius 14 ───────────────────────
-export function CTAPrimary({ label, onPress, disabled, style }) {
+export function CTAPrimary({ label, onPress, disabled, style, big }) {
   return (
     <Pressable onPress={onPress} disabled={disabled} style={({ pressed }) => [{ opacity: disabled ? 0.5 : pressed ? 0.85 : 1 }, style]}>
-      <LinearGradient {...gradients.mochi} style={[s.cta, shadows.cta]}>
-        <Text style={font.cta}>{label}</Text>
+      <LinearGradient {...gradients.mochi} style={[s.cta, shadows.cta, big && { paddingVertical: 17 }]}>
+        <Text style={[font.cta, big && { fontSize: 16 }]}>{label}</Text>
       </LinearGradient>
     </Pressable>
   );
@@ -143,3 +143,20 @@ const s = StyleSheet.create({
   cta: { borderRadius: radius.row, paddingVertical: 15, alignItems: 'center', justifyContent: 'center' },
   footer: { backgroundColor: colors.white, borderTopWidth: 1, borderTopColor: colors.footerLine, paddingTop: space.footerTop, paddingHorizontal: space.screenX },
 });
+
+// ─── en-tête des écrans Setup (06-08) : points d'étape + titre + sous-titre ─
+export function SetupHeader({ step, total = 3, title, sub }) {
+  return (
+    <View>
+      <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 5, paddingTop: 14 }}>
+        {Array.from({ length: total }, (_, i) => i + 1).map(i => (
+          <View key={i} style={{ width: i === step ? 18 : 6, height: 6, borderRadius: radius.pill, backgroundColor: i <= step ? colors.ink : alpha(colors.ink, 0.15) }} />
+        ))}
+      </View>
+      <View style={{ paddingHorizontal: space.headerX, paddingTop: 14 }}>
+        <Text style={[font.screenTitle, { letterSpacing: -1.1, lineHeight: 23 }]}>{title}</Text>
+        <Text style={[font.secondary, { fontSize: 14, marginTop: 6, lineHeight: 20 }]}>{sub}</Text>
+      </View>
+    </View>
+  );
+}

@@ -1,7 +1,14 @@
 {
   "_readme": "Tous les textes UI de mochi. Clés _labels = explication de chaque texte pour Jeanne. Les chiffres publics ne sont JAMAIS écrits ici, ils viennent de la base.",
   "common": {
-    "_labels": { "continue": "Bouton continuer", "back": "Bouton retour", "cancel": "Annuler", "save": "Enregistrer", "partner": "Comment on appelle l'autre AVANT qu'il ait accepté l'invitation (jamais un prénom)", "mochi": "Nom de la mascotte" },
+    "_labels": {
+      "continue": "Bouton continuer",
+      "back": "Bouton retour",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "partner": "Comment on appelle l'autre AVANT qu'il ait accepté l'invitation (jamais un prénom)",
+      "mochi": "Nom de la mascotte"
+    },
     "continue": "Continuer",
     "back": "Retour",
     "cancel": "Annuler",
@@ -10,7 +17,14 @@
     "mochi": "Mochi"
   },
   "auth": {
-    "_labels": { "title": "Titre écran connexion", "apple": "Bouton Apple", "email": "Bouton email", "emailPlaceholder": "Placeholder email", "sendLink": "Bouton envoi du lien magique", "linkSent": "Message après envoi" },
+    "_labels": {
+      "title": "Titre écran connexion",
+      "apple": "Bouton Apple",
+      "email": "Bouton email",
+      "emailPlaceholder": "Placeholder email",
+      "sendLink": "Bouton envoi du lien magique",
+      "linkSent": "Message après envoi"
+    },
     "title": "Bienvenue",
     "apple": "Continuer avec Apple",
     "email": "Continuer avec un e-mail",
@@ -19,35 +33,67 @@
     "linkSent": "Lien envoyé. Ouvre-le depuis ton téléphone."
   },
   "tabs": {
-    "_labels": { "home": "Onglet 1", "planning": "Onglet 2", "balance": "Onglet 4", "budget": "Onglet 5" },
+    "_labels": {
+      "home": "Onglet 1",
+      "planning": "Onglet 2",
+      "balance": "Onglet 4",
+      "budget": "Onglet 5"
+    },
     "home": "Accueil",
     "planning": "Planning",
     "balance": "Balance",
     "budget": "Budget"
   },
   "home": {
-    "_labels": { "todayTitle": "Titre du bloc missions du jour", "swipeHint": "Indice sous la liste", "sideOf": "Bloc côté binôme ({name} = prénom)", "streak": "Ligne streak ({n} jours, {badge} = prochain badge, {left} = jours restants)" },
+    "_labels": {
+      "todayTitle": "Titre du bloc missions du jour",
+      "swipeHint": "Indice sous la liste",
+      "sideOf": "Bloc côté binôme ({name} = prénom)",
+      "streak": "Ligne streak ({n} jours, {badge} = prochain badge, {left} = jours restants)"
+    },
     "todayTitle": "Aujourd'hui pour toi",
     "swipeHint": "Glisser une mission pour la repasser ou la reporter",
     "sideOf": "Côté {name}",
     "streak": "🔥 Streak : {n} jours · encore {left} jour pour « {badge} »"
   },
   "planning": {
-    "_labels": { "title": "Titre écran", "week": "Segment semaine", "month": "Segment mois (Duo+)", "dragHint": "Indice drag & drop" },
+    "_labels": {
+      "title": "Titre écran",
+      "week": "Segment semaine",
+      "month": "Segment mois (Duo+)",
+      "dragHint": "Indice drag & drop"
+    },
     "title": "Planning",
     "week": "Semaine",
     "month": "Mois",
     "dragHint": "Glisse une tâche sur l'avatar de l'autre pour la réattribuer"
   },
   "balance": {
-    "_labels": { "title": "Titre écran", "balanced": "État équilibré (<10 %)", "leaning": "État légèrement penché (10-25 %, {name})", "unbalanced": "État déséquilibré (>25 %, {name})" },
+    "_labels": {
+      "title": "Titre écran",
+      "balanced": "État équilibré (<10 %)",
+      "leaning": "État légèrement penché (10-25 %, {name})",
+      "unbalanced": "État déséquilibré (>25 %, {name})"
+    },
     "title": "Balance",
     "balanced": "Équilibré",
     "leaning": "Légèrement chez {name}",
     "unbalanced": "Ça penche chez {name}"
   },
   "budget": {
-    "_labels": { "title": "Titre écran", "subtitle": "Sous-titre ({month} = mois)", "balancePill": "Pill au-dessus du solde", "owes": "Phrase de solde ({name} doit {amount})", "settled": "Solde à zéro", "spent": "Total dépensé ({amount})", "settleBtn": "Bouton régler", "remindBtn": "Bouton rappeler", "recent": "Titre dernières dépenses", "viaTask": "Pill dépense venue d'une tâche", "hint": "Indice bas de liste" },
+    "_labels": {
+      "title": "Titre écran",
+      "subtitle": "Sous-titre ({month} = mois)",
+      "balancePill": "Pill au-dessus du solde",
+      "owes": "Phrase de solde ({name} doit {amount})",
+      "settled": "Solde à zéro",
+      "spent": "Total dépensé ({amount})",
+      "settleBtn": "Bouton régler",
+      "remindBtn": "Bouton rappeler",
+      "recent": "Titre dernières dépenses",
+      "viaTask": "Pill dépense venue d'une tâche",
+      "hint": "Indice bas de liste"
+    },
     "title": "Budget",
     "subtitle": "Dépenses partagées · {month}",
     "balancePill": "Solde",
@@ -61,7 +107,16 @@
     "hint": "Les tâches avec dépense arrivent ici toutes seules · le reste via le ➕"
   },
   "paywall": {
-    "_labels": { "title": "Titre paywall Duo+", "monthly": "Libellé abo mensuel ({price} = prix storefront RevenueCat)", "yearly": "Libellé abo annuel ({price})", "disclosure": "Divulgation complète AU-DESSUS du CTA ({name}, {price}, {period})", "cta": "Bouton d'achat", "restore": "Lien restaurer", "privacy": "Lien politique de confidentialité", "terms": "Lien conditions (EULA)" },
+    "_labels": {
+      "title": "Titre paywall Duo+",
+      "monthly": "Libellé abo mensuel ({price} = prix storefront RevenueCat)",
+      "yearly": "Libellé abo annuel ({price})",
+      "disclosure": "Divulgation complète AU-DESSUS du CTA ({name}, {price}, {period})",
+      "cta": "Bouton d'achat",
+      "restore": "Lien restaurer",
+      "privacy": "Lien politique de confidentialité",
+      "terms": "Lien conditions (EULA)"
+    },
     "title": "Duo+",
     "monthly": "{price} / mois",
     "yearly": "{price} / an",
@@ -72,12 +127,34 @@
     "terms": "Conditions d'utilisation"
   },
   "pings": {
-    "_labels": { "_": "Messages préformatés du fil Activité — zéro texte libre. Clé = preset_key en base." },
+    "_labels": {
+      "_": "Messages préformatés du fil Activité — zéro texte libre. Clé = preset_key en base."
+    },
     "reminder": "Petit rappel pour « {task} » 🙂",
     "thanks": "Merci pour « {task} » 🙏",
     "swap": "Tu peux reprendre « {task} » ?",
     "ok": "OK !",
     "later": "Plus tard",
     "done": "C'est fait ✓"
+  },
+  "setup": {
+    "_labels": {
+      "identityTitle": "Titre écran 06",
+      "identitySub": "Sous-titre écran 06",
+      "firstNameLabel": "Micro-label du champ prénom",
+      "firstNamePlaceholder": "Placeholder prénom",
+      "photoLabel": "Micro-label photo",
+      "photoAdd": "Titre de la rangée photo",
+      "photoHint": "Sous-texte de la rangée photo",
+      "photoChange": "Titre de la rangée quand une photo est choisie"
+    },
+    "identityTitle": "C'est toi.",
+    "identitySub": "Ton prénom et ta photo — on les retrouve partout : balance, planning, historique.",
+    "firstNameLabel": "Ton prénom",
+    "firstNamePlaceholder": "Ton prénom",
+    "photoLabel": "Ta photo",
+    "photoAdd": "Ajouter une photo",
+    "photoHint": "Ou continue sans — on affichera ton initiale.",
+    "photoChange": "Changer de photo"
   }
 }
