@@ -14,7 +14,7 @@ Numéros d'écran = numéros d'artboard du canvas. Les écrans « v2 » du canva
 
 ## Bloquants (actions Jeanne)
 - [x] GitHub : repo privé `jeannecazalot-lgtm/mochi` en ligne, push OK — 21 août 2026
-- [ ] Supabase : créer le projet, me donner URL + clé publishable dans `.env` (jamais dans le chat).
+- [ ] Supabase : créer le projet (région Europe), URL + clé publishable dans `.env` (jamais dans le chat). Puis câbler 06 → `profiles`.
 - [x] Modèle de données validé (16 tables, foyers 2→10, un foyer/personne, Duo+ par foyer, USD, planning hebdo) — 21 août 2026
 - [x] EAS : connectée (jeannegourmande), projet lié `@jeannegourmande/mochi` — 21 août 2026
 - [ ] Apple : confirmer le bundle id `io.langora.mochi` (avant le premier build production).
@@ -30,7 +30,7 @@ Numéros d'écran = numéros d'artboard du canvas. Les écrans « v2 » du canva
 
 ### P1 — entrée dans l'app (setup)
 - [ ] Connexion (Apple + e-mail) — pas d'artboard, style écran 06
-- [ ] 06 · Setup A — Identité (prénom + photo)
+- [ ] 06 · Setup A — Identité (prénom + photo) — codé le 21 août 2026, **en attente de validation Jeanne** (écarts signalés : CTA 16/600 posé sur le fond, comme l'artboard, vs README 14/600 en footer blanc)
 - [ ] 07 · Setup B — Dispos & énergie (tap-cycle + slider temps/sem)
 - [ ] 08 · Setup C — Préférences (aimées/détestées → pénibilité perso, heure de rappel → permission notifs)
 - [ ] → audit cohérence visuelle #1 (titres, marges, boutons) · puis TestFlight (5b)
