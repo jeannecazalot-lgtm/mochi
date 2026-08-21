@@ -39,3 +39,12 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# secrets — jamais commités
+.env
+.env.*
+!.env.example
+
+# EAS / Apple
+*.p8
+*.mobileprovision

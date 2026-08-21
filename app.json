@@ -3,22 +3,32 @@
     "name": "mochi",
     "slug": "mochi",
     "version": "1.0.0",
+    "scheme": "mochi",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": { "image": "./assets/splash-icon.png", "resizeMode": "contain", "backgroundColor": "#FAFAF7" },
     "ios": {
-      "supportsTablet": true
-    },
-    "android": {
-      "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+      "supportsTablet": false,
+      "bundleIdentifier": "io.langora.mochi",
+      "buildNumber": "1",
+      "usesAppleSignIn": true,
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "mochi utilise ta photothèque pour choisir ta photo de profil, visible par ton binôme.",
+        "NSUserNotificationsUsageDescription": "mochi t'envoie un rappel à l'heure que tu choisis pour tes tâches du jour.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    }
+    "android": { "package": "io.langora.mochi" },
+    "plugins": [
+      "expo-router",
+      "expo-dev-client",
+      "expo-apple-authentication",
+      "expo-secure-store",
+      ["expo-notifications", { "color": "#E97A6A" }],
+      ["expo-image-picker", { "photosPermission": "mochi utilise ta photothèque pour choisir ta photo de profil, visible par ton binôme." }]
+    ],
+    "experiments": { "typedRoutes": false }
   }
 }

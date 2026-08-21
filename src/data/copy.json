@@ -1,0 +1,83 @@
+{
+  "_readme": "Tous les textes UI de mochi. Clés _labels = explication de chaque texte pour Jeanne. Les chiffres publics ne sont JAMAIS écrits ici, ils viennent de la base.",
+  "common": {
+    "_labels": { "continue": "Bouton continuer", "back": "Bouton retour", "cancel": "Annuler", "save": "Enregistrer", "partner": "Comment on appelle l'autre AVANT qu'il ait accepté l'invitation (jamais un prénom)", "mochi": "Nom de la mascotte" },
+    "continue": "Continuer",
+    "back": "Retour",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "partner": "ton binôme",
+    "mochi": "Mochi"
+  },
+  "auth": {
+    "_labels": { "title": "Titre écran connexion", "apple": "Bouton Apple", "email": "Bouton email", "emailPlaceholder": "Placeholder email", "sendLink": "Bouton envoi du lien magique", "linkSent": "Message après envoi" },
+    "title": "Bienvenue",
+    "apple": "Continuer avec Apple",
+    "email": "Continuer avec un e-mail",
+    "emailPlaceholder": "ton@email.fr",
+    "sendLink": "Recevoir un lien de connexion",
+    "linkSent": "Lien envoyé. Ouvre-le depuis ton téléphone."
+  },
+  "tabs": {
+    "_labels": { "home": "Onglet 1", "planning": "Onglet 2", "balance": "Onglet 4", "budget": "Onglet 5" },
+    "home": "Accueil",
+    "planning": "Planning",
+    "balance": "Balance",
+    "budget": "Budget"
+  },
+  "home": {
+    "_labels": { "todayTitle": "Titre du bloc missions du jour", "swipeHint": "Indice sous la liste", "sideOf": "Bloc côté binôme ({name} = prénom)", "streak": "Ligne streak ({n} jours, {badge} = prochain badge, {left} = jours restants)" },
+    "todayTitle": "Aujourd'hui pour toi",
+    "swipeHint": "Glisser une mission pour la repasser ou la reporter",
+    "sideOf": "Côté {name}",
+    "streak": "🔥 Streak : {n} jours · encore {left} jour pour « {badge} »"
+  },
+  "planning": {
+    "_labels": { "title": "Titre écran", "week": "Segment semaine", "month": "Segment mois (Duo+)", "dragHint": "Indice drag & drop" },
+    "title": "Planning",
+    "week": "Semaine",
+    "month": "Mois",
+    "dragHint": "Glisse une tâche sur l'avatar de l'autre pour la réattribuer"
+  },
+  "balance": {
+    "_labels": { "title": "Titre écran", "balanced": "État équilibré (<10 %)", "leaning": "État légèrement penché (10-25 %, {name})", "unbalanced": "État déséquilibré (>25 %, {name})" },
+    "title": "Balance",
+    "balanced": "Équilibré",
+    "leaning": "Légèrement chez {name}",
+    "unbalanced": "Ça penche chez {name}"
+  },
+  "budget": {
+    "_labels": { "title": "Titre écran", "subtitle": "Sous-titre ({month} = mois)", "balancePill": "Pill au-dessus du solde", "owes": "Phrase de solde ({name} doit {amount})", "settled": "Solde à zéro", "spent": "Total dépensé ({amount})", "settleBtn": "Bouton régler", "remindBtn": "Bouton rappeler", "recent": "Titre dernières dépenses", "viaTask": "Pill dépense venue d'une tâche", "hint": "Indice bas de liste" },
+    "title": "Budget",
+    "subtitle": "Dépenses partagées · {month}",
+    "balancePill": "Solde",
+    "owes": "{name} te doit {amount}",
+    "settled": "Vous êtes à zéro",
+    "spent": "{amount} dépensés à deux ce mois",
+    "settleBtn": "On est à zéro",
+    "remindBtn": "Rappeler",
+    "recent": "Dernières dépenses",
+    "viaTask": "via tâche",
+    "hint": "Les tâches avec dépense arrivent ici toutes seules · le reste via le ➕"
+  },
+  "paywall": {
+    "_labels": { "title": "Titre paywall Duo+", "monthly": "Libellé abo mensuel ({price} = prix storefront RevenueCat)", "yearly": "Libellé abo annuel ({price})", "disclosure": "Divulgation complète AU-DESSUS du CTA ({name}, {price}, {period})", "cta": "Bouton d'achat", "restore": "Lien restaurer", "privacy": "Lien politique de confidentialité", "terms": "Lien conditions (EULA)" },
+    "title": "Duo+",
+    "monthly": "{price} / mois",
+    "yearly": "{price} / an",
+    "disclosure": "Abonnement {name}, {price} par {period}, renouvelé automatiquement. Annulable à tout moment dans Réglages › Apple Account › Abonnements.",
+    "cta": "Passer à Duo+",
+    "restore": "Restaurer un achat",
+    "privacy": "Politique de confidentialité",
+    "terms": "Conditions d'utilisation"
+  },
+  "pings": {
+    "_labels": { "_": "Messages préformatés du fil Activité — zéro texte libre. Clé = preset_key en base." },
+    "reminder": "Petit rappel pour « {task} » 🙂",
+    "thanks": "Merci pour « {task} » 🙏",
+    "swap": "Tu peux reprendre « {task} » ?",
+    "ok": "OK !",
+    "later": "Plus tard",
+    "done": "C'est fait ✓"
+  }
+}

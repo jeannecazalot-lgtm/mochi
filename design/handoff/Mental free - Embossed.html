@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Mental free · DNA Crème (Iter B) — canvas de référence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Inter+Tight:wght@500;600;700;800;900&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; padding: 0; background: #f0eee9; font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif; }
+  /* Typo Météo (SF Pro) : chiffres tabulaires + tracking serré sur les gros nombres */
+  * { font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; }
+  a { color: #E97A6A; }
+  a:hover { color: #1A1A1F; }
+  @keyframes blink { 50% { opacity: 0; } }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="tokens.js"></script>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="duo-v2-stubs.jsx"></script>
+<script type="text/babel" src="duo-v2-iridescent-iter3.jsx"></script>
+<script type="text/babel" src="duo-v2-onglet-afaire.jsx"></script>
+<script type="text/babel" src="duo-v2-compare.jsx"></script>
+<script type="text/babel" src="duo-embossed-setup.jsx"></script>
+<script type="text/babel" src="duo-embossed-pings-balance-malus.jsx"></script>
+<script type="text/babel" src="duo-embossed-onboarding.jsx"></script>
+<script type="text/babel" src="duo-embossed-modaux.jsx"></script>
+<script type="text/babel" src="duo-creme-gamifies.jsx"></script>
+<script type="text/babel" src="duo-creme-premium-profil.jsx"></script>
+<script type="text/babel" src="duo-v3-setup.jsx"></script>
+<script type="text/babel" src="duo-v3-core.jsx"></script>
+<script type="text/babel" src="duo-v3-fiche.jsx"></script>
+<script type="text/babel" src="duo-v3-social.jsx"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+function Phone({ children, label = "phone" }) {
+  return (
+    <div style={{ borderRadius: 36, overflow: 'hidden', boxShadow: '0 12px 48px rgba(0,0,0,0.14)', border: '1px solid rgba(0,0,0,0.06)' }} data-screen-label={label}>
+      {children}
+    </div>
+  );
+}
+
+function App() {
+  const W = 360, H = 760;
+  const ab = (id, label, Cmp, extra = {}) => (
+    <DCArtboard id={id} label={label} width={W} height={H}>
+      <Phone label={label}><Cmp {...extra} /></Phone>
+    </DCArtboard>
+  );
+
+  return (
+    <DesignCanvas>
+      <DCSection id="onboarding" title="① Onboarding · 5 écrans// A FAIRE PLUS TARD" subtitle="Constat → charge mentale → projection 260h → ce qu'on s'épargne → solution. Repeint en Embossed.">
+        {ab('o1', '01 · Le constat (10h)', OnbEmbossed01)}
+        {ab('o2', '02 · La charge mentale', OnbEmbossed02)}
+        {ab('o3', '03 · À un an (260h)', OnbEmbossed03)}
+        {ab('o4', "04 · Au-delà du temps", OnbEmbossed04)}
+        {ab('o5', '05 · La solution', OnboardingEmbossed)}
+      </DCSection>
+
+      <DCSection id="setup" title="② Setup profil · 3 écrans + dispatch" subtitle="Brief v3 : identité (prénom + couleur), dispos & énergie (tap-cycle : 1 tap léger, 2 taps à fond, slider temps/sem), préférences (aimées/détestées → pénibilité par personne + heure de rappel). Puis invitation, tâches et dispatch Mochi.">
+        {ab('s1', '06 · A — Identité', SetupIdentiteV3)}
+        {ab('s2', '07 · B — Dispos & énergie', SetupDisposV3)}
+        {ab('s2b', '08 · C — Préférences', SetupPrefsV3)}
+        {ab('s3', '09 · Inviter son binôme', SetupInvite)}
+        {ab('s3b', '09b · Duo formé', DuoFormeV3)}
+        {ab('s4', '10 · Choisir les tâches', SetupTasks)}
+        {ab('s6', '11 · Mochi calcule', SetupAnalysis)}
+        {ab('s7', '12 · Proposition de dispatch', SetupDispatch)}
+        {ab('s8', '13 · Glisser pour réattribuer', SetupReassign)}
+      </DCSection>
+
+      <DCSection id="fiche" title="②b Fiche tâche · 3 écrans" subtitle="Brief v3 : fenêtre d'exécution, pénibilité par personne, mode d'assignation (auto/fixe/alternance), divisible, note/checklist. Tâche mentale coupée en deux (planifier ≠ exécuter). Détail avec mini-historique des 5 dernières fois.">
+        {ab('f1', '14 · Fiche tâche', FicheTacheV3)}
+        {ab('f2', '15 · Tâche mentale · planifier ≠ exécuter', FicheMentaleV3)}
+        {ab('f3', '16 · Détail tâche + historique', TaskDetailV3)}
+      </DCSection>
+
+      <DCSection id="home" title="③ Onglet · Accueil (4 blocs)" subtitle="Brief v3 : Mochi penche + phrase interprétable (les alertes vivent ici), missions du jour avec durée totale et une seule action visible (cocher), côté Jeanne en lecture seule, streak discret en bas. Tab bar 4 onglets + FAB Mochi.">
+        {ab('h1', '17 · Home cockpit', HomeV3)}
+        {ab('h0', '17b · Home v2 (ancienne)', CmpHome, { variant: 'cream' })}
+        {ab('h2', '18 · Long press → ping', PingSheetV3)}
+      </DCSection>
+
+      <DCSection id="planning" title="③b Onglet · Planning" subtitle="Semaine/mois, tâches à venir groupées par jour, drag & drop de répartition (glisser sur l'avatar de l'autre).">
+        {ab('pl1', '19 · Planning semaine', PlanningV3)}
+      </DCSection>
+
+      <DCSection id="todo" title="④ Onglet · À faire" subtitle="To-do partagée en variante Crème. Liste + tâche ratée (malus). Repasser/reporter en swipe, pas en boutons.">
+        {ab('t1', '20 · Liste À faire', CmpList, { variant: 'cream' })}
+        {ab('t3', '21 · Tâche ratée (malus)', CmpOverdue, { variant: 'cream' })}
+      </DCSection>
+
+      <DCSection id="balance" title="⑤ Onglet · Balance" subtitle="Suivi + streak + malus · à droite, le drilldown quand la balance penche : chart 7 jours, top contributeurs, CTA rééquilibrage Mochi.">
+        {ab('b1', '21 · Balance', BalanceEmbossed)}
+        {ab('bd1', '22 · Balance détail (déséquilibre)', BalanceDetailEmbossed)}
+      </DCSection>
+
+      <DCSection id="pings" title="⑥ Activité & pings" subtitle="Brief v3 : plus d'onglet chat. Bulle dans le header → fil Activité (pings + événements + moments Mochi, réponses préformatées, zéro texte libre). Envoi contextuel par long press sur une tâche (écran 18).">
+        {ab('p1', '22 · Fil Activité', ActiviteV3)}
+      </DCSection>
+
+      <DCSection id="malus" title="⑦ Point hebdo · malus" subtitle="Chaque semaine au moment du point : les malus accumulés, un geste proposé par l'autre (exemples suggérés, rien à configurer), et on repart à zéro.">
+        {ab('m1', '23 · Point hebdo · malus', MalusEmbossed)}
+      </DCSection>
+
+      <DCSection id="budget" title="⑥b Onglet · Budget" subtitle="Le Tricount devient un onglet : solde en hero, « On est à zéro », dépenses récentes, ajout via le FAB.">
+        {ab('bu1', '23 · Budget', BudgetV3)}
+      </DCSection>
+
+      <DCSection id="modaux" title="⑧ Modaux & notifs · 4 écrans" subtitle="Pièces flottantes du système · modal Event social, Tricount, Mood ; onglet Pense-bête ; lockscreen iOS avec notifs Duo.">
+        {ab('mx1', '30 · Événement social (modal)', EventSocialEmbossed)}
+        {ab('mx3', '32 · Pense-bête partagé', PenseBeteEmbossed)}
+        {ab('mx4', '33 · Mood check-in (push dim soir)', MoodCheckinEmbossed)}
+        {ab('mx5', '34 · Notifs lockscreen', NotifLockEmbossed)}
+      </DCSection>
+
+      <DCSection id="gamifies" title="⑨ Moments gamifiés · 4 écrans" subtitle="Wrapped hebdo (stories sombres, dimanche 20h) solo puis couple, bilan mensuel avec badges + conversion des malus, et célébration de streak.">
+        {ab('g1', '24 · Wrapped solo', WrappedSoloCreme)}
+        {ab('g2', '25 · Wrapped couple', WrappedCoupleCreme)}
+        {ab('g3', '26 · Bilan mensuel', BilanMensuelCreme)}
+        {ab('g4', '28 · Streak célébration', StreakCelebrationCreme)}
+      </DCSection>
+
+      <DCSection id="premium" title="⑩ Premium Duo+ · 3 écrans" subtitle="Calendrier vue mois, analyse détaillée de la charge mentale (l'argument massue), et paywall 4€/mois ou 35€/an.">
+        {ab('pr1', '35 · Calendrier mois', CalendrierMoisCreme)}
+        {ab('pr2', '36 · Analyse charge mentale', AnalyseChargeCreme)}
+        {ab('pr3', '37 · Paywall Duo+', PaywallCreme)}
+      </DCSection>
+
+      <DCSection id="profil" title="⑪ Profil & réglages" subtitle="Brief v3 : accès par l'avatar (plus d'onglet). Deux sections — Mes préférences (perso) / Nos règles du duo (décidées ensemble, rappel croisé opt-in). Seuils 10/25 % communs, non personnalisables.">
+        {ab('pf1', '38 · Profil & réglages', ProfilV3)}
+      </DCSection>
+
+      <DCSection id="todo-next" title="🚧 Suivi du brief v3" subtitle="Modifications du brief appliquées écran par écran.">
+        <div style={{ padding: 24, fontFamily: '-apple-system, BlinkMacSystemFont, system-ui, sans-serif', fontSize: 12, color: '#8A857C', lineHeight: 1.8, maxWidth: 640 }}>
+          ✅ §1 Setup profil A/B/C · pénibilité par personne <br/>
+          ✅ §2 Fiche tâche : fenêtre, assignation, divisible, note, planifier ≠ exécuter, mini-historique <br/>
+          ✅ §3 Accueil 4 blocs · alertes dans la phrase de Mochi · streak discret <br/>
+          ✅ §4 Tab bar : Accueil / Planning / FAB / Balance / Budget · avatar en header <br/>
+          ✅ §5 Activité & pings · 3 points d'entrée · zéro texte libre <br/>
+          ✅ §6 Profil : préférences perso / règles du duo · rappel croisé opt-in <br/>
+          ⬜ À revoir ensuite : écrans Balance/Wrapped avec la nouvelle tab bar · vue Mois du Planning
+        </div>
+      </DCSection>
+    </DesignCanvas>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
