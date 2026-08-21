@@ -4,6 +4,7 @@ Référence visuelle : `design/handoff/Mental free - Embossed.html` (ouvrir dans
 Numéros d'écran = numéros d'artboard du canvas. Les écrans « v2 » du canvas ne sont pas à faire.
 
 ## Décisions prises
+- **21 août 2026** — Entrée dans l'app par **session anonyme Supabase** (pas de compte à créer avant le setup) ; le compte Apple/e-mail se relie ensuite à cette session (`linkIdentity`), sans perte de données. À confirmer par Jeanne.
 - **21 août 2026** — Stack : Expo SDK 57, JS (pas TS : CLAUDE.md prime sur le brief design), expo-router,
   reanimated 4, Supabase Auth + Postgres + Realtime + Storage, RevenueCat, expo-notifications.
 - **21 août 2026** — Choix par défaut sur les options entre crochets du brief (à confirmer par Jeanne) :
@@ -14,7 +15,8 @@ Numéros d'écran = numéros d'artboard du canvas. Les écrans « v2 » du canva
 
 ## Bloquants (actions Jeanne)
 - [x] GitHub : repo privé `jeannecazalot-lgtm/mochi` en ligne, push OK — 21 août 2026
-- [ ] Supabase : créer le projet (région Europe), URL + clé publishable dans `.env` (jamais dans le chat). Puis câbler 06 → `profiles`.
+- [x] Supabase : projet créé, `.env` rempli, 06 câblé → `profiles` + bucket `avatars` — 21 août 2026
+- [ ] Supabase : activer **Anonymous sign-ins** (Authentication › Sign In / Providers) — nécessaire pour entrer dans l'app avant de créer un compte (liaison Apple/e-mail ensuite)
 - [x] Modèle de données validé (16 tables, foyers 2→10, un foyer/personne, Duo+ par foyer, USD, planning hebdo) — 21 août 2026
 - [x] EAS : connectée (jeannegourmande), projet lié `@jeannegourmande/mochi` — 21 août 2026
 - [ ] Apple : confirmer le bundle id `io.langora.mochi` (avant le premier build production).
@@ -24,7 +26,7 @@ Numéros d'écran = numéros d'artboard du canvas. Les écrans « v2 » du canva
 - [x] 1. Squelette Expo + git + .gitignore (.env ignoré) — 21 août 2026
 - [x] 2. Proposition modèle de données (`supabase/migrations/0001_init.sql`) — 21 août 2026
 - [x] 3. Squelette câblé : theme.js, ui.js, copy.json, purchases.js, supabase.js/auth.js, eas.json, legal/ — 21 août 2026
-- [ ] 4. Migration appliquée sur le projet Supabase validé
+- [x] 4. Migration 0001 appliquée (projet `zdoqogsfmwpginolhtri`, Europe) ; 19 tables visibles, RLS vérifiée (insert anonyme refusé), RPC OK — 21 août 2026
 - [x] 5a. Build dev simulateur EAS validé à l'écran (glow, tab bar, FAB, 4 onglets) — 21 août 2026
 - [ ] 5b. App ASC + build 1 TestFlight — **reporté après l'audit visuel #1** (décision Jeanne, 21 août 2026) : `npx eas-cli build --platform ios --profile production` en interactif (Apple ID + 2FA)
 
