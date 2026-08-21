@@ -38,7 +38,8 @@ create table households (
   id              uuid primary key,
   name            text,
   created_by      uuid not null references profiles(id),
-  review_weekday  smallint not null default 0 check (review_weekday between 0 and 6), -- 0 = dimanche
+  plan_weekday    smallint not null default 0 check (plan_weekday between 0 and 6),   -- jour du planning hebdo (0 = dimanche)
+  review_weekday  smallint not null default 0 check (review_weekday between 0 and 6), -- jour du point hebdo malus
   review_time     time not null default '20:00',
   currency        text not null default 'USD',               -- modifiable par le foyer (écran 38)
   premium_until   timestamptz,                               -- Duo+ : un seul paie, tout le foyer en profite
@@ -141,6 +142,20 @@ create table occurrences (
   unique (task_id, due_date, kind)
 );
 create index occurrences_household_due on occurrences (household_id, due_date);
+
+-- ─── planning hebdo : une ligne par semaine planifiée ───────────────
+-- Semaine N pré-remplie depuis la semaine N-1 (copie des occurrences task_id + jour),
+-- puis ajouts/suppressions libres. Les tâches ponctuelles : 7 j à l'avance en gratuit, illimité en Duo+ (règle d'app).
+create table week_plans (
+  id            uuid primary key,
+  household_id  uuid not null references households(id) on delete cascade,
+  week_start    date not null,                               -- lundi de la semaine
+  copied_from   date,                                        -- week_start de la semaine source (null = saisie initiale)
+  created_by    uuid not null references profiles(id),
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now(),
+  unique (household_id, week_start)
+);
 
 -- ─── repassage (SPECS §6) ───────────────────────────────────────────
 create table swap_requests (
@@ -292,7 +307,7 @@ begin new.updated_at = now(); return new; end $$;
 
 do $$ declare t text;
 begin
-  foreach t in array array['profiles','households','household_members','tasks','task_pains','occurrences',
+  foreach t in array array['profiles','households','household_members','tasks','task_pains','occurrences','week_plans',
     'swap_requests','activity','malus','weekly_reviews','expenses','events','notes']
   loop
     execute format('create trigger %I_updated_at before update on %I for each row execute function set_updated_at()', t, t);
@@ -367,7 +382,7 @@ end $$;
 -- politique générique « membre du foyer = tous droits » pour les tables métier
 do $$ declare t text;
 begin
-  foreach t in array array['tasks','task_pains','occurrences','swap_requests','activity','malus','weekly_reviews',
+  foreach t in array array['tasks','task_pains','occurrences','week_plans','swap_requests','activity','malus','weekly_reviews',
     'expenses','settlements','events','notes','mood_checkins','wraps','badges']
   loop
     execute format('alter table %I enable row level security', t);
@@ -382,7 +397,7 @@ begin
 end $$;
 
 -- ─── Realtime : les 2 téléphones se voient ─────────────────────────
-alter publication supabase_realtime add table tasks, occurrences, swap_requests, activity, malus, weekly_reviews, expenses, events, notes, household_members;
+alter publication supabase_realtime add table tasks, occurrences, week_plans, swap_requests, activity, malus, weekly_reviews, expenses, events, notes, household_members;
 
 -- ─── Storage : avatars (bucket public en lecture, écriture par soi) ─
 insert into storage.buckets (id, name, public) values ('avatars','avatars', true) on conflict do nothing;

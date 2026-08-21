@@ -18,7 +18,7 @@ SQL complet : `supabase/migrations/0001_init.sql`. Rien n'est appliqué tant que
    la fiche change ensuite.
 5. **Zéro texte libre dans le fil Activité** : un ping = une clé de `copy.json` (`preset_key`).
 
-## Tables (15)
+## Tables (16)
 | Table | Rôle | Écrans |
 |---|---|---|
 | `profiles` | prénom, photo, heure de rappel, rappel croisé opt-in | 06, 08, 38 |
@@ -27,6 +27,7 @@ SQL complet : `supabase/migrations/0001_init.sql`. Rien n'est appliqué tant que
 | `invitations` | code 6 caractères (lien + QR), expire 7 j, acceptation via RPC `accept_invitation` | 09 |
 | `tasks` | fiche tâche : fréquence, durée, importance, mental, mode d'assignation, divisible, fenêtre, dépense associée, note, checklist | 10, 14, 15 |
 | `task_pains` | pénibilité **par personne** (aimée/détestée) | 08, 14 |
+| `week_plans` | une ligne par semaine planifiée ; `copied_from` = semaine source (pré-remplissage à l'identique) | 10, 19 |
 | `occurrences` | instance datée d'une tâche ; `kind` = `plan`/`exec` pour les tâches mentales ; statut ; copie figée pour la balance | 17, 19, 20, 21 |
 | `swap_requests` | repassage (proposé / accepté / refusé, max 3 refus/sem calculé) | 18, 20 |
 | `activity` | fil : pings préformatés, réponses, tâches faites/ratées, événements, moments Mochi | 22 |
@@ -57,7 +58,10 @@ SQL complet : `supabase/migrations/0001_init.sql`. Rien n'est appliqué tant que
 2. **Minimum 2 membres**, maximum 10 (pas de mode solo).
 3. **Un seul foyer à la fois** par personne (`unique(user_id)`) ; pour en rejoindre un autre où l'on est invité, on quitte le sien (`leave_household()`), puis on accepte l'invitation.
 4. Devise : **USD par défaut, modifiable par foyer** (`households.currency`), copiée dans chaque dépense.
-5. Occurrences à l'avance : en attente (14 ou 30 jours).
+5. **Planning hebdo** : le foyer choisit son jour de planning (`households.plan_weekday`). Première fois à la
+   création du duo : saisie de toutes les tâches de la semaine. Chaque semaine suivante est **pré-remplie à
+   l'identique de la précédente** (`week_plans.copied_from`), puis ajouts/suppressions libres.
+   **Tâches ponctuelles** : ajout jusqu'à 7 jours à l'avance en gratuit, sans limite en Duo+ (règle d'app).
 
 ## Impact « jusqu'à 10 » sur le design (à trancher écran par écran)
 Le canvas est dessiné pour 2 (« Côté Jeanne », balance à 2 plateaux, wrapped couple, point hebdo à deux).
