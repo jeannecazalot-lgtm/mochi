@@ -4,6 +4,7 @@ Référence visuelle : `design/handoff/Mental free - Embossed.html` (ouvrir dans
 Numéros d'écran = numéros d'artboard du canvas. Les écrans « v2 » du canvas ne sont pas à faire.
 
 ## Décisions prises
+- **21 août 2026 (soir)** — Jeanne demande **tous les écrans navigables + animations** avant la validation page par page. Méthode : tous les écrans construits avec des **données de démo** (`src/demo.js`, personnes **Ketley** (slot 1) et **Julian** (slot 2)), reliés selon la flow map, animations du brief ; la validation visuelle et le branchement Supabase se font ensuite écran par écran. Écran « Plan des écrans » (`/plan`) pour sauter partout.
 - **21 août 2026** — Entrée dans l'app par **session anonyme Supabase** (pas de compte à créer avant le setup) ; le compte Apple/e-mail se relie ensuite à cette session (`linkIdentity`), sans perte de données. À confirmer par Jeanne.
 - **21 août 2026** — Stack : Expo SDK 57, JS (pas TS : CLAUDE.md prime sur le brief design), expo-router,
   reanimated 4, Supabase Auth + Postgres + Realtime + Storage, RevenueCat, expo-notifications.
@@ -90,7 +91,7 @@ Numéros d'écran = numéros d'artboard du canvas. Les écrans « v2 » du canva
 - [ ] Dashboard interne — quand le modèle de données est stable
 
 ## Fragile / à surveiller
-- Build local impossible (pas de CocoaPods) : tous les builds passent par EAS (dev simulateur + production).
+- Tous les builds passent par EAS (dev simulateur + production) ; pas de build local.
 - `react-dom` pinné à 19.2.3 (expo-router tirait 19.2.8, incompatible avec react 19.2.3 du SDK 57).
 - `src/store.js` = squelette offline-first ; la gestion de conflits se précisera avec les premiers écrans.
 - Apple Sign-In : `expo-apple-authentication` installé, pas encore branché à Supabase.

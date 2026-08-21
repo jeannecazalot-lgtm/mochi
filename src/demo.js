@@ -5,8 +5,8 @@
 // ═══════════════════════════════════════════════════════════════════
 import { slotColors } from './theme';
 
-export const me = { id: 'u-valentin', first_name: 'Valentin', slot: 1, color: slotColors[1].main, initial: 'V' };
-export const partner = { id: 'u-jeanne', first_name: 'Jeanne', slot: 2, color: slotColors[2].main, initial: 'J' };
+export const me = { id: 'u-valentin', first_name: 'Ketley', slot: 1, color: slotColors[1].main, initial: 'K' };
+export const partner = { id: 'u-jeanne', first_name: 'Julian', slot: 2, color: slotColors[2].main, initial: 'J' };
 export const members = [me, partner];
 export const byId = id => members.find(m => m.id === id);
 
