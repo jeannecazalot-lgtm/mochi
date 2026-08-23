@@ -5,6 +5,7 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { router } from 'expo-router';
 import Svg, { Defs, RadialGradient, Stop, Rect, Circle, Ellipse, Path, LinearGradient as SvgLinear } from 'react-native-svg';
 import { colors, glow, gradients, radius, space, font, shadows, alpha } from '../theme';
 
@@ -146,6 +147,7 @@ const s = StyleSheet.create({
 
 // ─── en-tête des écrans Setup (06-08) : points d'étape + titre + sous-titre ─
 export function SetupHeader({ step, total = 3, title, sub }) {
+  const canBack = router.canGoBack();
   return (
     <View>
       <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 5, paddingTop: 14 }}>
@@ -153,10 +155,15 @@ export function SetupHeader({ step, total = 3, title, sub }) {
           <View key={i} style={{ width: i === step ? 18 : 6, height: 6, borderRadius: radius.pill, backgroundColor: i <= step ? colors.ink : alpha(colors.ink, 0.15) }} />
         ))}
       </View>
-      <View style={{ paddingHorizontal: space.headerX, paddingTop: 14 }}>
+      <View style={{ paddingHorizontal: space.headerX, paddingTop: canBack ? 22 : 14 }}>
         <Text style={[font.screenTitle, { letterSpacing: -1.1, lineHeight: 23 }]}>{title}</Text>
         <Text style={[font.secondary, { fontSize: 14, marginTop: 6, lineHeight: 20 }]}>{sub}</Text>
       </View>
+      {canBack ? (
+        <Pressable onPress={() => router.back()} hitSlop={12} style={{ position: 'absolute', left: space.screenX, top: 4, zIndex: 2, width: 30, height: 30, borderRadius: 15, backgroundColor: colors.card, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline, alignItems: 'center', justifyContent: 'center' }}>
+          <Svg width={18} height={18} viewBox="0 0 24 24" fill="none"><Path d="M15 5l-7 7 7 7" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" /></Svg>
+        </Pressable>
+      ) : null}
     </View>
   );
 }
