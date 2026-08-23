@@ -48,7 +48,7 @@ export default function TaskEdit() {
             <PillLabel color={catColor}>{mental ? t.catMental : t.catDomestic}</PillLabel>
             <TextInput
               value={task.title} onChangeText={v => set({ title: v })} placeholder={t.titlePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)}
-              autoFocus={!task.id} autoCorrect={false} returnKeyType="done" cursorColor={colors.coral} selectionColor={colors.coral} style={s.heroTitle}
+              autoCorrect={false} returnKeyType="done" cursorColor={colors.coral} selectionColor={colors.coral} style={s.heroTitle}
             />
           </Card>
 
@@ -129,7 +129,7 @@ export default function TaskEdit() {
               {open === 'note' ? (
                 <TextInput
                   value={task.note} onChangeText={v => set({ note: v })} placeholder={t.notePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)}
-                  multiline autoFocus cursorColor={colors.coral} selectionColor={colors.coral} style={s.noteInput}
+                  multiline cursorColor={colors.coral} selectionColor={colors.coral} style={s.noteInput}
                 />
               ) : null}
             </Card>

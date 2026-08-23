@@ -55,7 +55,7 @@ export default function PenseBete() {
         <ScrollView contentContainerStyle={s.body} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
           {adding && (
             <Animated.View entering={FadeIn.duration(200)} style={s.addCard}>
-              <TextInput value={newTitle} onChangeText={setNewTitle} placeholder={t.newTitlePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)} style={s.addTitle} autoFocus cursorColor={colors.coral} selectionColor={colors.coral} />
+              <TextInput value={newTitle} onChangeText={setNewTitle} placeholder={t.newTitlePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)} style={s.addTitle} cursorColor={colors.coral} selectionColor={colors.coral} />
               <TextInput value={newDetail} onChangeText={setNewDetail} placeholder={t.newDetailPlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)} style={s.addDetail} onSubmitEditing={add} returnKeyType="done" cursorColor={colors.coral} selectionColor={colors.coral} />
               <CtaModal label={t.add} disabled={!newTitle.trim()} onPress={add} style={{ marginTop: 10 }} />
             </Animated.View>

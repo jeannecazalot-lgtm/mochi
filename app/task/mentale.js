@@ -72,7 +72,7 @@ export default function TaskMentale() {
             <View style={{ flex: 1 }}>
               <Text style={s.noteTitle}>{t.noteAttached}</Text>
               {editNote
-                ? <TextInput value={note} onChangeText={setNote} placeholder={t.notePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)} multiline autoFocus cursorColor={colors.coral} selectionColor={colors.coral} style={s.noteInput} />
+                ? <TextInput value={note} onChangeText={setNote} placeholder={t.notePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)} multiline cursorColor={colors.coral} selectionColor={colors.coral} style={s.noteInput} />
                 : <Text style={s.noteSub}>{note ? `« ${note} »` : t.optNoteEmpty}</Text>}
             </View>
             <ChevronRight />

@@ -44,7 +44,7 @@ export default function Identite() {
           <Card padding={0} style={{ marginBottom: 19 }}>
             <TextInput
               value={firstName} onChangeText={setFirstName} placeholder={t.firstNamePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)}
-              autoFocus autoCorrect={false} autoCapitalize="words" returnKeyType="done" cursorColor={colors.coral} selectionColor={colors.coral}
+              autoCorrect={false} autoCapitalize="words" returnKeyType="done" cursorColor={colors.coral} selectionColor={colors.coral}
               style={s.input}
             />
           </Card>
