@@ -48,3 +48,4 @@ yarn-error.*
 # EAS / Apple
 *.p8
 *.mobileprovision
+.build/
