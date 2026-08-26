@@ -397,7 +397,7 @@
       "calcStep1": "Étape 1 du calcul qui défile (11)",
       "calcStep2": "Étape 2 du calcul qui défile (11)",
       "calcStep3": "Étape 3 du calcul qui défile (11)",
-      "dispatchSubTap": "Sous-titre écran 12 (fusion 12+13) : explique le tap pour réattribuer une tâche",
+      "dispatchSubTap": "Sous-titre écran 12 (réécrit : fréquence + porteur)",
       "tagSunday": "dimanche (créneau)",
       "legendNone": "Légende état vide (proposition A)",
       "tapHint": "Phrase sous les chips de légende (proposition A)",
@@ -410,7 +410,8 @@
       "prefsMaxNote": "Note de limite ({max} = nombre max par côté)",
       "legendLightShort": "Légende courte état ○ (chips proposition A)",
       "legendFullShort": "Légende courte état ●",
-      "addTaskPlaceholder": "Placeholder du champ d ajout de tâche (écran 10)"
+      "addTaskPlaceholder": "Placeholder du champ d ajout de tâche (écran 10)",
+      "timesPerWeek": "Fréquence affichée sur 12 ({n} fois par semaine)"
     },
     "identityTitle": "C'est toi.",
     "identitySub": "Ton prénom et ta photo — on les retrouve partout : balance, planning, historique.",
@@ -497,7 +498,7 @@
     "calcStep1": "Je lis vos dispos…",
     "calcStep2": "Je pèse chaque tâche…",
     "calcStep3": "J’équilibre…",
-    "dispatchSubTap": "Tout est ajustable : tape une tâche pour la passer à l’autre.",
+    "dispatchSubTap": "Règle la fréquence de chaque tâche, et tape le prénom pour changer qui s'en occupe.",
     "tagSunday": "dimanche",
     "legendNone": "pas dispo",
     "tapHint": "Tape une case pour changer son état",
@@ -510,7 +511,8 @@
     "prefsMaxNote": "{max} max de chaque côté",
     "legendLightShort": "un peu",
     "legendFullShort": "à fond",
-    "addTaskPlaceholder": "Nom de la tâche…"
+    "addTaskPlaceholder": "Nom de la tâche…",
+    "timesPerWeek": "{n}×/sem"
   },
   "event": {
     "_labels": {
