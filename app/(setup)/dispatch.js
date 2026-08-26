@@ -7,7 +7,7 @@ import { router } from 'expo-router';
 import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSharedValue, useAnimatedStyle, withTiming, withSpring, withSequence } from 'react-native-reanimated';
-import { GlowBg, Card, Avatar, SetupHeader } from '../../src/components/ui';
+import { GlowBg, Card, Avatar, SetupHeader, CTAPrimary, useScrollEnd, GrowCTA } from '../../src/components/ui';
 import { BottomCTA, LiveCount, fill } from '../../src/components/setup/extra';
 import { Animated, FadeInDown, prefersReducedMotion, LiveMochi } from '../../src/components/motion';
 import { me, partner, byId, fmtMin } from '../../src/demo';
@@ -62,6 +62,7 @@ function Row({ it, index, onToggle, onFreq }) {
 }
 
 export default function Dispatch() {
+  const { atEnd, scrollProps } = useScrollEnd();
   // freq = occurrences/semaine (dérivée des minutes hebdo de la démo), réglable 1-14
   const [items, setItems] = useState(dispatch.map(i => ({ ...i, freq: Math.max(1, Math.round(i.weekly_min / i.mins)) })));
   const bumpFreq = (task_id, d) => setItems(l => l.map(i => (i.task_id === task_id ? { ...i, freq: Math.min(14, Math.max(1, i.freq + d)), weekly_min: Math.min(14, Math.max(1, i.freq + d)) * i.mins } : i)));
@@ -96,11 +97,11 @@ export default function Dispatch() {
           </Animated.View>
         </View>
 
-        <ScrollView contentContainerStyle={{ paddingHorizontal: space.screenX, paddingBottom: 110 }} showsVerticalScrollIndicator={false}>
+        <ScrollView {...scrollProps} contentContainerStyle={{ paddingHorizontal: space.screenX, paddingBottom: 110 }} showsVerticalScrollIndicator={false}>
           {items.map((it, i) => <Row key={it.task_id} it={it} index={i} onToggle={() => toggle(it.task_id)} onFreq={d => bumpFreq(it.task_id, d)} />)}
         </ScrollView>
 
-        <BottomCTA primary={t.go} onPrimary={finish} />
+        <GrowCTA grown={atEnd} style={{ position: 'absolute', left: 24, right: 24, bottom: 24 }}><CTAPrimary label={t.go} onPress={finish} big /></GrowCTA>
       </SafeAreaView>
     </View>
   );

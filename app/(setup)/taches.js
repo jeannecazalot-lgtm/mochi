@@ -7,7 +7,7 @@ import { router } from 'expo-router';
 import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
-import { GlowBg, Card, SetupHeader, CTAPrimary } from '../../src/components/ui';
+import { GlowBg, Card, SetupHeader, CTAPrimary, useScrollEnd, GrowCTA } from '../../src/components/ui';
 import { LiveMochi } from '../../src/components/motion';
 import { CheckDot, AddButton, SkipLink, SectionLabel, fill } from '../../src/components/setup/extra';
 import { Animated, FadeInDown, prefersReducedMotion } from '../../src/components/motion';
@@ -37,6 +37,7 @@ function Row({ c, index, active, onToggle }) {
 }
 
 export default function Taches() {
+  const { atEnd, scrollProps } = useScrollEnd();
   // Retour Jeanne (23 août 2026) : rien de pré-coché, pas de rangée grisée.
   const [on, setOn] = useState([]);
   const [customs, setCustoms] = useState([]);   // tâches ajoutées à la main (cochées d'office)
@@ -64,7 +65,7 @@ export default function Taches() {
           <SetupHeader hero={<LiveMochi size={96} />} title={t.tasksTitle} sub={t.tasksSub} />
           <SkipLink onPress={next} />
         </View>
-        <ScrollView contentContainerStyle={{ paddingHorizontal: space.screenX, paddingTop: 18, paddingBottom: 110 }} showsVerticalScrollIndicator={false}>
+        <ScrollView {...scrollProps} contentContainerStyle={{ paddingHorizontal: space.screenX, paddingTop: 18, paddingBottom: 110 }} showsVerticalScrollIndicator={false}>
           {broad.map((c, i) => <Row key={c.id} c={c} index={i} active={on.includes(c.id)} onToggle={() => toggle(c.id)} />)}
           <Animated.View entering={prefersReducedMotion() ? undefined : FadeInDown.delay(broad.length * 45).duration(motion.screen)}>
             <SectionLabel style={{ marginTop: 14, marginBottom: 9 }}>{t.tasksSpecificLabel}</SectionLabel>
@@ -82,10 +83,12 @@ export default function Taches() {
             </Card>
           ) : null}
         </ScrollView>
-        <View style={s.bottom}>
-          <AddButton label={t.addTask} onPress={() => setAdding(true)} style={{ flex: 1 }} />
-          <CTAPrimary label={t.launch} onPress={next} disabled={on.length === 0} style={{ flex: 1.6 }} />
-        </View>
+        <GrowCTA grown={atEnd} style={s.bottom}>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <AddButton label={t.addTask} onPress={() => setAdding(true)} style={{ flex: 1 }} />
+            <CTAPrimary label={t.launch} onPress={next} disabled={on.length === 0} style={{ flex: 1.6 }} />
+          </View>
+        </GrowCTA>
       </SafeAreaView>
     </View>
   );
@@ -95,5 +98,5 @@ const s = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 13, paddingVertical: 13, paddingHorizontal: 16 },
   title: { fontSize: 16, fontWeight: '500', color: colors.ink },
   mental: { fontSize: 11, fontWeight: '600', letterSpacing: 0.8, textTransform: 'uppercase', color: colors.lavenderDeep },
-  bottom: { position: 'absolute', left: space.screenX, right: space.screenX, bottom: 24, flexDirection: 'row', gap: 8 },
+  bottom: { position: 'absolute', left: 24, right: 24, bottom: 24 },
 });

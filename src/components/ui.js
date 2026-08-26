@@ -2,11 +2,11 @@
 // ui.js — composants canoniques (design/handoff/README.md §Composants)
 // Créés une fois, réutilisés partout. Tout style passe par theme.js.
 // ═══════════════════════════════════════════════════════════════════
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { router, usePathname } from 'expo-router';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { useSharedValue, useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming, withSpring, Easing } from 'react-native-reanimated';
 import Svg, { Defs, RadialGradient, Stop, Rect, Circle, Ellipse, Path, LinearGradient as SvgLinear } from 'react-native-svg';
 import { colors, glow, gradients, radius, space, font, shadows, alpha, ctaSpec } from '../theme';
 // ─── fond app : crème + 4 halos radiaux ─────────────────────────────
@@ -180,4 +180,37 @@ export function SetupHeader({ step, total = 3, title, sub, hero }) {
       ) : null}
     </View>
   );
+}
+
+// ─── CTA « court puis pleine largeur en bas de liste » (retour Jeanne, 23 août 2026) ─
+// useScrollEnd() se branche sur une ScrollView (…scrollProps) ; GrowCTA rétrécit le
+// bouton (marges latérales) tant qu'on n'a pas atteint le bas, puis l'élargit en spring.
+export function useScrollEnd(threshold = 32) {
+  const [atEnd, setAtEnd] = useState(true); // vrai par défaut : liste plus courte que l'écran
+  const dims = useRef({ layout: 0, content: 0, offset: 0 });
+  const update = () => {
+    const { layout, content, offset } = dims.current;
+    setAtEnd(content <= layout || layout + offset >= content - threshold);
+  };
+  return {
+    atEnd,
+    scrollProps: {
+      scrollEventThrottle: 32,
+      onScroll: e => {
+        dims.current.offset = e.nativeEvent.contentOffset.y;
+        dims.current.layout = e.nativeEvent.layoutMeasurement.height;
+        dims.current.content = e.nativeEvent.contentSize.height;
+        update();
+      },
+      onLayout: e => { dims.current.layout = e.nativeEvent.layout.height; update(); },
+      onContentSizeChange: (w, h) => { dims.current.content = h; update(); },
+    },
+  };
+}
+
+export function GrowCTA({ grown = true, compact = 56, style, children }) {
+  const m = useSharedValue(grown ? 0 : compact);
+  useEffect(() => { m.value = withSpring(grown ? 0 : compact, { damping: 16, stiffness: 160 }); }, [grown]);
+  const a = useAnimatedStyle(() => ({ marginHorizontal: m.value }));
+  return <Animated.View style={[a, style]}>{children}</Animated.View>;
 }

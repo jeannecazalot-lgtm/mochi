@@ -29,7 +29,7 @@ export default function Dispos() {
   // Retour Jeanne (22 août 2026) : la grille démarre VIDE et aucun temps n'est
   // pré-sélectionné ; le CTA reste actif quoi qu'il arrive.
   const [grid, setGrid] = useState(disposEmpty);
-  const [hours, setHours] = useState(5); // slider 2→8 h (retour Jeanne)
+  const [hours, setHours] = useState(2); // slider 2→8 h — démarre au minimum : rien de pré-rempli (règle Jeanne, 23 août 2026)
   const [demoV, setDemoV] = useState(null);  // valeur jouée sur la case d'exemple (démo seulement)
     const timers = useRef([]);
 

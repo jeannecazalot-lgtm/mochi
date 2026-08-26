@@ -20,7 +20,7 @@ export default function Depense() {
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
   const [paidBy, setPaidBy] = useState(me.id);
-  const [category, setCategory] = useState(expenseCategories[0]);
+  const [category, setCategory] = useState(null);
   const [dayOffset, setDayOffset] = useState(0);
   const valid = title.trim().length > 0 && parseAmount(amount) > 0;
 
