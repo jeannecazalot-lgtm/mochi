@@ -60,8 +60,8 @@ export default function Dispos() {
             <View style={{ paddingVertical: 14, paddingHorizontal: 16 }}>
               <View style={s.legendTop}>
                 <LegendChip state={0} label={t.legendNone} on={demoV === 0} />
-                <LegendChip state={1} label={t.legendLight} on={demoV === 1} />
-                <LegendChip state={2} label={t.legendFull} on={demoV === 2} />
+                <LegendChip state={1} label={t.legendLightShort} on={demoV === 1} />
+                <LegendChip state={2} label={t.legendFullShort} on={demoV === 2} />
               </View>
               <Text style={s.tapHint}>{t.tapHint}</Text>
               <View style={s.row}>
@@ -87,7 +87,7 @@ export default function Dispos() {
           <SectionLabel style={{ marginTop: 8, marginBottom: 8 }}>{t.weeklyTimeLabel}</SectionLabel>
           <Card padding={0} r={16}>
             <View style={{ paddingVertical: 12, paddingHorizontal: 16 }}>
-              <Text style={s.sliderValue}>{hours >= 8 ? '8 h+' : `${String(hours).replace('.', ',')} h`} <Text style={s.sliderUnit}>{t.perWeek}</Text></Text>
+              <Text style={s.sliderValue}>{hours >= 8 ? '8+' : String(hours).replace('.', ',')} <Text style={s.sliderUnit}>{t.perWeek}</Text></Text>
               <HourSlider value={hours} onChange={setHours} />
             </View>
           </Card>
