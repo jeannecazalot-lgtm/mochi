@@ -54,7 +54,9 @@ export const catalogue = [
   { id: 't-cuisiner', emoji: '🍳', label: 'Cuisine', freq: { daily: true }, mins: 40, pain: 2, on: true },
   { id: 't-courses', emoji: '🛒', label: 'Courses', freq: { perWeek: 1 }, mins: 45, pain: 2, on: true },
   { id: 't-lessive', emoji: '🧺', label: 'Lessive', freq: { perWeek: 2 }, mins: 30, pain: 2, on: true },
+  { id: 't-linge-plier', emoji: '👕', label: 'Plier & ranger le linge', freq: { perWeek: 2 }, mins: 20, pain: 2, on: false },
   { id: 't-menage', emoji: '🧹', label: 'Ménage', freq: { perWeek: 1 }, mins: 60, pain: 3, on: true },
+  { id: 't-draps', emoji: '🛏', label: 'Changer les draps', freq: { perWeek: 1 }, mins: 15, pain: 3, on: false },
   { id: 't-sdb', emoji: '🚿', label: 'Salle de bain', freq: { perWeek: 1 }, mins: 30, pain: 4, on: true },
   { id: 't-poubelles', emoji: '🗑', label: 'Poubelles', freq: { perWeek: 2 }, mins: 5, pain: 1, on: true },
   { id: 't-rangement', emoji: '🧸', label: 'Rangement', freq: { perWeek: 2 }, mins: 15, pain: 2, on: false },
@@ -62,9 +64,11 @@ export const catalogue = [
   { id: 't-courrier', emoji: '📬', label: 'Courrier & colis', freq: { perWeek: 2 }, mins: 10, pain: 1, on: false },
   { id: 't-rdv', emoji: '📅', label: 'Rendez-vous à prendre', freq: { perWeek: 1 }, mins: 15, pain: 3, mental: true, on: false },
   { id: 't-repas', emoji: '📝', label: 'Planification des repas', freq: { perWeek: 1 }, mins: 20, pain: 3, mental: true, on: true },
+  { id: 't-vacances', emoji: '🧳', label: 'Organiser les sorties & vacances', freq: { perWeek: 1 }, mins: 30, pain: 2, mental: true, on: false },
   // spécifiques « Selon ton foyer » — en fin de liste, décochées par défaut
   { id: 't-chien-matin', emoji: '🐕', label: 'Sortie chien', freq: { perDay: 3 }, mins: 20, pain: 1, specific: true, on: false },
   { id: 't-plantes', emoji: '🪴', label: 'Plantes', freq: { perWeek: 1 }, mins: 10, pain: 1, specific: true, on: false },
+  { id: 't-litiere', emoji: '🐈', label: 'Litière du chat', freq: { perDay: 1 }, mins: 5, pain: 2, specific: true, on: false },
 ];
 
 // 12 · proposition de dispatch (fusion 12+13, retours Jeanne 22 août 2026) :
