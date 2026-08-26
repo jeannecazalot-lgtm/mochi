@@ -431,7 +431,8 @@
       "legendLightShort": "Légende courte état ○ (chips proposition A)",
       "legendFullShort": "Légende courte état ●",
       "addTaskPlaceholder": "Placeholder du champ d ajout de tâche (écran 10)",
-      "timesPerWeek": "Fréquence affichée sur 12 ({n} fois par semaine)"
+      "timesPerWeek": "Fréquence affichée sur 12 ({n} fois par semaine)",
+      "identityTitleA": "Titre écran 06 (proposition A, centré)"
     },
     "identityTitle": "C'est toi.",
     "identitySub": "Ton prénom et ta photo — on les retrouve partout : balance, planning, historique.",
@@ -532,7 +533,8 @@
     "legendLightShort": "un peu",
     "legendFullShort": "à fond",
     "addTaskPlaceholder": "Nom de la tâche…",
-    "timesPerWeek": "{n}×/sem"
+    "timesPerWeek": "{n}×/sem",
+    "identityTitleA": "Crée ton profil"
   },
   "event": {
     "_labels": {
