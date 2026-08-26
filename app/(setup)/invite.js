@@ -1,11 +1,13 @@
 // Écran 09 · Inviter son binôme. Recette : docs/recettes/09-invite.md
-import React, { useState } from 'react';
+// Retours Jeanne 22 août 2026 : DA alignée sur 06-08 (SetupHeader points+titre,
+// pas de Mochi héros ici : le hero est la carte d'invitation), actions façon Tricount.
+import React from 'react';
 import { router } from 'expo-router';
 import { View, Text, Pressable, Share, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { GlowBg, Card, Avatar, CTAPrimary } from '../../src/components/ui';
+import { GlowBg, Card, Avatar, CTAPrimary, SetupHeader } from '../../src/components/ui';
 import { LiveMochi } from '../../src/components/motion';
-import { StepPillHeader, StepTitle, AvatarPlaceholder, fill } from '../../src/components/setup/extra';
+import { SkipLink, ActionPill, ShareIcon, QRIcon, AvatarPlaceholder, fill } from '../../src/components/setup/extra';
 import { me } from '../../src/demo';
 import { inviteLink } from '../../src/demo-setup';
 import copy from '../../src/data/copy.json';
@@ -15,46 +17,50 @@ const t = copy.setup;
 const next = () => router.push('/(setup)/duo-forme');
 
 export default function Invite() {
-  const [copied, setCopied] = useState(false);
   const send = async () => {
     try { await Share.share({ message: `https://${inviteLink}` }); } catch (e) {}
     next(); // démo : on simule l'acceptation du binôme
+  };
+  const shareOnly = async () => {
+    try { await Share.share({ message: `https://${inviteLink}` }); } catch (e) {}
   };
   return (
     <View style={{ flex: 1 }}>
       <GlowBg intensity="soft" />
       <SafeAreaView style={{ flex: 1 }}>
-        <StepPillHeader step={3} onSkip={next} />
-        <StepTitle title={fill(t.inviteTitle, { partner: copy.common.partner })} sub={t.inviteSub} />
+        <View>
+          <SetupHeader step={4} total={4} title={fill(t.inviteTitle, { partner: copy.common.partner })} sub={t.inviteSub} />
+          <SkipLink onPress={next} />
+        </View>
 
-        <View style={{ paddingHorizontal: space.headerX, paddingTop: 19 }}>
-          <Card padding={0} r={22} style={{ marginBottom: 16 }}>
-            <View style={{ paddingTop: 22, paddingHorizontal: 20, paddingBottom: 18, alignItems: 'center' }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 11 }}>
+        {/* carte-aperçu centrée verticalement dans l'espace disponible */}
+        <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: space.headerX }}>
+          <Card padding={0} r={22}>
+            <View style={{ paddingTop: 28, paddingHorizontal: 24, paddingBottom: 24, alignItems: 'center' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 14 }}>
                 <Avatar initial={me.initial} color={me.color} size={54} ring />
                 <View style={{ marginHorizontal: -6, zIndex: 2 }}><LiveMochi size={64} mood="happy" /></View>
                 <AvatarPlaceholder size={54} />
               </View>
               <Text style={s.cardTitle}>{t.inviteCardTitle}</Text>
               <Text style={s.cardSub}>{t.inviteCardSub}</Text>
-              <Pressable onPress={() => setCopied(true)} style={s.link}>
+              <View style={s.link}>
                 <Text numberOfLines={1} style={s.linkTxt}>{inviteLink}</Text>
-                <Text style={s.copy}>{copied ? t.copied : t.copy}</Text>
-              </Pressable>
+              </View>
             </View>
           </Card>
+        </View>
 
-          <CTAPrimary label={t.sendLink} onPress={send} big style={{ marginBottom: 10 }} />
-
-          <View style={{ flexDirection: 'row', gap: 8 }}>
-            {[{ i: '▦', l: t.qr }, { i: '🔢', l: t.enterCode }].map(o => (
-              <View key={o.l} style={s.glassBtn}>
-                <Text style={{ fontSize: 16 }}>{o.i}</Text>
-                <Text style={s.glassTxt}>{o.l}</Text>
-              </View>
-            ))}
+        {/* actions façon Tricount : grand CTA, rangée de pilules, lien texte */}
+        <View style={{ paddingHorizontal: space.screenX, paddingBottom: 26 }}>
+          <CTAPrimary label={t.sendLink} onPress={send} big />
+          <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 10, marginTop: 14 }}>
+            <ActionPill icon={<QRIcon />} label={t.qr} />
+            <ActionPill icon={<ShareIcon />} onPress={shareOnly} accessibilityLabel={t.share} />
           </View>
-          <Text style={s.hint}>{t.inviteHint}</Text>
+          <Pressable onPress={next} hitSlop={8} style={{ alignSelf: 'center', marginTop: 18 }}>
+            <Text style={s.later}>{t.inviteLater}</Text>
+          </Pressable>
         </View>
       </SafeAreaView>
     </View>
@@ -63,11 +69,8 @@ export default function Invite() {
 
 const s = StyleSheet.create({
   cardTitle: { fontSize: 17, fontWeight: '600', letterSpacing: -0.3, color: colors.ink },
-  cardSub: { fontSize: 13.5, fontWeight: '400', color: colors.muted, marginTop: 3, marginBottom: 14, textAlign: 'center' },
-  link: { alignSelf: 'stretch', flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: alpha(colors.ink, 0.05), borderRadius: 12, paddingVertical: 11, paddingHorizontal: 14 },
-  linkTxt: { flex: 1, fontSize: 14, fontWeight: '500', color: colors.ink, textAlign: 'left' },
-  copy: { fontSize: 13, fontWeight: '600', color: colors.sageDeep },
-  glassBtn: { flex: 1, backgroundColor: colors.glass, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.line, borderRadius: 999, paddingVertical: 11, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
-  glassTxt: { fontSize: 14.5, fontWeight: '500', color: colors.ink },
-  hint: { fontSize: 12, fontWeight: '400', color: colors.muted, textAlign: 'center', marginTop: 10, lineHeight: 18 },
+  cardSub: { fontSize: 13.5, fontWeight: '400', color: colors.muted, marginTop: 3, marginBottom: 16, textAlign: 'center' },
+  link: { alignSelf: 'stretch', backgroundColor: alpha(colors.ink, 0.05), borderRadius: 12, paddingVertical: 11, paddingHorizontal: 14 },
+  linkTxt: { fontSize: 14, fontWeight: '500', color: colors.ink, textAlign: 'center' },
+  later: { fontSize: 13.5, fontWeight: '500', color: colors.muted },
 });

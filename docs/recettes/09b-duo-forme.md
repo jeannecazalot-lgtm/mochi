@@ -8,3 +8,15 @@
    - sous-texte 14,5/400 muted, marge 10, interligne 22, largeur max 240.
 3. CTA « Choisir nos tâches » sur le fond, bottom 26, marges 18.
 Écart : le sous-texte de l'artboard genre le binôme (« Elle remplit… ») ; la copy est neutre (« Ses dispos… »).
+
+## Retours Jeanne 22 août 2026
+1. Animation « waouh » à l'arrivée (tout coupé si « réduire les animations » iOS) :
+   - `Confetti` (motion.js) au-dessus de tout, palette du thème
+     (coral, butter, sage, lavender, sky) ;
+   - Mochi 84 en `ZoomIn.springify()` damping 14 ;
+   - les deux avatars partent écartés de ±46 px et glissent l'un vers l'autre en
+     spring (delay 200 ms) jusqu'au léger chevauchement du layout final,
+     puis léger pulse 1 → 1,06 → 1 (delay 900 ms) ;
+2. Copy réécrite (copy.json › setup) :
+   - `duoTitle` : « Bravo, {name} a rejoint / le duo ! » (félicitation) ;
+   - `duoSub` : « Prochaine étape : choisir ensemble les tâches de votre foyer. »

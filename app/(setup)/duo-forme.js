@@ -1,27 +1,50 @@
 // Écran 09b · Duo formé — l'autre a accepté. Recette : docs/recettes/09b-duo-forme.md
-import React from 'react';
+// Retours Jeanne 22 août 2026 : arrivée « waouh » — confetti palette + Mochi en
+// ZoomIn spring + avatars qui glissent l'un vers l'autre puis léger pulse.
+import React, { useEffect } from 'react';
 import { router } from 'expo-router';
 import { View, Text, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GlowBg, Avatar, PillLabel, CTAPrimary } from '../../src/components/ui';
-import { LiveMochi } from '../../src/components/motion';
+import {
+  LiveMochi, Confetti, prefersReducedMotion, ZoomIn, Animated,
+} from '../../src/components/motion';
+import {
+  useSharedValue, useAnimatedStyle, withSpring, withSequence, withDelay, withTiming,
+} from 'react-native-reanimated';
 import { fill } from '../../src/components/setup/extra';
 import { me, partner } from '../../src/demo';
 import copy from '../../src/data/copy.json';
-import { colors, space } from '../../src/theme';
+import { colors, space, motion } from '../../src/theme';
 
 const t = copy.setup;
+const confettiPalette = [colors.coral, colors.butter, colors.sage, colors.lavender, colors.sky];
 
 export default function DuoForme() {
+  const reduced = prefersReducedMotion();
+  // avatars : partent écartés (±46 px), glissent l'un vers l'autre en spring
+  // jusqu'au léger chevauchement du layout final, puis pulse 1 → 1.06 → 1.
+  const gap = useSharedValue(reduced ? 0 : 46);
+  const pulse = useSharedValue(1);
+  useEffect(() => {
+    if (reduced) return;
+    gap.value = withDelay(200, withSpring(0, motion.spring));
+    pulse.value = withDelay(900, withSequence(withTiming(1.06, { duration: 160 }), withSpring(1, motion.spring)));
+  }, []);
+  const left = useAnimatedStyle(() => ({ transform: [{ translateX: -gap.value }, { scale: pulse.value }] }));
+  const right = useAnimatedStyle(() => ({ transform: [{ translateX: gap.value }, { scale: pulse.value }] }));
+
   return (
     <View style={{ flex: 1 }}>
       <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }}>
         <View style={s.center}>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 19 }}>
-            <View style={s.ring}><Avatar initial={me.initial} color={me.color} size={62} /></View>
-            <View style={{ marginHorizontal: -4, zIndex: 2 }}><LiveMochi size={84} mood="happy" /></View>
-            <View style={s.ring}><Avatar initial={partner.initial} color={partner.color} size={62} /></View>
+            <Animated.View style={[s.ring, left]}><Avatar initial={me.initial} color={me.color} size={62} /></Animated.View>
+            <Animated.View entering={reduced ? undefined : ZoomIn.springify().damping(motion.spring.damping)} style={{ marginHorizontal: -4, zIndex: 2 }}>
+              <LiveMochi size={84} mood="happy" />
+            </Animated.View>
+            <Animated.View style={[s.ring, right]}><Avatar initial={partner.initial} color={partner.color} size={62} /></Animated.View>
           </View>
           <View style={{ marginBottom: 11 }}><PillLabel color={colors.sageDeep}>{t.duoPill}</PillLabel></View>
           <Text style={s.title}>{fill(t.duoTitle, { name: partner.first_name })}</Text>
@@ -31,6 +54,8 @@ export default function DuoForme() {
           <CTAPrimary label={t.chooseTasks} onPress={() => router.push('/(setup)/taches')} big />
         </View>
       </SafeAreaView>
+      {/* confetti au-dessus de tout ; rend null si « réduire les animations » */}
+      <Confetti colors={confettiPalette} />
     </View>
   );
 }

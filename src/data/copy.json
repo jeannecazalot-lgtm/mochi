@@ -360,8 +360,8 @@
       "enterCode": "Bouton saisir un code",
       "inviteHint": "Phrase sous les boutons QR / code",
       "duoPill": "Pastille verte écran 09b",
-      "duoTitle": "Titre 09b ({name} = prénom du binôme)",
-      "duoSub": "Sous-texte 09b",
+      "duoTitle": "Titre 09b — phrase de félicitation ({name} = prénom du binôme)",
+      "duoSub": "Sous-texte 09b — annonce la prochaine étape (choix des tâches)",
       "chooseTasks": "CTA 09b",
       "tasksTitle": "Titre écran 10",
       "tasksSub": "Sous-titre écran 10",
@@ -389,7 +389,16 @@
       "tagMorningEvening": "Créneau matin/soir",
       "tagSaturday": "samedi",
       "tagWednesday": "mercredi",
-      "tagTueFri": "mar/ven"
+      "tagTueFri": "mar/ven",
+      "inviteLater": "Lien texte « Inviter plus tard » sous les actions (09)",
+      "share": "Libellé (accessibilité) du bouton rond de partage système (09)",
+      "tasksSpecificLabel": "Intertitre en fin de liste (10) : tâches spécifiques à certains foyers (chien, plantes…)",
+      "mentalTag": "Suffixe affiché sur les tâches mentales du catalogue (10)",
+      "calcStep1": "Étape 1 du calcul qui défile (11)",
+      "calcStep2": "Étape 2 du calcul qui défile (11)",
+      "calcStep3": "Étape 3 du calcul qui défile (11)",
+      "dispatchSubTap": "Sous-titre écran 12 (fusion 12+13) : explique le tap pour réattribuer une tâche",
+      "tagSunday": "dimanche (créneau)"
     },
     "identityTitle": "C'est toi.",
     "identitySub": "Ton prénom et ta photo — on les retrouve partout : balance, planning, historique.",
@@ -439,8 +448,8 @@
     "enterCode": "Saisir un code",
     "inviteHint": "Vous êtes côte à côte ? Montre le QR, c’est instantané.",
     "duoPill": "Duo formé",
-    "duoTitle": "{name} a rejoint\nle duo.",
-    "duoSub": "Ses dispos et ses préférences se remplissent de son côté. Prochaine étape : choisir vos tâches ensemble.",
+    "duoTitle": "Bravo, {name} a rejoint\nle duo !",
+    "duoSub": "Prochaine étape : choisir ensemble les tâches de votre foyer.",
     "chooseTasks": "Choisir nos tâches",
     "tasksTitle": "Choisis vos tâches.",
     "tasksSub": "On a préparé une liste. Coche, décoche, ajoute.",
@@ -468,7 +477,16 @@
     "tagMorningEvening": "matin/soir",
     "tagSaturday": "samedi",
     "tagWednesday": "mercredi",
-    "tagTueFri": "mar/ven"
+    "tagTueFri": "mar/ven",
+    "inviteLater": "Inviter plus tard",
+    "share": "Partager",
+    "tasksSpecificLabel": "Selon ton foyer",
+    "mentalTag": "mentale",
+    "calcStep1": "Je lis vos dispos…",
+    "calcStep2": "Je pèse chaque tâche…",
+    "calcStep3": "J’équilibre…",
+    "dispatchSubTap": "Tout est ajustable : tape une tâche pour la passer à l’autre.",
+    "tagSunday": "dimanche"
   },
   "event": {
     "_labels": {
@@ -1291,5 +1309,27 @@
     "markedDone": "Fait ✓",
     "swipeHint": "Repasser ou reporter : glisse la tâche depuis la liste",
     "you": "toi"
+  },
+  "props": {
+    "_labels": {
+      "inviteTitle": "Titre de la planche de propositions pour l’écran 09",
+      "inviteSub": "Sous-titre de la planche (précise que rien n’est cliquable)",
+      "back": "Bouton retour de la planche",
+      "aLabel": "Étiquette de la variante A",
+      "aWhy": "Justification en 1 ligne de la variante A",
+      "bLabel": "Étiquette de la variante B",
+      "bWhy": "Justification en 1 ligne de la variante B",
+      "cLabel": "Étiquette de la variante C",
+      "cWhy": "Justification en 1 ligne de la variante C"
+    },
+    "inviteTitle": "Invitation — 3 pistes",
+    "inviteSub": "Maquettes statiques de l’écran 09. Rien n’est cliquable : on compare, on choisit.",
+    "back": "Retour",
+    "aLabel": "A · Actuelle améliorée",
+    "aWhy": "La carte-aperçu rassure (on voit la place qui attend), le grand CTA guide l’envoi.",
+    "bLabel": "B · Façon Tricount",
+    "bWhy": "Hero simple en haut, toutes les actions empilées en bas : zéro hésitation.",
+    "cLabel": "C · Minimaliste",
+    "cWhy": "Le QR géant fait tout le travail côte à côte ; une seule action, aucun détour."
   }
 }
