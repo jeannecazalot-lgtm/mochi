@@ -432,7 +432,11 @@
       "legendFullShort": "Légende courte état ●",
       "addTaskPlaceholder": "Placeholder du champ d ajout de tâche (écran 10)",
       "timesPerWeek": "Fréquence affichée sur 12 ({n} fois par semaine)",
-      "identityTitleA": "Titre écran 06 (proposition A, centré)"
+      "identityTitleA": "Titre écran 06 (proposition A, centré)",
+      "likeColTitle": "Titre colonne j aime (08 proposition A)",
+      "hateColTitle": "Titre colonne je déteste",
+      "stockLabel": "Label du stock à classer",
+      "prefsHintA": "Phrase d aide (proposition A)"
     },
     "identityTitle": "C'est toi.",
     "identitySub": "Ton prénom et ta photo — on les retrouve partout : balance, planning, historique.",
@@ -534,7 +538,11 @@
     "legendFullShort": "à fond",
     "addTaskPlaceholder": "Nom de la tâche…",
     "timesPerWeek": "{n}×/sem",
-    "identityTitleA": "Crée ton profil"
+    "identityTitleA": "Crée ton profil",
+    "likeColTitle": "J'aime 💚",
+    "hateColTitle": "Je déteste 🙈",
+    "stockLabel": "Encore à classer",
+    "prefsHintA": "Tape une tâche : 1 tap = j'aime · 2 taps = je déteste · 3 = je retire"
   },
   "event": {
     "_labels": {
