@@ -41,7 +41,7 @@ export default function DuoForme() {
         <View style={s.center}>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 19 }}>
             <Animated.View style={[s.ring, left]}><Avatar initial={me.initial} color={me.color} size={62} /></Animated.View>
-            <Animated.View entering={reduced ? undefined : ZoomIn.springify().damping(motion.spring.damping)} style={{ marginHorizontal: -4, zIndex: 2 }}>
+            <Animated.View style={{ marginHorizontal: -4, zIndex: 2 }}>
               <LiveMochi size={84} mood="happy" />
             </Animated.View>
             <Animated.View style={[s.ring, right]}><Avatar initial={partner.initial} color={partner.color} size={62} /></Animated.View>

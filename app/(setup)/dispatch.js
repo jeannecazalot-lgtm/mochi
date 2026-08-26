@@ -9,7 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSharedValue, useAnimatedStyle, withTiming, withSpring, withSequence } from 'react-native-reanimated';
 import { GlowBg, Card, Avatar, SetupHeader } from '../../src/components/ui';
 import { BottomCTA, LiveCount, fill } from '../../src/components/setup/extra';
-import { Animated, FadeInDown, prefersReducedMotion } from '../../src/components/motion';
+import { Animated, FadeInDown, prefersReducedMotion, LiveMochi } from '../../src/components/motion';
 import { me, partner, byId, fmtMin } from '../../src/demo';
 import { dispatch, dispatchEmoji, weeklyLoad, balanceState } from '../../src/demo-setup';
 import copy from '../../src/data/copy.json';
