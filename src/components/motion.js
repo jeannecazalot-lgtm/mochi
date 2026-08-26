@@ -59,7 +59,7 @@ export function ProgressBar({ ratio = 0, color, track, height = 8, radius = 999,
 // 3 · check de tâche : scale 0.8 → 1.1 → 1 (~350 ms)
 export function useCheckPop(done) {
   const s = useSharedValue(1);
-  useEffect(() => { if (done && !reduceMotion) s.value = withSequence(withTiming(0.8, { duration: 80 }), withSpring(1.1, { damping: 10 }), withSpring(1, motion.spring)); }, [done]);
+  useEffect(() => { if (done && !reduceMotion) s.value = withSequence(withTiming(0.94, { duration: 80 }), withSpring(1.04, { damping: 16 }), withSpring(1, motion.spring)); }, [done]);
   return useAnimatedStyle(() => ({ transform: [{ scale: s.value }] }));
 }
 

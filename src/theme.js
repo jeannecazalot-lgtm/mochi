@@ -99,7 +99,7 @@ export const font = {
 // durées d'animation (README §Animations v1)
 export const motion = {
   micro: 200, check: 350, screen: 320, progress: 600, countUp: 500, celebrate: 1500,
-  mochiFloat: 3200, spring: { damping: 14 },
+  mochiFloat: 3200, spring: { damping: 18, stiffness: 170 }, // rebonds légers (retour Jeanne, 23 août 2026)
 };
 
 // ombres : quasi inexistantes — seule le CTA et le FAB en ont une

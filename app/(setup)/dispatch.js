@@ -26,13 +26,14 @@ function usePopOnChange(dep) {
   useEffect(() => {
     if (first.current) { first.current = false; return; }
     if (prefersReducedMotion()) return;
-    sc.value = withSequence(withTiming(0.7, { duration: 80 }), withSpring(1.15, { damping: 10 }), withSpring(1, motion.spring));
+    sc.value = withSequence(withTiming(0.96, { duration: 70 }), withSpring(1.03, { damping: 18 }), withSpring(1, motion.spring)); // pop léger (retour Jeanne)
   }, [dep]);
   return useAnimatedStyle(() => ({ transform: [{ scale: sc.value }] }));
 }
 
 function Row({ it, index, onToggle, onFreq }) {
-  const who = byId(it.assignee_id);
+  const both = it.assignee_id === 'both';
+  const who = both ? me : byId(it.assignee_id);
   const pop = usePopOnChange(it.assignee_id);
   return (
     <Animated.View entering={prefersReducedMotion() ? undefined : FadeInDown.delay(index * 25).duration(motion.screen)}>
@@ -49,10 +50,15 @@ function Row({ it, index, onToggle, onFreq }) {
             </View>
           </View>
           {/* porteur explicite : avatar + prénom, tap = bascule */}
-          <Pressable onPress={onToggle} hitSlop={8} accessibilityLabel={`${it.label} · ${who.first_name}`}>
-            <Animated.View style={[pop, s.whoChip, { borderColor: who.color }]}>
-              <Avatar initial={who.initial} color={who.color} size={22} />
-              <Text style={s.whoTxt}>{who.first_name}</Text>
+          <Pressable onPress={onToggle} hitSlop={8} accessibilityLabel={`${it.label} · ${both ? t.both : who.first_name}`}>
+            <Animated.View style={[pop, s.whoChip, { borderColor: both ? colors.ink : who.color }]}>
+              {both ? (
+                <View style={{ flexDirection: 'row' }}>
+                  <Avatar initial={me.initial} color={me.color} size={22} ring />
+                  <View style={{ marginLeft: -8 }}><Avatar initial={partner.initial} color={partner.color} size={22} ring /></View>
+                </View>
+              ) : <Avatar initial={who.initial} color={who.color} size={22} />}
+              <Text style={s.whoTxt}>{both ? t.both : who.first_name}</Text>
             </Animated.View>
           </Pressable>
         </View>
@@ -66,9 +72,18 @@ export default function Dispatch() {
   // freq = occurrences/semaine (dérivée des minutes hebdo de la démo), réglable 1-14
   const [items, setItems] = useState(dispatch.map(i => ({ ...i, freq: Math.max(1, Math.round(i.weekly_min / i.mins)) })));
   const bumpFreq = (task_id, d) => setItems(l => l.map(i => (i.task_id === task_id ? { ...i, freq: Math.min(14, Math.max(1, i.freq + d)), weekly_min: Math.min(14, Math.max(1, i.freq + d)) * i.mins } : i)));
-  const toggle = task_id => setItems(l => l.map(i => (i.task_id === task_id ? { ...i, assignee_id: i.assignee_id === me.id ? partner.id : me.id } : i)));
+  // cycle du porteur : moi → binôme → les deux → moi (retour Jeanne, 23 août 2026)
+  const toggle = task_id => setItems(l => l.map(i => {
+    if (i.task_id !== task_id) return i;
+    const next = i.assignee_id === me.id ? partner.id : i.assignee_id === partner.id ? 'both' : me.id;
+    return { ...i, assignee_id: next };
+  }));
 
-  const load = weeklyLoad(items);
+  const load = items.reduce((acc, i) => {
+    if (i.assignee_id === 'both') { acc[me.id] += i.weekly_min / 2; acc[partner.id] += i.weekly_min / 2; }
+    else acc[i.assignee_id] += i.weekly_min;
+    return acc;
+  }, { [me.id]: 0, [partner.id]: 0 });
   const state = balanceState(load);
   const tot = load[me.id] + load[partner.id] || 1;
 
@@ -80,12 +95,12 @@ export default function Dispatch() {
 
         <View style={{ paddingHorizontal: space.headerX, paddingTop: 18 }}>
           <Animated.View entering={prefersReducedMotion() ? undefined : FadeInDown.duration(motion.screen)}>
-            <Card padding={0} r={20} accent={state === 'balanced' ? colors.sage : colors.butter} style={{ marginBottom: 14 }}>
+            <Card padding={0} r={20} accent={colors.sage} style={{ marginBottom: 14 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 17, paddingHorizontal: 18 }}>
                 <View style={{ flex: 1 }}>
                   <Text style={s.state}>{t[state]}</Text>
                   <Text style={s.loads}>
-                    <LiveCount value={load[me.id]} format={fmtMinRound} style={s.strong} /> {me.first_name} · <LiveCount value={load[partner.id]} format={fmtMinRound} style={s.strong} /> {partner.first_name} {t.perWeek}
+                    <Text style={s.strong}>{fmtMinRound(load[me.id])}</Text> {me.first_name} · <Text style={s.strong}>{fmtMinRound(load[partner.id])}</Text> {partner.first_name} {t.perWeek}
                   </Text>
                 </View>
                 <View style={s.bar}>
