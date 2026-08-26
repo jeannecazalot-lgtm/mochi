@@ -56,19 +56,19 @@ export default function Profil() {
           <View style={{ paddingHorizontal: 22 }}>
             <SectionMicro>{t.sectionMine}</SectionMicro>
             <View style={{ gap: 6 }}>
-              <SettingRow title={t.notifs} sub={fill(t.notifsSub, { n: duoRules.reminder_before_min })} onPress={() => router.push('/notifs')} />
-              <SettingRow title={t.dispos} sub={t.disposSub} onPress={() => router.push('/(setup)/dispos')} />
-              <SettingRow title={t.crossReminder} sub={t.crossReminderSub} right={<Switch value={cross} onValueChange={setCross} trackColor={{ true: colors.sage, false: alpha(colors.ink, 0.12) }} ios_backgroundColor={alpha(colors.ink, 0.12)} />} />
-              <SettingRow title={t.export} sub={t.exportSub} onPress={() => {}} />
+              <SettingRow emoji="🔔" title={t.notifs} sub={fill(t.notifsSub, { n: duoRules.reminder_before_min })} onPress={() => router.push('/notifs')} />
+              <SettingRow emoji="🗓" title={t.dispos} sub={t.disposSub} onPress={() => router.push('/(setup)/dispos')} />
+              <SettingRow emoji="🔁" title={t.crossReminder} sub={t.crossReminderSub} right={<Switch value={cross} onValueChange={setCross} trackColor={{ true: colors.sage, false: alpha(colors.ink, 0.12) }} ios_backgroundColor={alpha(colors.ink, 0.12)} />} />
+              <SettingRow emoji="⬇️" title={t.export} sub={t.exportSub} onPress={() => {}} />
             </View>
 
             <SectionMicro style={{ marginTop: 16 }}>{t.sectionDuo}</SectionMicro>
             <View style={{ gap: 6 }}>
-              <SettingRow title={t.thresholds} sub={fill(t.thresholdsSub, { warn: duoRules.threshold_warn_pct, alert: duoRules.threshold_alert_pct })}
+              <SettingRow emoji="⚖️" title={t.thresholds} sub={fill(t.thresholdsSub, { warn: duoRules.threshold_warn_pct, alert: duoRules.threshold_alert_pct })}
                 right={<Text style={s.value}>{fill(t.thresholdsValue, { warn: duoRules.threshold_warn_pct, alert: duoRules.threshold_alert_pct })}</Text>} />
-              <SettingRow title={t.malus} sub={t.malusSub} onPress={() => router.push('/point-hebdo')} />
-              <SettingRow title={t.subscription} sub={premium ? fill(t.subscriptionOn, { date: fmtDate(household.premium_until) }) : t.subscriptionOff} onPress={() => router.push('/paywall')} />
-              <SettingRow title={t.plan} sub={t.planSub} onPress={() => router.push('/plan')} />
+              <SettingRow emoji="🎯" title={t.malus} sub={t.malusSub} onPress={() => router.push('/point-hebdo')} />
+              <SettingRow emoji="💳" title={t.subscription} sub={premium ? fill(t.subscriptionOn, { date: fmtDate(household.premium_until) }) : t.subscriptionOff} onPress={() => router.push('/paywall')} />
+              <SettingRow emoji="🗺" title={t.plan} sub={t.planSub} onPress={() => router.push('/plan')} />
             </View>
 
             <Pressable onPress={onLogout} style={({ pressed }) => ({ paddingVertical: 10, alignItems: 'center', opacity: pressed ? 0.6 : 1 })}>

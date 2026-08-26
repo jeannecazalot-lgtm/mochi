@@ -51,7 +51,7 @@ export default function BalanceDetail() {
                 })}
               </View>
               <SplitBar height={10} style={s.barRing} parts={parts.map(p => ({ ratio: p.pct / 100, color: p.member.color }))} />
-              {state !== 'balanced' && <NoteBox lead={t.forecastLead} strong={t.forecastStrong} />}
+              {state !== 'balanced' && <NoteBox emoji="⚠️" lead={t.forecastLead} strong={t.forecastStrong} />}
             </Card>
           </View>
 
@@ -87,7 +87,7 @@ export default function BalanceDetail() {
               return (
                 <OffsetCard key={c.id} accent={colors[c.accent]} padding={0}>
                   <View style={{ paddingVertical: 9, paddingHorizontal: 13 }}>
-                    <InfoRow title={title} sub={sub} right={(
+                    <InfoRow emoji={c.emoji} title={title} sub={sub} right={(
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 13 }}>
                         <Text style={s.delta}>{fill(t.contribDelta, { n: c.delta_min })}</Text>
                         <Avatar initial={who.initial} color={who.color} size={24} />
@@ -104,6 +104,7 @@ export default function BalanceDetail() {
         <View style={s.ctaWrap}>
           <Pressable onPress={() => router.push('/(setup)/dispatch')} style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}>
             <LinearGradient {...gradients.mochi} style={[s.cta, shadows.cta]}>
+              <Text style={{ fontSize: 18 }}>✨</Text>
               <Text style={s.ctaText}>{t.rebalanceCta}</Text>
               <Text style={{ fontSize: 18, color: colors.ink }}>›</Text>
             </LinearGradient>

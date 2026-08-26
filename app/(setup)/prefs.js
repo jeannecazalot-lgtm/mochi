@@ -23,7 +23,7 @@ function Chip({ c, state, onCycle, delay }) {
       <Pressable
         onPress={() => { if (!onCycle(c.id)) shake(); }}
         style={[s.chip, bg ? { backgroundColor: bg, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline } : s.chipOff]}>
-        <Text style={s.chipTxt}>{c.label}</Text>
+        <Text style={s.chipTxt}>{c.emoji} {c.label}</Text>
       </Pressable>
     </Animated.View>
   );
@@ -64,8 +64,8 @@ export default function Prefs() {
         <View style={{ paddingHorizontal: space.headerX, paddingTop: 17 }}>
           <View style={s.legendTop}>
             <LegendChip state={0} label={t.prefsLegendNeutral} />
-            <View style={[s.legendPill, { backgroundColor: onColor.like }]}><Text style={s.legendPillTxt}>{t.prefsLegendLike}</Text></View>
-            <View style={[s.legendPill, { backgroundColor: onColor.hate }]}><Text style={s.legendPillTxt}>{t.prefsLegendHate}</Text></View>
+            <View style={[s.legendPill, { backgroundColor: onColor.like }]}><Text style={s.legendPillTxt}>💚 {t.prefsLegendLike}</Text></View>
+            <View style={[s.legendPill, { backgroundColor: onColor.hate }]}><Text style={s.legendPillTxt}>🙅 {t.prefsLegendHate}</Text></View>
           </View>
           <Text style={s.hint}>{t.prefsHint} · {fill(t.prefsMaxNote, { max: prefsMax })}</Text>
           <View style={s.wrap}>
@@ -77,6 +77,7 @@ export default function Prefs() {
           <SectionLabel style={{ marginTop: 19 }}>{t.reminderLabel}</SectionLabel>
           <Card padding={0} r={16}>
             <View style={s.remRow}>
+              <Text style={{ fontSize: 19 }}>🔔</Text>
               <View style={{ flex: 1 }}>
                 <Text style={s.remTitle}>{t.reminderTitle}</Text>
                 <Text style={s.remSub}>{t.reminderSub}</Text>

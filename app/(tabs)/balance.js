@@ -91,6 +91,7 @@ export default function Balance() {
           <View style={s.block}>
             <Card padding={14}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 13 }}>
+                <Text style={{ fontSize: 24 }}>🔥</Text>
                 <View style={{ flex: 1 }}>
                   <Micro>{t.streakTitle}</Micro>
                   <CountUp value={streak.days} format={v => fill(t.streakDays, { n: Math.round(v) })} style={s.streakNum} />
@@ -111,7 +112,7 @@ export default function Balance() {
                   <View key={m.id}>
                     {i > 0 && <Divider />}
                     <View style={{ paddingTop: i > 0 ? 10 : 0, paddingBottom: 10 }}>
-                      <InfoRow dot={colors[m.accent]} title={task?.title} sub={fill(copy.malus.times, { n: m.times, i: m.importance })} right={<DarkPill>{fill(t.malusPts, { n: m.points })}</DarkPill>} />
+                      <InfoRow emoji={task?.emoji} title={task?.title} sub={fill(copy.malus.times, { n: m.times, i: m.importance })} right={<DarkPill>{fill(t.malusPts, { n: m.points })}</DarkPill>} />
                     </View>
                   </View>
                 );

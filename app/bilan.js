@@ -38,7 +38,7 @@ export default function Bilan() {
             const unlocked = !!b.unlocked_on;
             const inner = (
               <>
-                <Text style={{ fontSize: 21, marginBottom: 6, color: unlocked ? colors.sageDeep : colors.muted }}>{unlocked ? '●' : '○'}</Text>
+                <Text style={{ fontSize: 21, marginBottom: 6 }}>{unlocked ? def.emoji : '🔒'}</Text>
                 <Text style={s.badgeTitle}>{def.title}</Text>
                 <Text style={s.badgeSub}>{unlocked ? fill(t.badgeUnlocked, { days: def.days, date: fmtDay(b.unlocked_on) }) : fill(t.badgeLocked, { days: def.days, n: b.remaining })}</Text>
               </>

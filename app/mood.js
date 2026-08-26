@@ -4,7 +4,6 @@ import { router } from 'expo-router';
 import { View, Text, TextInput, Pressable, ScrollView, StyleSheet, Platform } from 'react-native';
 import { PillLabel } from '../src/components/ui';
 import { ModalSheet, SectionLabel, CtaModal, Chip, extraColors } from '../src/components/modaux/extra';
-import { Dot } from '../src/components/sober';
 import { partner } from '../src/demo';
 import { moodLevels, moodTags } from '../src/demo-modaux';
 import copy from '../src/data/copy.json';
@@ -25,12 +24,11 @@ export default function Mood() {
           <Text style={s.sub}>{t.sub.replace('{partner}', partner.first_name)}</Text>
 
           <View style={s.faces}>
-            {moodLevels.map((m, i) => {
+            {moodLevels.map(m => {
               const on = level === m.key;
               return (
                 <Pressable key={m.key} onPress={() => setLevel(m.key)} style={{ alignItems: 'center', gap: 6 }}>
-                  {/* point de taille croissante : la charge ressentie monte de gauche à droite */}
-                  <View style={[s.face, on && { backgroundColor: extraColors.peach }]}><Dot color={colors.ink} size={6 + i * 3} /></View>
+                  <View style={[s.face, on && { backgroundColor: extraColors.peach }]}><Text style={{ fontSize: 22 }}>{m.emoji}</Text></View>
                   <Text style={[s.faceLabel, on && { color: colors.ink, fontWeight: '600' }]}>{t.levels[m.key]}</Text>
                 </Pressable>
               );

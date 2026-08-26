@@ -65,6 +65,7 @@ export default function Budget() {
               const payer = byId(e.paid_by);
               return (
                 <GlassRow key={e.id} style={{ marginBottom: 6 }}>
+                  <Text style={{ fontSize: 19 }}>{e.emoji}</Text>
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                       <Text style={{ fontSize: 15.5, fontWeight: '500', color: colors.ink }} numberOfLines={1}>{e.title}</Text>

@@ -70,7 +70,7 @@ export default function PointHebdo() {
               return (
                 <OffsetCard key={m.id} accent={colors[m.accent]} padding={0}>
                   <View style={{ paddingVertical: 11, paddingHorizontal: 14 }}>
-                    <InfoRow dot={colors[m.accent]} title={fill(m.kind === 'missed' ? t.missed : t.swapped, { task: task?.title })}
+                    <InfoRow emoji={task?.emoji} title={fill(m.kind === 'missed' ? t.missed : t.swapped, { task: task?.title })}
                       sub={fill(t.times, { n: m.times, i: m.importance })} right={<DarkPill>{fill(copy.balance.malusPts, { n: m.points })}</DarkPill>} />
                   </View>
                 </OffsetCard>
@@ -83,6 +83,7 @@ export default function PointHebdo() {
             <OffsetCard accent={colors.sage} opacity={0.45} offset={{ x: 4, y: 5 }} r={radius.card} padding={0}>
               <View style={{ paddingVertical: 13, paddingHorizontal: 16 }}>
                 <View style={s.propHead}>
+                  <Text style={{ fontSize: 18 }}>💡</Text>
                   <Text style={s.propTitle}>{fill(t.proposes, { name: from?.first_name })}</Text>
                   <Text style={s.propErase}>{t.eraseAll}</Text>
                 </View>

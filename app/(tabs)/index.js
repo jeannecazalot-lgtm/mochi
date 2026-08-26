@@ -8,7 +8,6 @@ import { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reani
 import { GlowBg, Card, Divider, GlassRow, Avatar } from '../../src/components/ui';
 import { LiveMochi, useCheckPop, Animated } from '../../src/components/motion';
 import { Icon, ICON, BadgePill, CheckCircle, RoundButton, Hint } from '../../src/components/core/extra';
-import { Dot } from '../../src/components/sober';
 import { me, partner, balance, streak, myToday, partnerToday, taskById, fmtMin } from '../../src/demo';
 import { fmtHeaderDate, mochiLean, moreLoaded, sumMinutes, hasUnreadPing } from '../../src/demo-core';
 import copy from '../../src/data/copy.json';
@@ -35,8 +34,7 @@ function MissionRow({ occ, first, done, onToggle }) {
     <Pressable onPress={() => router.push(`/task/${task.id}`)} onLongPress={() => router.push(`/ping?occ=${occ.id}`)} delayLongPress={400}>
       {!first ? <Divider /> : null}
       <Animated.View style={[s.row, rowStyle]}>
-        {/* pastille couleur du membre assigné (missions du jour = les miennes) */}
-        <Dot color={me.color} />
+        <Text style={{ fontSize: 19 }}>{task.emoji}</Text>
         <Text style={[font.body, { flex: 1 }, done && { textDecorationLine: 'line-through' }]} numberOfLines={1}>{task.title}</Text>
         {occ.badge ? <BadgePill color={colors.coralDeep} tint={colors.coral} a={0.14}>{occ.badge}</BadgePill>
           : mental ? <BadgePill color={colors.lavenderDeep} tint={colors.lavender} a={0.18}>{copy.home.mentalBadge}</BadgePill> : null}

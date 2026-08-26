@@ -33,7 +33,7 @@ export default function Ping() {
 
   const options = pingOptions
     .filter(k => k !== 'deadline' || time)
-    .map(k => ({ key: k, label: fill(t.options[k].label, { time }), sub: t.options[k].sub }));
+    .map(k => ({ key: k, emoji: k === 'reminder' ? '🌷' : k === 'turn' ? (task?.emoji || '🍽') : k === 'deadline' ? '⏰' : '🤝', label: fill(t.options[k].label, { time }), sub: t.options[k].sub }));
 
   return (
     <View style={{ backgroundColor: colors.card }}>
@@ -41,6 +41,7 @@ export default function Ping() {
         <View style={{ paddingHorizontal: space.screenX, paddingTop: 14 }}>
           <Card r={radius.card} padding={0}>
             <View style={s.raisedRow}>
+              <Text style={{ fontSize: 19 }}>{task.emoji}</Text>
               <View style={{ flex: 1 }}>
                 <Text style={s.raisedTitle}>{task.title}</Text>
                 {time ? <Text style={s.raisedSub}>{time} · {who.first_name}</Text> : <Text style={s.raisedSub}>{who.first_name}</Text>}
@@ -55,13 +56,13 @@ export default function Ping() {
         <SheetHandle />
         <View style={s.titleRow}>
           <Micro style={{ flex: 1 }}>{fill(t.sheetTitle, { name: who.id === me.id ? copy.common.partner : who.first_name })}</Micro>
-          {/* copy.json garde le placeholder {emoji} : on le vide (plus d'émoji dans l'UI) */}
-          {task ? <ReplyChip muted label={fill(t.attached, { emoji: '' }).trim()} /> : null}
+          {task ? <ReplyChip muted label={fill(t.attached, { emoji: task.emoji })} /> : null}
         </View>
         {options.map(o => (
           <Pressable key={o.key} onPress={() => send(o.key)} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
             <Card r={radius.row} padding={0} style={{ marginBottom: 6 }}>
               <View style={s.optRow}>
+                <Text style={{ fontSize: 19 }}>{o.emoji}</Text>
                 <View style={{ flex: 1 }}>
                   <Text style={s.optLabel}>{o.label}</Text>
                   <Text style={s.optSub}>{o.sub}</Text>

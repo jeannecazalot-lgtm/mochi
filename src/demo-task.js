@@ -70,6 +70,6 @@ export const currentDay = (occurrences, id) => { const o = occurrences.find(x =>
 export const fmtDay = date => new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short' }).format(date).replace('.', '');
 export const fmtWeekday = date => new Intl.DateTimeFormat('fr-FR', { weekday: 'long' }).format(date);
 export const fmtMinShort = min => (min < 60 ? `${min}ʼ` : fmtMin(min));
-export const fmtStars = n => `${n}/5`;
+export const fmtStars = n => `${n} ★`;
 export const fmtHour = hhmm => (hhmm ? `${parseInt(hhmm, 10)}h` : '');
 export { me, partner, byId };

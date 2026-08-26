@@ -46,12 +46,17 @@ export default function Wrapped() {
   );
 }
 
-function Highlight({ title, sub }) {
+function Highlight({ emoji, title, sub }) {
   return (
     <View style={{ paddingHorizontal: 22, marginBottom: 10 }}>
       <Card r={18} style={{ paddingVertical: 17, paddingHorizontal: 18 }}>
-        <Text style={s.hlTitle}>{title}</Text>
-        <Text style={s.hlSub}>{sub}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+          <Text style={{ fontSize: 24 }}>{emoji}</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={s.hlTitle}>{title}</Text>
+            <Text style={s.hlSub}>{sub}</Text>
+          </View>
+        </View>
       </Card>
     </View>
   );
@@ -67,10 +72,10 @@ function Solo() {
         <CountUp value={w.minutes} format={v => fmtMin(Math.round(v))} style={s.heroSolo} />
         <Text style={[s.sub, { marginTop: 6, marginBottom: 21 }]}>{t.hoursSub}</Text>
       </View>
-      <Highlight title={t.highlightTitle} sub={fill(t.highlightSub, { n: w.highlight.count, name: partner.first_name })} />
+      <Highlight emoji="🍽" title={t.highlightTitle} sub={fill(t.highlightSub, { n: w.highlight.count, name: partner.first_name })} />
       <View style={s.rows}>
         <DarkRow icon="✓" label={t.tasksDone}><CountUp value={w.tasks_done} style={darkValue} /></DarkRow>
-        <DarkRow icon="●" label={t.mentalAbsorbed}><CountUp value={w.mental_absorbed} style={darkValue} /></DarkRow>
+        <DarkRow icon="🧠" label={t.mentalAbsorbed}><CountUp value={w.mental_absorbed} style={darkValue} /></DarkRow>
         <DarkRow icon="⇄" label={t.swapsAccepted}><CountUp value={w.swaps_accepted} style={darkValue} /></DarkRow>
       </View>
       <View style={[s.foot, { bottom: 28 }]}><Text style={s.next}>{t.next}</Text></View>
@@ -98,11 +103,11 @@ function Couple() {
           <Text style={[s.legend, { color: partner.color }]}>● {partner.first_name}</Text>
         </View>
       </View>
-      <Highlight title={fill(t.streakTitle, { n: w.streak_days })} sub={streakSub} />
+      <Highlight emoji="🔥" title={fill(t.streakTitle, { n: w.streak_days })} sub={streakSub} />
       <View style={s.rows}>
-        <DarkRow icon="●" label={fill(t.laundryQueen, { name: w.laundry.who.first_name })}><CountUp value={w.laundry.count} format={v => `×${Math.round(v)}`} style={darkValue} /></DarkRow>
-        <DarkRow icon="●" label={fill(t.forgotten, { task: w.forgotten.short || taskTitle(w.forgotten.task_id), day: w.forgotten.day })}><Text style={darkValue}>{w.forgotten.points > 0 ? `+${w.forgotten.points}` : `−${Math.abs(w.forgotten.points)}`}</Text></DarkRow>
-        <DarkRow icon="●" label={t.coordination}><CountUp value={w.coordination_min} format={v => `≈${fmtMin(Math.round(v))}`} style={darkValue} /></DarkRow>
+        <DarkRow icon="🧺" label={fill(t.laundryQueen, { name: w.laundry.who.first_name })}><CountUp value={w.laundry.count} format={v => `×${Math.round(v)}`} style={darkValue} /></DarkRow>
+        <DarkRow icon="😬" label={fill(t.forgotten, { task: w.forgotten.short || taskTitle(w.forgotten.task_id), day: w.forgotten.day })}><Text style={darkValue}>{w.forgotten.points > 0 ? `+${w.forgotten.points}` : `−${Math.abs(w.forgotten.points)}`}</Text></DarkRow>
+        <DarkRow icon="⏱" label={t.coordination}><CountUp value={w.coordination_min} format={v => `≈${fmtMin(Math.round(v))}`} style={darkValue} /></DarkRow>
       </View>
       <View style={[s.foot, { bottom: 28 }]}><Text style={s.next}>{t.next}</Text></View>
     </View>

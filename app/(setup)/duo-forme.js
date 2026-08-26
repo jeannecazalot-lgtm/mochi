@@ -24,12 +24,10 @@ export default function DuoForme() {
   const reduced = prefersReducedMotion();
   // avatars : partent écartés (±46 px), glissent l'un vers l'autre en spring
   // jusqu'au léger chevauchement du layout final, puis pulse 1 → 1.06 → 1.
-  const gap = useSharedValue(reduced ? 0 : 46);
+  const gap = useSharedValue(0); // animation neutralisée (retour Jeanne, 23 août 2026 — à retravailler)
   const pulse = useSharedValue(1);
   useEffect(() => {
     if (reduced) return;
-    gap.value = withDelay(200, withSpring(0, motion.spring));
-    pulse.value = withDelay(900, withSequence(withTiming(1.06, { duration: 160 }), withSpring(1, motion.spring)));
   }, []);
   const left = useAnimatedStyle(() => ({ transform: [{ translateX: -gap.value }, { scale: pulse.value }] }));
   const right = useAnimatedStyle(() => ({ transform: [{ translateX: gap.value }, { scale: pulse.value }] }));

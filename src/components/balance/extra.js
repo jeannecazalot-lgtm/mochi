@@ -9,7 +9,6 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, withDelay, Easing } from 'react-native-reanimated';
 import { Card } from '../ui';
-import { Dot } from '../sober';
 import { prefersReducedMotion } from '../motion';
 import { colors, font, radius, space, alpha, motion } from '../../theme';
 
@@ -93,11 +92,11 @@ export function SectionMicro({ children, style }) {
   return <Text style={[font.micro, s.sectionMicro, style]}>{children}</Text>;
 }
 
-// ─── rangée contributeur / malus : pastille couleur · titre 15.5/500 + sous 12 · à droite ─
-export function InfoRow({ dot, title, sub, right }) {
+// ─── rangée contributeur / malus : emoji · titre 15.5/500 + sous 12 · à droite ─
+export function InfoRow({ emoji, title, sub, right }) {
   return (
     <View style={s.infoRow}>
-      {dot ? <Dot color={dot} /> : null}
+      <Text style={{ fontSize: 19 }}>{emoji}</Text>
       <View style={{ flex: 1 }}>
         <Text style={s.infoTitle}>{title}</Text>
         {sub ? <Text style={s.infoSub}>{sub}</Text> : null}
@@ -116,10 +115,11 @@ export function ChoiceChip({ label, selected, onPress }) {
   );
 }
 
-// ─── encart note (texte sur fond teinté 10 %) ────────────────────────
-export function NoteBox({ lead, strong, tint = colors.coral }) {
+// ─── encart note (⚠️ + texte) sur fond coral 10 % ────────────────────
+export function NoteBox({ emoji, lead, strong, tint = colors.coral }) {
   return (
     <View style={[s.note, { backgroundColor: alpha(tint, 0.10) }]}>
+      <Text style={{ fontSize: 15 }}>{emoji}</Text>
       <Text style={s.noteText}>{lead}<Text style={{ fontWeight: '700' }}>{strong}</Text></Text>
     </View>
   );
