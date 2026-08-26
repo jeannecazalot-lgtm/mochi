@@ -50,12 +50,14 @@ export default function Invite() {
           </Card>
         </View>
 
-        {/* actions façon Tricount : grand CTA, rangée de pilules, lien texte */}
-        <View style={{ paddingHorizontal: space.screenX, paddingBottom: 26 }}>
-          <CTAPrimary label={t.sendLink} onPress={send} big />
-          <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 10, marginTop: 14 }}>
-            <ActionPill icon={<QRIcon />} label={t.qr} />
-            <ActionPill icon={<ShareIcon />} onPress={shareOnly} accessibilityLabel={t.share} />
+        {/* actions calquées sur le screenshot Tricount de Jeanne (23 août 2026) :
+            une seule rangée — grande pilule à gauche, QR et partage ronds à droite —
+            puis « Inviter plus tard » centré dessous. */}
+        <View style={{ paddingHorizontal: 24, paddingBottom: 26 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <CTAPrimary label={t.sendLink} onPress={send} big style={{ flex: 1 }} pill />
+            <ActionPill round icon={<QRIcon />} accessibilityLabel={t.qr} />
+            <ActionPill round icon={<ShareIcon />} onPress={shareOnly} accessibilityLabel={t.share} />
           </View>
           <Pressable onPress={next} hitSlop={8} style={{ alignSelf: 'center', marginTop: 18 }}>
             <Text style={s.later}>{t.inviteLater}</Text>

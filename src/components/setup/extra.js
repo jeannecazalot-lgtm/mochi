@@ -158,12 +158,18 @@ export const QRIcon = ({ size = 18, color = colors.ink }) => (
 
 // ─── bouton secondaire rond/pilule (09) : glass + hairline, radius 999.
 // Avec `label` → pilule icône + texte ; sans → rond icône seule (size × size).
-export function ActionPill({ icon, label, onPress, size = 48, accessibilityLabel, style }) {
+export function ActionPill({ icon, label, onPress, accessibilityLabel, round }) {
+  // `round` : bouton circulaire 56 (rangée façon Tricount, retour Jeanne 23 août 2026)
   return (
-    <Pressable onPress={onPress} accessibilityLabel={accessibilityLabel || label} hitSlop={4}
-      style={({ pressed }) => [s2.actionPill, { height: size }, label ? { paddingHorizontal: 20 } : { width: size }, { opacity: pressed && onPress ? 0.7 : 1 }, style]}>
+    <Pressable onPress={onPress} accessibilityLabel={accessibilityLabel || label}
+      style={({ pressed }) => [
+        round
+          ? { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center' }
+          : { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 15, paddingHorizontal: 20, borderRadius: 999 },
+        { backgroundColor: colors.card, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline, opacity: pressed ? 0.7 : 1 },
+      ]}>
       {icon}
-      {label ? <Text style={s2.actionPillTxt}>{label}</Text> : null}
+      {!round && label ? <Text style={{ fontSize: 14.5, fontWeight: '500', color: colors.ink }}>{label}</Text> : null}
     </Pressable>
   );
 }
