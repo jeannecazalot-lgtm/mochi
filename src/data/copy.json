@@ -25,14 +25,22 @@
       "email": "Bouton email",
       "emailPlaceholder": "Placeholder email",
       "sendLink": "Bouton envoi du lien magique",
-      "linkSent": "Message après envoi"
+      "linkSent": "Message après envoi",
+      "title2": "Titre écran connexion (façon Suno)",
+      "or": "Séparateur entre le bouton principal et les carrés",
+      "emailTitle": "Titre de l état saisie e-mail",
+      "appleUnavailable": "Message si la connexion Apple n est pas encore configurée"
     },
     "title": "Bienvenue",
     "apple": "Continuer avec Apple",
     "email": "Continuer avec un e-mail",
     "emailPlaceholder": "ton@email.fr",
     "sendLink": "Recevoir un lien de connexion",
-    "linkSent": "Lien envoyé. Ouvre-le depuis ton téléphone."
+    "linkSent": "Lien envoyé. Ouvre-le depuis ton téléphone.",
+    "title2": "Crée ton compte\nmochi",
+    "or": "ou",
+    "emailTitle": "Par e-mail",
+    "appleUnavailable": "Connexion Apple bientôt disponible — passe par l e-mail."
   },
   "tabs": {
     "_labels": {
