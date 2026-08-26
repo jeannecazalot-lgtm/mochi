@@ -5,64 +5,63 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GlowBg, SetupHeader, Card, CTAPrimary } from '../../src/components/ui';
 import { LiveMochi, FadeInDown, Animated } from '../../src/components/motion';
-import { SectionLabel, fill, setupTokens, useShake } from '../../src/components/setup/extra';
-import { likeChips, hateChips, prefsMax, reminderTimes } from '../../src/demo-setup';
+import { SectionLabel, fill, setupTokens, useShake, LegendChip } from '../../src/components/setup/extra';
+import { prefsPool, prefsMax, reminderTimes } from '../../src/demo-setup';
 import copy from '../../src/data/copy.json';
 import { colors, space, alpha } from '../../src/theme';
 
 const t = copy.setup;
 const onColor = { like: setupTokens.chipLike, hate: setupTokens.chipHate };
 
-// Un chip : entrée en cascade + secousse si la sélection est refusée
-// (4e tap alors que le max est atteint — retour Jeanne, 22 août 2026).
-function Chip({ c, tone, on, onToggle, delay }) {
+// 08 v2 (retour Jeanne, 22 août 2026) : UNE seule liste — chaque tâche cycle
+// neutre → j'aime → je déteste → neutre. Secousse si le côté visé est plein.
+function Chip({ c, state, onCycle, delay }) {
   const { style, shake } = useShake();
+  const bg = state === 'like' ? onColor.like : state === 'hate' ? onColor.hate : null;
   return (
     <Animated.View entering={FadeInDown.duration(220).delay(delay)} style={style}>
       <Pressable
-        onPress={() => { if (!onToggle(c.id)) shake(); }}
-        style={[s.chip, on ? { backgroundColor: onColor[tone], borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline } : s.chipOff]}>
-        <Text style={s.chipTxt}>{c.emoji} {c.label}</Text>
+        onPress={() => { if (!onCycle(c.id)) shake(); }}
+        style={[s.chip, bg ? { backgroundColor: bg, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline } : s.chipOff]}>
+        <Text style={s.chipTxt}>{c.emoji} {c.label}{state === 'like' ? ' 💚' : state === 'hate' ? ' 🙅' : ''}</Text>
       </Pressable>
     </Animated.View>
   );
 }
 
-function Chips({ items, tone, selected, onToggle, baseDelay = 0 }) {
-  return (
-    <View style={s.wrap}>
-      {items.map((c, i) => (
-        <Chip key={c.id} c={c} tone={tone} on={selected.includes(c.id)} onToggle={onToggle} delay={baseDelay + i * 30} />
-      ))}
-    </View>
-  );
-}
-
 export default function Prefs() {
-  // Retour Jeanne (22 août 2026) : aucun chip pré-sélectionné.
-  const [likes, setLikes] = useState([]);
-  const [hates, setHates] = useState([]);
+  // Aucun état pré-rempli ; cycle neutre → j'aime → je déteste → neutre.
+  const [prefs, setPrefs] = useState({});
   const [timeIdx, setTimeIdx] = useState(0);
+  const count = tone => Object.values(prefs).filter(v => v === tone).length;
 
-  // renvoie faux quand le tap est refusé (déjà `prefsMax` sélections) → le chip vibre
-  const toggle = (list, set) => (id) => {
-    if (list.includes(id)) { set(list.filter(x => x !== id)); return true; }
-    if (list.length >= prefsMax) return false;
-    set([...list, id]); return true;
+  // renvoie faux quand le côté visé est plein (max atteint) → le chip vibre
+  const cycle = (id) => {
+    const cur = prefs[id];
+    const next = cur === 'like' ? 'hate' : cur === 'hate' ? undefined : 'like';
+    if (next && count(next) >= prefsMax) return false;
+    setPrefs(p => ({ ...p, [id]: next }));
+    return true;
   };
 
   return (
     <View style={{ flex: 1 }}>
       <GlowBg intensity="soft" />
       <SafeAreaView style={{ flex: 1 }}>
-        <SetupHeader hero={<LiveMochi size={96} />} step={3} total={4} title={t.prefsTitle} sub={t.prefsSub} />
+        <SetupHeader hero={<LiveMochi size={96} />} step={3} total={4} title={t.prefsTitle} sub={t.prefsSub2} />
 
         <View style={{ paddingHorizontal: space.headerX, paddingTop: 17 }}>
-          <SectionLabel color={colors.sageDeep}>{fill(t.likeLabel, { max: prefsMax })}</SectionLabel>
-          <Chips items={likeChips} tone="like" selected={likes} onToggle={toggle(likes, setLikes)} />
-
-          <SectionLabel color={colors.coralDeep} style={{ marginTop: 16 }}>{fill(t.hateLabel, { max: prefsMax })}</SectionLabel>
-          <Chips items={hateChips} tone="hate" selected={hates} onToggle={toggle(hates, setHates)} baseDelay={likeChips.length * 30} />
+          <View style={s.legendTop}>
+            <LegendChip state={0} label={t.prefsLegendNeutral} />
+            <View style={[s.legendPill, { backgroundColor: onColor.like }]}><Text style={s.legendPillTxt}>💚 {t.prefsLegendLike}</Text></View>
+            <View style={[s.legendPill, { backgroundColor: onColor.hate }]}><Text style={s.legendPillTxt}>🙅 {t.prefsLegendHate}</Text></View>
+          </View>
+          <Text style={s.hint}>{t.prefsHint} · {fill(t.prefsMaxNote, { max: prefsMax })}</Text>
+          <View style={s.wrap}>
+            {prefsPool.map((c, i) => (
+              <Chip key={c.id} c={c} state={prefs[c.id]} onCycle={cycle} delay={i * 30} />
+            ))}
+          </View>
 
           <SectionLabel style={{ marginTop: 19 }}>{t.reminderLabel}</SectionLabel>
           <Card padding={0} r={16}>
@@ -88,6 +87,10 @@ export default function Prefs() {
 }
 
 const s = StyleSheet.create({
+  legendTop: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 6, marginBottom: 6 },
+  legendPill: { paddingVertical: 7, paddingHorizontal: 11, borderRadius: 999, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
+  legendPillTxt: { fontSize: 12.5, fontWeight: '500', color: colors.ink },
+  hint: { textAlign: 'center', fontSize: 12, fontWeight: '400', color: colors.muted, marginBottom: 12 },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   chip: { paddingVertical: 8, paddingHorizontal: 13, borderRadius: 999 },
   chipOff: { backgroundColor: colors.card, borderWidth: 1.5, borderColor: alpha(colors.ink, 0.10) },

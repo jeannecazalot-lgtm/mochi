@@ -103,3 +103,7 @@ export const balanceState = (load) => {
 export const reassignInitial = () => dispatch.map(it => ({ ...it, assignee_id: it.assignee_id || me.id, dragging: !it.assignee_id }));
 
 export const allTasks = tasks;
+
+// 08 v2 (retour Jeanne, 22 août 2026) : une seule liste de tâches, chacune
+// basculable j'aime / neutre / je déteste — chien et plantes exclus.
+export const prefsPool = catalogue.filter(c => !c.specific).map(({ id, emoji, label }) => ({ id, emoji, label }));

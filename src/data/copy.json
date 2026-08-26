@@ -401,7 +401,13 @@
       "tagSunday": "dimanche (créneau)",
       "legendNone": "Légende état vide (proposition A)",
       "tapHint": "Phrase sous les chips de légende (proposition A)",
-      "disposSub2": "Nouveau sous-titre écran 07 (court, la légende explique le reste)"
+      "disposSub2": "Nouveau sous-titre écran 07 (court, la légende explique le reste)",
+      "prefsSub2": "Sous-titre écran 08 v2 (pool unique à bascule)",
+      "prefsLegendNeutral": "Légende état neutre",
+      "prefsLegendLike": "Légende état j'aime",
+      "prefsLegendHate": "Légende état je déteste",
+      "prefsHint": "Phrase d'explication sous la légende",
+      "prefsMaxNote": "Note de limite ({max} = nombre max par côté)"
     },
     "identityTitle": "C'est toi.",
     "identitySub": "Ton prénom et ta photo — on les retrouve partout : balance, planning, historique.",
@@ -492,7 +498,13 @@
     "tagSunday": "dimanche",
     "legendNone": "pas dispo",
     "tapHint": "Tape une case pour changer son état",
-    "disposSub2": "Dis-nous quand tu peux t’occuper du foyer."
+    "disposSub2": "Dis-nous quand tu peux t’occuper du foyer.",
+    "prefsSub2": "Chaque tâche : dis si tu aimes… ou pas du tout.",
+    "prefsLegendNeutral": "neutre",
+    "prefsLegendLike": "j'aime",
+    "prefsLegendHate": "je déteste",
+    "prefsHint": "Tape une tâche : 1 tap = j'aime · 2 taps = je déteste",
+    "prefsMaxNote": "{max} max de chaque côté"
   },
   "event": {
     "_labels": {
