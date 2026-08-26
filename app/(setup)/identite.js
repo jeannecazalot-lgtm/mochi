@@ -39,10 +39,7 @@ export default function Identite() {
     <View style={{ flex: 1 }}>
       <GlowBg intensity="soft" />
       <SafeAreaView style={{ flex: 1 }}>
-        <View style={{ alignItems: 'center', paddingTop: 18 }}>
-          <LiveMochi size={96} mood="happy" />
-        </View>
-        <SetupHeader step={1} total={4} title={t.identityTitle} sub={t.identitySub} />
+        <SetupHeader hero={<LiveMochi size={96} mood="happy" />} step={1} total={4} title={t.identityTitle} sub={t.identitySub} />
 
         <View style={{ paddingHorizontal: space.headerX, paddingTop: 24 }}>
           <Micro style={s.label}>{t.firstNameLabel}</Micro>

@@ -54,10 +54,7 @@ export default function Dispos() {
     <View style={{ flex: 1 }}>
       <GlowBg intensity="soft" />
       <SafeAreaView style={{ flex: 1 }}>
-        <View style={{ alignItems: 'center', paddingTop: 18 }}>
-          <LiveMochi size={96} mood="happy" />
-        </View>
-        <SetupHeader step={2} total={4} title={t.disposTitle} sub={t.disposSub} />
+        <SetupHeader hero={<LiveMochi size={96} />} step={2} total={4} title={t.disposTitle} sub={t.disposSub} />
 
         <View style={{ paddingHorizontal: space.headerX, paddingTop: 18 }}>
           <Card padding={0} r={18} style={{ marginBottom: 10 }}>

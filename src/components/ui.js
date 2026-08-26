@@ -157,10 +157,11 @@ const s = StyleSheet.create({
   footer: { backgroundColor: colors.white, borderTopWidth: 1, borderTopColor: colors.footerLine, paddingTop: space.footerTop, paddingHorizontal: space.screenX },
 });
 // ─── en-tête des écrans Setup (06-08) : points d'étape + titre + sous-titre ─
-export function SetupHeader({ step, total = 3, title, sub }) {
+export function SetupHeader({ step, total = 3, title, sub, hero }) {
   const canBack = router.canGoBack();
   return (
     <View>
+      {hero ? <View style={{ alignItems: 'center', paddingTop: 6 }}>{hero}</View> : null}
       <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 5, paddingTop: 14 }}>
         {Array.from({ length: total }, (_, i) => i + 1).map(i => (
           <View key={i} style={{ width: i === step ? 18 : 6, height: 6, borderRadius: radius.pill, backgroundColor: i <= step ? colors.ink : alpha(colors.ink, 0.15) }} />
