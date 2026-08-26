@@ -65,13 +65,7 @@ export default function Taches() {
           <SetupHeader hero={<LiveMochi size={96} />} title={t.tasksTitle} sub={t.tasksSub} />
           <SkipLink onPress={next} />
         </View>
-        <ScrollView {...scrollProps} contentContainerStyle={{ paddingHorizontal: space.screenX, paddingTop: 18, paddingBottom: 110 }} showsVerticalScrollIndicator={false}>
-          {broad.map((c, i) => <Row key={c.id} c={c} index={i} active={on.includes(c.id)} onToggle={() => toggle(c.id)} />)}
-          <Animated.View entering={prefersReducedMotion() ? undefined : FadeInDown.delay(broad.length * 45).duration(motion.screen)}>
-            <SectionLabel style={{ marginTop: 14, marginBottom: 9 }}>{t.tasksSpecificLabel}</SectionLabel>
-          </Animated.View>
-          {specific.map((c, i) => <Row key={c.id} c={c} index={broad.length + 1 + i} active={on.includes(c.id)} onToggle={() => toggle(c.id)} />)}
-          {customs.map((c, i) => <Row key={c.id} c={c} index={0} active={on.includes(c.id)} onToggle={() => toggle(c.id)} />)}
+        <ScrollView {...scrollProps} contentContainerStyle={{ paddingHorizontal: space.screenX, paddingTop: 30, paddingBottom: 110 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
           {adding ? (
             <Card padding={0} r={14} style={{ marginBottom: 6 }} accent={colors.sage}>
               <View style={s.row}>
@@ -82,6 +76,12 @@ export default function Taches() {
               </View>
             </Card>
           ) : null}
+          {broad.map((c, i) => <Row key={c.id} c={c} index={i} active={on.includes(c.id)} onToggle={() => toggle(c.id)} />)}
+          <Animated.View entering={prefersReducedMotion() ? undefined : FadeInDown.delay(broad.length * 45).duration(motion.screen)}>
+            <SectionLabel style={{ marginTop: 14, marginBottom: 9 }}>{t.tasksSpecificLabel}</SectionLabel>
+          </Animated.View>
+          {specific.map((c, i) => <Row key={c.id} c={c} index={broad.length + 1 + i} active={on.includes(c.id)} onToggle={() => toggle(c.id)} />)}
+          {customs.map((c, i) => <Row key={c.id} c={c} index={0} active={on.includes(c.id)} onToggle={() => toggle(c.id)} />)}
         </ScrollView>
         <GrowCTA grown={atEnd} style={s.bottom}>
           <View style={{ flexDirection: 'row', gap: 8 }}>

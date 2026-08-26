@@ -210,7 +210,7 @@ export function useScrollEnd(threshold = 32) {
 
 export function GrowCTA({ grown = true, compact = 56, style, children }) {
   const m = useSharedValue(grown ? 0 : compact);
-  useEffect(() => { m.value = withSpring(grown ? 0 : compact, { damping: 16, stiffness: 160 }); }, [grown]);
+  useEffect(() => { m.value = withTiming(grown ? 0 : compact, { duration: 220, easing: Easing.out(Easing.cubic) }); }, [grown]); // sans rebond (retour Jeanne, 23 août 2026)
   const a = useAnimatedStyle(() => ({ marginHorizontal: m.value }));
   return <Animated.View style={[a, style]}>{children}</Animated.View>;
 }
