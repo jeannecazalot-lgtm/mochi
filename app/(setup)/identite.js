@@ -92,5 +92,5 @@ const s = StyleSheet.create({
   photoEmpty: { width: 72, height: 72, borderRadius: 36, backgroundColor: alpha(colors.ink, 0.04), borderWidth: 1.5, borderStyle: 'dashed', borderColor: alpha(colors.ink, 0.22), alignItems: 'center', justifyContent: 'center' },
   photoTitle: { fontSize: 15.5, fontWeight: '600', color: colors.ink },
   photoHint: { fontSize: 13, fontWeight: '400', color: colors.muted, marginTop: 3, lineHeight: 18 },
-  ctaWrap: { position: 'absolute', left: space.screenX, right: space.screenX, bottom: 26 },
+  ctaWrap: { position: 'absolute', left: 24, right: 24, bottom: 26 },
 });

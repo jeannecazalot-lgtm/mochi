@@ -70,7 +70,7 @@ export const SectionLabel = ({ children, color = colors.muted, style }) => (
 const s = StyleSheet.create({
   pillHeader: { paddingHorizontal: space.headerX, paddingTop: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   skip: { fontSize: 13, fontWeight: '500', color: colors.muted },
-  bottom: { position: 'absolute', left: space.screenX, right: space.screenX },
+  bottom: { position: 'absolute', left: 24, right: 24 },
   toggle: { width: 42, height: 24, borderRadius: 12 },
   knob: { position: 'absolute', top: 2, width: 20, height: 20, borderRadius: 10, backgroundColor: colors.card, shadowColor: colors.ink, shadowOpacity: 0.18, shadowRadius: 3, shadowOffset: { width: 0, height: 1 }, elevation: 2 },
 });

@@ -109,6 +109,8 @@ export const shadows = {
   fab: { shadowColor: colors.ink, shadowOpacity: 0.10, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 3 },
 };
 
+export const ctaSpec = { height: 52, marginX: 24, fontSize: 16 }; // taille façon Airbnb (retour Jeanne, 22 août 2026)
+
 export const tabBar = { height: 56 + 24, fabSize: 54, fabRing: 4, fabLift: -34, iconSize: 22 };
 
 export default { colors, glow, gradients, slotColors, alpha, radius, space, font, motion, shadows, tabBar };

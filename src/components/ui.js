@@ -8,7 +8,7 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
 import Svg, { Defs, RadialGradient, Stop, Rect, Circle, Ellipse, Path, LinearGradient as SvgLinear } from 'react-native-svg';
-import { colors, glow, gradients, radius, space, font, shadows, alpha } from '../theme';
+import { colors, glow, gradients, radius, space, font, shadows, alpha, ctaSpec } from '../theme';
 // ─── fond app : crème + 4 halos radiaux ─────────────────────────────
 export function GlowBg({ intensity = 'normal' }) {
   const o = glow.opacity[intensity] ?? glow.opacity.normal;
@@ -73,11 +73,11 @@ export function CTAPrimary({ label, onPress, disabled, style, big }) {
   const fire = () => { slide.value = -1; slide.value = withTiming(1, { duration: 500, easing: Easing.out(Easing.quad) }); };
   return (
     <Pressable onPressIn={fire} onPress={onPress} disabled={disabled} style={({ pressed }) => [{ opacity: disabled ? 0.5 : pressed ? 0.92 : 1 }, style]}>
-      <LinearGradient {...gradients.mochi} style={[s.cta, shadows.cta, big && { paddingVertical: 17 }, { overflow: 'hidden' }]}>
+      <LinearGradient {...gradients.mochi} style={[s.cta, shadows.cta, big && { paddingVertical: 0, height: ctaSpec.height }, { overflow: 'hidden' }]}>
         <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, shimmer]}>
           <LinearGradient colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.5)', 'rgba(255,255,255,0)']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ flex: 1, width: '55%' }} />
         </Animated.View>
-        <Text style={[font.cta, big && { fontSize: 16 }]}>{label}</Text>
+        <Text style={[font.cta, big && { fontSize: ctaSpec.fontSize }]}>{label}</Text>
       </LinearGradient>
     </Pressable>
   );
