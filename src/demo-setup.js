@@ -108,6 +108,7 @@ export const reassignInitial = () => dispatch.map(it => ({ ...it, assignee_id: i
 
 export const allTasks = tasks;
 
-// 08 v2 (retour Jeanne, 22 août 2026) : une seule liste de tâches, chacune
-// basculable j'aime / neutre / je déteste — chien et plantes exclus.
-export const prefsPool = catalogue.filter(c => !c.specific).map(({ id, emoji, label }) => ({ id, emoji, label }));
+// 08 (retour Jeanne, 23 août 2026) : ne garder que l'ESSENTIEL dans les
+// préférences — 8 tâches où le « j'aime / je déteste » compte vraiment.
+const PREFS_IDS = ['t-vaisselle', 't-cuisiner', 't-courses', 't-lessive', 't-menage', 't-sdb', 't-poubelles', 't-admin'];
+export const prefsPool = PREFS_IDS.map(id => catalogue.find(c => c.id === id)).filter(Boolean).map(({ id, emoji, label }) => ({ id, emoji, label }));
