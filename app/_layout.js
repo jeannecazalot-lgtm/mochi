@@ -2,7 +2,7 @@
 // événement) en présentation modale transparente ; les moments (wrapped,
 // célébration) en plein écran fondu.
 import React from 'react';
-import { Pressable } from 'react-native';
+import { Pressable, View, StyleSheet } from 'react-native';
 import Svg, { Path, Rect } from 'react-native-svg';
 import { router, usePathname } from 'expo-router';
 import { Stack } from 'expo-router';
@@ -33,26 +33,7 @@ export default function RootLayout() {
         <Stack.Screen name="celebration" options={full} />
         <Stack.Screen name="plan" />
       </Stack>
-      <PlanButton />
     </GestureHandlerRootView>
   );
 }
 
-// Bouton flottant « Plan des écrans » (builds de dev uniquement) : visible partout,
-// pour que Jeanne puisse sauter vers n'importe quel écran à tout moment.
-function PlanButton() {
-  const pathname = usePathname();
-  if (!__DEV__ || pathname === '/plan') return null;
-  return (
-    <Pressable
-      onPress={() => router.push('/plan')}
-      hitSlop={8}
-      style={({ pressed }) => ({ position: 'absolute', left: 12, bottom: 110, width: 40, height: 40, borderRadius: 20, backgroundColor: pressed ? alpha(colors.ink, 0.8) : colors.ink, alignItems: 'center', justifyContent: 'center', shadowColor: colors.ink, shadowOpacity: 0.25, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, zIndex: 999 })}
-      accessibilityLabel="Plan des écrans">
-      <Svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke={colors.card} strokeWidth={2} strokeLinecap="round">
-        <Rect x="3" y="3" width="7" height="7" rx="1.5" /><Rect x="14" y="3" width="7" height="7" rx="1.5" />
-        <Rect x="3" y="14" width="7" height="7" rx="1.5" /><Rect x="14" y="14" width="7" height="7" rx="1.5" />
-      </Svg>
-    </Pressable>
-  );
-}

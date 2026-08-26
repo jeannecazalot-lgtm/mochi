@@ -3,17 +3,16 @@
 // Créés une fois, réutilisés partout. Tout style passe par theme.js.
 // ═══════════════════════════════════════════════════════════════════
 import React from 'react';
+import { router, usePathname } from 'expo-router';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { router } from 'expo-router';
 import Svg, { Defs, RadialGradient, Stop, Rect, Circle, Ellipse, Path, LinearGradient as SvgLinear } from 'react-native-svg';
 import { colors, glow, gradients, radius, space, font, shadows, alpha } from '../theme';
-
 // ─── fond app : crème + 4 halos radiaux ─────────────────────────────
 export function GlowBg({ intensity = 'normal' }) {
   const o = glow.opacity[intensity] ?? glow.opacity.normal;
   return (
-    <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: colors.bg }]}>
+    <View pointerEvents="box-none" style={[StyleSheet.absoluteFill, { backgroundColor: colors.bg }]}>
       <Svg width="100%" height="100%" style={{ opacity: o }}>
         <Defs>
           <RadialGradient id="g1" cx="18%" cy="12%" rx="60%" ry="40%"><Stop offset="0" stopColor={glow.coral} /><Stop offset="0.7" stopColor={glow.coral} stopOpacity="0" /></RadialGradient>
@@ -23,10 +22,25 @@ export function GlowBg({ intensity = 'normal' }) {
         </Defs>
         {['g1', 'g2', 'g3', 'g4'].map(id => <Rect key={id} width="100%" height="100%" fill={`url(#${id})`} />)}
       </Svg>
+      <PlanFab />
     </View>
   );
 }
-
+// Bouton flottant « Plan des écrans » (dev uniquement) — dans GlowBg pour être
+// présent sur tous les écrans et recevoir les taps.
+function PlanFab() {
+  const pathname = usePathname();
+  if (!__DEV__ || pathname === '/plan') return null;
+  return (
+    <Pressable onPress={() => router.push('/plan')} hitSlop={10}
+      style={({ pressed }) => ({ position: 'absolute', left: 12, bottom: 110, width: 40, height: 40, borderRadius: 20, backgroundColor: alpha(colors.ink, pressed ? 0.75 : 1), alignItems: 'center', justifyContent: 'center', zIndex: 99 })}
+      accessibilityLabel="Plan des écrans">
+      <Svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke={colors.card} strokeWidth={2} strokeLinecap="round">
+        <Path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" />
+      </Svg>
+    </Pressable>
+  );
+}
 // ─── Card crème + hairline (AUCUNE ombre). accent = bordure 1.5 d'action ─
 export function Card({ children, style, padding = space.md, r = radius.card, accent }) {
   return (
@@ -35,16 +49,13 @@ export function Card({ children, style, padding = space.md, r = radius.card, acc
     </View>
   );
 }
-
 // ─── rangée glass (liste secondaire) ────────────────────────────────
 export function GlassRow({ children, style, onPress }) {
   const inner = <View style={[s.glass, style]}>{children}</View>;
   return onPress ? <Pressable onPress={onPress}>{inner}</Pressable> : inner;
 }
-
 // ─── séparateur 1px entre rangées d'une même card ───────────────────
 export const Divider = () => <View style={s.divider} />;
-
 // ─── PillLabel : uppercase 9.5/600, fond couleur à 16 % ─────────────
 export function PillLabel({ children, color = colors.ink, tint }) {
   return (
@@ -53,7 +64,6 @@ export function PillLabel({ children, color = colors.ink, tint }) {
     </View>
   );
 }
-
 // ─── CTA primaire : gradient Mochi, radius 14 ───────────────────────
 export function CTAPrimary({ label, onPress, disabled, style, big }) {
   return (
@@ -64,7 +74,6 @@ export function CTAPrimary({ label, onPress, disabled, style, big }) {
     </Pressable>
   );
 }
-
 // ─── CTA secondaire : card crème, texte 14/500 ──────────────────────
 export function CTASecondary({ label, onPress, style }) {
   return (
@@ -73,12 +82,10 @@ export function CTASecondary({ label, onPress, style }) {
     </Pressable>
   );
 }
-
 // ─── footer blanc qui porte le CTA ──────────────────────────────────
 export function Footer({ children, bottom = space.footerBottom }) {
   return <View style={[s.footer, { paddingBottom: bottom }]}>{children}</View>;
 }
-
 // ─── avatar : photo (plus tard) ou initiale sur couleur de slot ─────
 export function Avatar({ initial = '?', color = colors.sky, size = 36, ring }) {
   return (
@@ -87,12 +94,10 @@ export function Avatar({ initial = '?', color = colors.sky, size = 36, ring }) {
     </View>
   );
 }
-
 // ─── titres ─────────────────────────────────────────────────────────
 export const ScreenTitle = ({ children, style }) => <Text style={[font.screenTitle, style]}>{children}</Text>;
 export const Micro = ({ children, style }) => <Text style={[font.micro, style]}>{children}</Text>;
 export const Secondary = ({ children, style }) => <Text style={[font.secondary, style]}>{children}</Text>;
-
 // ─── Mochi iridescent (statique ; float/blink/lean viendront avec reanimated) ─
 export function Mochi({ size = 140, mood = 'happy', lean = 0 }) {
   const eyes = mood === 'sleeping' ? null : (
@@ -135,7 +140,6 @@ export function Mochi({ size = 140, mood = 'happy', lean = 0 }) {
     </View>
   );
 }
-
 const s = StyleSheet.create({
   card: { backgroundColor: colors.card, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
   glass: { backgroundColor: colors.glass, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.line, borderRadius: radius.row, paddingVertical: 11, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 13 },
@@ -144,7 +148,6 @@ const s = StyleSheet.create({
   cta: { borderRadius: radius.row, paddingVertical: 15, alignItems: 'center', justifyContent: 'center' },
   footer: { backgroundColor: colors.white, borderTopWidth: 1, borderTopColor: colors.footerLine, paddingTop: space.footerTop, paddingHorizontal: space.screenX },
 });
-
 // ─── en-tête des écrans Setup (06-08) : points d'étape + titre + sous-titre ─
 export function SetupHeader({ step, total = 3, title, sub }) {
   const canBack = router.canGoBack();
