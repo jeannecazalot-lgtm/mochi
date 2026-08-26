@@ -23,7 +23,7 @@ const GROUPS = [
 export default function Plan() {
   return (
     <View style={{ flex: 1 }}>
-      <GlowBg intensity="soft" />
+      <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={{ paddingHorizontal: space.screenX, paddingBottom: 40 }}>
           <View style={{ paddingHorizontal: 5, paddingTop: 14, marginBottom: 14 }}>

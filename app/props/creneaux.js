@@ -121,7 +121,7 @@ function VarianteC() {
 export default function PropsCreneaux() {
   return (
     <View style={{ flex: 1 }}>
-      <GlowBg intensity="soft" />
+      <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={{ paddingBottom: 46 }}>
           <PropsHeader

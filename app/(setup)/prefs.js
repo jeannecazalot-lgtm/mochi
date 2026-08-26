@@ -55,7 +55,7 @@ export default function Prefs() {
 
   return (
     <View style={{ flex: 1 }}>
-      <GlowBg intensity="soft" />
+      <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }}>
         <SetupHeader hero={<LiveMochi size={96} />} step={3} total={4} title={t.prefsTitle} sub={t.prefsSub2} />
 

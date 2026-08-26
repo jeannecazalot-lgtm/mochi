@@ -120,7 +120,7 @@ export default function Activite() {
 
   return (
     <View style={{ flex: 1 }}>
-      <GlowBg intensity="soft" />
+      <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }} edges={['top']}>
         <CenterHeader title={t.title} onBack={() => router.back()} />
         <ScrollView contentContainerStyle={s.list} showsVerticalScrollIndicator={false}>

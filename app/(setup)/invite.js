@@ -26,7 +26,7 @@ export default function Invite() {
   };
   return (
     <View style={{ flex: 1 }}>
-      <GlowBg intensity="soft" />
+      <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }}>
         <View>
           <SetupHeader hero={<LiveMochi size={96} />} step={4} total={4} title={fill(t.inviteTitle, { partner: copy.common.partner })} sub={t.inviteSub} />

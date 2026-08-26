@@ -59,7 +59,7 @@ export default function Taches() {
   const specific = catalogue.filter(c => c.specific);
   return (
     <View style={{ flex: 1 }}>
-      <GlowBg intensity="soft" />
+      <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }}>
         <View>
           <SetupHeader hero={<LiveMochi size={96} />} title={t.tasksTitle} sub={t.tasksSub} />

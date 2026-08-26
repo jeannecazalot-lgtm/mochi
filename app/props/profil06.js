@@ -24,7 +24,7 @@ const Frame = ({ children }) => <View style={s.frame} pointerEvents="none">{chil
 export default function Profil06Props() {
   return (
     <View style={{ flex: 1 }}>
-      <GlowBg intensity="soft" />
+      <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={{ paddingHorizontal: 18, paddingBottom: 48 }}>
           <PropsHeader title="Profil — 3 propositions" sub="Écran 06 façon minimale (réf. envoyée par Jeanne), DA mochi. Planche à regarder : rien n'est tactile." />

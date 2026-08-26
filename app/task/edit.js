@@ -38,7 +38,7 @@ export default function TaskEdit() {
 
   return (
     <View style={{ flex: 1 }}>
-      <GlowBg intensity="soft" />
+      <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }} edges={['top']}>
         <TaskHeader title={t.headerEdit} backLabel={t.back} />
 

@@ -15,7 +15,7 @@ export default function Bilan() {
   const month = fmtMonth(bilan.month), next = fmtMonth(bilan.next_month);
   return (
     <View style={{ flex: 1 }}>
-      <GlowBg intensity="soft" />
+      <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }}>
         <View style={s.header}>
           <BackButton onPress={() => router.back()} style={{ marginBottom: 12 }} />

@@ -140,7 +140,7 @@ const variants = [
 export default function PropsInvite() {
   return (
     <View style={{ flex: 1 }}>
-      <GlowBg intensity="soft" />
+      <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }}>
         <View style={s.header}>
           <Pressable onPress={() => router.back()} hitSlop={12} style={s.back} accessibilityLabel={p.back}>

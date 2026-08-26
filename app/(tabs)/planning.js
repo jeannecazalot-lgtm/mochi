@@ -63,7 +63,7 @@ export default function Planning() {
   const onSegment = v => { if (v === 'month') router.push('/calendrier'); };
   return (
     <View style={{ flex: 1 }}>
-      <GlowBg intensity="soft" />
+      <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }} edges={['top']}>
         <View style={s.header}>
           <ScreenTitle style={{ letterSpacing: -1.1 }}>{t.title}</ScreenTitle>

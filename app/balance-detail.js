@@ -25,7 +25,7 @@ export default function BalanceDetail() {
 
   return (
     <View style={{ flex: 1 }}>
-      <GlowBg intensity="soft" />
+      <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }}>
         <ScreenHeader title={t.detailHeader} onBack={() => router.back()} />
         <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>

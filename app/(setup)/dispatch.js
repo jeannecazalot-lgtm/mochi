@@ -89,7 +89,7 @@ export default function Dispatch() {
 
   return (
     <View style={{ flex: 1 }}>
-      <GlowBg intensity="soft" />
+      <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }}>
         <SetupHeader hero={<LiveMochi size={96} />} title={t.dispatchTitle} sub={t.dispatchSubTap} />
 

@@ -139,7 +139,7 @@ function Wording() {
 export default function PropsPrefs() {
   return (
     <View style={{ flex: 1 }}>
-      <GlowBg intensity="soft" />
+      <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={{ paddingBottom: 46 }}>
           <PropsHeader

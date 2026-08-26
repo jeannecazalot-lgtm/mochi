@@ -37,7 +37,7 @@ export default function Identite() {
 
   return (
     <View style={{ flex: 1 }}>
-      <GlowBg intensity="soft" />
+      <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }}>
         <SetupHeader hero={<LiveMochi size={96} mood="happy" />} step={1} total={4} title={t.identityTitle} sub={t.identitySub} />
 

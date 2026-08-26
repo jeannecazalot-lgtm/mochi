@@ -30,7 +30,7 @@ export default function PenseBete() {
 
   return (
     <View style={{ flex: 1 }}>
-      <GlowBg intensity="soft" />
+      <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }} edges={['top']}>
         <View style={s.header}>
           <RoundButton kind="back" onPress={() => router.back()} />

@@ -24,7 +24,7 @@ export default function PointHebdo() {
 
   return (
     <View style={{ flex: 1 }}>
-      <GlowBg intensity="soft" />
+      <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }}>
         <ScreenHeader title={t.header} onBack={() => router.back()} />
         <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>

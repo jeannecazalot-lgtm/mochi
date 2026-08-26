@@ -78,7 +78,7 @@ export default function Dispos() {
 
   return (
     <View style={{ flex: 1 }}>
-      <GlowBg intensity="soft" />
+      <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }}>
         <SetupHeader hero={<LiveMochi size={96} />} step={2} total={4} title={t.disposTitle} sub={t.disposSub2} />
 

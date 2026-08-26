@@ -52,7 +52,7 @@ export default function Login() {
 
   return (
     <View style={{ flex: 1 }}>
-      <GlowBg intensity="soft" />
+      <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1, paddingHorizontal: 24 }}>
         <Text style={s.title}>{t.title2}</Text>
 
