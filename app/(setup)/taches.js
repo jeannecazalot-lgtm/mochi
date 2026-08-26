@@ -43,7 +43,11 @@ export default function Taches() {
   const [customs, setCustoms] = useState([]);   // tâches ajoutées à la main (cochées d'office)
   const [adding, setAdding] = useState(false);
   const [draft, setDraft] = useState('');
+  const submitting = React.useRef(false); // garde anti-doublon : Entrée ET la perte de focus appellent addCustom
   const addCustom = () => {
+    if (submitting.current) return;
+    submitting.current = true;
+    setTimeout(() => { submitting.current = false; }, 400);
     const label = draft.trim();
     if (!label) { setAdding(false); return; }
     const id = `custom-${Date.now()}`;
