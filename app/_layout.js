@@ -8,7 +8,7 @@ import { router, usePathname } from 'expo-router';
 import { Stack } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
-import { colors, motion, radius } from '../src/theme';
+import { colors, motion, radius, alpha } from '../src/theme';
 
 const base = { headerShown: false, contentStyle: { backgroundColor: colors.bg }, animationDuration: motion.screen };
 // sheets natives iOS (formSheet) : fond assombri, coins 26, montée native, touches garanties

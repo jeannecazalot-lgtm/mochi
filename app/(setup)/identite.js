@@ -37,6 +37,9 @@ export default function Identite() {
     <View style={{ flex: 1 }}>
       <GlowBg intensity="soft" />
       <SafeAreaView style={{ flex: 1 }}>
+        <View style={{ alignItems: 'center', paddingTop: 18 }}>
+          <LiveMochi size={96} mood="happy" />
+        </View>
         <SetupHeader step={1} title={t.identityTitle} sub={t.identitySub} />
 
         <View style={{ paddingHorizontal: space.headerX, paddingTop: 24 }}>
@@ -72,7 +75,6 @@ export default function Identite() {
           </Pressable>
         </View>
 
-        <View pointerEvents="none" style={s.mochi}><LiveMochi size={88} mood="happy" lean={-0.75} /></View>
 
         <View style={s.ctaWrap}>
           {error ? <Text style={[font.caption, { color: colors.coralDeep, textAlign: 'center', marginBottom: 8 }]}>{error}</Text> : null}
@@ -91,6 +93,5 @@ const s = StyleSheet.create({
   photoEmpty: { width: 72, height: 72, borderRadius: 36, backgroundColor: alpha(colors.ink, 0.04), borderWidth: 1.5, borderStyle: 'dashed', borderColor: alpha(colors.ink, 0.22), alignItems: 'center', justifyContent: 'center' },
   photoTitle: { fontSize: 15.5, fontWeight: '600', color: colors.ink },
   photoHint: { fontSize: 13, fontWeight: '400', color: colors.muted, marginTop: 3, lineHeight: 18 },
-  mochi: { position: 'absolute', bottom: 84, right: -14, transform: [{ rotate: '-9deg' }], opacity: 0.95 },
   ctaWrap: { position: 'absolute', left: space.screenX, right: space.screenX, bottom: 26 },
 });

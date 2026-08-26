@@ -9,7 +9,7 @@ Couches, de l'arrière vers l'avant :
    Marge basse 19.
 4. Section « TA PHOTO » : même micro-label ; Card identique ; à gauche cercle 72 fond encre 4 % +
    pointillés 1,5 encre 22 % avec icône appareil photo 20 muted ; texte 15,5/600 + 13/400 muted ; chevron ›.
-5. Mochi `wink` 88 px, coin bas droit (bottom 84, right −14), rotation −9°, opacité 0,95.
+5. **Retour Jeanne (22 août 2026)** : Mochi vivant 96 px centré EN HAUT (au-dessus des points d'étape supprimé — sous le safe area, paddingTop 18), tout le bloc titre/champs descend d'autant. Plus de Mochi en coin bas.
 6. CTA « Continuer » : gradient Mochi, radius 14, posé **directement sur le fond** (bottom 26, marges 18) —
    l'artboard 06 ne met pas de footer blanc (contrairement au README) ; on suit l'artboard.
    Texte 16/600 (artboard) — écart avec le README (14/600) signalé à Jeanne.
