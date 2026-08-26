@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { GlowBg, Card, Avatar, Mochi } from '../src/components/ui';
 import { CenterHeader, ReplyChip } from '../src/components/social/extra';
+import { Dot } from '../src/components/sober';
 import { taskById, byId, occurrences, me, streak, today } from '../src/demo';
 import { activityFeed, replyPresets, partnerGender } from '../src/demo-social';
 import copy from '../src/data/copy.json';
@@ -63,11 +64,12 @@ function Item({ item, chosen, onChoose }) {
   if (item.type === 'ping') {
     const occ = occurrences.find(o => o.task_id === item.task_id && o.assignee_id === item.target_id);
     const when = occ?.time || occ?.badge || null;
+    const target = byId(item.target_id);
     return (
       <Card r={radius.card} padding={0} style={s.card}>
         {head(<Text style={s.bodyQuote}>« {fill(copy.pings[item.preset_key] || '', { task: task.title })} »</Text>)}
         <View style={s.attach}>
-          <Text style={{ fontSize: 16 }}>{task.emoji}</Text>
+          <Dot color={target?.color ?? colors.muted} size={8} />
           <Text style={s.attachText}>{task.title}{when ? ` · ${when}` : ''}</Text>
           <Pressable onPress={() => router.push(`/task/${task.id}`)} hitSlop={8}><Text style={s.view}>{t.view}</Text></Pressable>
         </View>

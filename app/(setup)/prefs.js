@@ -35,13 +35,24 @@ export default function Prefs() {
   const [timeIdx, setTimeIdx] = useState(0);
   const count = tone => Object.values(prefs).filter(v => v === tone).length;
 
-  // renvoie faux quand le côté visé est plein (max atteint) → le chip vibre
+  // Cycle neutre → j'aime → je déteste → neutre. Si l'état visé est plein,
+  // on SAUTE au suivant (retour Jeanne, 23 août 2026 : 3 « j'aime » posés ne
+  // doivent pas empêcher de marquer « je déteste »). Vibre seulement si rien
+  // ne peut changer.
   const cycle = (id) => {
+    const order = [undefined, 'like', 'hate'];
     const cur = prefs[id];
-    const next = cur === 'like' ? 'hate' : cur === 'hate' ? undefined : 'like';
-    if (next && count(next) >= prefsMax) return false;
-    setPrefs(p => ({ ...p, [id]: next }));
-    return true;
+    let i = order.indexOf(cur);
+    for (let step = 0; step < order.length; step++) {
+      i = (i + 1) % order.length;
+      const next = order[i];
+      if (next === undefined || count(next) < prefsMax) {
+        if (next === cur) break;
+        setPrefs(p => ({ ...p, [id]: next }));
+        return true;
+      }
+    }
+    return false;
   };
 
   return (

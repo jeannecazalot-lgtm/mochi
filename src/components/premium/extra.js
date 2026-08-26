@@ -66,11 +66,10 @@ export function CheckDot() {
   );
 }
 
-// ─── rangée de réglage (38) : emoji + titre 15,5/500 + sous-titre 12 + chevron ou élément droit ─
-export function SettingRow({ emoji, title, sub, onPress, right, disabled }) {
+// ─── rangée de réglage (38) : titre 15,5/500 + sous-titre 12 + chevron ou élément droit ─
+export function SettingRow({ title, sub, onPress, right, disabled }) {
   const inner = (
     <View style={s.setting}>
-      <Text style={{ fontSize: 18 }}>{emoji}</Text>
       <View style={{ flex: 1 }}>
         <Text style={s.settingTitle}>{title}</Text>
         {sub ? <Text style={s.settingSub}>{sub}</Text> : null}

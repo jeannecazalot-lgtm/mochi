@@ -40,7 +40,7 @@ export default function Notifs() {
       </View>
 
       <View style={s.clockBlock}>
-        <Text style={s.locked}>🔒 {t.locked}</Text>
+        <Text style={s.locked}>{t.locked}</Text>
         <Text style={s.date}>{fmtLongDate(lockscreen.date)}</Text>
         <Text style={s.time}>{lockscreen.time}</Text>
       </View>
@@ -70,7 +70,7 @@ export default function Notifs() {
           if (n.kind === 'reminder') return (
             <View key={n.id} style={s.notif}>
               <Head kicker={fill(t.appKicker, { app })} when={when(n.when)} />
-              <Text style={s.nTitle}>{n.task.emoji} {n.task.title}</Text>
+              <Text style={s.nTitle}>{n.task.title}</Text>
               <Text style={s.nBody}>{fill(t.reminderBody, { n: n.task.duration_min })}</Text>
             </View>
           );
@@ -86,9 +86,10 @@ export default function Notifs() {
       </View>
 
       <View style={s.bottom}>
-        <View style={s.bottomBtn}><Text style={{ fontSize: 19 }}>🔦</Text></View>
+        {/* boutons torche / appareil photo du lockscreen : cercles verre vides (plus d'émoji) */}
+        <View style={s.bottomBtn} />
         <Text style={s.hint}>{t.demoHint}</Text>
-        <View style={s.bottomBtn}><Text style={{ fontSize: 19 }}>📷</Text></View>
+        <View style={s.bottomBtn} />
       </View>
     </View>
   );

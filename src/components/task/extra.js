@@ -94,13 +94,13 @@ export function StatTile({ label, value, hint, onPress, active }) {
   );
 }
 
-// ─── rangée d'étoiles 1→5 ───────────────────────────────────────────
+// ─── rangée de points 1→5 (pénibilité) — points pleins, plus d'étoiles ─
 export function Stars({ value, onChange, color = colors.ink }) {
   return (
     <View style={{ flexDirection: 'row', gap: 6 }}>
       {[1, 2, 3, 4, 5].map(n => (
         <Pressable key={n} onPress={() => onChange(n)} hitSlop={4}>
-          <Text style={{ fontSize: 18, color: n <= value ? color : taskTokens.toggleOff }}>★</Text>
+          <Text style={{ fontSize: 18, color: n <= value ? color : taskTokens.toggleOff }}>●</Text>
         </Pressable>
       ))}
     </View>

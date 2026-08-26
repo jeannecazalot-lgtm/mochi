@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { GlowBg, Card, PillLabel, GlassRow } from '../src/components/ui';
 import { CountUp, ProgressBar } from '../src/components/motion';
 import { BackButton, PremiumGate, SectionMicro } from '../src/components/premium/extra';
+import { Dot } from '../src/components/sober';
 import { me, partner, byId } from '../src/demo';
 import { mentalLoad, heavier, isPremium } from '../src/demo-premium';
 import copy from '../src/data/copy.json';
@@ -60,7 +61,7 @@ export default function Analyse() {
                 const who = byId(c.carrier_id);
                 return (
                   <GlassRow key={c.id} style={{ paddingVertical: 10 }}>
-                    <Text style={{ fontSize: 19 }}>{c.emoji}</Text>
+                    <Dot color={who.color} />
                     <View style={{ flex: 1 }}>
                       <Text style={[font.row, { marginBottom: 6 }]}>{c.title}</Text>
                       <ProgressBar ratio={c.pct / 100} color={who.color} track={alpha(colors.ink, 0.07)} height={4} radius={2} delay={80 * i} />
@@ -73,7 +74,6 @@ export default function Analyse() {
 
             <Card accent={colors.sage} padding={0} r={radius.card} style={{ paddingVertical: 13, paddingHorizontal: 16 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 13 }}>
-                <Text style={{ fontSize: 21 }}>✨</Text>
                 <View style={{ flex: 1 }}>
                   <Text style={s.sugTitle}>{t.suggestTitle}</Text>
                   <Text style={[font.secondary, { marginTop: 3, lineHeight: 18 }]}>{fill(t.suggestBody, { task: sugCat.title, name: sugTo.first_name, me: pct(sug.after[me.id]).replace('%', ''), partner: pct(sug.after[partner.id]).replace('%', '') })}</Text>

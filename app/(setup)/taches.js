@@ -11,7 +11,7 @@ import { CheckDot, AddButton, SkipLink, SectionLabel, fill } from '../../src/com
 import { Animated, FadeInDown, prefersReducedMotion } from '../../src/components/motion';
 import { catalogue } from '../../src/demo-setup';
 import copy from '../../src/data/copy.json';
-import { colors, space, alpha, motion } from '../../src/theme';
+import { colors, space, motion } from '../../src/theme';
 
 const t = copy.setup;
 const freqLabel = f => f.daily ? t.freqDaily : f.perDay ? fill(t.freqPerDay, { n: f.perDay }) : fill(t.freqPerWeek, { n: f.perWeek });
@@ -25,7 +25,6 @@ function Row({ c, index, active, onToggle }) {
       <Pressable onPress={onToggle}>
         <Card padding={0} r={14} style={{ marginBottom: 6, opacity: active ? 1 : 0.55 }}>
           <View style={s.row}>
-            <View style={s.emoji}><Text style={{ fontSize: 19 }}>{c.emoji}</Text></View>
             <View style={{ flex: 1 }}>
               <Text style={s.title}>{c.label}</Text>
               <Text style={s.freq}>{meta}</Text>
@@ -71,8 +70,7 @@ export default function Taches() {
 }
 
 const s = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', gap: 13, paddingVertical: 11, paddingHorizontal: 14 },
-  emoji: { width: 38, height: 38, borderRadius: 12, backgroundColor: alpha(colors.ink, 0.06), alignItems: 'center', justifyContent: 'center' },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 13, paddingVertical: 13, paddingHorizontal: 16 },
   title: { fontSize: 16, fontWeight: '500', color: colors.ink },
   freq: { fontSize: 13, fontWeight: '400', color: colors.muted, marginTop: 3 },
   bottom: { position: 'absolute', left: space.screenX, right: space.screenX, bottom: 24, flexDirection: 'row', gap: 8 },

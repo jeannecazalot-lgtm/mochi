@@ -45,7 +45,6 @@ function TaskRow({ occ, onGrab }) {
     <Pressable onLongPress={() => grab(1)} onPressOut={() => grab(0)} delayLongPress={300}>
       <Animated.View style={[s.row, st]}>
         <Icon d={ICON.grip} size={13} color={colors.checkRing} sw={2.4} />
-        <Text style={{ fontSize: 18 }}>{task.emoji}</Text>
         <View style={{ flex: 1 }}>
           <Text style={{ fontSize: 15.5, fontWeight: '500', color: colors.ink }} numberOfLines={1}>{task.title}</Text>
           <Text style={[font.caption, { marginTop: 3 }]}>{subtitle(occ, task)}</Text>

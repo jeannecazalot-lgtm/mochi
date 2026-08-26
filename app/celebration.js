@@ -35,7 +35,7 @@ export default function Celebration() {
         <View style={{ paddingHorizontal: 22, marginTop: 21 }}>
           <Card r={18} accent={colors.butter} style={{ paddingVertical: 17, paddingHorizontal: 18 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
-              <Text style={{ fontSize: 24 }}>{badge.emoji}</Text>
+              <Text style={{ fontSize: 24, color: colors.sageDeep }}>●</Text>
               <View style={{ flex: 1 }}>
                 <Text style={s.badgeLabel}>{t.badgeLabel}</Text>
                 <Text style={s.badgeTitle}>{badge.title}</Text>

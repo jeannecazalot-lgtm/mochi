@@ -68,7 +68,6 @@ export default function TaskMentale() {
           })}
 
           <Pressable onPress={() => setEditNote(v => !v)} style={s.noteRow}>
-            <Text style={{ fontSize: 18 }}>📝</Text>
             <View style={{ flex: 1 }}>
               <Text style={s.noteTitle}>{t.noteAttached}</Text>
               {editNote

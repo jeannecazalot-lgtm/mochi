@@ -55,7 +55,7 @@ function Row({ occ, done, onToggle }) {
         <Text style={s.actionIcon}>⇄</Text><Text style={s.actionLabel}>{t.swipeSwap}</Text>
       </Pressable>
       <Pressable onPress={() => { ref.current?.close(); router.push(`/task/${task.id}`); }} style={[s.action, { backgroundColor: social.swipePostpone, width: 78 }]}>
-        <Text style={s.actionIcon}>⏰</Text><Text style={s.actionLabel}>{t.swipePostpone}</Text>
+        <Text style={s.actionIcon}>›</Text><Text style={s.actionLabel}>{t.swipePostpone}</Text>
       </Pressable>
     </View>
   );
@@ -64,7 +64,6 @@ function Row({ occ, done, onToggle }) {
   const inner = (
     <View style={s.rowInner}>
       <Animated.View style={pop}><CheckCircle done={done} /></Animated.View>
-      <Text style={{ fontSize: 19 }}>{task.emoji}</Text>
       <View style={{ flex: 1 }}>
         <Text style={[s.title, done && s.titleDone]} numberOfLines={1}>{task.title}</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 2 }}>

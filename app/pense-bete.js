@@ -46,7 +46,6 @@ export default function PenseBete() {
 
         <View style={s.searchWrap}>
           <View style={s.search}>
-            <Text style={{ fontSize: 15, opacity: 0.6 }}>🔍</Text>
             <TextInput value={query} onChangeText={setQuery} placeholder={t.searchPlaceholder} placeholderTextColor={colors.muted} style={s.searchInput} cursorColor={colors.coral} selectionColor={colors.coral} autoCorrect={false} />
             <Text style={s.count}>{t.count.replace('{n}', String(notes.length))}</Text>
           </View>

@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { router } from 'expo-router';
 import { View, Text, TextInput, Pressable, ScrollView, StyleSheet, Platform } from 'react-native';
 import { PillLabel, Divider, Avatar } from '../src/components/ui';
-import { ModalSheet, SectionLabel, EmbossedCard, CtaModal, extraColors } from '../src/components/modaux/extra';
+import { ModalSheet, SectionLabel, EmbossedCard, CtaModal } from '../src/components/modaux/extra';
 import { me, partner, byId, fmtMin, fmtMoney } from '../src/demo';
 import { demoEvent, fmtEventWhen } from '../src/demo-modaux';
 import copy from '../src/data/copy.json';
@@ -32,7 +32,6 @@ export default function Event() {
 
           <EmbossedCard tint={colors.lavender} tintOpacity={0.45} offset={[4, 5]} r={radius.cardLg} padding={0} style={{ marginBottom: 14 }}>
             <View style={s.hero}>
-              <View style={s.tile}><Text style={{ fontSize: 22 }}>{demoEvent.emoji}</Text></View>
               <View style={{ flex: 1 }}>
                 <TextInput value={title} onChangeText={setTitle} placeholder={t.titlePlaceholder} placeholderTextColor={ph} style={s.heroTitle} cursorColor={colors.coral} selectionColor={colors.coral} />
                 <TextInput value={details} onChangeText={setDetails} placeholder={t.detailsPlaceholder} placeholderTextColor={ph} style={s.heroSub} cursorColor={colors.coral} selectionColor={colors.coral} />
@@ -85,7 +84,6 @@ const s = StyleSheet.create({
   eyebrow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 11 },
   cancel: { fontSize: 14, fontWeight: '600', color: colors.muted },
   hero: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 17, paddingHorizontal: 18 },
-  tile: { width: 54, height: 54, borderRadius: 16, backgroundColor: extraColors.lavenderLight, alignItems: 'center', justifyContent: 'center', borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
   heroTitle: { fontSize: 20, fontWeight: '600', letterSpacing: -0.7, color: colors.ink, padding: 0, lineHeight: 22 },
   heroSub: { fontSize: 13.5, fontWeight: '400', color: colors.muted, marginTop: 4, padding: 0 },
   card: { backgroundColor: colors.card, borderRadius: radius.card, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline, paddingVertical: 6 },
