@@ -96,11 +96,11 @@ export default function Dispatch() {
         <View style={{ paddingHorizontal: space.headerX, paddingTop: 18 }}>
           <Animated.View entering={prefersReducedMotion() ? undefined : FadeInDown.duration(motion.screen)}>
             <Card padding={0} r={20} accent={colors.sage} style={{ marginBottom: 14 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 17, paddingHorizontal: 18 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, height: 96, paddingHorizontal: 18 }}>
                 <View style={{ flex: 1 }}>
-                  <Text style={s.state}>{t[state]}</Text>
-                  <Text style={s.loads}>
-                    <Text style={s.strong}>{fmtMinRound(load[me.id])}</Text> {me.first_name} · <Text style={s.strong}>{fmtMinRound(load[partner.id])}</Text> {partner.first_name} {t.perWeek}
+                  <Text style={s.state} numberOfLines={1}>{t[state]}</Text>
+                  <Text style={s.loads} numberOfLines={1}>
+                    <Text style={s.strong}>{fmtMinRound(load[me.id])}</Text> {me.first_name} · <Text style={s.strong}>{fmtMinRound(load[partner.id])}</Text> {partner.first_name} {t.perWeekSlash}
                   </Text>
                 </View>
                 <View style={s.bar}>
