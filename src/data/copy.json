@@ -298,7 +298,7 @@
     "later": "Plus tard",
     "done": "C'est fait ✓",
     "sheetTitle": "Envoyer un ping à {name}",
-    "attached": "{emoji} tâche attachée",
+    "attached": "tâche attachée",
     "options": {
       "reminder": {
         "label": "Rappel doux",

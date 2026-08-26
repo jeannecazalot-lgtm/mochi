@@ -15,7 +15,7 @@ import { colors, space, radius, alpha, font } from '../src/theme';
 const t = copy.activity;
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
 
-// « {name} a terminé {task} ✅ » → segments, {task} en 600
+// « {name} a terminé {task} » → segments, {task} en 600
 function RichText({ template, vars, style }) {
   const parts = template.split(/(\{task\})/);
   return (

@@ -29,7 +29,7 @@ export default function Invite() {
       <GlowBg intensity="soft" />
       <SafeAreaView style={{ flex: 1 }}>
         <View>
-          <SetupHeader step={4} total={4} title={fill(t.inviteTitle, { partner: copy.common.partner })} sub={t.inviteSub} />
+          <SetupHeader hero={<LiveMochi size={96} />} step={4} total={4} title={fill(t.inviteTitle, { partner: copy.common.partner })} sub={t.inviteSub} />
           <SkipLink onPress={next} />
         </View>
 
@@ -39,7 +39,6 @@ export default function Invite() {
             <View style={{ paddingTop: 28, paddingHorizontal: 24, paddingBottom: 24, alignItems: 'center' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 14 }}>
                 <Avatar initial={me.initial} color={me.color} size={54} ring />
-                <View style={{ marginHorizontal: -6, zIndex: 2 }}><LiveMochi size={64} mood="happy" /></View>
                 <AvatarPlaceholder size={54} />
               </View>
               <Text style={s.cardTitle}>{t.inviteCardTitle}</Text>
