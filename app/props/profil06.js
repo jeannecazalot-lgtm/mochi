@@ -29,7 +29,7 @@ export default function Profil06Props() {
         <ScrollView contentContainerStyle={{ paddingHorizontal: 18, paddingBottom: 48 }}>
           <PropsHeader title="Profil — 3 propositions" sub="Écran 06 façon minimale (réf. envoyée par Jeanne), DA mochi. Planche à regarder : rien n'est tactile." />
 
-          <PropBlock label="PROPOSITION A" color={colors.coral} note="Capsule photo en vedette, titre centré, une seule pilule prénom. Le plus proche de ta référence.">
+          <PropBlock letter="A" color={colors.coralDeep} why="Capsule photo en vedette, titre centré, une seule pilule prénom. Le plus proche de ta référence.">
             <Frame>
               <Text style={s.title}>Crée ton profil</Text>
               <View style={s.capsule}><CameraIcon size={26} /></View>
@@ -39,7 +39,7 @@ export default function Profil06Props() {
             </Frame>
           </PropBlock>
 
-          <PropBlock label="PROPOSITION B" color={colors.sage} note="Mochi reste le guide (continuité avec 07-12) : il surplombe un avatar rond pointillé + la pilule prénom.">
+          <PropBlock letter="B" color={colors.sageDeep} why="Mochi reste le guide (continuité avec 07-12) : il surplombe un avatar rond pointillé + la pilule prénom.">
             <Frame>
               <View style={{ alignItems: 'center', marginTop: 4 }}><Mochi size={84} mood="happy" /></View>
               <Text style={[s.title, { marginTop: 8 }]}>C'est toi.</Text>
@@ -50,7 +50,7 @@ export default function Profil06Props() {
             </Frame>
           </PropBlock>
 
-          <PropBlock label="PROPOSITION C" color={colors.lavender} note="La photo EST l'avatar : tant qu'il n'y a pas de photo, l'initiale tapée s'affiche en direct dans le rond couleur — on voit tout de suite « soi » dans l'app.">
+          <PropBlock letter="C" color={colors.lavenderDeep} why="La photo EST l'avatar : tant qu'il n'y a pas de photo, l'initiale tapée s'affiche en direct dans le rond couleur — on voit tout de suite « soi » dans l'app.">
             <Frame>
               <Text style={s.title}>Crée ton profil</Text>
               <View style={[s.round, { backgroundColor: colors.sky, borderStyle: 'solid', borderColor: colors.sky }]}>
