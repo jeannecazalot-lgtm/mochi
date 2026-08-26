@@ -1,5 +1,15 @@
 # Recette écran 13 · Réattribuer (source : duo-embossed-setup.jsx › SetupReassign)
 
+## Retours Jeanne 22 août 2026 — FUSION avec l'écran 12
+L'écran 13 **n'existe plus dans le parcours** : la réattribution se fait directement sur
+l'écran 12 (tap sur une tâche = bascule vers l'autre membre, totaux recalculés en direct —
+voir docs/recettes/12-dispatch.md). Le fichier `app/(setup)/reattribuer.js` est conservé
+comme simple redirection (`<Redirect href="/(setup)/dispatch" />`) pour ne pas casser les
+liens existants (plan des écrans, anciens parcours). La recette ci-dessous décrit l'ancien
+écran à deux colonnes et n'est gardée que pour mémoire.
+
+---
+
 1. Fond + GlowBg `soft`. En-tête embossed avec pastille « · » + « Passer ». Titre « Réattribuer. » + « Glisse une tâche d'une colonne à l'autre. ».
 2. Deux colonnes flex 1 gap 8, padding 18 18 110 : Card radius 18 padding 13.
    En-tête colonne (tap = zone de dépôt) : Avatar 28 + prénom 15/600, marge basse 10.

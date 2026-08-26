@@ -42,7 +42,7 @@ export default function Identite() {
         <View style={{ alignItems: 'center', paddingTop: 18 }}>
           <LiveMochi size={96} mood="happy" />
         </View>
-        <SetupHeader step={1} title={t.identityTitle} sub={t.identitySub} />
+        <SetupHeader step={1} total={4} title={t.identityTitle} sub={t.identitySub} />
 
         <View style={{ paddingHorizontal: space.headerX, paddingTop: 24 }}>
           <Micro style={s.label}>{t.firstNameLabel}</Micro>

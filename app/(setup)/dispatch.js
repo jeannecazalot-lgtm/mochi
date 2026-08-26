@@ -1,70 +1,100 @@
-// Écran 12 · Proposition de dispatch. Recette : docs/recettes/12-dispatch.md
-import React from 'react';
+// Écran 12 · Proposition de dispatch + réattribution directe (fusion 12+13 décidée
+// par Jeanne le 22 août 2026 : l'écran 13 n'existe plus dans le parcours).
+// Tap sur une rangée ou son avatar = la tâche bascule vers l'autre membre (pop),
+// totaux et équilibre recalculés en direct. Recette : docs/recettes/12-dispatch.md
+import React, { useEffect, useRef, useState } from 'react';
 import { router } from 'expo-router';
-import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { GlowBg, Card, Avatar } from '../../src/components/ui';
-import { StepTitle, BottomCTA, fill } from '../../src/components/setup/extra';
+import { useSharedValue, useAnimatedStyle, withTiming, withSpring, withSequence } from 'react-native-reanimated';
+import { GlowBg, Card, Avatar, SetupHeader } from '../../src/components/ui';
+import { BottomCTA, LiveCount, fill } from '../../src/components/setup/extra';
+import { Animated, FadeInDown, prefersReducedMotion } from '../../src/components/motion';
 import { me, partner, byId, fmtMin } from '../../src/demo';
 import { dispatch, dispatchEmoji, weeklyLoad, balanceState } from '../../src/demo-setup';
 import copy from '../../src/data/copy.json';
-import { colors, space, alpha } from '../../src/theme';
+import { colors, space, alpha, motion } from '../../src/theme';
 
 const t = copy.setup;
-const next = () => router.push('/(setup)/reattribuer');
+const fmtMinRound = v => fmtMin(Math.round(v));
+const finish = () => router.replace('/(tabs)');
+
+// pop d'échelle à chaque bascule d'assigné (pas au montage)
+function usePopOnChange(dep) {
+  const sc = useSharedValue(1);
+  const first = useRef(true);
+  useEffect(() => {
+    if (first.current) { first.current = false; return; }
+    if (prefersReducedMotion()) return;
+    sc.value = withSequence(withTiming(0.7, { duration: 80 }), withSpring(1.15, { damping: 10 }), withSpring(1, motion.spring));
+  }, [dep]);
+  return useAnimatedStyle(() => ({ transform: [{ scale: sc.value }] }));
+}
+
+function Row({ it, index, onToggle }) {
+  const who = byId(it.assignee_id);
+  const pop = usePopOnChange(it.assignee_id);
+  const tag = it.tagN ? fill(t[it.tag], { n: it.tagN }) : t[it.tag];
+  return (
+    <Animated.View entering={prefersReducedMotion() ? undefined : FadeInDown.delay(index * 25).duration(motion.screen)}>
+      <Pressable onPress={onToggle}>
+        <Card padding={0} r={12} style={{ marginBottom: 6 }}>
+          <View style={s.row}>
+            <Text style={{ fontSize: 19 }}>{dispatchEmoji(it)}</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={s.title}>{it.label}</Text>
+              <Text style={s.meta}>{tag} · {it.mins}min</Text>
+            </View>
+            <Pressable onPress={onToggle} hitSlop={10} accessibilityLabel={`${it.label} · ${who.first_name}`}>
+              <Animated.View style={pop}>
+                <Avatar initial={who.initial} color={who.color} size={26} />
+              </Animated.View>
+            </Pressable>
+          </View>
+        </Card>
+      </Pressable>
+    </Animated.View>
+  );
+}
 
 export default function Dispatch() {
-  const load = weeklyLoad();
+  const [items, setItems] = useState(dispatch);
+  const toggle = task_id => setItems(l => l.map(i => (i.task_id === task_id ? { ...i, assignee_id: i.assignee_id === me.id ? partner.id : me.id } : i)));
+
+  const load = weeklyLoad(items);
   const state = balanceState(load);
   const tot = load[me.id] + load[partner.id] || 1;
+
   return (
     <View style={{ flex: 1 }}>
       <GlowBg intensity="soft" />
       <SafeAreaView style={{ flex: 1 }}>
-        <StepTitle title={t.dispatchTitle} sub={t.dispatchSub} />
+        <SetupHeader step={4} total={4} title={t.dispatchTitle} sub={t.dispatchSubTap} />
 
         <View style={{ paddingHorizontal: space.headerX, paddingTop: 18 }}>
-          <Card padding={0} r={20} accent={colors.sage} style={{ marginBottom: 14 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 17, paddingHorizontal: 18 }}>
-              <View style={{ flex: 1 }}>
-                <Text style={s.state}>{t[state]}</Text>
-                <Text style={s.loads}>
-                  <Text style={s.strong}>{fmtMin(load[me.id])}</Text> {me.first_name} · <Text style={s.strong}>{fmtMin(load[partner.id])}</Text> {partner.first_name} {t.perWeek}
-                </Text>
+          <Animated.View entering={prefersReducedMotion() ? undefined : FadeInDown.duration(motion.screen)}>
+            <Card padding={0} r={20} accent={state === 'balanced' ? colors.sage : colors.butter} style={{ marginBottom: 14 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 17, paddingHorizontal: 18 }}>
+                <View style={{ flex: 1 }}>
+                  <Text style={s.state}>{t[state]}</Text>
+                  <Text style={s.loads}>
+                    <LiveCount value={load[me.id]} format={fmtMinRound} style={s.strong} /> {me.first_name} · <LiveCount value={load[partner.id]} format={fmtMinRound} style={s.strong} /> {partner.first_name} {t.perWeek}
+                  </Text>
+                </View>
+                <View style={s.bar}>
+                  <View style={{ flex: load[me.id] / tot, backgroundColor: me.color }} />
+                  <View style={{ flex: load[partner.id] / tot, backgroundColor: partner.color }} />
+                </View>
               </View>
-              <View style={s.bar}>
-                <View style={{ flex: load[me.id] / tot, backgroundColor: me.color }} />
-                <View style={{ flex: load[partner.id] / tot, backgroundColor: partner.color }} />
-              </View>
-            </View>
-          </Card>
+            </Card>
+          </Animated.View>
         </View>
 
         <ScrollView contentContainerStyle={{ paddingHorizontal: space.screenX, paddingBottom: 110 }} showsVerticalScrollIndicator={false}>
-          {dispatch.map(it => {
-            const who = it.assignee_id ? byId(it.assignee_id) : null;
-            const tag = it.tagN ? fill(t[it.tag], { n: it.tagN }) : t[it.tag];
-            return (
-              <Card key={it.task_id} padding={0} r={12} style={{ marginBottom: 6 }}>
-                <View style={s.row}>
-                  <Text style={{ fontSize: 19 }}>{dispatchEmoji(it)}</Text>
-                  <View style={{ flex: 1 }}>
-                    <Text style={s.title}>{it.label}</Text>
-                    <Text style={s.meta}>{tag} · {it.mins}min</Text>
-                  </View>
-                  {who ? <Avatar initial={who.initial} color={who.color} size={26} /> : (
-                    <View style={{ flexDirection: 'row' }}>
-                      <Avatar initial={me.initial} color={me.color} size={26} ring />
-                      <View style={{ marginLeft: -8 }}><Avatar initial={partner.initial} color={partner.color} size={26} ring /></View>
-                    </View>
-                  )}
-                </View>
-              </Card>
-            );
-          })}
+          {items.map((it, i) => <Row key={it.task_id} it={it} index={i} onToggle={() => toggle(it.task_id)} />)}
         </ScrollView>
 
-        <BottomCTA primary={t.go} onPrimary={next} secondary={t.edit} onSecondary={next} />
+        <BottomCTA primary={t.go} onPrimary={finish} />
       </SafeAreaView>
     </View>
   );
@@ -73,7 +103,7 @@ export default function Dispatch() {
 const s = StyleSheet.create({
   state: { fontSize: 21, fontWeight: '600', letterSpacing: -0.6, lineHeight: 21, color: colors.ink },
   loads: { fontSize: 13, fontWeight: '400', color: colors.muted, marginTop: 6 },
-  strong: { color: colors.ink, fontWeight: '600', fontVariant: ['tabular-nums'] },
+  strong: { fontSize: 13, color: colors.ink, fontWeight: '600', fontVariant: ['tabular-nums'] },
   bar: { height: 8, width: 80, borderRadius: 4, overflow: 'hidden', flexDirection: 'row', backgroundColor: alpha(colors.ink, 0.10) },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 11, paddingHorizontal: 14 },
   title: { fontSize: 16, fontWeight: '500', color: colors.ink },

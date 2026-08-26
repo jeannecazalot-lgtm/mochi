@@ -58,7 +58,7 @@ export default function Prefs() {
         <View style={{ alignItems: 'center', paddingTop: 18 }}>
           <LiveMochi size={96} mood="happy" />
         </View>
-        <SetupHeader step={3} title={t.prefsTitle} sub={t.prefsSub} />
+        <SetupHeader step={3} total={4} title={t.prefsTitle} sub={t.prefsSub} />
 
         <View style={{ paddingHorizontal: space.headerX, paddingTop: 17 }}>
           <SectionLabel color={colors.sageDeep}>{fill(t.likeLabel, { max: prefsMax })}</SectionLabel>

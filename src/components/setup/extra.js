@@ -173,3 +173,77 @@ const s2 = StyleSheet.create({
   actionPill: { backgroundColor: colors.glass, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.line, borderRadius: radius.pill, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
   actionPillTxt: { fontSize: 14.5, fontWeight: '500', color: colors.ink },
 });
+
+// ═══ Retours Jeanne 22 août 2026 — fin de setup (10-12) ═══
+// (imports hoistés par Babel ; durées locales à déplacer dans theme.motion par l'intégrateur)
+import { useCheckPop } from '../motion';
+import { withTiming as wTiming, Easing as REasing } from 'react-native-reanimated';
+
+// ─── rond de sélection 26 (10) : anneau `checkRing` off, plein `darkPill` + ✓ crème on.
+// Pop via useCheckPop au cochage ; l'haptique légère est déclenchée par l'écran.
+export function CheckDot({ on, onPress, size = 26 }) {
+  const pop = useCheckPop(on);
+  return (
+    <Pressable onPress={onPress} hitSlop={10} accessibilityRole="checkbox" accessibilityState={{ checked: !!on }}>
+      <Animated.View style={[{ width: size, height: size, borderRadius: size / 2, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? colors.darkPill : 'transparent', borderWidth: 1.5, borderColor: on ? colors.darkPill : colors.checkRing }, pop]}>
+        {on ? (
+          <Svg width={size * 0.54} height={size * 0.54} viewBox="0 0 24 24" fill="none" stroke={colors.card} strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
+            <Path d="M4 12.5l5.5 5.5L20 6.5" />
+          </Svg>
+        ) : null}
+      </Animated.View>
+    </Pressable>
+  );
+}
+
+// ─── CTA secondaire « + Ajouter » (10) avec état pressé VISIBLE :
+// fond qui fonce + échelle 0.97 (CTASecondary ne baisse que l'opacité).
+export function AddButton({ label, onPress, style }) {
+  return (
+    <Pressable onPress={onPress} style={({ pressed }) => [s3.add, pressed && s3.addPressed, style, pressed && { transform: [{ scale: 0.97 }] }]}>
+      <Text style={font.ctaSecondary}>{label}</Text>
+    </Pressable>
+  );
+}
+
+// ─── barre de progression LENTE (11) : 0 → ratio sur `duration` ms
+// (ProgressBar de motion.js est figée à 600 ms). Immédiate si animations réduites.
+export function SetupProgress({ ratio = 1, duration = 3600, color, track, height = 4, radius: r = 999, style }) {
+  const w = useSharedValue(0);
+  React.useEffect(() => {
+    w.value = wTiming(Math.max(0, Math.min(1, ratio)), { duration: prefersReducedMotion() ? 0 : duration, easing: REasing.out(REasing.quad) });
+  }, [ratio, duration]);
+  const fillStyle = useAnimatedStyle(() => ({ width: `${w.value * 100}%` }));
+  return (
+    <View style={[{ height, borderRadius: r, backgroundColor: track, overflow: 'hidden' }, style]}>
+      <Animated.View style={[{ height: '100%', borderRadius: r, backgroundColor: color }, fillStyle]} />
+    </View>
+  );
+}
+
+// ─── count-up (12) : compte depuis la valeur PRÉCÉDENTE (pas depuis 0),
+// pour les totaux qui se recalculent en direct ; premier montage = depuis 0.
+export function LiveCount({ value, format = v => String(Math.round(v)), style, duration = 500 }) {
+  const [v, setV] = React.useState(prefersReducedMotion() ? value : 0);
+  const fromRef = React.useRef(prefersReducedMotion() ? value : 0);
+  React.useEffect(() => {
+    if (prefersReducedMotion()) { fromRef.current = value; setV(value); return; }
+    const from = fromRef.current, start = Date.now();
+    let raf, last = from;
+    const tick = () => {
+      const p = Math.min(1, (Date.now() - start) / duration);
+      const e = 1 - Math.pow(1 - p, 3);
+      last = from + (value - from) * e;
+      setV(last);
+      if (p < 1) raf = requestAnimationFrame(tick); else fromRef.current = value;
+    };
+    raf = requestAnimationFrame(tick);
+    return () => { cancelAnimationFrame(raf); fromRef.current = last; };
+  }, [value]);
+  return <Text style={style}>{format(v)}</Text>;
+}
+
+const s3 = StyleSheet.create({
+  add: { backgroundColor: colors.card, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline, borderRadius: radius.row, paddingVertical: 14, alignItems: 'center', justifyContent: 'center' },
+  addPressed: { backgroundColor: alpha(colors.ink, 0.06), borderColor: alpha(colors.ink, 0.18) },
+});
