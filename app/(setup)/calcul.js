@@ -7,14 +7,16 @@ import { View, Text, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle } from 'react-native-svg';
 import { GlowBg, Card } from '../../src/components/ui';
-import { LiveMochi, Animated, FadeInDown, prefersReducedMotion } from '../../src/components/motion';
+import { LiveMochi, Animated, FadeInDown, FadeIn, prefersReducedMotion } from '../../src/components/motion';
+import { useSharedValue, useAnimatedStyle, withSpring, withTiming, withDelay, Easing } from 'react-native-reanimated';
 import { SetupProgress } from '../../src/components/setup/extra';
 import copy from '../../src/data/copy.json';
 import { colors, alpha } from '../../src/theme';
 
 const t = copy.setup;
 const STEPS = ['calcStep1', 'calcStep2', 'calcStep3'];
-const HOLD = 4000, HOLD_REDUCED = 1200;   // durée totale avant dispatch
+const HOLD = 5000, HOLD_REDUCED = 1200;   // durée totale avant dispatch
+const FINALE_AT = 3700;                   // début du final « majestueux » (retour Jeanne, 23 août 2026)
 const STEP_MS = 1300;                     // cadence des étapes qui défilent
 const LEAN_MS = 900;                      // cadence du penchement gauche/droite
 const SIZE = 230, C = SIZE / 2, R = 112, R2 = 84;
@@ -23,6 +25,27 @@ export default function Calcul() {
   const reduced = prefersReducedMotion();
   const [step, setStep] = useState(reduced ? STEPS.length - 1 : 0);
   const [lean, setLean] = useState(0);
+  const [done, setDone] = useState(false);
+
+  // Final majestueux : Mochi se redresse et grandit en ressort, deux anneaux
+  // jaillissent et s'évanouissent, le titre devient « C'est prêt. »
+  const scale = useSharedValue(1);
+  const burst1 = useSharedValue(0);
+  const burst2 = useSharedValue(0);
+  const mochiStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+  const ring = v => useAnimatedStyle(() => ({ opacity: v.value === 0 ? 0 : 0.85 * (1 - v.value), transform: [{ scale: 1 + v.value * 0.65 }] }));
+  const ring1 = ring(burst1);
+  const ring2 = ring(burst2);
+  useEffect(() => {
+    if (reduced) return;
+    const id = setTimeout(() => {
+      setDone(true); setLean(0);
+      scale.value = withSpring(1.16, { damping: 12, stiffness: 140 });
+      burst1.value = withTiming(1, { duration: 750, easing: Easing.out(Easing.quad) });
+      burst2.value = withDelay(160, withTiming(1, { duration: 750, easing: Easing.out(Easing.quad) }));
+    }, FINALE_AT);
+    return () => clearTimeout(id);
+  }, []);
 
   // passage auto vers la proposition de dispatch
   useEffect(() => {
@@ -40,7 +63,8 @@ export default function Calcul() {
     if (reduced) return;
     setLean(-0.5);
     const id = setInterval(() => setLean(v => (v >= 0 ? -0.5 : 0.5)), LEAN_MS);
-    return () => clearInterval(id);
+    const stop = setTimeout(() => clearInterval(id), FINALE_AT);
+    return () => { clearInterval(id); clearTimeout(stop); };
   }, []);
 
   return (
@@ -55,17 +79,21 @@ export default function Calcul() {
               <Circle cx={C} cy={C} r={R2} stroke={alpha(colors.sage, 0.20)} strokeWidth={2} fill="none" />
               <Circle cx={C} cy={C} r={R2} stroke={colors.sage} strokeWidth={2} fill="none" strokeDasharray={`${Math.PI * R2 / 2} ${Math.PI * R2 * 2}`} strokeLinecap="round" transform={`rotate(45 ${C} ${C})`} />
             </Svg>
-            <LiveMochi size={150} mood="happy" lean={lean} />
+            <Animated.View pointerEvents="none" style={[s.burst, { borderColor: colors.butter }, ring1]} />
+            <Animated.View pointerEvents="none" style={[s.burst, { borderColor: colors.sage }, ring2]} />
+            <Animated.View style={mochiStyle}><LiveMochi size={150} mood={done ? 'wink' : 'happy'} lean={done ? 0 : lean} /></Animated.View>
           </View>
 
-          <Text style={s.title}>{t.calcTitle}</Text>
-          <Text style={s.sub}>{t.calcSub}</Text>
+          {done
+            ? <Animated.Text entering={FadeIn.duration(280)} style={s.title}>{t.calcDone}</Animated.Text>
+            : <Text style={s.title}>{t.calcTitle}</Text>}
+          <Text style={[s.sub, done && { opacity: 0 }]}>{t.calcSub}</Text>
 
           <Card padding={0} r={14} style={{ marginTop: 29, width: 260 }}>
             <View style={{ paddingVertical: 14, paddingHorizontal: 18, gap: 8 }}>
               {STEPS.map((k, i) => {
                 if (i > step) return null;
-                const doing = i === step && !reduced;
+                const doing = i === step && !reduced && !done;
                 return (
                   <Animated.View key={k} entering={reduced ? undefined : FadeInDown.duration(240)}>
                     <Text style={[s.log, doing && { color: colors.coral, fontWeight: '500' }]}>{doing ? '→ ' : '✓ '}{t[k]}</Text>
@@ -82,6 +110,7 @@ export default function Calcul() {
 }
 
 const s = StyleSheet.create({
+  burst: { position: 'absolute', width: 224, height: 224, borderRadius: 112, borderWidth: 2, alignSelf: 'center', top: 3 },
   title: { fontSize: 22, fontWeight: '600', letterSpacing: -1, lineHeight: 22, textAlign: 'center', color: colors.ink },
   sub: { fontSize: 15, fontWeight: '400', color: colors.muted, marginTop: 10, textAlign: 'center', maxWidth: 240, lineHeight: 22 },
   log: { fontSize: 13, color: colors.inkSoft, fontVariant: ['tabular-nums'] },
