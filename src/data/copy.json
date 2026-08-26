@@ -29,7 +29,13 @@
       "title2": "Titre écran connexion (façon Suno)",
       "or": "Séparateur entre le bouton principal et les carrés",
       "emailTitle": "Titre de l état saisie e-mail",
-      "appleUnavailable": "Message si la connexion Apple n est pas encore configurée"
+      "appleUnavailable": "Message si la connexion Apple n est pas encore configurée",
+      "phone": "Gros bouton principal (numéro de téléphone)",
+      "phoneTitle": "Titre de l état saisie du numéro",
+      "phonePlaceholder": "Placeholder du champ numéro",
+      "sendCode": "Bouton d envoi du code SMS",
+      "phoneUnavailable": "Message tant que le SMS n est pas configuré",
+      "googleUnavailable": "Message tant que Google n est pas configuré"
     },
     "title": "Bienvenue",
     "apple": "Continuer avec Apple",
@@ -40,7 +46,13 @@
     "title2": "Crée ton compte\nmochi",
     "or": "ou",
     "emailTitle": "Par e-mail",
-    "appleUnavailable": "Connexion Apple bientôt disponible — passe par l e-mail."
+    "appleUnavailable": "Connexion Apple bientôt disponible — passe par l e-mail.",
+    "phone": "Continuer avec mon numéro",
+    "phoneTitle": "Ton numéro",
+    "phonePlaceholder": "06 12 34 56 78",
+    "sendCode": "Recevoir un code",
+    "phoneUnavailable": "Connexion par SMS bientôt disponible — passe par l e-mail.",
+    "googleUnavailable": "Connexion Google bientôt disponible — passe par l e-mail."
   },
   "tabs": {
     "_labels": {
