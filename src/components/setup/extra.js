@@ -247,3 +247,43 @@ const s3 = StyleSheet.create({
   add: { backgroundColor: colors.card, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline, borderRadius: radius.row, paddingVertical: 14, alignItems: 'center', justifyContent: 'center' },
   addPressed: { backgroundColor: alpha(colors.ink, 0.06), borderColor: alpha(colors.ink, 0.18) },
 });
+
+// ─── Retours Jeanne 22 août 2026 — écran 07 v2 (proposition A + slider) ───
+// Slider 2 h → 8 h (pas de lib : responder JS, précision 30 min).
+export function HourSlider({ min = 2, max = 8, step = 0.5, value, onChange }) {
+  const [w, setW] = React.useState(0);
+  const KNOB = 28;
+  const ratio = (Math.min(max, Math.max(min, value)) - min) / (max - min);
+  const fromX = x => {
+    if (w <= KNOB) return value;
+    const r = Math.min(1, Math.max(0, (x - KNOB / 2) / (w - KNOB)));
+    return Math.min(max, Math.max(min, Math.round((min + r * (max - min)) / step) * step));
+  };
+  const move = e => { const v = fromX(e.nativeEvent.locationX); if (v !== value) onChange(v); };
+  return (
+    <View
+      onLayout={e => setW(e.nativeEvent.layout.width)}
+      onStartShouldSetResponder={() => true}
+      onMoveShouldSetResponder={() => true}
+      onResponderGrant={move}
+      onResponderMove={move}
+      style={{ height: 44, justifyContent: 'center' }}
+    >
+      <View style={{ height: 6, borderRadius: 999, backgroundColor: alpha(colors.ink, 0.08) }} />
+      <View pointerEvents="none" style={{ position: 'absolute', left: 0, height: 6, borderRadius: 999, backgroundColor: colors.sage, width: KNOB / 2 + ratio * Math.max(0, w - KNOB) }} />
+      <View pointerEvents="none" style={{ position: 'absolute', left: ratio * Math.max(0, w - KNOB), width: KNOB, height: KNOB, borderRadius: KNOB / 2, backgroundColor: colors.card, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline, shadowColor: colors.ink, shadowOpacity: 0.15, shadowRadius: 4, shadowOffset: { width: 0, height: 1 } }} />
+    </View>
+  );
+}
+
+// chip de légende (proposition A) : mini-case + libellé ; `on` = surlignée par la démo
+export function LegendChip({ state, label, on }) {
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, paddingVertical: 7, paddingHorizontal: 11, borderRadius: 999, backgroundColor: on ? alpha(colors.sage, 0.35) : alpha(colors.ink, 0.04) }}>
+      <View style={{ width: 22, height: 22, borderRadius: 7, alignItems: 'center', justifyContent: 'center', backgroundColor: state === 2 ? colors.sage : state === 1 ? alpha(colors.sage, 0.35) : colors.card, borderWidth: state === 0 ? 1.5 : StyleSheet.hairlineWidth, borderColor: state === 0 ? alpha(colors.ink, 0.10) : colors.hairline }}>
+        <Text style={{ fontSize: 11, fontWeight: '700', color: state === 2 ? colors.ink : colors.sageDeep }}>{state === 2 ? '●' : state === 1 ? '○' : ''}</Text>
+      </View>
+      <Text style={{ fontSize: 12.5, fontWeight: on ? '600' : '500', color: colors.ink }}>{label}</Text>
+    </View>
+  );
+}

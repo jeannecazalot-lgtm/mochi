@@ -5,8 +5,8 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GlowBg, SetupHeader, Card, CTAPrimary } from '../../src/components/ui';
 import { LiveMochi, FadeInDown, Animated, prefersReducedMotion } from '../../src/components/motion';
-import { SectionLabel, PulseView, useTogglePop } from '../../src/components/setup/extra';
-import { disposEmpty, cycleSlot, weeklyTimeOptions } from '../../src/demo-setup';
+import { SectionLabel, useTogglePop, HourSlider, LegendChip } from '../../src/components/setup/extra';
+import { disposEmpty, cycleSlot } from '../../src/demo-setup';
 import copy from '../../src/data/copy.json';
 import { colors, space, alpha } from '../../src/theme';
 
@@ -29,10 +29,9 @@ export default function Dispos() {
   // Retour Jeanne (22 août 2026) : la grille démarre VIDE et aucun temps n'est
   // pré-sélectionné ; le CTA reste actif quoi qu'il arrive.
   const [grid, setGrid] = useState(disposEmpty);
-  const [hours, setHours] = useState(null);
+  const [hours, setHours] = useState(5); // slider 2→8 h (retour Jeanne)
   const [demoV, setDemoV] = useState(null);  // valeur jouée sur la case d'exemple (démo seulement)
-  const [pulse, setPulse] = useState(false); // déclenche le pulse en cascade des 3 options
-  const timers = useRef([]);
+    const timers = useRef([]);
 
   // Démo d'entrée : ~700 ms après le montage, mardi soir cycle 0 → ○ → ● → 0
   // (300 ms entre chaque état), puis les options de temps pulsent en cascade.
@@ -42,7 +41,7 @@ export default function Dispos() {
     at(700, () => setDemoV(1));
     at(1000, () => setDemoV(2));
     at(1300, () => setDemoV(0));
-    at(1600, () => { setDemoV(null); setPulse(true); });
+    at(1600, () => setDemoV(null));
     return () => timers.current.forEach(clearTimeout);
   }, []);
 
@@ -54,11 +53,17 @@ export default function Dispos() {
     <View style={{ flex: 1 }}>
       <GlowBg intensity="soft" />
       <SafeAreaView style={{ flex: 1 }}>
-        <SetupHeader hero={<LiveMochi size={96} />} step={2} total={4} title={t.disposTitle} sub={t.disposSub} />
+        <SetupHeader hero={<LiveMochi size={96} />} step={2} total={4} title={t.disposTitle} sub={t.disposSub2} />
 
         <View style={{ paddingHorizontal: space.headerX, paddingTop: 18 }}>
           <Card padding={0} r={18} style={{ marginBottom: 10 }}>
             <View style={{ paddingVertical: 14, paddingHorizontal: 16 }}>
+              <View style={s.legendTop}>
+                <LegendChip state={0} label={t.legendNone} on={demoV === 0} />
+                <LegendChip state={1} label={t.legendLight} on={demoV === 1} />
+                <LegendChip state={2} label={t.legendFull} on={demoV === 2} />
+              </View>
+              <Text style={s.tapHint}>{t.tapHint}</Text>
               <View style={s.row}>
                 <View style={s.rowLabel} />
                 {t.days.map((d, i) => <Text key={i} style={[s.day, { color: i >= 5 ? colors.ink : colors.muted }]}>{d}</Text>)}
@@ -76,27 +81,14 @@ export default function Dispos() {
                   ))}
                 </View>
               ))}
-              <View style={s.legend}>
-                <Text style={s.legendTxt}><Text style={{ color: colors.sageDeep }}>○</Text> {t.legendLight}</Text>
-                <Text style={s.legendTxt}><Text style={{ color: colors.ink }}>●</Text> {t.legendFull}</Text>
-              </View>
             </View>
           </Card>
 
           <SectionLabel style={{ marginTop: 8, marginBottom: 8 }}>{t.weeklyTimeLabel}</SectionLabel>
           <Card padding={0} r={16}>
-            <View style={{ flexDirection: 'row', gap: 6, paddingVertical: 11, paddingHorizontal: 13 }}>
-              {weeklyTimeOptions.map((o, i) => {
-                const on = o.hours === hours;
-                return (
-                  <PulseView key={o.hours} trigger={pulse} delay={i * 120} style={{ flex: 1 }}>
-                    <Pressable onPress={() => setHours(o.hours)} style={[s.opt, on && s.optOn]}>
-                      <Text style={[s.optBig, { color: on ? colors.card : colors.ink }]}>{o.label}</Text>
-                      <Text style={[s.optSub, { color: on ? colors.card : colors.ink }]}>{t[o.sub]}</Text>
-                    </Pressable>
-                  </PulseView>
-                );
-              })}
+            <View style={{ paddingVertical: 12, paddingHorizontal: 16 }}>
+              <Text style={s.sliderValue}>{hours >= 8 ? '8 h+' : `${String(hours).replace('.', ',')} h`} <Text style={s.sliderUnit}>{t.perWeek}</Text></Text>
+              <HourSlider value={hours} onChange={setHours} />
             </View>
           </Card>
         </View>
@@ -110,6 +102,10 @@ export default function Dispos() {
 }
 
 const s = StyleSheet.create({
+  legendTop: { flexDirection: 'row', justifyContent: 'center', gap: 6, marginBottom: 8 },
+  tapHint: { textAlign: 'center', fontSize: 12, fontWeight: '400', color: colors.muted, marginBottom: 12 },
+  sliderValue: { fontSize: 22, fontWeight: '700', letterSpacing: -0.5, color: colors.ink, textAlign: 'center', fontVariant: ['tabular-nums'] },
+  sliderUnit: { fontSize: 13, fontWeight: '400', color: colors.muted, letterSpacing: 0 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   rowLabel: { width: 44 },
   rowTxt: { fontSize: 11, letterSpacing: 0.8, fontWeight: '600', color: colors.muted },

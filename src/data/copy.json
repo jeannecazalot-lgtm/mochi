@@ -379,7 +379,7 @@
       "dispatchSub": "Sous-titre écran 12",
       "balanced": "État de balance équilibrée",
       "leaning": "État de balance qui penche",
-      "perWeek": "Suffixe « / sem »",
+      "perWeek": "Suffixe du slider de temps ({h} = heures)",
       "edit": "CTA secondaire modifier (12)",
       "go": "CTA principal c’est parti (12)",
       "reassignTitle": "Titre écran 13",
@@ -398,7 +398,10 @@
       "calcStep2": "Étape 2 du calcul qui défile (11)",
       "calcStep3": "Étape 3 du calcul qui défile (11)",
       "dispatchSubTap": "Sous-titre écran 12 (fusion 12+13) : explique le tap pour réattribuer une tâche",
-      "tagSunday": "dimanche (créneau)"
+      "tagSunday": "dimanche (créneau)",
+      "legendNone": "Légende état vide (proposition A)",
+      "tapHint": "Phrase sous les chips de légende (proposition A)",
+      "disposSub2": "Nouveau sous-titre écran 07 (court, la légende explique le reste)"
     },
     "identityTitle": "C'est toi.",
     "identitySub": "Ton prénom et ta photo — on les retrouve partout : balance, planning, historique.",
@@ -467,7 +470,7 @@
     "dispatchSub": "Tout est ajustable. Promis.",
     "balanced": "Équilibré",
     "leaning": "Ça penche",
-    "perWeek": "/ sem",
+    "perWeek": "h / semaine",
     "edit": "Modifier",
     "go": "C’est parti →",
     "reassignTitle": "Réattribuer.",
@@ -486,7 +489,10 @@
     "calcStep2": "Je pèse chaque tâche…",
     "calcStep3": "J’équilibre…",
     "dispatchSubTap": "Tout est ajustable : tape une tâche pour la passer à l’autre.",
-    "tagSunday": "dimanche"
+    "tagSunday": "dimanche",
+    "legendNone": "pas dispo",
+    "tapHint": "Tape une case pour changer son état",
+    "disposSub2": "Dis-nous quand tu peux t’occuper du foyer."
   },
   "event": {
     "_labels": {
