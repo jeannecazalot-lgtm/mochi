@@ -162,11 +162,13 @@ export function SetupHeader({ step, total = 3, title, sub, hero }) {
   return (
     <View>
       {hero ? <View style={{ alignItems: 'center', paddingTop: 6 }}>{hero}</View> : null}
-      <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 5, paddingTop: 14 }}>
-        {Array.from({ length: total }, (_, i) => i + 1).map(i => (
-          <View key={i} style={{ width: i === step ? 18 : 6, height: 6, borderRadius: radius.pill, backgroundColor: i <= step ? colors.ink : alpha(colors.ink, 0.15) }} />
-        ))}
-      </View>
+      {step ? (
+        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 5, paddingTop: 14 }}>
+          {Array.from({ length: total }, (_, i) => i + 1).map(i => (
+            <View key={i} style={{ width: i === step ? 18 : 6, height: 6, borderRadius: radius.pill, backgroundColor: i <= step ? colors.ink : alpha(colors.ink, 0.15) }} />
+          ))}
+        </View>
+      ) : <View style={{ height: 20 }} />}
       <View style={{ paddingHorizontal: space.headerX, paddingTop: canBack ? 22 : 14 }}>
         <Text style={[font.screenTitle, { letterSpacing: -1.1, lineHeight: 23 }]}>{title}</Text>
         <Text style={[font.secondary, { fontSize: 14, marginTop: 6, lineHeight: 20 }]}>{sub}</Text>

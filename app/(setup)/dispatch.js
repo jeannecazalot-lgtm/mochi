@@ -69,7 +69,7 @@ export default function Dispatch() {
     <View style={{ flex: 1 }}>
       <GlowBg intensity="soft" />
       <SafeAreaView style={{ flex: 1 }}>
-        <SetupHeader step={4} total={4} title={t.dispatchTitle} sub={t.dispatchSubTap} />
+        <SetupHeader hero={<LiveMochi size={96} />} title={t.dispatchTitle} sub={t.dispatchSubTap} />
 
         <View style={{ paddingHorizontal: space.headerX, paddingTop: 18 }}>
           <Animated.View entering={prefersReducedMotion() ? undefined : FadeInDown.duration(motion.screen)}>

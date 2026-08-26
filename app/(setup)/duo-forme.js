@@ -55,7 +55,6 @@ export default function DuoForme() {
         </View>
       </SafeAreaView>
       {/* confetti au-dessus de tout ; rend null si « réduire les animations » */}
-      <Confetti colors={confettiPalette} />
     </View>
   );
 }
