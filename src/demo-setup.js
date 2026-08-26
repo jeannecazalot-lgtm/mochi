@@ -5,30 +5,34 @@
 import { me, partner, tasks, taskById } from './demo';
 
 // 07 · grille matin/soir : 0 = rien, 1 = léger, 2 = à fond (lundi → dimanche)
+// disposDefault ne sert plus qu'à la démo du calcul (11) ; l'écran 07 démarre VIDE
+// (retour Jeanne, 22 août 2026 : aucune valeur pré-remplie).
 export const disposDefault = { morning: [0, 1, 0, 1, 0, 2, 2], evening: [2, 1, 2, 0, 1, 2, 1] };
+export const disposEmpty = { morning: [0, 0, 0, 0, 0, 0, 0], evening: [0, 0, 0, 0, 0, 0, 0] };
 export const cycleSlot = v => (v + 1) % 3;
 export const countSlots = g => [...g.morning, ...g.evening].filter(v => v > 0).length;
 
-// 07 · temps dispo par semaine (heures) ; `sub` = clé copy.setup
+// 07 · temps dispo par semaine (heures) ; `sub` = clé copy.setup.
+// Aucune option par défaut : rien n'est sélectionné d'avance (retour Jeanne, 22 août 2026).
 export const weeklyTimeOptions = [
   { hours: 2, label: '2 h', sub: 'timeMin' },
-  { hours: 5, label: '5 h', sub: 'timeMid', default: true },
+  { hours: 5, label: '5 h', sub: 'timeMid' },
   { hours: 8, label: '8 h+', sub: 'timeMax' },
 ];
 
-// 08 · chips de préférences (3 max par liste)
+// 08 · chips de préférences (3 max par liste) — aucun pré-coché (retour Jeanne, 22 août 2026)
 export const prefsMax = 3;
 export const likeChips = [
-  { id: 'cuisiner', emoji: '🍳', label: 'Cuisiner', on: true },
-  { id: 'courses', emoji: '🛒', label: 'Courses', on: true },
-  { id: 'chien', emoji: '🐕', label: 'Le chien', on: true },
+  { id: 'cuisiner', emoji: '🍳', label: 'Cuisiner' },
+  { id: 'courses', emoji: '🛒', label: 'Courses' },
+  { id: 'chien', emoji: '🐕', label: 'Le chien' },
   { id: 'lessive', emoji: '🧺', label: 'Lessive' },
   { id: 'plantes', emoji: '🪴', label: 'Plantes' },
 ];
 export const hateChips = [
-  { id: 'repasser', emoji: '👔', label: 'Repasser', on: true },
-  { id: 'sdb', emoji: '🚽', label: 'Salle de bain', on: true },
-  { id: 'admin', emoji: '📞', label: 'Appels admin', on: true },
+  { id: 'repasser', emoji: '👔', label: 'Le repassage' },
+  { id: 'sdb', emoji: '🚽', label: 'Salle de bain' },
+  { id: 'admin', emoji: '📞', label: 'Appels admin' },
   { id: 'vaisselle', emoji: '🍽', label: 'Vaisselle' },
   { id: 'poubelles', emoji: '🗑', label: 'Poubelles' },
 ];

@@ -78,3 +78,98 @@ const s = StyleSheet.create({
 // ─── tokens manquants dans theme.js (à y déplacer par l'intégrateur) ─
 // teintes « on » des chips de préférences (08) : sage clair / pêche de l'artboard
 export const setupTokens = { chipLike: '#C9E0C5', chipHate: '#F5A89A' };
+
+// ═══ Retours Jeanne 22 août 2026 — primitives d'animation setup (07-08) ═══
+// (imports hoistés par Babel ; durées locales à déplacer dans theme.motion par l'intégrateur)
+import Animated, { useSharedValue, useAnimatedStyle, withTiming, withSpring, withSequence, withDelay } from 'react-native-reanimated';
+import * as Haptics from 'expo-haptics';
+import { prefersReducedMotion } from '../motion';
+
+// ─── pop d'échelle à chaque changement de `value` (cellules de la grille 07) ─
+export function useTogglePop(value) {
+  const s = useSharedValue(1);
+  const first = React.useRef(true);
+  React.useEffect(() => {
+    if (first.current) { first.current = false; return; }
+    if (prefersReducedMotion()) return;
+    s.value = withSequence(withTiming(0.9, { duration: 80 }), withSpring(1, { damping: 10 }));
+  }, [value]);
+  return useAnimatedStyle(() => ({ transform: [{ scale: s.value }] }));
+}
+
+// ─── pulse léger 1 → 1.04 → 1 quand `trigger` passe à vrai (options de temps 07) ─
+export function PulseView({ trigger, delay = 0, style, children }) {
+  const sc = useSharedValue(1);
+  React.useEffect(() => {
+    if (!trigger || prefersReducedMotion()) return;
+    sc.value = withDelay(delay, withSequence(withTiming(1.04, { duration: 160 }), withTiming(1, { duration: 160 })));
+  }, [trigger]);
+  const a = useAnimatedStyle(() => ({ transform: [{ scale: sc.value }] }));
+  return <Animated.View style={[style, a]}>{children}</Animated.View>;
+}
+
+// ─── secousse horizontale ±6 px, 3 oscillations ~300 ms + haptique warning
+//     (chip refusé quand le max est atteint, 08) ─
+export function useShake() {
+  const x = useSharedValue(0);
+  const style = useAnimatedStyle(() => ({ transform: [{ translateX: x.value }] }));
+  const shake = () => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
+    if (prefersReducedMotion()) return;
+    x.value = withSequence(
+      withTiming(-6, { duration: 45 }), withTiming(6, { duration: 50 }),
+      withTiming(-6, { duration: 50 }), withTiming(6, { duration: 50 }),
+      withTiming(-6, { duration: 50 }), withTiming(0, { duration: 55 }),
+    );
+  };
+  return { style, shake };
+}
+
+// ═══ Retours Jeanne 22 août 2026 — invitation (09) + planche props ═══
+// (imports hoistés par Babel)
+import Svg, { Path } from 'react-native-svg';
+
+// ─── lien « Passer » discret 13/500 muted, aligné sur la flèche retour de
+// SetupHeader. À poser DANS un wrapper relatif qui contient aussi <SetupHeader />.
+export function SkipLink({ onPress, label }) {
+  return (
+    <Pressable onPress={onPress} hitSlop={12} style={s2.skipLink}>
+      <Text style={s.skip}>{label ?? copy.setup.skip}</Text>
+    </Pressable>
+  );
+}
+
+// ─── icône partage système iOS (flèche qui sort de la boîte), outline 1.8 ─
+export const ShareIcon = ({ size = 18, color = colors.ink }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+    <Path d="M4 11v9a2 2 0 002 2h12a2 2 0 002-2v-9" />
+    <Path d="M16 6l-4-4-4 4" />
+    <Path d="M12 2v13" />
+  </Svg>
+);
+
+// ─── icône QR code, outline 1.8 ─────────────────────────────────────
+export const QRIcon = ({ size = 18, color = colors.ink }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+    <Path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4z" />
+    <Path d="M14 14h3v3h-3zM17 17h3v3h-3z" />
+  </Svg>
+);
+
+// ─── bouton secondaire rond/pilule (09) : glass + hairline, radius 999.
+// Avec `label` → pilule icône + texte ; sans → rond icône seule (size × size).
+export function ActionPill({ icon, label, onPress, size = 48, accessibilityLabel, style }) {
+  return (
+    <Pressable onPress={onPress} accessibilityLabel={accessibilityLabel || label} hitSlop={4}
+      style={({ pressed }) => [s2.actionPill, { height: size }, label ? { paddingHorizontal: 20 } : { width: size }, { opacity: pressed && onPress ? 0.7 : 1 }, style]}>
+      {icon}
+      {label ? <Text style={s2.actionPillTxt}>{label}</Text> : null}
+    </Pressable>
+  );
+}
+
+const s2 = StyleSheet.create({
+  skipLink: { position: 'absolute', right: space.screenX, top: 4, height: 30, justifyContent: 'center', zIndex: 2 },
+  actionPill: { backgroundColor: colors.glass, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.line, borderRadius: radius.pill, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
+  actionPillTxt: { fontSize: 14.5, fontWeight: '500', color: colors.ink },
+});
