@@ -62,23 +62,15 @@ export default function Prefs() {
         <SetupHeader hero={<LiveMochi size={96} />} step={3} total={4} title={t.prefsTitle} sub={t.prefsSub2} />
 
         <View style={{ paddingHorizontal: space.headerX, paddingTop: 17 }}>
-          {/* PROPOSITION A (choix Jeanne, 23 août 2026) : deux colonnes + stock à classer */}
-          <Text style={s.hint}>{t.prefsHintA} · {fill(t.prefsMaxNote, { max: prefsMax })}</Text>
-          <View style={{ flexDirection: 'row', gap: 8 }}>
-            {[['like', t.likeColTitle, onColor.like], ['hate', t.hateColTitle, onColor.hate]].map(([tone, title, bg]) => (
-              <View key={tone} style={[s.col, { backgroundColor: alpha(bg, 0.35) }]}>
-                <Text style={s.colTitle}>{title}</Text>
-                {prefsPool.filter(c => prefs[c.id] === tone).map(c => (
-                  <Chip key={c.id} c={c} state={tone} onCycle={cycle} delay={0} />
-                ))}
-                {prefsPool.filter(c => prefs[c.id] === tone).length === 0 ? <Text style={s.colEmpty}>—</Text> : null}
-              </View>
-            ))}
+          <View style={s.legendTop}>
+            <LegendChip state={0} label={t.prefsLegendNeutral} />
+            <View style={[s.legendPill, { backgroundColor: onColor.like }]}><Text style={s.legendPillTxt}>💚 {t.prefsLegendLike}</Text></View>
+            <View style={[s.legendPill, { backgroundColor: onColor.hate }]}><Text style={s.legendPillTxt}>🙅 {t.prefsLegendHate}</Text></View>
           </View>
-          <SectionLabel style={{ marginTop: 16, marginBottom: 8 }}>{t.stockLabel}</SectionLabel>
+          <Text style={s.hint}>{t.prefsHint} · {fill(t.prefsMaxNote, { max: prefsMax })}</Text>
           <View style={s.wrap}>
-            {prefsPool.filter(c => !prefs[c.id]).map((c, i) => (
-              <Chip key={c.id} c={c} state={undefined} onCycle={cycle} delay={i * 30} />
+            {prefsPool.map((c, i) => (
+              <Chip key={c.id} c={c} state={prefs[c.id]} onCycle={cycle} delay={i * 30} />
             ))}
           </View>
 
@@ -106,9 +98,6 @@ export default function Prefs() {
 }
 
 const s = StyleSheet.create({
-  col: { flex: 1, borderRadius: 16, padding: 10, gap: 6, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
-  colTitle: { fontSize: 13, fontWeight: '600', color: colors.ink, marginBottom: 2, textAlign: 'center' },
-  colEmpty: { textAlign: 'center', color: colors.muted, fontSize: 13, paddingVertical: 8 },
   legendTop: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 6, marginBottom: 6 },
   legendPill: { paddingVertical: 7, paddingHorizontal: 11, borderRadius: 999, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
   legendPillTxt: { fontSize: 12.5, fontWeight: '500', color: colors.ink },
