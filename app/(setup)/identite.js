@@ -22,10 +22,12 @@ export default function Identite() {
   useEffect(() => { loadProfile().then(p => { if (p) { setFirstName(p.first_name || ''); setPhoto(p.avatar_url || null); } }).catch(() => {}); }, []);
 
   const onContinue = async () => {
+    // Décision Jeanne (22 août 2026) : la sauvegarde ne bloque JAMAIS le parcours.
+    // En cas d'échec Supabase on avance quand même ; la cause est loguée pour debug.
     setSaving(true); setError(null);
-    try { await saveIdentity({ firstName, photoUri: photo }); router.push('/(setup)/dispos'); }
-    catch (e) { setError(copy.common.saveError); }
-    finally { setSaving(false); }
+    try { await saveIdentity({ firstName, photoUri: photo }); }
+    catch (e) { console.warn('[06] saveIdentity a échoué (on avance quand même) :', e?.message || e); }
+    finally { setSaving(false); router.push('/(setup)/dispos'); }
   };
 
   const pickPhoto = async () => {

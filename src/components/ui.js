@@ -6,6 +6,7 @@ import React from 'react';
 import { router, usePathname } from 'expo-router';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
 import Svg, { Defs, RadialGradient, Stop, Rect, Circle, Ellipse, Path, LinearGradient as SvgLinear } from 'react-native-svg';
 import { colors, glow, gradients, radius, space, font, shadows, alpha } from '../theme';
 // ─── fond app : crème + 4 halos radiaux ─────────────────────────────
@@ -66,9 +67,16 @@ export function PillLabel({ children, color = colors.ink, tint }) {
 }
 // ─── CTA primaire : gradient Mochi, radius 14 ───────────────────────
 export function CTAPrimary({ label, onPress, disabled, style, big }) {
+  // à l'appui, une bande claire traverse le bouton : le dégradé « avance » (retour Jeanne, 22 août 2026)
+  const slide = useSharedValue(-1);
+  const shimmer = useAnimatedStyle(() => ({ transform: [{ translateX: slide.value * 360 }] }));
+  const fire = () => { slide.value = -1; slide.value = withTiming(1, { duration: 500, easing: Easing.out(Easing.quad) }); };
   return (
-    <Pressable onPress={onPress} disabled={disabled} style={({ pressed }) => [{ opacity: disabled ? 0.5 : pressed ? 0.85 : 1 }, style]}>
-      <LinearGradient {...gradients.mochi} style={[s.cta, shadows.cta, big && { paddingVertical: 17 }]}>
+    <Pressable onPressIn={fire} onPress={onPress} disabled={disabled} style={({ pressed }) => [{ opacity: disabled ? 0.5 : pressed ? 0.92 : 1 }, style]}>
+      <LinearGradient {...gradients.mochi} style={[s.cta, shadows.cta, big && { paddingVertical: 17 }, { overflow: 'hidden' }]}>
+        <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, shimmer]}>
+          <LinearGradient colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.5)', 'rgba(255,255,255,0)']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ flex: 1, width: '55%' }} />
+        </Animated.View>
         <Text style={[font.cta, big && { fontSize: 16 }]}>{label}</Text>
       </LinearGradient>
     </Pressable>
