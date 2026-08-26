@@ -76,10 +76,8 @@ export default function Taches() {
               </View>
             </Card>
           ) : null}
+          {customs.map(c => <Row key={c.id} c={c} index={0} active={on.includes(c.id)} onToggle={() => toggle(c.id)} />)}
           {broad.map((c, i) => <Row key={c.id} c={c} index={i} active={on.includes(c.id)} onToggle={() => toggle(c.id)} />)}
-          <Animated.View entering={prefersReducedMotion() ? undefined : FadeInDown.delay(broad.length * 45).duration(motion.screen)}>
-            <SectionLabel style={{ marginTop: 14, marginBottom: 9 }}>{t.tasksSpecificLabel}</SectionLabel>
-          </Animated.View>
           {specific.map((c, i) => <Row key={c.id} c={c} index={broad.length + 1 + i} active={on.includes(c.id)} onToggle={() => toggle(c.id)} />)}
           {customs.map((c, i) => <Row key={c.id} c={c} index={0} active={on.includes(c.id)} onToggle={() => toggle(c.id)} />)}
         </ScrollView>
