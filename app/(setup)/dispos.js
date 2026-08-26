@@ -1,23 +1,26 @@
 // Écran 07 · Setup B — Dispos & énergie. Recette : docs/recettes/07-dispos.md
 import React, { useState, useEffect, useRef } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GlowBg, SetupHeader, Card, CTAPrimary } from '../../src/components/ui';
 import { LiveMochi, FadeInDown, Animated, prefersReducedMotion } from '../../src/components/motion';
+import { useSharedValue, useAnimatedStyle, withSequence, withTiming } from 'react-native-reanimated';
 import { SectionLabel, useTogglePop, HourSlider, LegendChip } from '../../src/components/setup/extra';
 import { disposEmpty, cycleSlot } from '../../src/demo-setup';
 import copy from '../../src/data/copy.json';
 import { colors, space, alpha } from '../../src/theme';
 
 const t = copy.setup;
-// case d'exemple de la démo d'entrée : mardi soir (retour Jeanne, 22 août 2026)
-const DEMO_ROW = 'evening', DEMO_COL = 1;
+// Démo pédagogique (spec Jeanne, 23 août 2026) : case LUN/MATIN, première visite seulement.
+const DEMO_ROW = 'morning', DEMO_COL = 0;
+const SEEN_KEY = 'mochi:demo:dispos-vue';
 
 function Cell({ v, onPress, delay }) {
   const pop = useTogglePop(v); // petit spring d'échelle à chaque bascule (démo comprise)
   return (
-    <Animated.View entering={FadeInDown.duration(220).delay(delay)} style={[{ flex: 1 }, pop]}>
+    <Animated.View style={[{ flex: 1 }, pop]}>
       <Pressable onPress={onPress} style={[s.cell, v === 2 ? s.cellFull : v === 1 ? s.cellLight : s.cellEmpty]}>
         <Text style={[s.cellTxt, { color: v === 2 ? colors.ink : colors.sageDeep }]}>{v === 2 ? '●' : v === 1 ? '○' : ''}</Text>
       </Pressable>
@@ -31,22 +34,46 @@ export default function Dispos() {
   const [grid, setGrid] = useState(disposEmpty);
   const [hours, setHours] = useState(2); // slider 2→8 h — démarre au minimum : rien de pré-rempli (règle Jeanne, 23 août 2026)
   const [demoV, setDemoV] = useState(null);  // valeur jouée sur la case d'exemple (démo seulement)
+  const hintO = useSharedValue(1);
+  const hintStyle = useAnimatedStyle(() => ({ opacity: hintO.value }));
+  const hintPulse = () => { hintO.value = withSequence(withTiming(0.35, { duration: 220 }), withTiming(1, { duration: 320 })); };
     const timers = useRef([]);
 
-  // Démo d'entrée : ~700 ms après le montage, mardi soir cycle 0 → ○ → ● → 0
-  // (300 ms entre chaque état), puis les options de temps pulsent en cascade.
+  // Démo pédagogique — spec Jeanne (23 août 2026) :
+  // 0-350 ms entrée douce · 500-1200 ms la case LUN/MATIN cycle 0→○→●→0 avec
+  // pulse de la phrase d'aide · 1400-2200 ms le slider glisse 2→5→2 h.
+  // Première visite seulement (drapeau local) ; tout toucher annule la démo.
+  const raf = useRef(null);
   useEffect(() => {
-    if (prefersReducedMotion()) return;
-    const at = (ms, fn) => timers.current.push(setTimeout(fn, ms));
-    at(700, () => setDemoV(1));
-    at(1000, () => setDemoV(2));
-    at(1300, () => setDemoV(0));
-    at(1600, () => setDemoV(null));
-    return () => timers.current.forEach(clearTimeout);
+    let cancelled = false;
+    (async () => {
+      if (prefersReducedMotion()) return;
+      const seen = await AsyncStorage.getItem(SEEN_KEY).catch(() => null);
+      if (seen || cancelled) return;
+      AsyncStorage.setItem(SEEN_KEY, '1').catch(() => {});
+      const at = (ms, fn) => timers.current.push(setTimeout(fn, ms));
+      // 2 · la case cycle, la phrase pulse
+      at(500, () => { setDemoV(1); hintPulse(); });
+      at(733, () => setDemoV(2));
+      at(966, () => setDemoV(0));
+      at(1200, () => setDemoV(null));
+      // 3 · le slider glisse réellement 2 → 5 → 2
+      at(1400, () => {
+        const start = Date.now(), D = 800;
+        const tick = () => {
+          const p = Math.min(1, (Date.now() - start) / D);
+          const v = p < 0.5 ? 2 + 3 * (p / 0.5) : 5 - 3 * ((p - 0.5) / 0.5);
+          setHours(Math.round(v * 2) / 2);
+          if (p < 1) raf.current = requestAnimationFrame(tick); else setHours(2);
+        };
+        raf.current = requestAnimationFrame(tick);
+      });
+    })();
+    return () => { cancelled = true; timers.current.forEach(clearTimeout); if (raf.current) cancelAnimationFrame(raf.current); };
   }, []);
 
   // dès que Jeanne touche la grille, la démo s'arrête (l'état réel reste intact)
-  const stopDemo = () => { timers.current.forEach(clearTimeout); setDemoV(null); };
+  const stopDemo = () => { timers.current.forEach(clearTimeout); if (raf.current) cancelAnimationFrame(raf.current); setDemoV(null); };
   const tap = (row, i) => { stopDemo(); setGrid(g => ({ ...g, [row]: g[row].map((v, j) => (j === i ? cycleSlot(v) : v)) })); };
 
   return (
@@ -55,7 +82,7 @@ export default function Dispos() {
       <SafeAreaView style={{ flex: 1 }}>
         <SetupHeader hero={<LiveMochi size={96} />} step={2} total={4} title={t.disposTitle} sub={t.disposSub2} />
 
-        <View style={{ paddingHorizontal: space.headerX, paddingTop: 18 }}>
+        <Animated.View entering={prefersReducedMotion() ? undefined : FadeInDown.duration(350).withInitialValues({ opacity: 0, transform: [{ translateY: 10 }] })} onTouchStart={stopDemo} style={{ paddingHorizontal: space.headerX, paddingTop: 18 }}>
           <Card padding={0} r={18} style={{ marginBottom: 10 }}>
             <View style={{ paddingVertical: 14, paddingHorizontal: 16 }}>
               <View style={s.legendTop}>
@@ -63,7 +90,7 @@ export default function Dispos() {
                 <LegendChip state={1} label={t.legendLightShort} on={demoV === 1} />
                 <LegendChip state={2} label={t.legendFullShort} on={demoV === 2} />
               </View>
-              <Text style={s.tapHint}>{t.tapHint}</Text>
+              <Animated.Text style={[s.tapHint, hintStyle]}>{t.tapHint}</Animated.Text>
               <View style={s.row}>
                 <View style={s.rowLabel} />
                 {t.days.map((d, i) => <Text key={i} style={[s.day, { color: i >= 5 ? colors.ink : colors.muted }]}>{d}</Text>)}
@@ -88,10 +115,10 @@ export default function Dispos() {
           <Card padding={0} r={16}>
             <View style={{ paddingVertical: 12, paddingHorizontal: 16 }}>
               <Text style={s.sliderValue}>{hours >= 8 ? '8+' : String(hours).replace('.', ',')} <Text style={s.sliderUnit}>{t.perWeek}</Text></Text>
-              <HourSlider value={hours} onChange={setHours} />
+              <HourSlider value={hours} onChange={v => { stopDemo(); setHours(v); }} />
             </View>
           </Card>
-        </View>
+        </Animated.View>
 
         <View style={s.ctaWrap}>
           <CTAPrimary label={copy.common.continue} onPress={() => router.push('/(setup)/prefs')} big />
