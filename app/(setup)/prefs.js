@@ -1,6 +1,7 @@
 // Écran 08 · Setup C — Préférences. Recette : docs/recettes/08-prefs.md
 import React, { useState } from 'react';
 import { router } from 'expo-router';
+import * as Haptics from 'expo-haptics';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GlowBg, SetupHeader, Card, CTAPrimary } from '../../src/components/ui';
@@ -15,17 +16,14 @@ const onColor = { like: setupTokens.chipLike, hate: setupTokens.chipHate };
 
 // 08 v2 (retour Jeanne, 22 août 2026) : UNE seule liste — chaque tâche cycle
 // neutre → j'aime → je déteste → neutre. Secousse si le côté visé est plein.
-function Chip({ c, state, onCycle, delay }) {
-  const { style, shake } = useShake();
+function Chip({ c, state, onCycle }) {
   const bg = state === 'like' ? onColor.like : state === 'hate' ? onColor.hate : null;
   return (
-    <Animated.View entering={FadeInDown.duration(220).delay(delay)} style={style}>
-      <Pressable
-        onPress={() => { if (!onCycle(c.id)) shake(); }}
-        style={[s.chip, bg ? { backgroundColor: bg, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline } : s.chipOff]}>
-        <Text style={s.chipTxt}>{c.emoji} {c.label}</Text>
-      </Pressable>
-    </Animated.View>
+    <Pressable
+      onPress={() => { if (!onCycle(c.id)) Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {}); }}
+      style={[s.chip, bg ? { backgroundColor: bg, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline } : s.chipOff]}>
+      <Text style={s.chipTxt}>{c.emoji} {c.label}</Text>
+    </Pressable>
   );
 }
 
@@ -70,7 +68,7 @@ export default function Prefs() {
           <Text style={s.hint}>{t.prefsHint} · {fill(t.prefsMaxNote, { max: prefsMax })}</Text>
           <View style={s.wrap}>
             {prefsPool.map((c, i) => (
-              <Chip key={c.id} c={c} state={prefs[c.id]} onCycle={cycle} delay={i * 30} />
+              <Chip key={c.id} c={c} state={prefs[c.id]} onCycle={cycle} />
             ))}
           </View>
 
