@@ -68,14 +68,16 @@ export function PillLabel({ children, color = colors.ink, tint }) {
 // ─── CTA primaire : gradient Mochi, radius 14 ───────────────────────
 export function CTAPrimary({ label, onPress, disabled, style, big, pill }) {
   // à l'appui, une bande claire traverse le bouton : le dégradé « avance » (retour Jeanne, 22 août 2026)
+  // Recette (retour Jeanne, 1er sept 2026 : plus fluide, plus lent) : bande 60 % de large,
+  // blanc 0→0,4→0, traversée 800 ms easing inOut(cubic) — accélère et ralentit en douceur.
   const slide = useSharedValue(-1);
   const shimmer = useAnimatedStyle(() => ({ transform: [{ translateX: slide.value * 360 }] }));
-  const fire = () => { slide.value = -1; slide.value = withTiming(1, { duration: 500, easing: Easing.out(Easing.quad) }); };
+  const fire = () => { slide.value = -1; slide.value = withTiming(1, { duration: 800, easing: Easing.inOut(Easing.cubic) }); };
   return (
     <Pressable onPressIn={fire} onPress={onPress} disabled={disabled} style={({ pressed }) => [{ opacity: disabled ? 0.5 : pressed ? 0.92 : 1 }, style]}>
       <LinearGradient {...gradients.mochi} style={[s.cta, shadows.cta, big && { paddingVertical: 0, height: ctaSpec.height }, pill && { borderRadius: radius.pill, height: 56 }, { overflow: 'hidden' }]}>
         <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, shimmer]}>
-          <LinearGradient colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.5)', 'rgba(255,255,255,0)']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ flex: 1, width: '55%' }} />
+          <LinearGradient colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.4)', 'rgba(255,255,255,0)']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ flex: 1, width: '60%' }} />
         </Animated.View>
         <Text style={[font.cta, big && { fontSize: ctaSpec.fontSize }]}>{label}</Text>
       </LinearGradient>
@@ -171,7 +173,7 @@ export function SetupHeader({ step, total = 3, title, sub, hero }) {
       ) : <View style={{ height: 20 }} />}
       <View style={{ paddingHorizontal: space.headerX, paddingTop: canBack ? 22 : 14 }}>
         <Text style={[font.screenTitle, { letterSpacing: -1.1, lineHeight: 23 }]}>{title}</Text>
-        <Text style={[font.secondary, { fontSize: 14, marginTop: 6, lineHeight: 20 }]}>{sub}</Text>
+        {sub ? <Text style={[font.secondary, { fontSize: 14, marginTop: 6, lineHeight: 20 }]}>{sub}</Text> : null}
       </View>
       {canBack ? (
         <Pressable onPress={() => router.back()} hitSlop={12} style={{ position: 'absolute', left: space.screenX, top: 4, zIndex: 2, width: 30, height: 30, borderRadius: 15, backgroundColor: colors.card, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline, alignItems: 'center', justifyContent: 'center' }}>

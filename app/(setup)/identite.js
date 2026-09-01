@@ -39,7 +39,7 @@ export default function Identite() {
     <View style={{ flex: 1 }}>
       <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }}>
-        <SetupHeader hero={<LiveMochi size={96} mood="happy" />} step={1} total={4} title={t.identityTitle} sub={t.identitySub} />
+        <SetupHeader hero={<LiveMochi size={96} mood="happy" />} step={1} total={4} title={t.identityTitle} />
 
         <View style={{ paddingHorizontal: space.headerX, paddingTop: 24 }}>
           <Micro style={s.label}>{t.firstNameLabel}</Micro>
@@ -65,8 +65,7 @@ export default function Identite() {
                     </View>
                   )}
                 <View style={{ flex: 1 }}>
-                  <Text style={s.photoTitle}>{photo ? t.photoChange : t.photoAdd}</Text>
-                  <Text style={s.photoHint}>{t.photoHint}</Text>
+                  <Text style={s.photoTitle}>{t.photoSelect}</Text>
                 </View>
                 <Text style={{ fontSize: 16, color: colors.muted }}>›</Text>
               </View>
@@ -88,9 +87,8 @@ const s = StyleSheet.create({
   label: { marginBottom: 9 },
   input: { paddingVertical: 17, paddingHorizontal: 18, fontSize: 19, fontWeight: '600', letterSpacing: -0.4, color: colors.ink },
   photoRow: { flexDirection: 'row', alignItems: 'center', gap: 16, paddingVertical: 17, paddingHorizontal: 18 },
-  photo: { width: 72, height: 72, borderRadius: 36 },
-  photoEmpty: { width: 72, height: 72, borderRadius: 36, backgroundColor: alpha(colors.ink, 0.04), borderWidth: 1.5, borderStyle: 'dashed', borderColor: alpha(colors.ink, 0.22), alignItems: 'center', justifyContent: 'center' },
+  photo: { width: 72, height: 72, borderRadius: radius.card },
+  photoEmpty: { width: 72, height: 72, borderRadius: radius.card, backgroundColor: alpha(colors.ink, 0.04), borderWidth: 1.5, borderStyle: 'dashed', borderColor: alpha(colors.ink, 0.22), alignItems: 'center', justifyContent: 'center' },
   photoTitle: { fontSize: 15.5, fontWeight: '600', color: colors.ink },
-  photoHint: { fontSize: 13, fontWeight: '400', color: colors.muted, marginTop: 3, lineHeight: 18 },
   ctaWrap: { position: 'absolute', left: 24, right: 24, bottom: 26 },
 });
