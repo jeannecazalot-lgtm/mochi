@@ -4,7 +4,7 @@ import { router } from 'expo-router';
 import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
-import { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import { useSharedValue, useAnimatedStyle, withTiming, LinearTransition } from 'react-native-reanimated';
 import { GlowBg, Card, Divider, Avatar } from '../../src/components/ui';
 import { LiveMochi, useCheckPop, Animated } from '../../src/components/motion';
 import { Icon, ICON, BadgePill, CheckCircle, RoundButton, Hint } from '../../src/components/core/extra';
@@ -142,9 +142,15 @@ export default function Home() {
           </View>
           <View style={{ paddingHorizontal: space.screenX }}>
             <Card padding={0} style={{ paddingVertical: 11, paddingHorizontal: 14 }}>
+              {/* Retour Jeanne (2 sept 2026) : une mission cochée descend en bas de la liste */}
               {vms.length === 0
                 ? <Text style={[font.secondary, { textAlign: 'center', paddingVertical: 10 }]}>{t.emptyToday}</Text>
-                : vms.map((v, i) => <MissionRow key={v.id} vm={v} first={i === 0} done={missionDone.has(v.id)} onToggle={() => toggle(v.id)} />)}
+                : [...vms].sort((a, b) => (missionDone.has(a.id) ? 1 : 0) - (missionDone.has(b.id) ? 1 : 0))
+                  .map((v, i) => (
+                    <Animated.View key={v.id} layout={LinearTransition.duration(280)}>
+                      <MissionRow vm={v} first={i === 0} done={missionDone.has(v.id)} onToggle={() => toggle(v.id)} />
+                    </Animated.View>
+                  ))}
             </Card>
             <Hint style={{ marginTop: 6 }}>{t.swipeHint}</Hint>
           </View>
