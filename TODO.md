@@ -65,7 +65,7 @@ Questions ouvertes (à trancher par Jeanne) :
 ## Bloquants (actions Jeanne)
 - [x] GitHub : repo privé `jeannecazalot-lgtm/mochi` en ligne, push OK — 21 août 2026
 - [x] Supabase : projet créé, `.env` rempli, 06 câblé → `profiles` + bucket `avatars` — 21 août 2026
-- [ ] Supabase : activer **Anonymous sign-ins** (Authentication › Sign In / Providers) — nécessaire pour entrer dans l'app avant de créer un compte (liaison Apple/e-mail ensuite)
+- [x] Supabase : **Anonymous sign-ins déjà actifs** — vérifié par test réel le 1er sept 2026 (session anonyme créée via l'API ; un utilisateur anonyme de test `37b86916…` traîne en base, à purger un jour depuis le dashboard)
 - [x] Modèle de données validé (16 tables, foyers 2→10, un foyer/personne, Duo+ par foyer, USD, planning hebdo) — 21 août 2026
 - [x] EAS : connectée (jeannegourmande), projet lié `@jeannegourmande/mochi` — 21 août 2026
 - [ ] Apple : confirmer le bundle id `io.langora.mochi` (avant le premier build production).
