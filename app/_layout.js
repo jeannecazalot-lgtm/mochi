@@ -24,7 +24,7 @@ const SCREEN_NO = {
   '/': '17', '/planning': '19', '/balance': '21', '/budget': '23',
   '/identite': '06', '/dispos': '07', '/prefs': '08', '/invite': '09', '/duo-forme': '09b',
   '/taches': '10', '/calcul': '11', '/dispatch': '12', '/reattribuer': '13',
-  '/afaire': '20-21', '/activite': '22', '/balance-detail': '22', '/point-hebdo': '23',
+  '/afaire': '20-21', '/retard': '21', '/activite': '22', '/balance-detail': '22', '/point-hebdo': '23',
   '/onboarding': '01-05', '/wrapped': '24-25', '/bilan': '26', '/celebration': '28',
   '/event': '30', '/pense-bete': '32', '/mood': '33', '/notifs': '34',
   '/calendrier': '35', '/analyse': '36', '/paywall': '37', '/profil': '38',
@@ -63,6 +63,7 @@ export default function RootLayout() {
         <Stack.Screen name="ping" options={sheet} />
         <Stack.Screen name="mission" options={sheet} />
         <Stack.Screen name="jour" options={sheet} />
+        <Stack.Screen name="retard" options={sheet} />
         {/* Retour Jeanne (1er sept 2026) : la fiche tâche monte en pop-up, comme sa maquette */}
         <Stack.Screen name="task/edit" options={tallSheet} />
         <Stack.Screen name="event" options={tallSheet} />

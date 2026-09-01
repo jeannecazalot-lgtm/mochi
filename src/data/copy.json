@@ -1187,6 +1187,23 @@
     "s5Title": "Vous êtes deux à porter le foyer.",
     "s5Body": "Duo aide les couples à répartir équitablement la charge mentale, sans se prendre la tête."
   },
+  "retard": {
+    "_labels": {
+      "_": "Sheet 21 · tâche en retard, vue de l'assigné (maquette Jeanne). {n} = jours de retard, {time} = durée estimée, {name} = binôme.",
+      "warn": "Avertissement malus (compteur réel branché plus tard)"
+    },
+    "pill": "{n} j de retard",
+    "fallbackTitle": "Tâche en retard",
+    "warn": "Si tu ne fais rien : +1 malus ce mois",
+    "recommended": "Recommandé",
+    "doNow": "Je le fais maintenant",
+    "doNowSub": "Aucun malus · ≈{time}",
+    "orElse": "Ou sinon",
+    "swap": "Repasser à {name}",
+    "swapSub": "{name} décide · +1 dette pour toi",
+    "postpone": "Décaler à demain",
+    "postponeSub": "+1 malus mais ça passe"
+  },
   "malus": {
     "_labels": {
       "header": "Titre de l'écran point hebdo (haut, en capitales)",

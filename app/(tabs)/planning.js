@@ -149,7 +149,9 @@ export default function Planning() {
           id: o.id, emoji: tk.emoji || '•', title: tk.title || '…',
           sub: late ? t2.late : `${fmtMin(tk.duration_min || 15)}${tk.mental_load ? ` · ${t2.mental.replace('{coef}', fmtCoef(MENTAL_COEF))}` : ''}`,
           who, checkable: !o.assignee_id || o.assignee_id === uid,
-          done: missionDone.has(o.id), late, href: `/mission?${q}`,
+          done: missionDone.has(o.id), late,
+          // en retard → sheet 21 (je le fais / repasser / décaler) ; sinon sheet Mission
+          href: late ? `/retard?${q}&due=${o.due_date}` : `/mission?${q}`,
         });
       }
       const groups = Object.keys(byDate).sort().map(d => ({ iso: d, date: new Date(d + 'T12:00:00'), items: byDate[d] }));
