@@ -111,7 +111,7 @@ Entrée en dev : `/plan` (Plan des écrans). Écarts artboard/README à arbitrer
 - [ ] → audit #3
 - [~] 19 · Planning semaine (drag sur avatar)
 - [~] 20 · Liste À faire (compacte, swipe cocher / repasser-reporter)
-- [ ] 21 · Tâche ratée (malus)
+- [ ] 21 · Tâche ratée (malus) — **specs Jeanne du 1er sept (~23h20), maquette fournie** : dans le Planning, tâche en retard **encadrée rouge** + notif sur les DEUX téléphones ; tap → pop-up assigné (maquette : retard, avertissement malus x/5, « Je le fais maintenant » recommandé, « Repasser à {binôme} » +1 dette, « Décaler à demain » +1 malus) ; le non-assigné voit la même carte en LECTURE (pas de bandeau malus) avec « Je la reprends » et « Envoyer un ping » (proposition à valider) ; règles SPECS §6 : refus ≠ transfert, 3 refus/sem → « refaites le setup », importance ≥ 4 non repassable le jour même. + **cocher ses tâches directement depuis le Planning** (comme l'Accueil).
 - [~] FAB → sheet d'ajout (tâche / événement / dépense / pense-bête) + formulaire dépense
 - [ ] Rappels locaux des tâches dues
 - [ ] → audit #4
