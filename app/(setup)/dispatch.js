@@ -68,22 +68,30 @@ function Row({ it, index, onToggle, onFreq }) {
   );
 }
 
+// items d'affichage depuis le vrai résultat du 11, ou null si rien n'a été saisi
+const itemsFromSetup = () => {
+  if (!setup.result?.items?.length || !setup.tasks?.length) return null;
+  const byTask = Object.fromEntries(setup.tasks.map(tk => [tk.id, tk]));
+  return setup.result.items.map(it => {
+    const tk = byTask[it.task_id] || {};
+    return { task_id: it.task_id, label: tk.label || it.task_id, emoji: tk.emoji, mins: tk.duration_min || 15, freq: tk.per_week || 1, weekly_min: it.weekly_min, assignee_id: it.assignee_id };
+  });
+};
+
 export default function Dispatch() {
   const { atEnd, scrollProps } = useScrollEnd();
-  // freq = occurrences/semaine (dérivée des minutes hebdo de la démo), réglable 1-14
-  const [items, setItems] = useState(dispatch.map(i => ({ ...i, freq: Math.max(1, Math.round(i.weekly_min / i.mins)) })));
-  // branchement réel (1er sept 2026) : si le 11 a calculé sur les saisies de
-  // l'utilisateur, on affiche CE résultat — la démo ne sert que d'entrée directe /plan
+  // Branchement réel (1er sept 2026) : si le 11 vient de calculer, le résultat est
+  // déjà en mémoire → on initialise DIRECTEMENT dessus. Monter la démo puis la
+  // remplacer cassait les animations d'entrée (rangées invisibles, retour Jeanne).
+  // La démo ne sert qu'en entrée directe /plan ; freq réglable 1-14.
+  const [items, setItems] = useState(itemsFromSetup); // null tant que le stockage n'est pas lu
   useEffect(() => {
+    if (items) return;
     loadSetup().then(() => {
-      if (!setup.result?.items?.length || !setup.tasks?.length) return;
-      const byTask = Object.fromEntries(setup.tasks.map(tk => [tk.id, tk]));
-      setItems(setup.result.items.map(it => {
-        const tk = byTask[it.task_id] || {};
-        return { task_id: it.task_id, label: tk.label || it.task_id, emoji: tk.emoji, mins: tk.duration_min || 15, freq: tk.per_week || 1, weekly_min: it.weekly_min, assignee_id: it.assignee_id };
-      }));
+      setItems(itemsFromSetup() || dispatch.map(i => ({ ...i, freq: Math.max(1, Math.round(i.weekly_min / i.mins)) })));
     });
   }, []);
+  const list = items || [];
   const bumpFreq = (task_id, d) => setItems(l => l.map(i => (i.task_id === task_id ? { ...i, freq: Math.min(14, Math.max(1, i.freq + d)), weekly_min: Math.min(14, Math.max(1, i.freq + d)) * i.mins } : i)));
   // cycle du porteur : moi → binôme → les deux → moi (retour Jeanne, 23 août 2026)
   const toggle = task_id => setItems(l => l.map(i => {
@@ -92,7 +100,7 @@ export default function Dispatch() {
     return { ...i, assignee_id: next };
   }));
 
-  const load = items.reduce((acc, i) => {
+  const load = list.reduce((acc, i) => {
     if (i.assignee_id === 'both') { acc[me.id] += i.weekly_min / 2; acc[partner.id] += i.weekly_min / 2; }
     else acc[i.assignee_id] += i.weekly_min;
     return acc;
@@ -138,7 +146,7 @@ export default function Dispatch() {
         </View>
 
         <ScrollView {...scrollProps} contentContainerStyle={{ paddingHorizontal: space.screenX, paddingBottom: 110 }} showsVerticalScrollIndicator={false}>
-          {items.map((it, i) => <Row key={it.task_id} it={it} index={i} onToggle={() => toggle(it.task_id)} onFreq={d => bumpFreq(it.task_id, d)} />)}
+          {list.map((it, i) => <Row key={it.task_id} it={it} index={i} onToggle={() => toggle(it.task_id)} onFreq={d => bumpFreq(it.task_id, d)} />)}
         </ScrollView>
 
         <GrowCTA grown={atEnd} style={{ position: 'absolute', left: 24, right: 24, bottom: 24 }}><CTAPrimary label={t.go} onPress={finish} big /></GrowCTA>
