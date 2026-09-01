@@ -15,7 +15,7 @@
 import { supabase } from './supabase';
 import { ensureSession } from './profile';
 import { uuid, mutate, drain, resetLocal } from './store';
-import { setup, saveRealTaskIds } from './setup-state';
+import { setup, saveRealTaskIds, saveHouseholdId } from './setup-state';
 import { placeDays } from './dispatch';
 import { localIso, addDaysIso } from './dates';
 import { me } from './demo';
@@ -30,6 +30,7 @@ export async function syncSetup(result) {
   // un seul foyer par personne : on retrouve le sien, sinon on le crée
   const { data: mine } = await supabase.from('household_members').select('household_id').eq('user_id', uid).maybeSingle();
   const householdId = mine?.household_id || uuid();
+  saveHouseholdId(householdId);
   if (!mine) await mutate('households', { id: householdId, created_by: uid });
   await mutate('household_members', {
     household_id: householdId, user_id: uid, slot: 1,

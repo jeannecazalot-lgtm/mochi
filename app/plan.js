@@ -9,7 +9,7 @@ import { colors, space, font } from '../src/theme';
 
 const GROUPS = [
   ['Onboarding', [['01-05 · Onboarding', '/onboarding']]],
-  ['Setup', [['06 · Identité', '/(setup)/identite'], ['07 · Dispos & énergie', '/(setup)/dispos'], ['07 · rejouer l’animation d’intro', 'replay07'],['08 · Préférences', '/(setup)/prefs'], ['09 · Inviter son binôme', '/(setup)/invite'], ['09b · Duo formé', '/(setup)/duo-forme'], ['10 · Choisir les tâches', '/(setup)/taches'], ['11 · Mochi calcule', '/(setup)/calcul'], ['12 · Proposition de dispatch', '/(setup)/dispatch'], ['13 · Réattribuer', '/(setup)/reattribuer']]],
+  ['Setup', [['06 · Identité', '/(setup)/identite'], ['07 · Dispos & énergie', '/(setup)/dispos'], ['07 · rejouer l’animation d’intro', 'replay07'],['08 · Préférences', '/(setup)/prefs'], ['09 · Inviter son binôme', '/(setup)/invite'], ['Rejoindre avec un code (sheet)', '/rejoindre'],['09b · Duo formé', '/(setup)/duo-forme'], ['10 · Choisir les tâches', '/(setup)/taches'], ['11 · Mochi calcule', '/(setup)/calcul'], ['12 · Proposition de dispatch', '/(setup)/dispatch'], ['13 · Réattribuer', '/(setup)/reattribuer']]],
   ['Onglets', [['17 · Accueil', '/(tabs)'], ['19 · Planning', '/(tabs)/planning'], ['Jour (sheet, vue mois)', '/jour'],['21 · Balance', '/(tabs)/balance'], ['23 · Budget', '/(tabs)/budget']]],
   ['Tâches', [['14 · Fiche tâche', '/task/edit?id=t-courses'], ['15 · Tâche mentale', '/task/mentale'], ['16 · Détail tâche', '/task/t-pediatre'], ['20-21 · À faire', '/afaire'], ['Mission (sheet, tap Accueil)', '/mission'], ['21 · Tâche en retard (sheet)', '/retard?title=Courses&emoji=🛒&mins=45']]],
   ['Social', [['18 · Ping (sheet)', '/ping?occ=o2'], ['22 · Fil Activité', '/activite']]],

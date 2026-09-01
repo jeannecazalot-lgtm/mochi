@@ -64,6 +64,7 @@ export default function RootLayout() {
         <Stack.Screen name="mission" options={sheet} />
         <Stack.Screen name="jour" options={sheet} />
         <Stack.Screen name="retard" options={sheet} />
+        <Stack.Screen name="rejoindre" options={sheet} />
         {/* Retour Jeanne (1er sept 2026) : la fiche tâche monte en pop-up, comme sa maquette */}
         <Stack.Screen name="task/edit" options={tallSheet} />
         <Stack.Screen name="event" options={tallSheet} />

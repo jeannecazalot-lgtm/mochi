@@ -507,6 +507,7 @@
     "copy": "Copier",
     "copied": "Copié",
     "sendLink": "Envoyer le lien",
+    "shareMsg": "Rejoins-moi sur mochi 🍡 Mon code : {code}",
     "qr": "QR code",
     "enterCode": "Saisir un code",
     "inviteHint": "Vous êtes côte à côte ? Montre le QR, c’est instantané.",
@@ -1189,6 +1190,19 @@
     "s5Pill": "Bienvenue",
     "s5Title": "Vous êtes deux à porter le foyer.",
     "s5Body": "Duo aide les couples à répartir équitablement la charge mentale, sans se prendre la tête."
+  },
+  "join": {
+    "_labels": {
+      "_": "Sheet « rejoindre un foyer » (code d'invitation à 6 caractères, 2e téléphone)"
+    },
+    "title": "Rejoindre un foyer",
+    "sub": "Saisis le code à 6 caractères reçu de ton binôme.",
+    "placeholder": "ABC123",
+    "cta": "Rejoindre",
+    "joining": "Connexion…",
+    "errInvalid": "Code invalide ou expiré — revérifie avec ton binôme.",
+    "errAlready": "Tu es déjà dans un foyer (un seul foyer par personne).",
+    "errNetwork": "Impossible de rejoindre — vérifie ta connexion."
   },
   "reminders": {
     "_labels": {

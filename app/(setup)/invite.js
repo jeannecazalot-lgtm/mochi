@@ -1,7 +1,7 @@
 // Écran 09 · Inviter son binôme. Recette : docs/recettes/09-invite.md
 // Retours Jeanne 22 août 2026 : DA alignée sur 06-08 (SetupHeader points+titre,
 // pas de Mochi héros ici : le hero est la carte d'invitation), actions façon Tricount.
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { router } from 'expo-router';
 import { View, Text, Pressable, Share, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -11,6 +11,7 @@ import { LiveMochi, Animated, prefersReducedMotion } from '../../src/components/
 import { SkipLink, ActionPill, ShareIcon, QRIcon, AvatarPlaceholder, fill } from '../../src/components/setup/extra';
 import { me } from '../../src/demo';
 import { inviteLink } from '../../src/demo-setup';
+import { createInvitation } from '../../src/invite-actions';
 import copy from '../../src/data/copy.json';
 import { colors, space } from '../../src/theme';
 
@@ -18,12 +19,17 @@ const t = copy.setup;
 const next = () => router.push('/(setup)/duo-forme');
 
 export default function Invite() {
+  // invitation RÉELLE (2 sept 2026) : code Supabase à 6 caractères, 7 jours.
+  // Sans foyer (setup non terminé) ou hors ligne → démo comme avant.
+  const [realCode, setRealCode] = useState(null);
+  useEffect(() => { createInvitation().then(r => { if (r?.code) setRealCode(r.code); }); }, []);
+  const message = realCode ? fill(t.shareMsg, { code: realCode }) : `https://${inviteLink}`;
   const send = async () => {
-    try { await Share.share({ message: `https://${inviteLink}` }); } catch (e) {}
-    next(); // démo : on simule l'acceptation du binôme
+    try { await Share.share({ message }); } catch (e) {}
+    next(); // démo : on simule l'acceptation du binôme (le vrai duo-formé viendra du Realtime)
   };
   const shareOnly = async () => {
-    try { await Share.share({ message: `https://${inviteLink}` }); } catch (e) {}
+    try { await Share.share({ message }); } catch (e) {}
   };
   // Retour Jeanne (1er sept 2026) : petite animation — la place vide du binôme
   // « respire » doucement (scale 1 → 1,07, boucle lente) tant qu'on attend.
@@ -57,7 +63,13 @@ export default function Invite() {
               </View>
               <Text style={s.cardTitle}>{t.inviteCardTitle}</Text>
               <Text style={s.cardSub}>{t.inviteCardSub}</Text>
-              {/* Retour Jeanne (1er sept 2026) : le lien n'est plus affiché — le bouton « Envoyer le lien » suffit. */}
+              {/* Retour Jeanne (1er sept 2026) : le lien n'est plus affiché — le bouton « Envoyer le lien » suffit.
+                  En mode réel, le CODE à 6 caractères s'affiche : c'est lui que l'autre saisit. */}
+              {realCode ? (
+                <View style={s.codePill}>
+                  <Text style={s.codeTxt}>{realCode}</Text>
+                </View>
+              ) : null}
             </View>
           </Card>
         </View>
@@ -69,6 +81,9 @@ export default function Invite() {
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12, marginBottom: 15 }}>
             <ActionPill round icon={<QRIcon />} accessibilityLabel={t.qr} />
             <ActionPill round icon={<ShareIcon />} onPress={shareOnly} accessibilityLabel={t.share} />
+            <Pressable onPress={() => router.push('/rejoindre')} hitSlop={8}>
+              <Text style={s.later}>{t.enterCode}</Text>
+            </Pressable>
             <Pressable onPress={next} hitSlop={8}>
               <Text style={s.later}>{t.inviteLater}</Text>
             </Pressable>
@@ -85,4 +100,6 @@ const s = StyleSheet.create({
   cardSub: { fontSize: 13.5, fontWeight: '400', color: colors.muted, marginTop: 3, textAlign: 'center' },
   later: { fontSize: 13.5, fontWeight: '500', color: colors.muted, paddingHorizontal: 6 },
   bottom: { position: 'absolute', left: space.screenX, right: space.screenX, bottom: 26 },
+  codePill: { marginTop: 14, backgroundColor: colors.bg, borderRadius: 12, paddingVertical: 9, paddingHorizontal: 22, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
+  codeTxt: { fontSize: 22, fontWeight: '700', letterSpacing: 6, color: colors.ink, fontVariant: ['tabular-nums'] },
 });

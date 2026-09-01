@@ -16,6 +16,7 @@ const state = {
   tasks: null,            // 10 · [{ id, label, emoji, duration_min, per_week, pain, mental_load, divisible }]
   result: null,           // 11 · sortie de computeDispatch + méta d'affichage
   realTaskIds: null,      // synchro · id local → uuid Supabase (rejouer ≠ dupliquer)
+  householdId: null,      // foyer réel (créé au « C'est parti » ou rejoint par code)
 };
 
 let loadedPromise = null;
@@ -36,6 +37,7 @@ export function savePrefs({ prefs, reminder }) { state.prefs = prefs; state.remi
 export function saveTasks(tasks) { state.tasks = tasks; persist(); }
 export function saveResult(result) { state.result = result; persist(); }
 export function saveRealTaskIds(map) { state.realTaskIds = map; persist(); }
+export function saveHouseholdId(id) { state.householdId = id; persist(); }
 export function clearSetup() { Object.keys(state).forEach(k => { state[k] = null; }); persist(); }
 
 // fréquence du catalogue ({ daily } | { perWeek: n } | { perDay: n }) → occurrences/semaine
