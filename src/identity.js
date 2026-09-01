@@ -9,7 +9,9 @@ import { supabase } from './supabase';
 import { me as demoMe } from './demo';
 
 let real = null;
+let uidVal = null;
 let started = false;
+export const getUid = () => uidVal; // id Supabase de la session (null hors ligne)
 const subs = new Set();
 let version = 0;
 const notify = () => { version++; subs.forEach(f => f()); };
@@ -20,6 +22,7 @@ export async function loadIdentity() {
   try {
     const { data } = await supabase.auth.getSession();
     if (!data.session) return null;
+    uidVal = data.session.user.id;
     const { data: p } = await supabase.from('profiles').select('first_name, avatar_url').eq('id', data.session.user.id).maybeSingle();
     if (p && (p.first_name || p.avatar_url)) {
       const name = (p.first_name || '').trim();

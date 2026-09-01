@@ -2,16 +2,19 @@
 // Retour Jeanne (1er sept 2026) : le segment Semaine/Mois ne pousse plus un nouvel
 // écran — les deux vues glissent l'une vers l'autre dans la page (slide 320 ms),
 // la vue mois est une grille calendrier, tap sur un jour → sheet « planning du jour ».
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { router } from 'expo-router';
 import { View, Text, Pressable, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSharedValue, useAnimatedStyle, withSpring, withTiming, Easing } from 'react-native-reanimated';
 import { GlowBg, ScreenTitle, Micro, Avatar } from '../../src/components/ui';
 import { Animated } from '../../src/components/motion';
-import { Icon, ICON, Segment, AvatarPair, Hint } from '../../src/components/core/extra';
-import { members, byId, taskById, today, fmtMin } from '../../src/demo';
-import { weekDays, dayDots, planningGroups, sameDay, fmtDayLabel, weekdayShort, MENTAL_COEF, fmtCoef } from '../../src/demo-core';
+import { Icon, ICON, Segment, AvatarPair, Hint, CheckCircle } from '../../src/components/core/extra';
+import { members, byId, taskById, today, me, partner, fmtMin } from '../../src/demo';
+import { weekDays, dayDots, planningGroups, sameDay, fmtDayLabel, weekdayShort, MENTAL_COEF, fmtCoef, missionDone, occStore } from '../../src/demo-core';
+import { read } from '../../src/store';
+import { loadSetup, setup } from '../../src/setup-state';
+import { getUid, useIdentity } from '../../src/identity';
 import copy from '../../src/data/copy.json';
 import { colors, space, font, motion, radius } from '../../src/theme';
 
@@ -26,16 +29,16 @@ function subtitle(occ, task) {
   return parts.join(' · ');
 }
 
-function DayChip({ date }) {
-  const on = sameDay(date, today);
+// tap sur un jour → la liste défile jusqu'à ce jour (retour Jeanne, 2 sept 2026)
+function DayChip({ date, on, dots, onPress }) {
   return (
-    <View style={[s.chip, on && s.chipOn]}>
+    <Pressable onPress={onPress} style={[s.chip, on && s.chipOn]}>
       <Text style={{ fontSize: 10.5, fontWeight: '600', opacity: 0.6, color: on ? colors.card : colors.ink }}>{weekdayShort(date)[0]}</Text>
       <Text style={[font.tabular, { fontSize: 15, fontWeight: '700', color: on ? colors.card : colors.ink }]}>{date.getDate()}</Text>
       <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 5, marginTop: 3, height: 4 }}>
-        {dayDots(date).map((c, j) => <View key={j} style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: on ? colors.butterLight : c }} />)}
+        {dots.map((c, j) => <View key={j} style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: on ? colors.butterLight : c }} />)}
       </View>
-    </View>
+    </Pressable>
   );
 }
 
@@ -95,9 +98,82 @@ function MonthPane() {
   );
 }
 
+// rangée RÉELLE : tap → sheet Mission (avec « Déplacer ») ; rond de coche pour
+// mes tâches et les communes ; encadré corail si en retard (retour Jeanne, 2 sept 2026)
+function RealRow({ vm, onToggle }) {
+  return (
+    <Pressable onPress={() => router.push(vm.href)}>
+      <View style={[s.row, vm.late && { borderColor: colors.coral, borderWidth: 1.5 }]}>
+        <Text style={{ fontSize: 18 }}>{vm.emoji}</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={{ fontSize: 15.5, fontWeight: '500', color: colors.ink, textDecorationLine: vm.done ? 'line-through' : 'none', opacity: vm.done ? 0.5 : 1 }} numberOfLines={1}>{vm.title}</Text>
+          <Text style={[font.caption, { marginTop: 3 }, vm.late && { color: colors.coralDeep, fontWeight: '600' }]}>{vm.sub}</Text>
+        </View>
+        {vm.who
+          ? <Avatar initial={vm.who.initial} color={vm.who.color} photo={vm.who.avatar_url} size={24} />
+          : <AvatarPair members={members} size={24} />}
+        {vm.checkable ? (
+          <Pressable onPress={onToggle} hitSlop={8}><CheckCircle done={vm.done} /></Pressable>
+        ) : null}
+      </View>
+    </Pressable>
+  );
+}
+
 export default function Planning() {
   const [grabbed, setGrabbed] = useState(false);
   const [mode, setMode] = useState('week');
+  useIdentity();
+  const t2 = copy.planning;
+  // ─── vraies occurrences groupées par jour (démo en fallback) ───
+  const [realGroups, setRealGroups] = useState(null);
+  const occV = occStore.useVersion();
+  missionDone.useVersion();
+  useEffect(() => {
+    (async () => {
+      await loadSetup();
+      if (!setup.result?.items?.length) return;
+      const [occs, tasks] = await Promise.all([read('occurrences'), read('tasks')]);
+      if (!occs.length) return;
+      const byTask = Object.fromEntries(tasks.map(tk => [tk.id, tk]));
+      const uid = getUid();
+      const todayIso = new Date().toISOString().slice(0, 10);
+      const byDate = {};
+      for (const o of occs) {
+        const tk = byTask[o.task_id] || {};
+        const late = o.due_date < todayIso && !missionDone.has(o.id);
+        const who = o.assignee_id ? (o.assignee_id === uid ? me : partner) : null;
+        const q = `occ=${o.id}&tid=${o.task_id}&title=${encodeURIComponent(tk.title || '')}&emoji=${encodeURIComponent(tk.emoji || '•')}&mins=${tk.duration_min || 15}`;
+        (byDate[o.due_date] ||= []).push({
+          id: o.id, emoji: tk.emoji || '•', title: tk.title || '…',
+          sub: late ? t2.late : `${fmtMin(tk.duration_min || 15)}${tk.mental_load ? ` · ${t2.mental.replace('{coef}', fmtCoef(MENTAL_COEF))}` : ''}`,
+          who, checkable: !o.assignee_id || o.assignee_id === uid,
+          done: missionDone.has(o.id), late, href: `/mission?${q}`,
+        });
+      }
+      const groups = Object.keys(byDate).sort().map(d => ({ iso: d, date: new Date(d + 'T12:00:00'), items: byDate[d] }));
+      setRealGroups(groups.length ? groups : null);
+    })();
+  }, [occV]);
+  const toggleOcc = id => missionDone.toggle(id);
+  // tap sur un jour du semainier → la liste défile jusqu'à ce jour (retour Jeanne)
+  const scrollRef = useRef(null);
+  const groupY = useRef({});
+  const jumpTo = date => {
+    const iso = date.toISOString().slice(0, 10);
+    const y = groupY.current[iso];
+    if (y != null) scrollRef.current?.scrollTo({ y: Math.max(0, y - 8), animated: true });
+  };
+  const todayIso = new Date().toISOString().slice(0, 10);
+  // points du semainier en mode réel : couleurs des porteurs du jour
+  const dotsFor = d => {
+    const iso = d.toISOString().slice(0, 10);
+    const g2 = (realGroups || []).find(x => x.iso === iso);
+    if (!g2) return [];
+    const set = new Set();
+    g2.items.forEach(it => { if (it.who) set.add(it.who.color); else members.forEach(m => set.add(m.color)); });
+    return [...set];
+  };
   const W = useWindowDimensions().width;
   const slide = useSharedValue(0); // 0 = semaine, 1 = mois
   const onSegment = v => { setMode(v); slide.value = withTiming(v === 'month' ? 1 : 0, { duration: 320, easing: Easing.inOut(Easing.cubic) }); };
@@ -113,17 +189,33 @@ export default function Planning() {
         </View>
 
         <View style={{ flex: 1 }}>
-          {/* vue semaine */}
+          {/* vue semaine — réelle (occurrences du foyer) ou démo en fallback */}
           <Animated.View style={[StyleSheet.absoluteFill, weekStyle]}>
-            <View style={s.week}>{weekDays().map(d => <DayChip key={d.getTime()} date={d} />)}</View>
-            <ScrollView contentContainerStyle={{ paddingHorizontal: space.screenX, paddingBottom: 16 }} showsVerticalScrollIndicator={false}>
-              {planningGroups().map(g => (
-                <View key={g.date.getTime()} style={{ marginBottom: 11 }}>
-                  <Micro style={s.groupLabel}>{fmtDayLabel(g.date)}{sameDay(g.date, today) ? ` · ${t.todaySuffix}` : ''}</Micro>
-                  {g.items.map(o => <TaskRow key={o.id} occ={o} onGrab={setGrabbed} />)}
-                </View>
+            <View style={s.week}>
+              {(realGroups ? weekDays(new Date()) : weekDays()).map(d => (
+                <DayChip
+                  key={d.getTime()} date={d}
+                  on={sameDay(d, realGroups ? new Date() : today)}
+                  dots={realGroups ? dotsFor(d) : dayDots(d)}
+                  onPress={() => jumpTo(d)}
+                />
               ))}
-              <Hint>{grabbed ? t.grabbed : t.dragHint}</Hint>
+            </View>
+            <ScrollView ref={scrollRef} contentContainerStyle={{ paddingHorizontal: space.screenX, paddingBottom: 16 }} showsVerticalScrollIndicator={false}>
+              {realGroups
+                ? realGroups.map(g => (
+                  <View key={g.iso} style={{ marginBottom: 11 }} onLayout={e => { groupY.current[g.iso] = e.nativeEvent.layout.y; }}>
+                    <Micro style={s.groupLabel}>{fmtDayLabel(g.date)}{g.iso === todayIso ? ` · ${t.todaySuffix}` : ''}</Micro>
+                    {g.items.map(vm => <RealRow key={vm.id} vm={vm} onToggle={() => toggleOcc(vm.id)} />)}
+                  </View>
+                ))
+                : planningGroups().map(g => (
+                  <View key={g.date.getTime()} style={{ marginBottom: 11 }}>
+                    <Micro style={s.groupLabel}>{fmtDayLabel(g.date)}{sameDay(g.date, today) ? ` · ${t.todaySuffix}` : ''}</Micro>
+                    {g.items.map(o => <TaskRow key={o.id} occ={o} onGrab={setGrabbed} />)}
+                  </View>
+                ))}
+              <Hint>{realGroups ? t.realHint : grabbed ? t.grabbed : t.dragHint}</Hint>
             </ScrollView>
           </Animated.View>
 
