@@ -111,10 +111,11 @@ export default function Home() {
 }
 
 const s = StyleSheet.create({
-  header: { paddingTop: 14, paddingHorizontal: space.headerX, flexDirection: 'row', alignItems: 'center', gap: 10 },
+  // aération générale de l'Accueil (retour Jeanne, 1er sept 2026 : « trop collé »)
+  header: { paddingTop: 16, paddingHorizontal: space.headerX, flexDirection: 'row', alignItems: 'center', gap: 10 },
   dot: { position: 'absolute', top: 1, right: 1, width: 10, height: 10, borderRadius: 5, backgroundColor: colors.coral, borderWidth: 2, borderColor: colors.bg },
-  mochiBlock: { paddingTop: 10, paddingHorizontal: space.headerX, flexDirection: 'row', alignItems: 'center', gap: 16 },
-  sectionHead: { paddingTop: 18, paddingBottom: 6, paddingHorizontal: space.headerX, flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 13, paddingVertical: 11 },
+  mochiBlock: { paddingTop: 22, paddingHorizontal: space.headerX, flexDirection: 'row', alignItems: 'center', gap: 16 },
+  sectionHead: { paddingTop: 30, paddingBottom: 9, paddingHorizontal: space.headerX, flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 13, paddingVertical: 13 },
   streak: { textAlign: 'center', fontSize: 13, fontWeight: '500', color: colors.muted, paddingTop: 16, paddingBottom: 12, paddingHorizontal: space.screenX },
 });

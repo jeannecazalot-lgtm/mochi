@@ -1,9 +1,12 @@
 // Écran 19 · Planning. Recette : docs/recettes/19-planning.md
+// Retour Jeanne (1er sept 2026) : le segment Semaine/Mois ne pousse plus un nouvel
+// écran — les deux vues glissent l'une vers l'autre dans la page (slide 320 ms),
+// la vue mois est une grille calendrier, tap sur un jour → sheet « planning du jour ».
 import React, { useState } from 'react';
 import { router } from 'expo-router';
-import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, Pressable, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import { useSharedValue, useAnimatedStyle, withSpring, withTiming, Easing } from 'react-native-reanimated';
 import { GlowBg, ScreenTitle, Micro, Avatar } from '../../src/components/ui';
 import { Animated } from '../../src/components/motion';
 import { Icon, ICON, Segment, AvatarPair, Hint } from '../../src/components/core/extra';
@@ -58,30 +61,77 @@ function TaskRow({ occ, onGrab }) {
   );
 }
 
+// Vue mois : grille calendrier du mois courant (même recette que l'écran 35),
+// tap sur un jour → sheet /jour avec le planning de la journée.
+function MonthPane() {
+  const tc = copy.calendar;
+  const year = today.getFullYear(), month = today.getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstDow = (new Date(year, month, 1).getDay() + 6) % 7; // lundi = 0
+  const cells = Array.from({ length: Math.ceil((firstDow + daysInMonth) / 7) * 7 }, (_, i) => { const d = i - firstDow + 1; return d >= 1 && d <= daysInMonth ? d : null; });
+  return (
+    <ScrollView contentContainerStyle={{ paddingHorizontal: space.screenX, paddingBottom: 16 }} showsVerticalScrollIndicator={false}>
+      <Micro style={{ paddingHorizontal: 4, paddingBottom: 8 }}>{tc.months[month].toUpperCase()}</Micro>
+      <View style={s.grid}>{tc.dows.map((d, i) => <Text key={i} style={s.dow}>{d}</Text>)}</View>
+      <View style={s.grid}>
+        {cells.map((d, i) => {
+          if (!d) return <View key={i} style={s.cell} />;
+          const date = new Date(year, month, d);
+          const isToday = sameDay(date, today);
+          return (
+            <View key={i} style={s.cell}>
+              <Pressable onPress={() => router.push(`/jour?d=${date.getTime()}`)} style={[s.day, isToday && s.today]}>
+                <Text style={[s.dayNum, isToday && { color: colors.card }]}>{d}</Text>
+                <View style={{ flexDirection: 'row', gap: 5, height: 4 }}>
+                  {dayDots(date).map((c, j) => <View key={j} style={[s.dot, { backgroundColor: isToday ? colors.butterLight : c }]} />)}
+                </View>
+              </Pressable>
+            </View>
+          );
+        })}
+      </View>
+      <Hint style={{ marginTop: 8 }}>{t.monthHint}</Hint>
+    </ScrollView>
+  );
+}
+
 export default function Planning() {
   const [grabbed, setGrabbed] = useState(false);
-  const onSegment = v => { if (v === 'month') router.push('/calendrier'); };
+  const [mode, setMode] = useState('week');
+  const W = useWindowDimensions().width;
+  const slide = useSharedValue(0); // 0 = semaine, 1 = mois
+  const onSegment = v => { setMode(v); slide.value = withTiming(v === 'month' ? 1 : 0, { duration: 320, easing: Easing.inOut(Easing.cubic) }); };
+  const weekStyle = useAnimatedStyle(() => ({ transform: [{ translateX: -slide.value * W }] }));
+  const monthStyle = useAnimatedStyle(() => ({ transform: [{ translateX: (1 - slide.value) * W }] }));
   return (
     <View style={{ flex: 1 }}>
       <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }} edges={['top']}>
         <View style={s.header}>
           <ScreenTitle style={{ letterSpacing: -1.1 }}>{t.title}</ScreenTitle>
-          <Segment value="week" onChange={onSegment} options={[{ value: 'week', label: t.week }, { value: 'month', label: t.month }]} />
+          <Segment value={mode} onChange={onSegment} options={[{ value: 'week', label: t.week }, { value: 'month', label: t.month }]} />
         </View>
 
-        {/* Semainier compact */}
-        <View style={s.week}>{weekDays().map(d => <DayChip key={d.getTime()} date={d} />)}</View>
+        <View style={{ flex: 1 }}>
+          {/* vue semaine */}
+          <Animated.View style={[StyleSheet.absoluteFill, weekStyle]}>
+            <View style={s.week}>{weekDays().map(d => <DayChip key={d.getTime()} date={d} />)}</View>
+            <ScrollView contentContainerStyle={{ paddingHorizontal: space.screenX, paddingBottom: 16 }} showsVerticalScrollIndicator={false}>
+              {planningGroups().map(g => (
+                <View key={g.date.getTime()} style={{ marginBottom: 11 }}>
+                  <Micro style={s.groupLabel}>{fmtDayLabel(g.date)}{sameDay(g.date, today) ? ` · ${t.todaySuffix}` : ''}</Micro>
+                  {g.items.map(o => <TaskRow key={o.id} occ={o} onGrab={setGrabbed} />)}
+                </View>
+              ))}
+              <Hint>{grabbed ? t.grabbed : t.dragHint}</Hint>
+            </ScrollView>
+          </Animated.View>
 
-        <ScrollView contentContainerStyle={{ paddingHorizontal: space.screenX, paddingBottom: 16 }} showsVerticalScrollIndicator={false}>
-          {planningGroups().map(g => (
-            <View key={g.date.getTime()} style={{ marginBottom: 11 }}>
-              <Micro style={s.groupLabel}>{fmtDayLabel(g.date)}{sameDay(g.date, today) ? ` · ${t.todaySuffix}` : ''}</Micro>
-              {g.items.map(o => <TaskRow key={o.id} occ={o} onGrab={setGrabbed} />)}
-            </View>
-          ))}
-          <Hint>{grabbed ? t.grabbed : t.dragHint}</Hint>
-        </ScrollView>
+          {/* vue mois */}
+          <Animated.View style={[StyleSheet.absoluteFill, monthStyle]}>
+            <MonthPane />
+          </Animated.View>
+        </View>
       </SafeAreaView>
     </View>
   );
@@ -94,4 +144,12 @@ const s = StyleSheet.create({
   chipOn: { backgroundColor: colors.ink, borderColor: colors.ink, shadowColor: colors.ink, shadowOpacity: 0.25, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 4 },
   groupLabel: { paddingHorizontal: 4, paddingBottom: 7 },
   row: { backgroundColor: colors.card, borderRadius: radius.row, paddingVertical: 10, paddingHorizontal: 13, marginBottom: 6, flexDirection: 'row', alignItems: 'center', gap: 10, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
+  // grille mois — même recette que l'écran 35 (7 colonnes 1/7, gouttière 5)
+  grid: { flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: -2.5, marginBottom: 6 },
+  dow: { width: '14.2857%', textAlign: 'center', fontSize: 10.5, letterSpacing: 1, fontWeight: '600', color: colors.muted },
+  cell: { width: '14.2857%', height: 44, paddingHorizontal: 2.5, marginBottom: 5 },
+  day: { flex: 1, borderRadius: 10, backgroundColor: colors.card, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline, alignItems: 'center', justifyContent: 'center', gap: 5 },
+  today: { backgroundColor: colors.ink, borderWidth: 0 },
+  dayNum: { fontSize: 14, fontWeight: '600', color: colors.ink, fontVariant: ['tabular-nums'] },
+  dot: { width: 4, height: 4, borderRadius: 2 },
 });

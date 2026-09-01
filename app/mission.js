@@ -24,21 +24,33 @@ export default function Mission() {
   const occ = occurrences.find(o => o.id === occId) || occurrences.find(o => o.assignee_id === me.id && o.status !== 'done');
   const task = occ ? taskById(occ.task_id) : null;
   const [mins, setMins] = useState(task?.duration_min || 15);
+  // « Je n'aurai pas le temps » ouvre un vrai choix dans la sheet (retour Jeanne,
+  // 1er sept 2026 : une action qui ne fait rien ne doit pas être affichée comme active)
+  const [asking, setAsking] = useState(false);
   const step = d => setMins(m => Math.max(5, m + d * 5));
 
   const close = () => router.back();
+  // la navigation attend la fin de l'animation de fermeture de la sheet,
+  // sinon les deux transitions se chevauchent (retour Jeanne : « pas smooth »)
+  const closeThen = href => { close(); setTimeout(() => router.push(href), 320); };
   const markDone = () => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
     // TODO Supabase : occurrence → done + minutes réelles (comptées dans la balance)
     if (occ) missionDone.set(occ.id, true);
     close();
   };
-  const noTime = () => {
+  const postpone = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-    // TODO Supabase : proposer reporter / repasser (swap_requests) — démo : ferme
+    // TODO Supabase : occurrence reportée à demain
     close();
   };
-  const edit = () => { close(); router.push(`/task/edit?id=${task?.id}`); };
+  const swap = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    // TODO Supabase : swap_requests → proposition de repassage au binôme
+    close();
+  };
+  const edit = () => closeThen(`/task/edit?id=${task?.id}`);
+  const view = () => closeThen(`/task/${task?.id}`);
 
   if (!task) return null;
   return (
@@ -72,26 +84,60 @@ export default function Mission() {
         </Card>
       </Pressable>
 
-      <Pressable onPress={noTime} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
+      {!asking ? (
+        <Pressable onPress={() => setAsking(true)} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
+          <Card r={radius.row} padding={0} style={{ marginBottom: 6 }}>
+            <View style={s.optRow}>
+              <Text style={{ fontSize: 19 }}>⏭️</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={s.optLabel}>{t.noTimeLabel}</Text>
+                <Text style={s.optSub}>{fill(t.noTimeSub, { name: partner.first_name })}</Text>
+              </View>
+              <Chevron />
+            </View>
+          </Card>
+        </Pressable>
+      ) : (
+        <View style={{ flexDirection: 'row', gap: 6, marginBottom: 6 }}>
+          <Pressable onPress={postpone} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.8 : 1 }]}>
+            <Card r={radius.row} padding={0}>
+              <View style={s.choiceCol}>
+                <Text style={{ fontSize: 19 }}>🗓️</Text>
+                <Text style={s.optLabel}>{t.noTimePostpone}</Text>
+              </View>
+            </Card>
+          </Pressable>
+          <Pressable onPress={swap} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.8 : 1 }]}>
+            <Card r={radius.row} padding={0}>
+              <View style={s.choiceCol}>
+                <Text style={{ fontSize: 19 }}>🤝</Text>
+                <Text style={s.optLabel}>{fill(t.noTimeSwap, { name: partner.first_name })}</Text>
+              </View>
+            </Card>
+          </Pressable>
+        </View>
+      )}
+
+      <Pressable onPress={edit} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
         <Card r={radius.row} padding={0} style={{ marginBottom: 6 }}>
           <View style={s.optRow}>
-            <Text style={{ fontSize: 19 }}>⏭️</Text>
+            <Text style={{ fontSize: 19 }}>✏️</Text>
             <View style={{ flex: 1 }}>
-              <Text style={s.optLabel}>{t.noTimeLabel}</Text>
-              <Text style={s.optSub}>{fill(t.noTimeSub, { name: partner.first_name })}</Text>
+              <Text style={s.optLabel}>{t.editLabel}</Text>
+              <Text style={s.optSub}>{t.editSub}</Text>
             </View>
             <Chevron />
           </View>
         </Card>
       </Pressable>
 
-      <Pressable onPress={edit} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
+      <Pressable onPress={view} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
         <Card r={radius.row} padding={0}>
           <View style={s.optRow}>
-            <Text style={{ fontSize: 19 }}>✏️</Text>
+            <Text style={{ fontSize: 19 }}>👀</Text>
             <View style={{ flex: 1 }}>
-              <Text style={s.optLabel}>{t.editLabel}</Text>
-              <Text style={s.optSub}>{t.editSub}</Text>
+              <Text style={s.optLabel}>{t.viewLabel}</Text>
+              <Text style={s.optSub}>{t.viewSub}</Text>
             </View>
             <Chevron />
           </View>
@@ -110,6 +156,7 @@ const s = StyleSheet.create({
   stepTxt: { fontSize: 15, fontWeight: '600', color: colors.ink, lineHeight: 17 },
   timeTxt: { fontSize: 15, fontWeight: '600', color: colors.ink, fontVariant: ['tabular-nums'], minWidth: 52, textAlign: 'center' },
   optRow: { flexDirection: 'row', alignItems: 'center', gap: 13, paddingVertical: 13, paddingHorizontal: 14 },
+  choiceCol: { alignItems: 'center', gap: 6, paddingVertical: 13, paddingHorizontal: 10 },
   optLabel: { fontSize: 15.5, fontWeight: '600', color: colors.ink },
   optSub: { ...font.caption, marginTop: 3 },
 });

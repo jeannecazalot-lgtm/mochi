@@ -115,6 +115,7 @@
       "month": "Segment mois (Duo+)",
       "dragHint": "Indice drag & drop",
       "todaySuffix": "Suffixe du groupe du jour (MAR 7 · AUJOURD HUI)",
+      "monthHint": "Indice sous la grille mois (tap sur un jour)",
       "mental": "Sous-texte tâche mentale ({coef} = coefficient)",
       "divisible": "Sous-texte tâche divisible",
       "grabbed": "Indice quand une rangée est saisie (long press)"
@@ -126,7 +127,8 @@
     "todaySuffix": "Aujourd’hui",
     "mental": "mental ×{coef}",
     "divisible": "divisible",
-    "grabbed": "Glisse vers un avatar pour réattribuer"
+    "grabbed": "Glisse vers un avatar pour réattribuer",
+    "monthHint": "Tape un jour pour voir son planning"
   },
   "balance": {
     "_labels": {
@@ -317,8 +319,12 @@
     "doneSub": "Compté {time} dans la balance",
     "noTimeLabel": "Je n'aurai pas le temps",
     "noTimeSub": "Reporter, ou repasser à {name}",
+    "noTimePostpone": "Reporter à demain",
+    "noTimeSwap": "Repasser à {name}",
     "editLabel": "Modifier la tâche",
-    "editSub": "Durée, fréquence, porteur…"
+    "editSub": "Durée, fréquence, porteur…",
+    "viewLabel": "Voir la tâche",
+    "viewSub": "Détail et historique"
   },
   "pings": {
     "_labels": {
