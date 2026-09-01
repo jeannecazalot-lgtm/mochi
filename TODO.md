@@ -41,6 +41,11 @@ Décisions Jeanne (1er sept 2026, soir) :
 - Écrans restants (21 ratée, 22 fil, 23 point hebdo, rappels, Realtime) : « plus tard ».
 - Questions sheet Mission / libellé photo / fréquence sur 10 / émojis maison : « on verra plus tard ».
 
+Branchements suivants (dans l'ordre proposé) :
+- [ ] **Identité réelle partout** : avatars photo + vrai prénom (aujourd'hui « K/Ketley/Julian » de démo sur 09b, 12, Accueil… alors que le profil réel — prénom, photo — est en base et affiché sur le 06). Le composant Avatar ne sait pas encore afficher une photo.
+- [ ] Planning sur les vraies occurrences de la semaine ; puis Balance (calcul réel) ; puis Budget (+ paywall).
+- [ ] Moyennes anonymes inter-foyers pour les durées (idée Jeanne 1er sept) : agrégat par `catalog_key` côté base, jamais de données individuelles exposées ; impact privacy policy à noter.
+
 Questions ouvertes (à trancher par Jeanne) :
 - [ ] Restructuration du flux d'entrée (invitation d'abord, setup pendant l'attente, Home à états, profil façon Airbnb pour le 38) — discutée, « pas envie d'y toucher pour l'instant » ; place du foyer solo à clarifier si on y revient.
 - [ ] 06 : un seul libellé « Ajouter » même quand une photo est déjà choisie — garder ou distinguer ?
