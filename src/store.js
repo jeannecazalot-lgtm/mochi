@@ -37,6 +37,24 @@ export async function mutate(table, row) {
   return rows;
 }
 
+// Clés primaires composites (les autres tables ont un `id`)
+const PK = { household_members: ['household_id', 'user_id'], task_pains: ['task_id', 'user_id'] };
+
+// Poussée idempotente SANS upsert : `ON CONFLICT` exige un droit de lecture
+// que la RLS ne donne pas encore au moment de créer son foyer (constaté le
+// 1er sept 2026 : 403 sur households). Insert d'abord ; en cas de doublon
+// (rejouage de la file), update ciblé sur la clé primaire.
+async function push(table, row) {
+  const { error } = await supabase.from(table).insert(row);
+  if (!error) return null;
+  const dup = error.code === '23505' || /duplicate|already exists/i.test(error.message || '');
+  if (!dup) return error;
+  let q = supabase.from(table).update(row);
+  for (const k of PK[table] || ['id']) q = q.eq(k, row[k]);
+  const { error: e2 } = await q;
+  return e2 || null;
+}
+
 let flushing = false;
 export async function flush() {
   if (flushing || !SUPABASE_READY) return;
@@ -47,8 +65,8 @@ export async function flush() {
     let q = JSON.parse((await AsyncStorage.getItem(K.queue)) || '[]');
     while (q.length) {
       const { table, row } = q[0];
-      const { error } = await supabase.from(table).upsert(row);
-      if (error) break;
+      const error = await push(table, row);
+      if (error) { console.warn(`[store] push ${table} bloqué :`, error.message || error.code); break; }
       q.shift();
       await AsyncStorage.setItem(K.queue, JSON.stringify(q));
     }
@@ -65,6 +83,17 @@ export async function pull(table, householdId) {
   await AsyncStorage.setItem(K.table(table), JSON.stringify(rows));
   await AsyncStorage.setItem(K.sync(table), new Date().toISOString());
   return rows;
+}
+
+// vide la file jusqu'au bout (flush() rend la main si un autre tourne déjà)
+export async function drain(tries = 10) {
+  for (let i = 0; i < tries; i++) {
+    await flush();
+    const q = await AsyncStorage.getItem(K.queue);
+    if (!q || q === '[]') return true;
+    await new Promise(r => setTimeout(r, 600));
+  }
+  return false;
 }
 
 NetInfo.addEventListener(s => { if (s.isConnected) flush(); });

@@ -15,6 +15,7 @@ const state = {
   reminder: null,         // 08 · heure du rappel quotidien
   tasks: null,            // 10 · [{ id, label, emoji, duration_min, per_week, pain, mental_load, divisible }]
   result: null,           // 11 · sortie de computeDispatch + méta d'affichage
+  realTaskIds: null,      // synchro · id local → uuid Supabase (rejouer ≠ dupliquer)
 };
 
 let loadedPromise = null;
@@ -34,6 +35,7 @@ export function saveDispos({ availability, weekly_minutes }) { state.availabilit
 export function savePrefs({ prefs, reminder }) { state.prefs = prefs; state.reminder = reminder; persist(); }
 export function saveTasks(tasks) { state.tasks = tasks; persist(); }
 export function saveResult(result) { state.result = result; persist(); }
+export function saveRealTaskIds(map) { state.realTaskIds = map; persist(); }
 export function clearSetup() { Object.keys(state).forEach(k => { state[k] = null; }); persist(); }
 
 // fréquence du catalogue ({ daily } | { perWeek: n } | { perDay: n }) → occurrences/semaine

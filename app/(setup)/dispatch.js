@@ -12,13 +12,19 @@ import { BottomCTA, LiveCount, fill } from '../../src/components/setup/extra';
 import { Animated, FadeInDown, prefersReducedMotion, LiveMochi } from '../../src/components/motion';
 import { me, partner, byId, fmtMin } from '../../src/demo';
 import { dispatch, dispatchEmoji, balanceState } from '../../src/demo-setup';
-import { loadSetup, setup } from '../../src/setup-state';
+import { loadSetup, setup, saveResult } from '../../src/setup-state';
+import { syncSetup } from '../../src/sync-setup';
 import copy from '../../src/data/copy.json';
 import { colors, space, alpha, motion } from '../../src/theme';
 
 const t = copy.setup;
 const fmtMinRound = v => fmtMin(Math.round(v));
-const finish = () => router.replace('/(tabs)');
+// « C'est parti » : la synchro Supabase part en tâche de fond (foyer, tâches,
+// pénibilités, occurrences) et ne bloque JAMAIS le parcours (règle du 22 août).
+const finish = () => {
+  syncSetup(setup.result).catch(e => console.warn('[12] synchro Supabase échouée (on avance quand même) :', e?.message || e));
+  router.replace('/(tabs)');
+};
 
 // pop d'échelle à chaque bascule d'assigné (pas au montage)
 function usePopOnChange(dep) {
@@ -85,12 +91,21 @@ export default function Dispatch() {
   // remplacer cassait les animations d'entrée (rangées invisibles, retour Jeanne).
   // La démo ne sert qu'en entrée directe /plan ; freq réglable 1-14.
   const [items, setItems] = useState(itemsFromSetup); // null tant que le stockage n'est pas lu
+  const realMode = useRef(!!items);
   useEffect(() => {
     if (items) return;
     loadSetup().then(() => {
-      setItems(itemsFromSetup() || dispatch.map(i => ({ ...i, freq: Math.max(1, Math.round(i.weekly_min / i.mins)) })));
+      const real = itemsFromSetup();
+      realMode.current = !!real;
+      setItems(real || dispatch.map(i => ({ ...i, freq: Math.max(1, Math.round(i.weekly_min / i.mins)) })));
     });
   }, []);
+  // les réglages − / + et les bascules de porteur repartent dans le résultat
+  // stocké : c'est LUI que « C'est parti » synchronise vers Supabase
+  useEffect(() => {
+    if (!realMode.current || !items) return;
+    saveResult({ ...(setup.result || {}), items: items.map(i => ({ task_id: i.task_id, assignee_id: i.assignee_id, weekly_min: i.weekly_min })) });
+  }, [items]);
   const list = items || [];
   const bumpFreq = (task_id, d) => setItems(l => l.map(i => (i.task_id === task_id ? { ...i, freq: Math.min(14, Math.max(1, i.freq + d)), weekly_min: Math.min(14, Math.max(1, i.freq + d)) * i.mins } : i)));
   // cycle du porteur : moi → binôme → les deux → moi (retour Jeanne, 23 août 2026)
