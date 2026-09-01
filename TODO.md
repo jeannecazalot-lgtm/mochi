@@ -93,7 +93,7 @@ Questions ouvertes (à trancher par Jeanne) :
 - [x] Supabase : **Anonymous sign-ins déjà actifs** — vérifié par test réel le 1er sept 2026 (session anonyme créée via l'API ; un utilisateur anonyme de test `37b86916…` traîne en base, à purger un jour depuis le dashboard)
 - [x] Modèle de données validé (16 tables, foyers 2→10, un foyer/personne, Duo+ par foyer, USD, planning hebdo) — 21 août 2026
 - [x] EAS : connectée (jeannegourmande), projet lié `@jeannegourmande/mochi` — 21 août 2026
-- [x] Apple : bundle id tranché le 2 sept 2026 → **`com.annie.mochi`** (Annie = société de Jeanne ; exit io.langora). ⚠️ « annie » est un mot courant : si l'identifiant est déjà pris chez Apple, on le verra à la création de l'app dans ASC — repli possible sur le domaine réel d'Annie inversé.
+- [x] Apple : bundle id tranché le 2 sept 2026 → **`app.annie.mochi`** — aligné sur la convention d'iky (`app.annie.iky`), société Annie. Exit io.langora.
 
 ## Backlog priorisé (un item = un écran, validation explicite de Jeanne à chaque fois)
 Légende : `[~]` = construit avec données de démo, **à valider visuellement par Jeanne puis à brancher sur Supabase** · `[x]` = validé et branché.
