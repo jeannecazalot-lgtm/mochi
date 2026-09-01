@@ -52,24 +52,23 @@ export default function Identite() {
           </Card>
 
           <Micro style={s.label}>{t.photoLabel}</Micro>
-          <Pressable onPress={pickPhoto}>
-            <Card padding={0}>
-              <View style={s.photoRow}>
-                {photo
-                  ? <Image source={{ uri: photo }} style={s.photo} />
-                  : (
-                    <View style={s.photoEmpty}>
-                      <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke={colors.muted} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-                        <Path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2v11z" /><Circle cx="12" cy="13" r="4" />
-                      </Svg>
-                    </View>
-                  )}
-                <View style={{ flex: 1 }}>
-                  <Text style={s.photoTitle}>{t.photoSelect}</Text>
+          {/* Façon Airbnb (retour Jeanne, 1er sept 2026) : grande photo centrée, pilule « Ajouter » à cheval sur le bas */}
+          <Pressable onPress={pickPhoto} style={{ alignItems: 'center', marginTop: 6 }}>
+            {photo
+              ? <Image source={{ uri: photo }} style={s.photo} />
+              : (
+                <View style={s.photoEmpty}>
+                  <Svg width={30} height={30} viewBox="0 0 24 24" fill="none" stroke={colors.muted} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+                    <Path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2v11z" /><Circle cx="12" cy="13" r="4" />
+                  </Svg>
                 </View>
-                <Text style={{ fontSize: 16, color: colors.muted }}>›</Text>
-              </View>
-            </Card>
+              )}
+            <View style={s.addPill}>
+              <Svg width={15} height={15} viewBox="0 0 24 24" fill="none" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <Path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2v11z" /><Circle cx="12" cy="13" r="4" />
+              </Svg>
+              <Text style={s.addPillTxt}>{t.photoButton}</Text>
+            </View>
           </Pressable>
         </View>
 
@@ -87,8 +86,9 @@ const s = StyleSheet.create({
   label: { marginBottom: 9 },
   input: { paddingVertical: 17, paddingHorizontal: 18, fontSize: 19, fontWeight: '600', letterSpacing: -0.4, color: colors.ink },
   photoRow: { flexDirection: 'row', alignItems: 'center', gap: 16, paddingVertical: 17, paddingHorizontal: 18 },
-  photo: { width: 72, height: 72, borderRadius: radius.card },
-  photoEmpty: { width: 72, height: 72, borderRadius: radius.card, backgroundColor: alpha(colors.ink, 0.04), borderWidth: 1.5, borderStyle: 'dashed', borderColor: alpha(colors.ink, 0.22), alignItems: 'center', justifyContent: 'center' },
-  photoTitle: { fontSize: 15.5, fontWeight: '600', color: colors.ink },
+  photo: { width: 150, height: 150, borderRadius: radius.cardLg },
+  photoEmpty: { width: 150, height: 150, borderRadius: radius.cardLg, backgroundColor: alpha(colors.ink, 0.04), borderWidth: 1.5, borderStyle: 'dashed', borderColor: alpha(colors.ink, 0.22), alignItems: 'center', justifyContent: 'center' },
+  addPill: { flexDirection: 'row', alignItems: 'center', gap: 7, marginTop: -17, backgroundColor: colors.card, borderRadius: radius.pill, paddingVertical: 9, paddingHorizontal: 17, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 2 } },
+  addPillTxt: { fontSize: 15, fontWeight: '600', color: colors.ink },
   ctaWrap: { position: 'absolute', left: 24, right: 24, bottom: 26 },
 });

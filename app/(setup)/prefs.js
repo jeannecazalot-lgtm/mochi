@@ -6,7 +6,7 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GlowBg, SetupHeader, Card, CTAPrimary } from '../../src/components/ui';
 import { LiveMochi, FadeInDown, Animated } from '../../src/components/motion';
-import { SectionLabel, fill, setupTokens, useShake, LegendChip } from '../../src/components/setup/extra';
+import { SectionLabel, setupTokens, LegendChip } from '../../src/components/setup/extra';
 import { prefsPool, prefsMax, reminderTimes } from '../../src/demo-setup';
 import copy from '../../src/data/copy.json';
 import { colors, space, alpha } from '../../src/theme';
@@ -57,7 +57,9 @@ export default function Prefs() {
     <View style={{ flex: 1 }}>
       <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }}>
-        <SetupHeader hero={<LiveMochi size={96} />} step={3} total={4} title={t.prefsTitle} sub={t.prefsSub2} />
+        {/* Retour Jeanne (1er sept 2026) : plus de sous-titre ni de phrase d'aide —
+            la légende à trois états suffit, elle porte aussi le code couleur. */}
+        <SetupHeader hero={<LiveMochi size={96} />} step={3} total={4} title={t.prefsTitle} />
 
         <View style={{ paddingHorizontal: space.headerX, paddingTop: 17 }}>
           <View style={s.legendTop}>
@@ -65,14 +67,13 @@ export default function Prefs() {
             <View style={[s.legendPill, { backgroundColor: onColor.like }]}><Text style={s.legendPillTxt}>💚 {t.prefsLegendLike}</Text></View>
             <View style={[s.legendPill, { backgroundColor: onColor.hate }]}><Text style={s.legendPillTxt}>🙅 {t.prefsLegendHate}</Text></View>
           </View>
-          <Text style={s.hint}>{t.prefsHint} · {fill(t.prefsMaxNote, { max: prefsMax })}</Text>
           <View style={s.wrap}>
             {prefsPool.map((c, i) => (
               <Chip key={c.id} c={c} state={prefs[c.id]} onCycle={cycle} />
             ))}
           </View>
 
-          <SectionLabel style={{ marginTop: 19 }}>{t.reminderLabel}</SectionLabel>
+          <SectionLabel style={{ marginTop: 30 }}>{t.reminderLabel}</SectionLabel>
           <Card padding={0} r={16}>
             <View style={s.remRow}>
               <Text style={{ fontSize: 19 }}>🔔</Text>
@@ -96,10 +97,9 @@ export default function Prefs() {
 }
 
 const s = StyleSheet.create({
-  legendTop: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 6, marginBottom: 6 },
+  legendTop: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 6, marginBottom: 14 },
   legendPill: { paddingVertical: 7, paddingHorizontal: 11, borderRadius: 999, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
   legendPillTxt: { fontSize: 12.5, fontWeight: '500', color: colors.ink },
-  hint: { textAlign: 'center', fontSize: 12, fontWeight: '400', color: colors.muted, marginBottom: 12 },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   chip: { paddingVertical: 8, paddingHorizontal: 13, borderRadius: 999 },
   chipOff: { backgroundColor: colors.card, borderWidth: 1.5, borderColor: alpha(colors.ink, 0.10) },

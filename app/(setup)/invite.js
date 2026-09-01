@@ -1,17 +1,18 @@
 // Écran 09 · Inviter son binôme. Recette : docs/recettes/09-invite.md
 // Retours Jeanne 22 août 2026 : DA alignée sur 06-08 (SetupHeader points+titre,
 // pas de Mochi héros ici : le hero est la carte d'invitation), actions façon Tricount.
-import React from 'react';
+import React, { useEffect } from 'react';
 import { router } from 'expo-router';
 import { View, Text, Pressable, Share, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSharedValue, useAnimatedStyle, withRepeat, withSequence, withTiming, Easing } from 'react-native-reanimated';
 import { GlowBg, Card, Avatar, CTAPrimary, SetupHeader } from '../../src/components/ui';
-import { LiveMochi } from '../../src/components/motion';
+import { LiveMochi, Animated, prefersReducedMotion } from '../../src/components/motion';
 import { SkipLink, ActionPill, ShareIcon, QRIcon, AvatarPlaceholder, fill } from '../../src/components/setup/extra';
 import { me } from '../../src/demo';
 import { inviteLink } from '../../src/demo-setup';
 import copy from '../../src/data/copy.json';
-import { colors, space, alpha } from '../../src/theme';
+import { colors, space } from '../../src/theme';
 
 const t = copy.setup;
 const next = () => router.push('/(setup)/duo-forme');
@@ -24,6 +25,18 @@ export default function Invite() {
   const shareOnly = async () => {
     try { await Share.share({ message: `https://${inviteLink}` }); } catch (e) {}
   };
+  // Retour Jeanne (1er sept 2026) : petite animation — la place vide du binôme
+  // « respire » doucement (scale 1 → 1,07, boucle lente) tant qu'on attend.
+  const reduced = prefersReducedMotion();
+  const breath = useSharedValue(1);
+  useEffect(() => {
+    if (reduced) return;
+    breath.value = withRepeat(withSequence(
+      withTiming(1.07, { duration: 1100, easing: Easing.inOut(Easing.sin) }),
+      withTiming(1, { duration: 1100, easing: Easing.inOut(Easing.sin) }),
+    ), -1);
+  }, []);
+  const breathe = useAnimatedStyle(() => ({ transform: [{ scale: breath.value }] }));
   return (
     <View style={{ flex: 1 }}>
       <GlowBg intensity="strong" />
@@ -39,29 +52,27 @@ export default function Invite() {
             <View style={{ paddingTop: 28, paddingHorizontal: 24, paddingBottom: 24, alignItems: 'center' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 14 }}>
                 <Avatar initial={me.initial} color={me.color} size={54} ring />
-                <AvatarPlaceholder size={54} />
+                <Animated.View style={breathe}><AvatarPlaceholder size={54} /></Animated.View>
               </View>
               <Text style={s.cardTitle}>{t.inviteCardTitle}</Text>
               <Text style={s.cardSub}>{t.inviteCardSub}</Text>
-              <View style={s.link}>
-                <Text numberOfLines={1} style={s.linkTxt}>{inviteLink}</Text>
-              </View>
+              {/* Retour Jeanne (1er sept 2026) : le lien n'est plus affiché — le bouton « Envoyer le lien » suffit. */}
             </View>
           </Card>
         </View>
 
-        {/* actions calquées sur le screenshot Tricount de Jeanne (23 août 2026) :
-            une seule rangée — grande pilule à gauche, QR et partage ronds à droite —
-            puis « Inviter plus tard » centré dessous. */}
-        <View style={{ paddingHorizontal: 24, paddingBottom: 26 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-            <CTAPrimary label={t.sendLink} onPress={send} big style={{ flex: 1 }} pill />
+        {/* Retour Jeanne (1er sept 2026) : « Envoyer le lien » exactement à la place
+            du CTA des écrans précédents (pleine largeur, bas 26) ; QR / partage /
+            « Inviter plus tard » regroupés juste au-dessus. */}
+        <View style={s.bottom}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12, marginBottom: 15 }}>
             <ActionPill round icon={<QRIcon />} accessibilityLabel={t.qr} />
             <ActionPill round icon={<ShareIcon />} onPress={shareOnly} accessibilityLabel={t.share} />
+            <Pressable onPress={next} hitSlop={8}>
+              <Text style={s.later}>{t.inviteLater}</Text>
+            </Pressable>
           </View>
-          <Pressable onPress={next} hitSlop={8} style={{ alignSelf: 'center', marginTop: 18 }}>
-            <Text style={s.later}>{t.inviteLater}</Text>
-          </Pressable>
+          <CTAPrimary label={t.sendLink} onPress={send} big />
         </View>
       </SafeAreaView>
     </View>
@@ -70,8 +81,7 @@ export default function Invite() {
 
 const s = StyleSheet.create({
   cardTitle: { fontSize: 17, fontWeight: '600', letterSpacing: -0.3, color: colors.ink },
-  cardSub: { fontSize: 13.5, fontWeight: '400', color: colors.muted, marginTop: 3, marginBottom: 16, textAlign: 'center' },
-  link: { alignSelf: 'stretch', backgroundColor: alpha(colors.ink, 0.05), borderRadius: 12, paddingVertical: 11, paddingHorizontal: 14 },
-  linkTxt: { fontSize: 14, fontWeight: '500', color: colors.ink, textAlign: 'center' },
-  later: { fontSize: 13.5, fontWeight: '500', color: colors.muted },
+  cardSub: { fontSize: 13.5, fontWeight: '400', color: colors.muted, marginTop: 3, textAlign: 'center' },
+  later: { fontSize: 13.5, fontWeight: '500', color: colors.muted, paddingHorizontal: 6 },
+  bottom: { position: 'absolute', left: space.screenX, right: space.screenX, bottom: 26 },
 });

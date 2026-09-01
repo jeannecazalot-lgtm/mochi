@@ -9,7 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { GlowBg, Card, SetupHeader, CTAPrimary, useScrollEnd, GrowCTA } from '../../src/components/ui';
 import { LiveMochi } from '../../src/components/motion';
-import { CheckDot, AddButton, SkipLink, SectionLabel, fill } from '../../src/components/setup/extra';
+import { CheckDot, AddButton } from '../../src/components/setup/extra';
 import { Animated, FadeInDown, prefersReducedMotion } from '../../src/components/motion';
 import { catalogue } from '../../src/demo-setup';
 import copy from '../../src/data/copy.json';
@@ -38,6 +38,10 @@ function Row({ c, index, active, onToggle }) {
 
 export default function Taches() {
   const { atEnd, scrollProps } = useScrollEnd();
+  const scrollRef = React.useRef(null);
+  // Retour Jeanne (1er sept 2026) : « + Ajouter » depuis le bas de liste → on remonte
+  // automatiquement en haut, là où le champ d'ajout apparaît.
+  const startAdding = () => { setAdding(true); scrollRef.current?.scrollTo({ y: 0, animated: true }); };
   // Retour Jeanne (23 août 2026) : rien de pré-coché, pas de rangée grisée.
   const [on, setOn] = useState([]);
   const [customs, setCustoms] = useState([]);   // tâches ajoutées à la main (cochées d'office)
@@ -65,11 +69,11 @@ export default function Taches() {
     <View style={{ flex: 1 }}>
       <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }}>
+        {/* Retour Jeanne (1er sept 2026) : minimum 3 tâches pour continuer — pas de « Passer » ici. */}
         <View>
           <SetupHeader hero={<LiveMochi size={96} />} title={t.tasksTitle} sub={t.tasksSub} />
-          <SkipLink onPress={next} />
         </View>
-        <ScrollView {...scrollProps} contentContainerStyle={{ paddingHorizontal: space.screenX, paddingTop: 30, paddingBottom: 110 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+        <ScrollView ref={scrollRef} {...scrollProps} contentContainerStyle={{ paddingHorizontal: space.screenX, paddingTop: 30, paddingBottom: 110 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
           {adding ? (
             <Card padding={0} r={14} style={{ marginBottom: 6 }} accent={colors.sage}>
               <View style={s.row}>
@@ -83,12 +87,11 @@ export default function Taches() {
           {customs.map(c => <Row key={c.id} c={c} index={0} active={on.includes(c.id)} onToggle={() => toggle(c.id)} />)}
           {broad.map((c, i) => <Row key={c.id} c={c} index={i} active={on.includes(c.id)} onToggle={() => toggle(c.id)} />)}
           {specific.map((c, i) => <Row key={c.id} c={c} index={broad.length + 1 + i} active={on.includes(c.id)} onToggle={() => toggle(c.id)} />)}
-          {customs.map((c, i) => <Row key={c.id} c={c} index={0} active={on.includes(c.id)} onToggle={() => toggle(c.id)} />)}
         </ScrollView>
         <GrowCTA grown={atEnd} style={s.bottom}>
           <View style={{ flexDirection: 'row', gap: 8 }}>
-            <AddButton label={t.addTask} onPress={() => setAdding(true)} style={{ flex: 1 }} />
-            <CTAPrimary label={t.launch} onPress={next} disabled={on.length === 0} style={{ flex: 1.6 }} />
+            <AddButton label={t.addTask} onPress={startAdding} style={{ flex: 1 }} />
+            <CTAPrimary label={t.launch} onPress={next} disabled={on.length < 3} style={{ flex: 1.6 }} />
           </View>
         </GrowCTA>
       </SafeAreaView>

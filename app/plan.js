@@ -3,12 +3,13 @@ import React from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GlowBg, ScreenTitle, Card, Divider, Micro, Secondary } from '../src/components/ui';
 import { colors, space, font } from '../src/theme';
 
 const GROUPS = [
   ['Onboarding', [['01-05 · Onboarding', '/onboarding']]],
-  ['Setup', [['06 · Identité', '/(setup)/identite'], ['07 · Dispos & énergie', '/(setup)/dispos'], ['08 · Préférences', '/(setup)/prefs'], ['09 · Inviter son binôme', '/(setup)/invite'], ['09b · Duo formé', '/(setup)/duo-forme'], ['10 · Choisir les tâches', '/(setup)/taches'], ['11 · Mochi calcule', '/(setup)/calcul'], ['12 · Proposition de dispatch', '/(setup)/dispatch'], ['13 · Réattribuer', '/(setup)/reattribuer']]],
+  ['Setup', [['06 · Identité', '/(setup)/identite'], ['07 · Dispos & énergie', '/(setup)/dispos'], ['07 · rejouer l’animation d’intro', 'replay07'],['08 · Préférences', '/(setup)/prefs'], ['09 · Inviter son binôme', '/(setup)/invite'], ['09b · Duo formé', '/(setup)/duo-forme'], ['10 · Choisir les tâches', '/(setup)/taches'], ['11 · Mochi calcule', '/(setup)/calcul'], ['12 · Proposition de dispatch', '/(setup)/dispatch'], ['13 · Réattribuer', '/(setup)/reattribuer']]],
   ['Onglets', [['17 · Accueil', '/(tabs)'], ['19 · Planning', '/(tabs)/planning'], ['21 · Balance', '/(tabs)/balance'], ['23 · Budget', '/(tabs)/budget']]],
   ['Tâches', [['14 · Fiche tâche', '/task/edit?id=t-courses'], ['15 · Tâche mentale', '/task/mentale'], ['16 · Détail tâche', '/task/t-pediatre'], ['20-21 · À faire', '/afaire']]],
   ['Social', [['18 · Ping (sheet)', '/ping?occ=o2'], ['22 · Fil Activité', '/activite']]],
@@ -37,7 +38,13 @@ export default function Plan() {
                 {items.map(([label, href], i) => (
                   <View key={href}>
                     {i > 0 ? <Divider /> : null}
-                    <Pressable onPress={() => router.push(href)} style={({ pressed }) => ({ paddingVertical: 12, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', opacity: pressed ? 0.6 : 1 })}>
+                    <Pressable
+                      onPress={() => {
+                        // la démo du 07 ne se joue qu'à la première visite : cette entrée dev efface le marqueur
+                        if (href === 'replay07') { AsyncStorage.removeItem('mochi:demo:dispos-vue').catch(() => {}).then(() => router.push('/(setup)/dispos')); return; }
+                        router.push(href);
+                      }}
+                      style={({ pressed }) => ({ paddingVertical: 12, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', opacity: pressed ? 0.6 : 1 })}>
                       <Text style={[font.row, { flex: 1 }]}>{label}</Text>
                       <Text style={{ color: colors.muted, fontSize: 16 }}>›</Text>
                     </Pressable>

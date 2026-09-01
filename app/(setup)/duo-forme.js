@@ -24,10 +24,13 @@ export default function DuoForme() {
   const reduced = prefersReducedMotion();
   // avatars : partent écartés (±46 px), glissent l'un vers l'autre en spring
   // jusqu'au léger chevauchement du layout final, puis pulse 1 → 1.06 → 1.
-  const gap = useSharedValue(0); // animation neutralisée (retour Jeanne, 23 août 2026 — à retravailler)
+  // (restaurée le 1er sept 2026 — Jeanne signale son absence sur le 09b)
+  const gap = useSharedValue(reduced ? 0 : 46);
   const pulse = useSharedValue(1);
   useEffect(() => {
     if (reduced) return;
+    gap.value = withDelay(150, withSpring(0, { damping: motion.spring.damping }));
+    pulse.value = withDelay(750, withSequence(withTiming(1.06, { duration: 160 }), withTiming(1, { duration: 180 })));
   }, []);
   const left = useAnimatedStyle(() => ({ transform: [{ translateX: -gap.value }, { scale: pulse.value }] }));
   const right = useAnimatedStyle(() => ({ transform: [{ translateX: gap.value }, { scale: pulse.value }] }));
@@ -39,7 +42,7 @@ export default function DuoForme() {
         <View style={s.center}>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 19 }}>
             <Animated.View style={[s.ring, left]}><Avatar initial={me.initial} color={me.color} size={62} /></Animated.View>
-            <Animated.View style={{ marginHorizontal: -4, zIndex: 2 }}>
+            <Animated.View entering={reduced ? undefined : ZoomIn.springify().damping(motion.spring.damping)} style={{ marginHorizontal: -4, zIndex: 2 }}>
               <LiveMochi size={84} mood="happy" />
             </Animated.View>
             <Animated.View style={[s.ring, right]}><Avatar initial={partner.initial} color={partner.color} size={62} /></Animated.View>
@@ -53,6 +56,7 @@ export default function DuoForme() {
         </View>
       </SafeAreaView>
       {/* confetti au-dessus de tout ; rend null si « réduire les animations » */}
+      <Confetti colors={confettiPalette} />
     </View>
   );
 }
