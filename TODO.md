@@ -55,6 +55,7 @@ Questions ouvertes (à trancher par Jeanne) :
 - [ ] Vue mois du Planning : gratuite ou Duo+ ? (le 35 · Calendrier mois était prévu Duo+ ; l'intégrer au Planning la rend de fait gratuite — à trancher)
 - [ ] Sheet Mission : contenu suffisant ? (aujourd'hui : temps passé + fait / pas le temps / modifier / voir. Reco : rester minimal, le reste vit dans la fiche tâche)
 - [ ] Émojis maison (icônes custom) à la place des émojis système ? (question Jeanne 1er sept, « pas sûre que ce soit nécessaire ». Reco : garder les émojis pour la v1 — le champ `emoji` par tâche rend le remplacement par un set SVG facile plus tard ; un set custom ≈ 50 icônes à dessiner, à décider après le premier retour utilisateurs.)
+- [ ] **Deux pop-ups au tap d'une tâche** (constat Jeanne 1er sept, minuit) : Accueil → sheet Mission (action rapide) vs 12 → fiche tâche (réglages). « Lequel est le mieux, il faudra y réfléchir. » Options : garder les deux (contextes différents), remettre « Régler la tâche » dans la sheet Mission (lien vers la fiche, masqué en mode réel ce soir), ou unifier en un pop-up à deux étages.
 - [ ] Bouton pour « écrire des malus » sur Balance ? (question Jeanne 1er sept — il n'y en a jamais eu : les malus naissent d'une tâche ratée. Reco : pas de malus manuel libre, plutôt une action « marquer comme ratée » sur la tâche, qui génère le malus — garde le système objectif.)
 
 ## Décisions prises
