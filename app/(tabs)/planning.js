@@ -15,6 +15,7 @@ import { weekDays, dayDots, planningGroups, sameDay, fmtDayLabel, weekdayShort, 
 import { read } from '../../src/store';
 import { loadSetup, setup } from '../../src/setup-state';
 import { getUid, useIdentity } from '../../src/identity';
+import { localIso } from '../../src/dates';
 import copy from '../../src/data/copy.json';
 import { colors, space, font, motion, radius } from '../../src/theme';
 
@@ -137,7 +138,7 @@ export default function Planning() {
       if (!occs.length) return;
       const byTask = Object.fromEntries(tasks.map(tk => [tk.id, tk]));
       const uid = getUid();
-      const todayIso = new Date().toISOString().slice(0, 10);
+      const todayIso = localIso();
       const byDate = {};
       for (const o of occs) {
         const tk = byTask[o.task_id] || {};
@@ -160,14 +161,14 @@ export default function Planning() {
   const scrollRef = useRef(null);
   const groupY = useRef({});
   const jumpTo = date => {
-    const iso = date.toISOString().slice(0, 10);
+    const iso = localIso(date);
     const y = groupY.current[iso];
     if (y != null) scrollRef.current?.scrollTo({ y: Math.max(0, y - 8), animated: true });
   };
-  const todayIso = new Date().toISOString().slice(0, 10);
+  const todayIso = localIso();
   // points du semainier en mode réel : couleurs des porteurs du jour
   const dotsFor = d => {
-    const iso = d.toISOString().slice(0, 10);
+    const iso = localIso(d);
     const g2 = (realGroups || []).find(x => x.iso === iso);
     if (!g2) return [];
     const set = new Set();

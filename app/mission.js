@@ -12,6 +12,7 @@ import { SheetHandle, Chevron } from '../src/components/social/extra';
 import { occurrences, taskById, me, fmtMin, partner } from '../src/demo';
 import { missionDone } from '../src/demo-core';
 import { moveOccurrence } from '../src/occ-actions';
+import { localIso } from '../src/dates';
 import copy from '../src/data/copy.json';
 import { colors, space, radius, font, alpha } from '../src/theme';
 
@@ -48,7 +49,7 @@ export default function Mission() {
   // « courses jeudi, pas aujourd'hui ». Refus haptique si la tâche a déjà ce jour.
   const days = Array.from({ length: 6 }, (_, i) => {
     const d = new Date(Date.now() + (i + 1) * 86400000);
-    return { iso: d.toISOString().slice(0, 10), label: copy.calendar.dows[(d.getDay() + 6) % 7] };
+    return { iso: localIso(d), label: copy.calendar.dows[(d.getDay() + 6) % 7] };
   });
   const moveTo = async isoDate => {
     const r = await moveOccurrence(String(occId || ''), isoDate);

@@ -17,10 +17,11 @@ import { ensureSession } from './profile';
 import { uuid, mutate, drain, resetLocal } from './store';
 import { setup, saveRealTaskIds } from './setup-state';
 import { placeDays } from './dispatch';
+import { localIso, addDaysIso } from './dates';
 import { me } from './demo';
 
 const DAY = 86400000;
-const iso = d => d.toISOString().slice(0, 10);
+
 
 export async function syncSetup(result) {
   const session = await ensureSession();
@@ -77,7 +78,7 @@ export async function syncSetup(result) {
         : null;
       await mutate('occurrences', {
         id: uuid(), household_id: householdId, task_id: realId[t.id],
-        kind: t.mental_load ? 'plan' : 'exec', due_date: iso(new Date(Date.now() + offsets[k] * DAY)),
+        kind: t.mental_load ? 'plan' : 'exec', due_date: addDaysIso(offsets[k]),
         assignee_id: assignee,
       });
     }

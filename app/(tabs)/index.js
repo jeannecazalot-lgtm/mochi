@@ -13,6 +13,7 @@ import { fmtHeaderDate, mochiLean, moreLoaded, hasUnreadPing, missionDone, occSt
 import { read } from '../../src/store';
 import { loadSetup, setup } from '../../src/setup-state';
 import { useIdentity } from '../../src/identity';
+import { localIso } from '../../src/dates';
 import copy from '../../src/data/copy.json';
 import { colors, space, font, motion } from '../../src/theme';
 
@@ -83,7 +84,7 @@ export default function Home() {
       if (!setup.result?.items?.length) return;
       const [occs, tasks] = await Promise.all([read('occurrences'), read('tasks')]);
       const byId = Object.fromEntries(tasks.map(tk => [tk.id, tk]));
-      const today = new Date().toISOString().slice(0, 10);
+      const today = localIso();
       const todays = occs.filter(o => o.due_date === today);
       if (!todays.length && !occV) return; // premier chargement sans données réelles → démo
       setReal(true);
