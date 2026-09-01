@@ -14,6 +14,7 @@ import { me, partner, byId, fmtMin } from '../../src/demo';
 import { dispatch, dispatchEmoji, balanceState } from '../../src/demo-setup';
 import { loadSetup, setup, saveResult } from '../../src/setup-state';
 import { syncSetup } from '../../src/sync-setup';
+import { useIdentity } from '../../src/identity';
 import copy from '../../src/data/copy.json';
 import { colors, space, alpha, motion } from '../../src/theme';
 
@@ -65,10 +66,10 @@ function Row({ it, index, onToggle, onFreq, onOpen }) {
             <Animated.View style={[pop, s.whoChip, { borderColor: both ? colors.ink : who.color }]}>
               {both ? (
                 <View style={{ flexDirection: 'row' }}>
-                  <Avatar initial={me.initial} color={me.color} size={22} ring />
+                  <Avatar initial={me.initial} color={me.color} photo={me.avatar_url} size={22} ring />
                   <View style={{ marginLeft: -8 }}><Avatar initial={partner.initial} color={partner.color} size={22} ring /></View>
                 </View>
-              ) : <Avatar initial={who.initial} color={who.color} size={22} />}
+              ) : <Avatar initial={who.initial} color={who.color} photo={who.avatar_url} size={22} />}
               <Text style={s.whoTxt}>{both ? t.both : who.first_name}</Text>
             </Animated.View>
           </Pressable>
@@ -90,6 +91,7 @@ const itemsFromSetup = () => {
 
 export default function Dispatch() {
   const { atEnd, scrollProps } = useScrollEnd();
+  useIdentity(); // prénom + photo réels dans les pilules de porteur
   // Branchement réel (1er sept 2026) : si le 11 vient de calculer, le résultat est
   // déjà en mémoire → on initialise DIRECTEMENT dessus. Monter la démo puis la
   // remplacer cassait les animations d'entrée (rangées invisibles, retour Jeanne).

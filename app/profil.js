@@ -34,7 +34,7 @@ export default function Profil() {
         <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
           <View style={s.header}>
             <BackButton label={copy.common.back} />
-            <Avatar initial={me.initial} color={me.color} size={58} />
+            <Avatar initial={me.initial} color={me.color} photo={me.avatar_url} size={58} />
             <View style={{ flex: 1 }}>
               <Text style={font.cardTitle}>{me.first_name}</Text>
               <Text style={[font.secondary, { marginTop: 3 }]}>

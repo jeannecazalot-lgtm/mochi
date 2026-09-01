@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════════════════════
 import React, { useState, useRef, useEffect } from 'react';
 import { router, usePathname } from 'expo-router';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable, Image, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, withSpring, Easing } from 'react-native-reanimated';
 import Svg, { Defs, RadialGradient, Stop, Rect, Circle, Ellipse, Path, LinearGradient as SvgLinear } from 'react-native-svg';
@@ -96,8 +96,11 @@ export function CTASecondary({ label, onPress, style }) {
 export function Footer({ children, bottom = space.footerBottom }) {
   return <View style={[s.footer, { paddingBottom: bottom }]}>{children}</View>;
 }
-// ─── avatar : photo (plus tard) ou initiale sur couleur de slot ─────
-export function Avatar({ initial = '?', color = colors.sky, size = 36, ring }) {
+// ─── avatar : photo réelle (profil Supabase) ou initiale sur couleur de slot ─
+export function Avatar({ initial = '?', color = colors.sky, size = 36, ring, photo }) {
+  if (photo) {
+    return <Image source={{ uri: photo }} style={{ width: size, height: size, borderRadius: size / 2, borderWidth: ring ? 2 : 0, borderColor: colors.card, backgroundColor: color }} />;
+  }
   return (
     <View style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: color, alignItems: 'center', justifyContent: 'center', borderWidth: ring ? 2 : 0, borderColor: colors.card }}>
       <Text style={{ color: colors.white, fontWeight: '600', fontSize: size * 0.42 }}>{initial}</Text>

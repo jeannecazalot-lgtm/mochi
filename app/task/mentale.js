@@ -58,7 +58,7 @@ export default function TaskMentale() {
                       </View>
                     </View>
                     <Pressable onPress={p.onWho} hitSlop={8} accessibilityLabel={who.first_name}>
-                      <Avatar initial={who.initial} color={who.color} size={26} />
+                      <Avatar initial={who.initial} color={who.color} photo={who.avatar_url} size={26} />
                     </Pressable>
                   </View>
                 </Card>

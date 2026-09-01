@@ -52,7 +52,7 @@ export default function Invite() {
           <Card padding={0} r={22}>
             <View style={{ paddingTop: 28, paddingHorizontal: 24, paddingBottom: 24, alignItems: 'center' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 14 }}>
-                <Avatar initial={me.initial} color={me.color} size={54} ring />
+                <Avatar initial={me.initial} color={me.color} photo={me.avatar_url} size={54} ring />
                 <Animated.View style={breathe}><AvatarPlaceholder size={54} /></Animated.View>
               </View>
               <Text style={s.cardTitle}>{t.inviteCardTitle}</Text>

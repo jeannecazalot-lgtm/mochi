@@ -87,7 +87,7 @@ export default function TaskDetail() {
                 const who = byId(h.who);
                 return (
                   <View key={i} style={{ alignItems: 'center', gap: 4 }}>
-                    <Avatar initial={who.initial} color={who.color} size={30} />
+                    <Avatar initial={who.initial} color={who.color} photo={who.avatar_url} size={30} />
                     <Text style={s.histDate}>{fmtDay(h.at)}</Text>
                   </View>
                 );

@@ -72,7 +72,7 @@ function Row({ occ, done, onToggle }) {
           {late && !done && points ? <PillLabel color={colors.coralDeep} tint={colors.coral}>{fill(t.malusPill, { n: points })}</PillLabel> : null}
         </View>
       </View>
-      {who ? <Avatar initial={who.initial} color={who.color} size={26} /> : <Avatar initial="?" color={colors.muted} size={26} />}
+      {who ? <Avatar initial={who.initial} color={who.color} photo={who.avatar_url} size={26} /> : <Avatar initial="?" color={colors.muted} size={26} />}
     </View>
   );
 

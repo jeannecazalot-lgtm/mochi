@@ -90,7 +90,7 @@ export default function BalanceDetail() {
                     <InfoRow emoji={c.emoji} title={title} sub={sub} right={(
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 13 }}>
                         <Text style={s.delta}>{fill(t.contribDelta, { n: c.delta_min })}</Text>
-                        <Avatar initial={who.initial} color={who.color} size={24} />
+                        <Avatar initial={who.initial} color={who.color} photo={who.avatar_url} size={24} />
                       </View>
                     )} />
                   </View>

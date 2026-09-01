@@ -46,7 +46,7 @@ export default function Ping() {
                 <Text style={s.raisedTitle}>{task.title}</Text>
                 {time ? <Text style={s.raisedSub}>{time} · {who.first_name}</Text> : <Text style={s.raisedSub}>{who.first_name}</Text>}
               </View>
-              <Avatar initial={who.initial} color={who.color} size={26} />
+              <Avatar initial={who.initial} color={who.color} photo={who.avatar_url} size={26} />
             </View>
           </Card>
         </View>

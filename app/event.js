@@ -48,7 +48,7 @@ export default function Event() {
                 <View key={it.id}>
                   {i > 0 && <Divider />}
                   <View style={s.row}>
-                    <Pressable onPress={() => toggleWho(it.id)} hitSlop={8}><Avatar initial={who.initial} color={who.color} size={24} /></Pressable>
+                    <Pressable onPress={() => toggleWho(it.id)} hitSlop={8}><Avatar initial={who.initial} color={who.color} photo={who.avatar_url} size={24} /></Pressable>
                     <Text style={[font.row, { flex: 1 }]}>{it.label}</Text>
                     <Text style={s.minutes}>{fmtMin(it.minutes)}</Text>
                   </View>

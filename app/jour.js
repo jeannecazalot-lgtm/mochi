@@ -31,7 +31,7 @@ export default function Jour() {
             <View style={s.row}>
               <Text style={{ fontSize: 17 }}>{task.emoji}</Text>
               <Text style={s.rowLabel} numberOfLines={1}>{task.title}{o.time ? ` · ${o.time}` : ''}</Text>
-              {who ? <Avatar initial={who.initial} color={who.color} size={22} /> : null}
+              {who ? <Avatar initial={who.initial} color={who.color} photo={who.avatar_url} size={22} /> : null}
             </View>
           </View>
         );

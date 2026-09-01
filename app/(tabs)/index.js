@@ -12,6 +12,7 @@ import { me, partner, balance, streak, myToday, taskById, fmtMin } from '../../s
 import { fmtHeaderDate, mochiLean, moreLoaded, hasUnreadPing, missionDone } from '../../src/demo-core';
 import { read } from '../../src/store';
 import { loadSetup, setup } from '../../src/setup-state';
+import { useIdentity } from '../../src/identity';
 import copy from '../../src/data/copy.json';
 import { colors, space, font, motion } from '../../src/theme';
 
@@ -70,6 +71,7 @@ const demoVms = () => myToday().map(o => {
 export default function Home() {
   const t = copy.home;
   missionDone.useVersion(); // re-rend quand la sheet Mission coche/décoche
+  useIdentity(); // re-rend quand le vrai profil (prénom + photo) arrive
   // Branchement réel (1er sept 2026) : si le setup a tourné, l'Accueil affiche les
   // VRAIES occurrences du jour (cache local du store) ; la démo n'est qu'un fallback.
   const [vms, setVms] = useState(demoVms);
@@ -113,7 +115,7 @@ export default function Home() {
               {hasUnreadPing() ? <View style={s.dot} /> : null}
             </RoundButton>
             <Pressable onPress={() => router.push('/profil')} accessibilityLabel={t.profileA11y}>
-              <Avatar initial={me.initial} color={me.color} size={36} />
+              <Avatar initial={me.initial} color={me.color} photo={me.avatar_url} size={36} />
             </Pressable>
           </View>
 
