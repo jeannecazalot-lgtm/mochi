@@ -24,6 +24,8 @@ Réponses données pendant la repasse :
 - **Fréquence** : défaut du catalogue par tâche, ajustable sur l'écran 12 (− n×/sem +), pas sur le 10 (retour du 26/08).
 
 - **21 · Balance** : titre aligné sur les autres onglets, pastille « Semaine n · x au y » à sa droite sur la même ligne.
+- **17 · Accueil** : nouvelle **sheet Mission** — tap sur le titre/émoji d'une mission → pop-up : temps réel passé (− / +), « C'est fait » (coche la mission, temps compté), « Je n'aurai pas le temps » (reporter/repasser, démo), « Modifier la tâche » (→ fiche 14). Le rond coche toujours directement. Accessible aussi depuis /plan.
+- **17 · Accueil** : bloc « Côté Julian » retiré (redondant avec le Planning).
 
 Décision Jeanne (1er sept 2026) : **Budget = fonctionnalité payante (Duo+)** → prévoir l'état verrouillé de l'onglet Budget (paywall 37 pour les non-abonnés). Ajouté au backlog P4/P5 ; impacte la divulgation paywall et la description ASC.
 
@@ -32,6 +34,7 @@ Questions ouvertes (à trancher par Jeanne) :
 - [ ] 06 : un seul libellé « Ajouter » même quand une photo est déjà choisie — garder ou distinguer ?
 - [ ] 08 : légende suffisante pour comprendre le cycle ? (le 3ᵉ tap = retour neutre n'est pas affiché)
 - [ ] Voir la fréquence dès l'écran 10 ? (aujourd'hui : écran 12 seulement)
+- [ ] Émojis maison (icônes custom) à la place des émojis système ? (question Jeanne 1er sept, « pas sûre que ce soit nécessaire ». Reco : garder les émojis pour la v1 — le champ `emoji` par tâche rend le remplacement par un set SVG facile plus tard ; un set custom ≈ 50 icônes à dessiner, à décider après le premier retour utilisateurs.)
 - [ ] Bouton pour « écrire des malus » sur Balance ? (question Jeanne 1er sept — il n'y en a jamais eu : les malus naissent d'une tâche ratée. Reco : pas de malus manuel libre, plutôt une action « marquer comme ratée » sur la tâche, qui génère le malus — garde le système objectif.)
 
 ## Décisions prises

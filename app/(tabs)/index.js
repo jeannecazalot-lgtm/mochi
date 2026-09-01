@@ -5,11 +5,11 @@ import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
-import { GlowBg, Card, Divider, GlassRow, Avatar } from '../../src/components/ui';
+import { GlowBg, Card, Divider, Avatar } from '../../src/components/ui';
 import { LiveMochi, useCheckPop, Animated } from '../../src/components/motion';
 import { Icon, ICON, BadgePill, CheckCircle, RoundButton, Hint } from '../../src/components/core/extra';
-import { me, partner, balance, streak, myToday, partnerToday, taskById, fmtMin } from '../../src/demo';
-import { fmtHeaderDate, mochiLean, moreLoaded, sumMinutes, hasUnreadPing } from '../../src/demo-core';
+import { me, balance, streak, myToday, taskById, fmtMin } from '../../src/demo';
+import { fmtHeaderDate, mochiLean, moreLoaded, sumMinutes, hasUnreadPing, missionDone } from '../../src/demo-core';
 import copy from '../../src/data/copy.json';
 import { colors, space, font, motion } from '../../src/theme';
 
@@ -30,8 +30,10 @@ function MissionRow({ occ, first, done, onToggle }) {
   useEffect(() => { op.value = withTiming(done ? 0.45 : 1, { duration: motion.micro }); }, [done]);
   const rowStyle = useAnimatedStyle(() => ({ opacity: op.value }));
   const mental = task.mental_load || occ.kind === 'plan';
+  // Retour Jeanne (1er sept 2026) : tap titre/émoji = sheet Mission (valider avec
+  // le temps réel, pas le temps, modifier) ; le rond coche directement.
   return (
-    <Pressable onPress={() => router.push(`/task/${task.id}`)} onLongPress={() => router.push(`/ping?occ=${occ.id}`)} delayLongPress={400}>
+    <Pressable onPress={() => router.push(`/mission?occ=${occ.id}`)} onLongPress={() => router.push(`/ping?occ=${occ.id}`)} delayLongPress={400}>
       {!first ? <Divider /> : null}
       <Animated.View style={[s.row, rowStyle]}>
         <Text style={{ fontSize: 19 }}>{task.emoji}</Text>
@@ -49,15 +51,13 @@ function MissionRow({ occ, first, done, onToggle }) {
 export default function Home() {
   const t = copy.home;
   const missions = myToday();
-  const [doneIds, setDoneIds] = useState(() => new Set(missions.filter(o => o.status === 'done').map(o => o.id)));
+  missionDone.useVersion(); // re-rend quand la sheet Mission coche/décoche
   const toggle = id => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-    setDoneIds(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+    missionDone.toggle(id);
   };
-  const pt = partnerToday();
   const { line, sub } = mochiLine(t);
   const meta = fill(missions.length === 1 ? t.missionMeta : t.missionsMeta, { n: missions.length, time: fmtMin(sumMinutes(missions)) });
-  const partnerMeta = fill(pt.length === 1 ? t.partnerMetaOne : t.partnerMeta, { n: pt.length, time: fmtMin(sumMinutes(pt)) });
   const left = Math.max(0, streak.next.at - streak.days);
 
   return (
@@ -93,21 +93,13 @@ export default function Home() {
           </View>
           <View style={{ paddingHorizontal: space.screenX }}>
             <Card padding={0} style={{ paddingVertical: 11, paddingHorizontal: 14 }}>
-              {missions.map((o, i) => <MissionRow key={o.id} occ={o} first={i === 0} done={doneIds.has(o.id)} onToggle={() => toggle(o.id)} />)}
+              {missions.map((o, i) => <MissionRow key={o.id} occ={o} first={i === 0} done={missionDone.has(o.id)} onToggle={() => toggle(o.id)} />)}
             </Card>
             <Hint style={{ marginTop: 6 }}>{t.swipeHint}</Hint>
           </View>
 
-          {/* Bloc 3 · Côté binôme — lecture seule */}
-          <View style={{ paddingHorizontal: space.screenX, paddingTop: 14 }}>
-            <GlassRow onPress={() => router.push('/afaire')}>
-              <Avatar initial={partner.initial} color={partner.color} size={28} />
-              <Text style={[font.row, { flex: 1 }]} numberOfLines={1}>
-                {fill(t.sideOf, { name: partner.first_name })} <Text style={font.secondary}>{partnerMeta}</Text>
-              </Text>
-              <Text style={{ fontSize: 16, color: colors.muted }}>›</Text>
-            </GlassRow>
-          </View>
+          {/* Bloc « Côté binôme » retiré (retour Jeanne, 1er sept 2026) : redondant
+              avec le Planning, où l'on voit déjà ce que fait l'autre. */}
 
           {/* Bloc 4 · Streak discret */}
           <View style={{ flex: 1 }} />

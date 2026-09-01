@@ -304,6 +304,22 @@
     "restored": "Abonnement restauré.",
     "close": "Fermer"
   },
+  "mission": {
+    "_labels": {
+      "_": "Sheet Mission (tap sur le titre/émoji d'une mission de l'Accueil)",
+      "timeLabel": "Micro-label du réglage temps réel passé",
+      "doneLabel": "Action valider — {time} = temps réglé",
+      "noTimeLabel": "Action pas le temps — {name} = prénom du binôme",
+      "editLabel": "Action modifier la tâche"
+    },
+    "timeLabel": "Temps passé",
+    "doneLabel": "C'est fait",
+    "doneSub": "Compté {time} dans la balance",
+    "noTimeLabel": "Je n'aurai pas le temps",
+    "noTimeSub": "Reporter, ou repasser à {name}",
+    "editLabel": "Modifier la tâche",
+    "editSub": "Durée, fréquence, porteur…"
+  },
   "pings": {
     "_labels": {
       "_": "Messages préformatés du fil Activité — zéro texte libre. Clé = preset_key en base.",

@@ -26,6 +26,7 @@ export default function RootLayout() {
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="onboarding/index" options={{ animation: 'fade' }} />
         <Stack.Screen name="ping" options={sheet} />
+        <Stack.Screen name="mission" options={sheet} />
         <Stack.Screen name="event" options={tallSheet} />
         <Stack.Screen name="depense" options={tallSheet} />
         <Stack.Screen name="mood" options={sheet} />

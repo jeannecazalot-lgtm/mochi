@@ -30,6 +30,20 @@ export const moreLoaded = (b = balance) => (b.partner > b.me ? partner : me);
 export const sumMinutes = occs => occs.reduce((t, o) => t + ((taskById(o.task_id) || {}).duration_min || 0), 0);
 export const hasUnreadPing = () => activity.some(a => a.type === 'ping' && a.target_id === me.id && !a.read_at);
 
+// Coche des missions partagée entre l'Accueil et la sheet Mission (démo : la
+// vraie coche passera par occurrences.status côté Supabase).
+import { useSyncExternalStore } from 'react';
+const doneIds = new Set(occurrences.filter(o => o.status === 'done').map(o => o.id));
+const doneSubs = new Set();
+let doneVersion = 0;
+const notifyDone = () => { doneVersion++; doneSubs.forEach(f => f()); };
+export const missionDone = {
+  has: id => doneIds.has(id),
+  toggle(id) { doneIds.has(id) ? doneIds.delete(id) : doneIds.add(id); notifyDone(); },
+  set(id, v) { v ? doneIds.add(id) : doneIds.delete(id); notifyDone(); },
+  useVersion: () => useSyncExternalStore(cb => (doneSubs.add(cb), () => doneSubs.delete(cb)), () => doneVersion),
+};
+
 // ─── Planning ───────────────────────────────────────────────────────
 export const MENTAL_COEF = 1.5; // coefficient charge mentale (SPECS §3) — à lire depuis la base plus tard
 export const fmtCoef = n => String(n).replace('.', ',');
