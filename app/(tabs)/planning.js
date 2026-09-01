@@ -103,9 +103,11 @@ function MonthPane() {
 // rangée RÉELLE : tap → sheet Mission (avec « Déplacer ») ; rond de coche pour
 // mes tâches et les communes ; encadré corail si en retard (retour Jeanne, 2 sept 2026)
 function RealRow({ vm, onToggle }) {
+  // la coche vit HORS du Pressable de navigation : plus de conflit de tap
+  // (retour Jeanne, 2 sept : « le rond ne marche pas »)
   return (
-    <Pressable onPress={() => router.push(vm.href)}>
-      <View style={[s.row, vm.late && { borderColor: colors.coral, borderWidth: 1.5 }]}>
+    <View style={[s.row, vm.late && { borderColor: colors.coral, borderWidth: 1.5 }]}>
+      <Pressable onPress={() => router.push(vm.href)} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 }}>
         <Text style={{ fontSize: 18 }}>{vm.emoji}</Text>
         <View style={{ flex: 1 }}>
           <Text style={{ fontSize: 15.5, fontWeight: '500', color: colors.ink, textDecorationLine: vm.done ? 'line-through' : 'none', opacity: vm.done ? 0.5 : 1 }} numberOfLines={1}>{vm.title}</Text>
@@ -113,24 +115,29 @@ function RealRow({ vm, onToggle }) {
         </View>
         {vm.who
           ? <Avatar initial={vm.who.initial} color={vm.who.color} photo={vm.who.avatar_url} size={24} />
-          : <AvatarPair members={members} size={24} />}
-        {vm.checkable ? (
-          <Pressable onPress={onToggle} hitSlop={8}><CheckCircle done={vm.done} /></Pressable>
-        ) : null}
-      </View>
-    </Pressable>
+          : (
+            <View style={{ flexDirection: 'row' }}>
+              <Avatar initial={me.initial} color={me.color} photo={me.avatar_url} size={24} ring />
+              <View style={{ marginLeft: -8 }}><Avatar initial={partner.initial} color={partner.color} size={24} ring /></View>
+            </View>
+          )}
+      </Pressable>
+      {vm.checkable ? (
+        <Pressable onPress={onToggle} hitSlop={12}><CheckCircle done={vm.done} /></Pressable>
+      ) : null}
+    </View>
   );
 }
 
 export default function Planning() {
   const [grabbed, setGrabbed] = useState(false);
   const [mode, setMode] = useState('week');
-  useIdentity();
   const t2 = copy.planning;
   // ─── vraies occurrences groupées par jour (démo en fallback) ───
   const [realGroups, setRealGroups] = useState(null);
   const occV = occStore.useVersion();
   missionDone.useVersion();
+  const ident = useIdentity(); // la liste se reconstruit quand l'uid/photo arrivent
   useEffect(() => {
     (async () => {
       await loadSetup();
@@ -150,7 +157,7 @@ export default function Planning() {
         (byDate[o.due_date] ||= []).push({
           id: o.id, emoji: tk.emoji || '•', title: tk.title || '…',
           sub: late ? t2.late : `${fmtMin(tk.duration_min || 15)}${tk.mental_load ? ` · ${t2.mental.replace('{coef}', fmtCoef(MENTAL_COEF))}` : ''}`,
-          who, checkable: !o.assignee_id || o.assignee_id === uid,
+          who, checkable: !o.assignee_id || o.assignee_id === uid || !uid,
           done: isDone, late,
           // en retard → sheet 21 (je le fais / repasser / décaler) ; sinon sheet Mission
           href: late ? `/retard?${q}&due=${o.due_date}` : `/mission?${q}`,
@@ -159,7 +166,7 @@ export default function Planning() {
       const groups = Object.keys(byDate).sort().map(d => ({ iso: d, date: new Date(d + 'T12:00:00'), items: byDate[d] }));
       setRealGroups(groups.length ? groups : null);
     })();
-  }, [occV]);
+  }, [occV, ident]);
   const toggleOcc = id => {
     const nowDone = !missionDone.has(id);
     missionDone.toggle(id);
@@ -168,12 +175,15 @@ export default function Planning() {
   // tap sur un jour du semainier → la liste défile jusqu'à ce jour (retour Jeanne)
   const scrollRef = useRef(null);
   const groupY = useRef({});
+  const todayIso = localIso();
+  // Retour Jeanne (2 sept) : le jour TAPÉ devient noir (sélection), pas figé sur aujourd'hui
+  const [selectedIso, setSelectedIso] = useState(todayIso);
   const jumpTo = date => {
     const iso = localIso(date);
+    setSelectedIso(iso);
     const y = groupY.current[iso];
     if (y != null) scrollRef.current?.scrollTo({ y: Math.max(0, y - 8), animated: true });
   };
-  const todayIso = localIso();
   // points du semainier en mode réel : couleurs des porteurs du jour
   const dotsFor = d => {
     const iso = localIso(d);
@@ -204,7 +214,7 @@ export default function Planning() {
               {(realGroups ? weekDays(new Date()) : weekDays()).map(d => (
                 <DayChip
                   key={d.getTime()} date={d}
-                  on={sameDay(d, realGroups ? new Date() : today)}
+                  on={realGroups ? localIso(d) === selectedIso : sameDay(d, today)}
                   dots={realGroups ? dotsFor(d) : dayDots(d)}
                   onPress={() => jumpTo(d)}
                 />
