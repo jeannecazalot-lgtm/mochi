@@ -86,3 +86,34 @@ export function computeDispatch({ members, tasks, pains = {} }) {
 
   return { items, loads, state: gap() > 0.15 ? 'review' : 'ok' };
 }
+
+// n occurrences/semaine → décalages de jours étalés uniformément (repli sans grille)
+export const spreadDays = perWeek => {
+  const n = Math.min(7, Math.max(1, Math.round(perWeek || 1)));
+  return Array.from({ length: n }, (_, i) => Math.round((i * 7) / n));
+};
+
+// Jours privilégiés selon la grille du 07 (indices 0-6 = L-D) : matin + soir
+// additionnés, « à fond » (2) pèse double. Vide si la grille n'a pas été remplie.
+export const preferredDays = availability => {
+  const g = availability || {};
+  const score = i => (g.morning?.[i] || 0) + (g.evening?.[i] || 0);
+  return Array.from({ length: 7 }, (_, i) => ({ i, s: score(i) }))
+    .filter(d => d.s > 0)
+    .sort((a, b) => b.s - a.s || a.i - b.i)
+    .map(d => d.i);
+};
+
+// Place n occurrences sur les 7 prochains jours : d'abord les jours cochés au 07
+// (« courses le jeudi »), puis étalement uniforme pour le reste. Un même jour ne
+// reçoit jamais deux occurrences de la même tâche (contrainte unique en base).
+export const placeDays = (perWeek, availability, todayDow) => {
+  const n = Math.min(7, Math.max(1, Math.round(perWeek || 1)));
+  const toOffset = dayIdx => (dayIdx - todayDow + 7) % 7;
+  const preferred = preferredDays(availability).map(toOffset);
+  const chosen = [];
+  for (const off of preferred) { if (chosen.length >= n) break; if (!chosen.includes(off)) chosen.push(off); }
+  for (const off of spreadDays(n)) { if (chosen.length >= n) break; if (!chosen.includes(off)) chosen.push(off); }
+  for (let off = 0; chosen.length < n && off < 7; off++) if (!chosen.includes(off)) chosen.push(off);
+  return chosen.sort((a, b) => a - b);
+};

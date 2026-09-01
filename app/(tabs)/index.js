@@ -9,7 +9,7 @@ import { GlowBg, Card, Divider, Avatar } from '../../src/components/ui';
 import { LiveMochi, useCheckPop, Animated } from '../../src/components/motion';
 import { Icon, ICON, BadgePill, CheckCircle, RoundButton, Hint } from '../../src/components/core/extra';
 import { me, partner, balance, streak, myToday, taskById, fmtMin } from '../../src/demo';
-import { fmtHeaderDate, mochiLean, moreLoaded, hasUnreadPing, missionDone } from '../../src/demo-core';
+import { fmtHeaderDate, mochiLean, moreLoaded, hasUnreadPing, missionDone, occStore } from '../../src/demo-core';
 import { read } from '../../src/store';
 import { loadSetup, setup } from '../../src/setup-state';
 import { useIdentity } from '../../src/identity';
@@ -76,6 +76,7 @@ export default function Home() {
   // VRAIES occurrences du jour (cache local du store) ; la démo n'est qu'un fallback.
   const [vms, setVms] = useState(demoVms);
   const [real, setReal] = useState(false);
+  const occV = occStore.useVersion(); // « Déplacer » depuis la sheet → on relit le store
   useEffect(() => {
     (async () => {
       await loadSetup();
@@ -84,7 +85,7 @@ export default function Home() {
       const byId = Object.fromEntries(tasks.map(tk => [tk.id, tk]));
       const today = new Date().toISOString().slice(0, 10);
       const todays = occs.filter(o => o.due_date === today);
-      if (!todays.length) return;
+      if (!todays.length && !occV) return; // premier chargement sans données réelles → démo
       setReal(true);
       setVms(todays.map(o => {
         const tk = byId[o.task_id] || {};
@@ -92,7 +93,7 @@ export default function Home() {
         return { id: o.id, emoji: tk.emoji || '•', title: tk.title || '…', mental: !!tk.mental_load, badge: null, mins: tk.duration_min || 15, href: `/mission?${q}`, ping: null };
       }));
     })();
-  }, []);
+  }, [occV]);
   const toggle = id => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
     missionDone.toggle(id);
@@ -135,7 +136,9 @@ export default function Home() {
           </View>
           <View style={{ paddingHorizontal: space.screenX }}>
             <Card padding={0} style={{ paddingVertical: 11, paddingHorizontal: 14 }}>
-              {vms.map((v, i) => <MissionRow key={v.id} vm={v} first={i === 0} done={missionDone.has(v.id)} onToggle={() => toggle(v.id)} />)}
+              {vms.length === 0
+                ? <Text style={[font.secondary, { textAlign: 'center', paddingVertical: 10 }]}>{t.emptyToday}</Text>
+                : vms.map((v, i) => <MissionRow key={v.id} vm={v} first={i === 0} done={missionDone.has(v.id)} onToggle={() => toggle(v.id)} />)}
             </Card>
             <Hint style={{ marginTop: 6 }}>{t.swipeHint}</Hint>
           </View>

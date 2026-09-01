@@ -11,6 +11,7 @@ import { Card, Micro } from '../src/components/ui';
 import { SheetHandle, Chevron } from '../src/components/social/extra';
 import { occurrences, taskById, me, fmtMin, partner } from '../src/demo';
 import { missionDone } from '../src/demo-core';
+import { moveOccurrence } from '../src/occ-actions';
 import copy from '../src/data/copy.json';
 import { colors, space, radius, font, alpha } from '../src/theme';
 
@@ -43,10 +44,17 @@ export default function Mission() {
     if (occ) missionDone.set(occ.id, true);
     close();
   };
-  const postpone = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-    // TODO Supabase : occurrence reportée à demain
-    close();
+  // « Déplacer » (retour Jeanne, 1er sept 2026) : rangée des 6 prochains jours —
+  // « courses jeudi, pas aujourd'hui ». Refus haptique si la tâche a déjà ce jour.
+  const days = Array.from({ length: 6 }, (_, i) => {
+    const d = new Date(Date.now() + (i + 1) * 86400000);
+    return { iso: d.toISOString().slice(0, 10), label: copy.calendar.dows[(d.getDay() + 6) % 7] };
+  });
+  const moveTo = async isoDate => {
+    const r = await moveOccurrence(String(occId || ''), isoDate);
+    if (r.ok) { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {}); close(); }
+    else if (r.reason === 'introuvable') close(); // démo : rien à persister
+    else Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
   };
   const swap = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
@@ -102,20 +110,25 @@ export default function Mission() {
           </Card>
         </Pressable>
       ) : (
-        <View style={{ flexDirection: 'row', gap: 6, marginBottom: 6 }}>
-          <Pressable onPress={postpone} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.8 : 1 }]}>
-            <Card r={radius.row} padding={0}>
-              <View style={s.choiceCol}>
-                <Text style={{ fontSize: 19 }}>🗓️</Text>
-                <Text style={s.optLabel}>{t.noTimePostpone}</Text>
+        <View style={{ marginBottom: 6 }}>
+          <Card r={radius.row} padding={0} style={{ marginBottom: 6 }}>
+            <View style={{ paddingVertical: 12, paddingHorizontal: 14 }}>
+              <Micro>{t.moveLabel}</Micro>
+              <View style={{ flexDirection: 'row', gap: 7, marginTop: 9 }}>
+                {days.map(d => (
+                  <Pressable key={d.iso} onPress={() => moveTo(d.iso)} style={({ pressed }) => [s.dayBtn, pressed && { opacity: 0.7 }]}>
+                    <Text style={s.dayTxt}>{d.label}</Text>
+                  </Pressable>
+                ))}
               </View>
-            </Card>
-          </Pressable>
-          <Pressable onPress={swap} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.8 : 1 }]}>
+            </View>
+          </Card>
+          <Pressable onPress={swap} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
             <Card r={radius.row} padding={0}>
-              <View style={s.choiceCol}>
+              <View style={s.optRow}>
                 <Text style={{ fontSize: 19 }}>🤝</Text>
                 <Text style={s.optLabel}>{fill(t.noTimeSwap, { name: partner.first_name })}</Text>
+                <Chevron />
               </View>
             </Card>
           </Pressable>
@@ -163,6 +176,8 @@ const s = StyleSheet.create({
   timeTxt: { fontSize: 15, fontWeight: '600', color: colors.ink, fontVariant: ['tabular-nums'], minWidth: 52, textAlign: 'center' },
   optRow: { flexDirection: 'row', alignItems: 'center', gap: 13, paddingVertical: 13, paddingHorizontal: 14 },
   choiceCol: { alignItems: 'center', gap: 6, paddingVertical: 13, paddingHorizontal: 10 },
+  dayBtn: { flex: 1, alignItems: 'center', paddingVertical: 9, borderRadius: 10, backgroundColor: alpha(colors.ink, 0.05), borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
+  dayTxt: { fontSize: 13, fontWeight: '600', color: colors.ink },
   optLabel: { fontSize: 15.5, fontWeight: '600', color: colors.ink },
   optSub: { ...font.caption, marginTop: 3 },
 });

@@ -69,6 +69,7 @@
   "home": {
     "_labels": {
       "todayTitle": "Titre du bloc missions du jour",
+      "emptyToday": "État vide du bloc missions (tout déplacé ou rien de prévu)",
       "swipeHint": "Indice sous la liste",
       "sideOf": "Bloc côté binôme ({name} = prénom)",
       "streak": "Ligne streak ({n} jours, {badge} = prochain badge, {left} = jours restants)",
@@ -89,6 +90,7 @@
       "profileA11y": "Libellé accessibilité avatar profil"
     },
     "todayTitle": "Aujourd'hui pour toi",
+    "emptyToday": "Rien pour toi aujourd'hui.",
     "swipeHint": "Glisser une mission pour la repasser ou la reporter",
     "sideOf": "Côté {name}",
     "streak": "🔥 Streak : {n} jours · encore {left} jour pour « {badge} »",
@@ -319,7 +321,7 @@
     "doneSub": "Compté {time} dans la balance",
     "noTimeLabel": "Je n'aurai pas le temps",
     "noTimeSub": "Reporter, ou repasser à {name}",
-    "noTimePostpone": "Reporter à demain",
+    "moveLabel": "Déplacer à…",
     "noTimeSwap": "Repasser à {name}",
     "editLabel": "Modifier la tâche",
     "editSub": "Durée, fréquence, porteur…",
@@ -454,6 +456,7 @@
       "prefsHintA": "Phrase d aide (proposition A)",
       "calcDone": "Titre du final de l animation Mochi calcule",
       "both": "Libellé du porteur partagé (écran 12)",
+      "alternate": "Libellé du porteur alterné (écran 12, zigzag un jour chacun)",
       "perWeekSlash": "Suffixe des totaux de l écran 12"
     },
     "identityTitle": "C'est toi.",
@@ -557,6 +560,7 @@
     "prefsHintA": "Tape une tâche : 1 tap = j'aime · 2 taps = je déteste · 3 = je retire",
     "calcDone": "C'est prêt.",
     "both": "Les deux",
+    "alternate": "Alterné",
     "perWeekSlash": "/ semaine"
   },
   "event": {

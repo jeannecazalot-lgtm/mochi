@@ -70,4 +70,22 @@ const T = (id, duration_min, per_week, pain = 2, extra = {}) => ({ id, duration_
   check('7. solo → tout à A, état ok', r.items.every(i => i.assignee_id === 'a') && r.state === 'ok');
 }
 
+
+
+// 8 · placement des jours (placeDays) — pure, testée ici aussi
+{
+  const { placeDays } = mod.exports;
+  // grille : jeudi (3) à fond, samedi (5) un peu — aujourd'hui lundi (0)
+  const avail = { morning: [0, 0, 0, 2, 0, 1, 0], evening: [0, 0, 0, 0, 0, 0, 0] };
+  const r1 = placeDays(1, avail, 0);
+  check('8. 1×/sem + jeudi coché → jeudi (offset 3)', r1.length === 1 && r1[0] === 3, JSON.stringify(r1));
+  const r2 = placeDays(2, avail, 0);
+  check('8b. 2×/sem → jeudi puis samedi', r2.includes(3) && r2.includes(5), JSON.stringify(r2));
+  const r3 = placeDays(3, avail, 0);
+  check('8c. 3×/sem → jours cochés + complément, sans doublon', new Set(r3).size === 3, JSON.stringify(r3));
+  const r4 = placeDays(7, null, 0);
+  check('8d. quotidien sans grille → les 7 jours', r4.length === 7 && new Set(r4).size === 7, JSON.stringify(r4));
+  const r5 = placeDays(2, null, 4);
+  check('8e. sans grille → étalement uniforme', r5.length === 2, JSON.stringify(r5));
+}
 process.exit(failed ? 1 : 0);

@@ -16,16 +16,11 @@ import { supabase } from './supabase';
 import { ensureSession } from './profile';
 import { uuid, mutate, drain, resetLocal } from './store';
 import { setup, saveRealTaskIds } from './setup-state';
+import { placeDays } from './dispatch';
 import { me } from './demo';
 
 const DAY = 86400000;
 const iso = d => d.toISOString().slice(0, 10);
-
-// n occurrences/semaine → décalages de jours à partir d'aujourd'hui, étalés
-export const spreadDays = perWeek => {
-  const n = Math.min(7, Math.max(1, Math.round(perWeek || 1)));
-  return Array.from({ length: n }, (_, i) => Math.round((i * 7) / n));
-};
 
 export async function syncSetup(result) {
   const session = await ensureSession();
@@ -62,19 +57,28 @@ export async function syncSetup(result) {
 
   saveRealTaskIds(realId);
 
-  // occurrences de la semaine à venir, réparties selon la fréquence du 12.
-  // Cache local remis à zéro d'abord : rejouer « C'est parti » régénère la semaine
-  // au lieu d'empiler (côté serveur, unique(task_id, due_date, kind) dédoublonne).
+  // occurrences de la semaine à venir : jours choisis selon la grille dispos du 07
+  // (retour Jeanne, 1er sept 2026 — « courses le jeudi, pas aujourd'hui »), porteur
+  // 'alt' = alternance stricte en zigzag. Cache local remis à zéro d'abord :
+  // rejouer « C'est parti » régénère la semaine au lieu d'empiler (côté serveur,
+  // unique(task_id, due_date, kind) dédoublonne).
+  const todayDow = (new Date().getDay() + 6) % 7; // lundi = 0
   await resetLocal('occurrences');
   for (const it of result?.items || []) {
     const t = (setup.tasks || []).find(x => x.id === it.task_id);
     if (!t) continue;
     const perWeek = t.per_week ? Math.round(it.weekly_min / (t.duration_min || 15)) : 1;
-    for (const offset of spreadDays(perWeek)) {
+    const offsets = placeDays(perWeek, setup.availability, todayDow);
+    for (let k = 0; k < offsets.length; k++) {
+      // moi → uid réel ; binôme simulé / 'both' → null (commun) ;
+      // 'alt' → zigzag : une occurrence sur deux à moi, l'autre au binôme
+      const assignee = it.assignee_id === me.id ? uid
+        : it.assignee_id === 'alt' ? (k % 2 === 0 ? uid : null)
+        : null;
       await mutate('occurrences', {
         id: uuid(), household_id: householdId, task_id: realId[t.id],
-        kind: t.mental_load ? 'plan' : 'exec', due_date: iso(new Date(Date.now() + offset * DAY)),
-        assignee_id: it.assignee_id === me.id ? uid : null, // binôme simulé / 'both' → non tranché
+        kind: t.mental_load ? 'plan' : 'exec', due_date: iso(new Date(Date.now() + offsets[k] * DAY)),
+        assignee_id: assignee,
       });
     }
   }

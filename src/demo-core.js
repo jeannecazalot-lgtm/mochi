@@ -37,6 +37,15 @@ const doneIds = new Set(occurrences.filter(o => o.status === 'done').map(o => o.
 const doneSubs = new Set();
 let doneVersion = 0;
 const notifyDone = () => { doneVersion++; doneSubs.forEach(f => f()); };
+// version des occurrences locales : la sheet Mission « Déplacer » bumpe,
+// l'Accueil et le Planning relisent le store
+const occSubs = new Set();
+let occV = 0;
+export const occStore = {
+  bump() { occV++; occSubs.forEach(f => f()); },
+  useVersion: () => useSyncExternalStore(cb => (occSubs.add(cb), () => occSubs.delete(cb)), () => occV),
+};
+
 export const missionDone = {
   has: id => doneIds.has(id),
   toggle(id) { doneIds.has(id) ? doneIds.delete(id) : doneIds.add(id); notifyDone(); },

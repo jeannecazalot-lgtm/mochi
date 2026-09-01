@@ -41,7 +41,10 @@ function usePopOnChange(dep) {
 
 function Row({ it, index, onToggle, onFreq, onOpen }) {
   const both = it.assignee_id === 'both';
-  const who = both ? me : byId(it.assignee_id);
+  const alt = it.assignee_id === 'alt';
+  const pair = both || alt;
+  const who = pair ? me : byId(it.assignee_id);
+  const pairLabel = alt ? t.alternate : t.both;
   const pop = usePopOnChange(it.assignee_id);
   return (
     <Animated.View entering={prefersReducedMotion() ? undefined : FadeInDown.delay(index * 45).duration(motion.screen)}>
@@ -61,16 +64,17 @@ function Row({ it, index, onToggle, onFreq, onOpen }) {
               </View>
             </View>
           </Pressable>
-          {/* porteur explicite : avatar + prénom, tap = bascule */}
-          <Pressable onPress={onToggle} hitSlop={8} accessibilityLabel={`${it.label} · ${both ? t.both : who.first_name}`}>
-            <Animated.View style={[pop, s.whoChip, { borderColor: both ? colors.ink : who.color }]}>
-              {both ? (
+          {/* porteur explicite : avatar + prénom, tap = bascule
+              (cycle moi → binôme → alterné → les deux, retour Jeanne 1er sept 2026) */}
+          <Pressable onPress={onToggle} hitSlop={8} accessibilityLabel={`${it.label} · ${pair ? pairLabel : who.first_name}`}>
+            <Animated.View style={[pop, s.whoChip, { borderColor: pair ? colors.ink : who.color }]}>
+              {pair ? (
                 <View style={{ flexDirection: 'row' }}>
                   <Avatar initial={me.initial} color={me.color} photo={me.avatar_url} size={22} ring />
                   <View style={{ marginLeft: -8 }}><Avatar initial={partner.initial} color={partner.color} size={22} ring /></View>
                 </View>
               ) : <Avatar initial={who.initial} color={who.color} photo={who.avatar_url} size={22} />}
-              <Text style={s.whoTxt}>{both ? t.both : who.first_name}</Text>
+              <Text style={s.whoTxt}>{pair ? pairLabel : who.first_name}</Text>
             </Animated.View>
           </Pressable>
         </View>
@@ -114,15 +118,16 @@ export default function Dispatch() {
   }, [items]);
   const list = items || [];
   const bumpFreq = (task_id, d) => setItems(l => l.map(i => (i.task_id === task_id ? { ...i, freq: Math.min(14, Math.max(1, i.freq + d)), weekly_min: Math.min(14, Math.max(1, i.freq + d)) * i.mins } : i)));
-  // cycle du porteur : moi → binôme → les deux → moi (retour Jeanne, 23 août 2026)
+  // cycle du porteur : moi → binôme → alterné (zigzag) → les deux → moi
+  // (« alterné » ajouté le 1er sept 2026 — cuisine/vaisselle un jour chacun)
   const toggle = task_id => setItems(l => l.map(i => {
     if (i.task_id !== task_id) return i;
-    const next = i.assignee_id === me.id ? partner.id : i.assignee_id === partner.id ? 'both' : me.id;
+    const next = i.assignee_id === me.id ? partner.id : i.assignee_id === partner.id ? 'alt' : i.assignee_id === 'alt' ? 'both' : me.id;
     return { ...i, assignee_id: next };
   }));
 
   const load = list.reduce((acc, i) => {
-    if (i.assignee_id === 'both') { acc[me.id] += i.weekly_min / 2; acc[partner.id] += i.weekly_min / 2; }
+    if (i.assignee_id === 'both' || i.assignee_id === 'alt') { acc[me.id] += i.weekly_min / 2; acc[partner.id] += i.weekly_min / 2; }
     else acc[i.assignee_id] += i.weekly_min;
     return acc;
   }, { [me.id]: 0, [partner.id]: 0 });
