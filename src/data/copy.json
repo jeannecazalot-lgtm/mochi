@@ -240,7 +240,10 @@
     "yesterday": "hier",
     "viaTaskDesc": "en cochant « {task} »",
     "paidBy": "payé par {name}",
-    "you": "toi"
+    "you": "toi",
+    "gateTitle": "Le budget, c'est Duo+",
+    "gateSub": "Dépenses partagées, solde du foyer et « On est à zéro » — inclus dans Duo+.",
+    "gateCta": "Découvrir"
   },
   "paywall": {
     "_labels": {

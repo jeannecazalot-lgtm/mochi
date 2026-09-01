@@ -5,6 +5,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { GlowBg, ScreenTitle, Secondary, Card, PillLabel, Micro, GlassRow, Avatar } from '../../src/components/ui';
 import { CountUp } from '../../src/components/motion';
 import { PillButton, BadgePill, Hint } from '../../src/components/core/extra';
+import { PremiumGate } from '../../src/components/premium/extra';
+import { isPremium } from '../../src/demo-premium';
 import { me, byId, taskById, expenses, budget, fmtMoney, today } from '../../src/demo';
 import { monthLong, daysBetween, fmtDayLower, sortedByDate } from '../../src/demo-core';
 import copy from '../../src/data/copy.json';
@@ -35,6 +37,26 @@ function desc(e) {
 }
 
 export default function Budget() {
+  // Décision Jeanne (1er sept 2026) : le Budget est une fonctionnalité Duo+ —
+  // sans abonnement, l'onglet montre sa promesse verrouillée + l'accès au paywall (37)
+  if (!isPremium()) {
+    return (
+      <View style={{ flex: 1 }}>
+        <GlowBg intensity="strong" />
+        <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+          <View style={s.header}>
+            <ScreenTitle style={{ letterSpacing: -1.1 }}>{t.title}</ScreenTitle>
+          </View>
+          <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: space.headerX, paddingBottom: 90 }}>
+            <View style={{ alignItems: 'center', marginBottom: 18 }}>
+              <Text style={{ fontSize: 44 }}>🔒</Text>
+            </View>
+            <PremiumGate title={t.gateTitle} sub={t.gateSub} cta={t.gateCta} />
+          </View>
+        </SafeAreaView>
+      </View>
+    );
+  }
   return (
     <View style={{ flex: 1 }}>
       <GlowBg intensity="strong" />
