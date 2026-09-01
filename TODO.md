@@ -3,7 +3,7 @@
 Référence visuelle : `design/handoff/Mental free - Embossed.html` (ouvrir dans un navigateur).
 Numéros d'écran = numéros d'artboard du canvas. Les écrans « v2 » du canvas ne sont pas à faire.
 
-## Session du 1er sept 2026 — repasse de Jeanne (EN COURS, récap à faire en fin de session)
+## Session du 1er sept 2026 — repasse de Jeanne (récap fait en fin de session)
 Modifs appliquées (commits `bedcf9e`, `dee3e3e`, `7fb6efa`) :
 - **CTA global** : traversée du dégradé 500 → 800 ms, easing inOut (retour « ça bug ») — à valider au doigt.
 - **06** : sous-titre retiré ; phrase « Ou continue sans… » retirée ; grande photo carrée arrondie centrée + pilule « Ajouter » façon Airbnb (2 itérations : rangée « Sélectionner une photo » puis version finale).
