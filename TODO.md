@@ -43,6 +43,7 @@ Décisions Jeanne (1er sept 2026, soir) :
 
 Branchements suivants (dans l'ordre proposé) :
 - [ ] **Identité réelle partout** : avatars photo + vrai prénom (aujourd'hui « K/Ketley/Julian » de démo sur 09b, 12, Accueil… alors que le profil réel — prénom, photo — est en base et affiché sur le 06). Le composant Avatar ne sait pas encore afficher une photo.
+- [ ] **Génération des jours intelligente** (question Jeanne 1er sept, ~23h15) : placer les occurrences selon la grille dispos du 07 (collectée mais inutilisée — courses un jour coché, pas « aujourd'hui ») ; porteur « en alternance » sur le 12 (cycle moi → binôme → alternance → les deux, `assign_mode: 'alternate'` déjà au modèle) pour cuisine/vaisselle en zigzag ; réglage durable « toujours le jeudi » via `window_days` sur la fiche 14 ; corrections ponctuelles par drag sur le Planning 19.
 - [ ] Planning sur les vraies occurrences de la semaine ; puis Balance (calcul réel) ; puis Budget (+ paywall).
 - [ ] Moyennes anonymes inter-foyers pour les durées (idée Jeanne 1er sept) : agrégat par `catalog_key` côté base, jamais de données individuelles exposées ; impact privacy policy à noter.
 
