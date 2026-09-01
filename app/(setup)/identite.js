@@ -86,8 +86,9 @@ const s = StyleSheet.create({
   label: { marginBottom: 9 },
   input: { paddingVertical: 17, paddingHorizontal: 18, fontSize: 19, fontWeight: '600', letterSpacing: -0.4, color: colors.ink },
   photoRow: { flexDirection: 'row', alignItems: 'center', gap: 16, paddingVertical: 17, paddingHorizontal: 18 },
-  photo: { width: 150, height: 150, borderRadius: radius.cardLg },
-  photoEmpty: { width: 150, height: 150, borderRadius: radius.cardLg, backgroundColor: alpha(colors.ink, 0.04), borderWidth: 1.5, borderStyle: 'dashed', borderColor: alpha(colors.ink, 0.22), alignItems: 'center', justifyContent: 'center' },
+  // rond (retour Jeanne, 2 sept 2026 — annule le carré arrondi du 1er sept)
+  photo: { width: 150, height: 150, borderRadius: 75 },
+  photoEmpty: { width: 150, height: 150, borderRadius: 75, backgroundColor: alpha(colors.ink, 0.04), borderWidth: 1.5, borderStyle: 'dashed', borderColor: alpha(colors.ink, 0.22), alignItems: 'center', justifyContent: 'center' },
   addPill: { flexDirection: 'row', alignItems: 'center', gap: 7, marginTop: -17, backgroundColor: colors.card, borderRadius: radius.pill, paddingVertical: 9, paddingHorizontal: 17, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 2 } },
   addPillTxt: { fontSize: 15, fontWeight: '600', color: colors.ink },
   ctaWrap: { position: 'absolute', left: 24, right: 24, bottom: 26 },
