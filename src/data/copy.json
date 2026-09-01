@@ -985,6 +985,7 @@
       "today": "Label de groupe du jour",
       "yesterday": "Label de groupe de la veille",
       "taskDone": "Événement tâche terminée ({name}, {task} en gras)",
+      "emptyReal": "État vide du fil en mode réel (aucune validation encore)",
       "swapProposed": "Proposition de repassage ({name}, {task})",
       "swapAccepted": "Repassage accepté ({name}, {task})",
       "swapDebt": "Sous-ligne de la proposition ({pronoun} = elle/lui)",
@@ -999,6 +1000,7 @@
       "note": "Note de bas de fil"
     },
     "title": "Activité",
+    "emptyReal": "Rien encore — coche des missions et le fil s'animera.",
     "today": "Aujourd'hui",
     "yesterday": "Hier",
     "taskDone": "{name} a terminé {task} ✅",

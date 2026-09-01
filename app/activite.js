@@ -1,5 +1,5 @@
 // Écran 22 · Activité — fil du duo (pings, événements, moments Mochi). Recette : docs/recettes/22-activite.md
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { router } from 'expo-router';
 import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -8,6 +8,10 @@ import { GlowBg, Card, Avatar, Mochi } from '../src/components/ui';
 import { CenterHeader, ReplyChip } from '../src/components/social/extra';
 import { taskById, byId, occurrences, me, streak, today } from '../src/demo';
 import { activityFeed, replyPresets, partnerGender } from '../src/demo-social';
+import { read } from '../src/store';
+import { loadSetup, setup } from '../src/setup-state';
+import { missionDone, occStore } from '../src/demo-core';
+import { useIdentity } from '../src/identity';
 import copy from '../src/data/copy.json';
 import { colors, space, radius, alpha, font } from '../src/theme';
 
@@ -26,8 +30,8 @@ function RichText({ template, vars, style }) {
   );
 }
 
-const dayLabel = (date) => {
-  const diff = Math.round((today - date) / 86400000);
+const dayLabel = (date, now = today) => {
+  const diff = Math.round((now - date) / 86400000);
   if (diff === 0) return t.today;
   if (diff === 1) return t.yesterday;
   return new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }).format(date);
@@ -43,7 +47,7 @@ function Replies({ item, keys, chosen, onChoose }) {
 
 function Item({ item, chosen, onChoose }) {
   const actor = item.actor_id ? byId(item.actor_id) : null;
-  const task = item.task_id ? taskById(item.task_id) : null;
+  const task = item.task_title ? { title: item.task_title } : item.task_id ? taskById(item.task_id) : null;
   const head = (content) => (
     <View style={s.head}>
       {actor ? <Avatar initial={actor.initial} color={actor.color} size={28} /> : null}
@@ -110,9 +114,34 @@ export default function Activite() {
     // TODO Supabase : insérer la réponse préformatée (type reply, preset_key) dans activity
   };
 
+  // Branchement réel (2 sept 2026, retour Jeanne « encore du simulator ») :
+  // en mode réel, le fil montre les VRAIES validations — rien d'inventé.
+  useIdentity();
+  const occV = occStore.useVersion();
+  missionDone.useVersion();
+  const [realItems, setRealItems] = useState(null);
+  useEffect(() => {
+    (async () => {
+      await loadSetup();
+      if (!setup.result?.items?.length) return;
+      const [occs, tasks] = await Promise.all([read('occurrences'), read('tasks')]);
+      const byTask = Object.fromEntries(tasks.map(tk => [tk.id, tk]));
+      const dones = occs.filter(o => o.status === 'done' && o.done_at)
+        .sort((a, b) => new Date(b.done_at) - new Date(a.done_at));
+      setRealItems(dones.map(o => ({
+        id: o.id, type: 'task_done', actor_id: me.id,
+        task_title: (byTask[o.task_id]?.title || '…').toLowerCase(),
+        at: new Date(o.done_at),
+        time: new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' }).format(new Date(o.done_at)),
+      })));
+    })();
+  }, [occV]);
+
+  const real = realItems != null;
+  const now = real ? new Date() : today;
   const groups = [];
-  activityFeed.forEach(it => {
-    const label = dayLabel(it.at);
+  (real ? realItems : activityFeed).forEach(it => {
+    const label = dayLabel(it.at, now);
     let g = groups.find(x => x.label === label);
     if (!g) { g = { label, items: [] }; groups.push(g); }
     g.items.push(it);
@@ -124,12 +153,14 @@ export default function Activite() {
       <SafeAreaView style={{ flex: 1 }} edges={['top']}>
         <CenterHeader title={t.title} onBack={() => router.back()} />
         <ScrollView contentContainerStyle={s.list} showsVerticalScrollIndicator={false}>
-          {groups.map(g => (
-            <React.Fragment key={g.label}>
-              <Text style={s.day}>{g.label}</Text>
-              {g.items.map(it => <Item key={it.id} item={it} chosen={chosen[it.id]} onChoose={choose} />)}
-            </React.Fragment>
-          ))}
+          {real && groups.length === 0
+            ? <Text style={[font.secondary, { textAlign: 'center', paddingVertical: 24 }]}>{t.emptyReal}</Text>
+            : groups.map(g => (
+              <React.Fragment key={g.label}>
+                <Text style={s.day}>{g.label}</Text>
+                {g.items.map(it => <Item key={it.id} item={it} chosen={chosen[it.id]} onChoose={choose} />)}
+              </React.Fragment>
+            ))}
           <Text style={s.note}>{t.note}</Text>
         </ScrollView>
       </SafeAreaView>
