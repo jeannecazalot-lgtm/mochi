@@ -2,7 +2,7 @@
 // événement) en présentation modale transparente ; les moments (wrapped,
 // célébration) en plein écran fondu.
 import React from 'react';
-import { Pressable, View, StyleSheet } from 'react-native';
+import { Pressable, View, Text, StyleSheet } from 'react-native';
 import Svg, { Path, Rect } from 'react-native-svg';
 import { router, usePathname } from 'expo-router';
 import { Stack } from 'expo-router';
@@ -15,6 +15,38 @@ const base = { headerShown: false, contentStyle: { backgroundColor: colors.bg },
 const sheet = { presentation: 'formSheet', sheetAllowedDetents: 'fitToContents', sheetCornerRadius: radius.sheet, sheetGrabberVisible: false, contentStyle: { backgroundColor: colors.card } };
 const tallSheet = { ...sheet, sheetAllowedDetents: [0.92] };
 const full = { presentation: 'fullScreenModal', animation: 'fade' };
+
+// ─── Badge dev : numéro d'artboard en haut à droite (demande Jeanne, 1er sept
+// 2026, pour simplifier les retours). À RETIRER avant tout build de production.
+// Les sheets natives (mission, ping…) passent au-dessus : pas de badge dessus.
+const SCREEN_NO = {
+  '/': '17', '/planning': '19', '/balance': '21', '/budget': '23',
+  '/identite': '06', '/dispos': '07', '/prefs': '08', '/invite': '09', '/duo-forme': '09b',
+  '/taches': '10', '/calcul': '11', '/dispatch': '12', '/reattribuer': '13',
+  '/afaire': '20-21', '/activite': '22', '/balance-detail': '22', '/point-hebdo': '23',
+  '/onboarding': '01-05', '/wrapped': '24-25', '/bilan': '26', '/celebration': '28',
+  '/event': '30', '/pense-bete': '32', '/mood': '33', '/notifs': '34',
+  '/calendrier': '35', '/analyse': '36', '/paywall': '37', '/profil': '38',
+};
+const screenNo = path => {
+  if (path.startsWith('/task/edit')) return '14';
+  if (path.startsWith('/task/mentale')) return '15';
+  if (path.startsWith('/task/')) return '16';
+  return SCREEN_NO[path] || null;
+};
+function ScreenBadge() {
+  const n = screenNo(usePathname());
+  if (!n) return null;
+  return (
+    <View pointerEvents="none" style={s.badge}>
+      <Text style={s.badgeTxt}>{n}</Text>
+    </View>
+  );
+}
+const s = StyleSheet.create({
+  badge: { position: 'absolute', top: 62, right: 6, zIndex: 9999, backgroundColor: alpha(colors.ink, 0.45), borderRadius: 6, paddingHorizontal: 5, paddingVertical: 1.5 },
+  badgeTxt: { color: colors.card, fontSize: 10, fontWeight: '600', letterSpacing: 0.3, fontVariant: ['tabular-nums'] },
+});
 
 export default function RootLayout() {
   return (
@@ -35,6 +67,7 @@ export default function RootLayout() {
         <Stack.Screen name="celebration" options={full} />
         <Stack.Screen name="plan" />
       </Stack>
+      <ScreenBadge />
     </GestureHandlerRootView>
   );
 }
