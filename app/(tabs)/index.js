@@ -116,7 +116,7 @@ export default function Home() {
         <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
           {/* Header : date + bulle activité + avatar */}
           <View style={s.header}>
-            <Text style={[font.micro, { flex: 1, fontWeight: '500' }]}>{fmtHeaderDate()}</Text>
+            <Text style={[font.micro, { flex: 1, fontWeight: '500' }]}>{fmtHeaderDate(real ? new Date() : undefined)}</Text>
             <RoundButton onPress={() => router.push('/activite')} accessibilityLabel={t.activityA11y}>
               <Icon d={ICON.bubble} size={17} />
               {hasUnreadPing() ? <View style={s.dot} /> : null}

@@ -41,6 +41,18 @@ Décisions Jeanne (1er sept 2026, soir) :
 - Écrans restants (21 ratée, 22 fil, 23 point hebdo, rappels, Realtime) : « plus tard ».
 - Questions sheet Mission / libellé photo / fréquence sur 10 / émojis maison : « on verra plus tard ».
 
+## Nuit du 1er au 2 sept 2026 — les 7 chantiers construits (Jeanne : « fais tout ce que tu peux »)
+Tout est branché et vérifié au simulateur (~20 commits). Détail :
+1. **Identité réelle partout** : prénom + photo du profil substitués à la démo dès la racine, Avatar affiche les photos (14 écrans). Vérifié : header Accueil, fiche (« Toujours pour Jj »), carte du 09.
+2. **Génération des jours** : occurrences placées selon la grille du 07 (5 tests node) ; porteur **« Alterné »** sur le 12 (zigzag) ; sheet Mission → **« Déplacer à… » avec rangée de jours** (refus si doublon) ; **fiche tâche 14 branchée au réel** (chargement + Enregistrer persiste tasks/task_pains ; les occurrences existantes ne bougent pas — la fenêtre s'applique à la prochaine génération).
+3. **Planning réel** : occurrences par jour (semaine réelle), **coche directe** (mes tâches + communes), **tap sur un jour → défilement**, points de couleur réels, retard **encadré corail** → sheet 21. Drag réel : toujours pas fait (visuel seulement).
+4. **Écran 21** (sheet assigné, maquette Jeanne) : je le fais / repasser (démo) / décaler à demain. **Rappels locaux réels** : récap par jour d'occurrences à l'heure du 08, reprogrammés à chaque synchro/déplacement ; permission demandée au 08. Vue lecture du non-assigné : avec le vrai binôme.
+5. **Balance réelle** (SPECS §3) : score des occurrences cochées (validation → statut done + minutes réelles + copie figée partout : sheet, Accueil, Planning, 21), chart 7 jours réel, streak réel. Malus : en attente de la table.
+6. **Budget verrouillé Duo+** (cadenas + PremiumGate → paywall 37, vérifié) ; **splash Mochi dessiné** (visible au prochain build EAS).
+7. **Invitation réelle** : code Supabase 6 car. affiché sur le 09 (vérifié : F422U9) + partagé ; sheet **« Rejoindre un foyer »** (RPC accept_invitation + rapatriement) ; **Realtime branché** (occurrences/tâches/membres → refresh UI ; publication déjà dans la migration 0001).
+Corrigé au passage : **dates locales** (toISOString = UTC → à minuit le Planning marquait hier « aujourd'hui ») ; date d'en-tête Accueil réelle.
+Fragile / à tester à deux simulateurs : parcours invitation → rejoindre → duo réel ; realtime jamais observé en conditions réelles ; « Repasser » reste démo (swap_requests non branchée) ; malus non écrits en base.
+
 Branchements suivants (dans l'ordre proposé) :
 - [ ] **Identité réelle partout** : avatars photo + vrai prénom (aujourd'hui « K/Ketley/Julian » de démo sur 09b, 12, Accueil… alors que le profil réel — prénom, photo — est en base et affiché sur le 06). Le composant Avatar ne sait pas encore afficher une photo.
 - [ ] **Génération des jours intelligente** (question Jeanne 1er sept, ~23h15) : placer les occurrences selon la grille dispos du 07 (collectée mais inutilisée — courses un jour coché, pas « aujourd'hui ») ; porteur « en alternance » sur le 12 (cycle moi → binôme → alternance → les deux, `assign_mode: 'alternate'` déjà au modèle) pour cuisine/vaisselle en zigzag ; réglage durable « toujours le jeudi » via `window_days` sur la fiche 14 ; corrections ponctuelles : **sheet Mission → « Déplacer » avec mini-rangée de jours L-D** (en premier — remplace « Reporter à demain »), puis drag sur un jour du semainier au Planning 19 (drag sur avatar = réattribuer, drag sur jour = déplacer). Constat Jeanne 1er sept : aucun endroit ne permet aujourd'hui de changer le jour d'une tâche.
