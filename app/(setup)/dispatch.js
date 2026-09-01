@@ -6,7 +6,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { router } from 'expo-router';
 import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useSharedValue, useAnimatedStyle, withTiming, withSpring, withSequence } from 'react-native-reanimated';
+import { useSharedValue, useAnimatedStyle, withTiming, withSpring, withSequence, Easing } from 'react-native-reanimated';
 import { GlowBg, Card, Avatar, SetupHeader, CTAPrimary, useScrollEnd, GrowCTA } from '../../src/components/ui';
 import { BottomCTA, LiveCount, fill } from '../../src/components/setup/extra';
 import { Animated, FadeInDown, prefersReducedMotion, LiveMochi } from '../../src/components/motion';
@@ -36,7 +36,7 @@ function Row({ it, index, onToggle, onFreq }) {
   const who = both ? me : byId(it.assignee_id);
   const pop = usePopOnChange(it.assignee_id);
   return (
-    <Animated.View entering={prefersReducedMotion() ? undefined : FadeInDown.delay(index * 25).duration(motion.screen)}>
+    <Animated.View entering={prefersReducedMotion() ? undefined : FadeInDown.delay(index * 45).duration(motion.screen)}>
       <Card padding={0} r={12} style={{ marginBottom: 6 }}>
         <View style={s.row}>
           <Text style={{ fontSize: 19 }}>{dispatchEmoji(it)}</Text>
@@ -87,6 +87,18 @@ export default function Dispatch() {
   const state = balanceState(load);
   const tot = load[me.id] + load[partner.id] || 1;
 
+  // Retour Jeanne (1er sept 2026) : la barre d'équilibre s'anime — elle part de
+  // 50/50 au montage puis glisse vers la vraie répartition, et suit en douceur
+  // chaque bascule de porteur ou réglage de fréquence (avant : saut sec).
+  const meShare = useSharedValue(0.5);
+  useEffect(() => {
+    const target = load[me.id] / tot;
+    if (prefersReducedMotion()) { meShare.value = target; return; }
+    meShare.value = withTiming(target, { duration: 500, easing: Easing.inOut(Easing.cubic) });
+  }, [load[me.id], tot]);
+  const barMe = useAnimatedStyle(() => ({ flex: meShare.value }));
+  const barPartner = useAnimatedStyle(() => ({ flex: 1 - meShare.value }));
+
   return (
     <View style={{ flex: 1 }}>
       <GlowBg intensity="strong" />
@@ -104,8 +116,8 @@ export default function Dispatch() {
                   </Text>
                 </View>
                 <View style={s.bar}>
-                  <View style={{ flex: load[me.id] / tot, backgroundColor: me.color }} />
-                  <View style={{ flex: load[partner.id] / tot, backgroundColor: partner.color }} />
+                  <Animated.View style={[barMe, { backgroundColor: me.color }]} />
+                  <Animated.View style={[barPartner, { backgroundColor: partner.color }]} />
                 </View>
               </View>
             </Card>

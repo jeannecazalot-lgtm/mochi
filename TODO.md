@@ -3,6 +3,32 @@
 Référence visuelle : `design/handoff/Mental free - Embossed.html` (ouvrir dans un navigateur).
 Numéros d'écran = numéros d'artboard du canvas. Les écrans « v2 » du canvas ne sont pas à faire.
 
+## Session du 1er sept 2026 — repasse de Jeanne (EN COURS, récap à faire en fin de session)
+Modifs appliquées (commits `bedcf9e`, `dee3e3e`, `7fb6efa`) :
+- **CTA global** : traversée du dégradé 500 → 800 ms, easing inOut (retour « ça bug ») — à valider au doigt.
+- **06** : sous-titre retiré ; phrase « Ou continue sans… » retirée ; grande photo carrée arrondie centrée + pilule « Ajouter » façon Airbnb (2 itérations : rangée « Sélectionner une photo » puis version finale).
+- **08** : sous-titre et phrase d'aide retirés ; légende porte tout : « j'aime · 1 tap / je déteste · 2 taps » ; écran aéré (chips plus larges) ; « Rappel quotidien » décollé.
+- **09** : lien masqué (le bouton suffit) ; « Envoyer le lien » à la place exacte du CTA des écrans précédents ; QR · partage · « Inviter plus tard » regroupés au-dessus ; la place vide du binôme « respire » ; carte « Une place t'attend » remontée sous le titre.
+- **09b** : animation restaurée (avatars qui glissent, Mochi en zoom, confettis) — elle avait été neutralisée le 26/08 avec mention « à retravailler ».
+- **10** : minimum 3 tâches pour continuer + lien « Passer » retiré ; « + Ajouter » remonte l'écran en haut ; « pour tout le foyer » dans le sous-titre ; bug corrigé : tâches ajoutées affichées en double.
+- **Plan des écrans** : entrée « 07 · rejouer l'animation d'intro » (la démo ne se joue qu'à la première visite, d'où l'impression d'animation disparue).
+
+- **12** : cascade d'entrée plus perceptible (45 ms d'écart) ; barre d'équilibre animée (part de 50/50, glisse vers la vraie répartition, suit chaque bascule/réglage).
+
+Réponses données pendant la repasse :
+- **12 « données en dur »** : confirmé — l'écran ne reflète ni les 3 tâches cochées ni le reste (démo figée). Total ≈ 10 h = durées estimées du catalogue (vaisselle 15 min, cuisine 40, ménage 60…) × fréquences par défaut (quotidien, 2×/sem…) — estimations à faire valider par Jeanne, modifiables ensuite par foyer via la fiche tâche. Le n×/sem vient de ces défauts, réglable sur 12 (choix du 26/08 : pas de fréquence sur le 10).
+- **Accueil « infos pas bonnes »** : même cause (démo). Prochaine étape logique quand la repasse visuelle est finie : brancher la chaîne réelle 06 → 12 → Accueil (Supabase + cache local offline-first) pour que l'app affiche ce que l'utilisateur a réellement saisi.
+- **Animations « disparues »** : 07 = première visite seulement ; chips du 08 statiques = retour Jeanne du 26/08 ; 09b restaurée ce jour. Émojis : rétablis volontairement le 26/08 (annulation de la passe sobre).
+- **Dispatch** : écrans 11/12 = données de démo figées ; le vrai algo (tasks + pénibilités + dispos par personne) sera branché avec Supabase après validation visuelle.
+- **Choix des tâches** : une fois pour tout le foyer ; dispos (07) et préférences (08) par personne, le binôme remplit les siennes en acceptant.
+- **Fréquence** : défaut du catalogue par tâche, ajustable sur l'écran 12 (− n×/sem +), pas sur le 10 (retour du 26/08).
+
+Questions ouvertes (à trancher par Jeanne) :
+- [ ] Restructuration du flux d'entrée (invitation d'abord, setup pendant l'attente, Home à états, profil façon Airbnb pour le 38) — discutée, « pas envie d'y toucher pour l'instant » ; place du foyer solo à clarifier si on y revient.
+- [ ] 06 : un seul libellé « Ajouter » même quand une photo est déjà choisie — garder ou distinguer ?
+- [ ] 08 : légende suffisante pour comprendre le cycle ? (le 3ᵉ tap = retour neutre n'est pas affiché)
+- [ ] Voir la fréquence dès l'écran 10 ? (aujourd'hui : écran 12 seulement)
+
 ## Décisions prises
 - **23 août 2026** — **Zéro émoji dans l'UI** (décision Jeanne : app sobre). Symboles graphiques ○ ● ✓ ‹ › et SVG conservés ; repères de rangée = pastille couleur du membre. Champs `emoji` conservés en données mais jamais affichés.
 - **23 août 2026** — Écran 07 : proposition A (légende chips + « Tape une case ») + slider 2→8 h. Écran 08 : liste unique à bascule (neutre → j'aime → je déteste, 3 max par côté). Écrans 12+13 fusionnés. CTA taille Airbnb (52, marges 24), dégradé qui avance à l'appui. Flèche retour épinglée en haut.
