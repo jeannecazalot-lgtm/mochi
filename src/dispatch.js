@@ -25,7 +25,7 @@
 const painFor = (task, memberId, pains) => {
   const p = pains?.[task.id]?.[memberId];
   const base = task.pain ?? 2;
-  return Math.min(4, Math.max(1, base + (p === 'hate' ? 1 : p === 'like' ? -1 : 0)));
+  return Math.min(5, Math.max(1, base + (p === 'hate' ? 1 : p === 'like' ? -1 : 0))); // pénibilité catalogue 1-5
 };
 
 const effortFor = (task, memberId, pains) =>

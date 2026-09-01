@@ -10,6 +10,9 @@ import { GlowBg, Card } from '../../src/components/ui';
 import { LiveMochi, Animated, FadeInDown, FadeIn, prefersReducedMotion } from '../../src/components/motion';
 import { useSharedValue, useAnimatedStyle, withSpring, withTiming, withDelay, Easing } from 'react-native-reanimated';
 import { SetupProgress } from '../../src/components/setup/extra';
+import { me, partner } from '../../src/demo';
+import { computeDispatch } from '../../src/dispatch';
+import { loadSetup, setup, saveResult } from '../../src/setup-state';
 import copy from '../../src/data/copy.json';
 import { colors, alpha } from '../../src/theme';
 
@@ -45,6 +48,20 @@ export default function Calcul() {
       burst2.value = withDelay(160, withTiming(1, { duration: 750, easing: Easing.out(Easing.quad) }));
     }, FINALE_AT);
     return () => clearTimeout(id);
+  }, []);
+
+  // calcul RÉEL pendant l'animation (1er sept 2026) : dispos (07) + préférences (08)
+  // + tâches (10) → computeDispatch. Binôme simulé au même budget tant que
+  // l'invitation réelle n'existe pas. Rien de saisi → le 12 garde sa démo.
+  useEffect(() => {
+    (async () => {
+      await loadSetup();
+      if (!setup.tasks?.length) return;
+      const weekly = setup.weekly_minutes || 8 * 60;
+      const members = [{ id: me.id, weekly_minutes: weekly }, { id: partner.id, weekly_minutes: weekly }];
+      const pains = Object.fromEntries(Object.entries(setup.prefs || {}).map(([tid, v]) => [tid, { [me.id]: v }]));
+      saveResult(computeDispatch({ members, tasks: setup.tasks, pains }));
+    })();
   }, []);
 
   // passage auto vers la proposition de dispatch

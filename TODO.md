@@ -31,6 +31,14 @@ Réponses données pendant la repasse :
 
 Décision Jeanne (1er sept 2026) : **Budget = fonctionnalité payante (Duo+)** → prévoir l'état verrouillé de l'onglet Budget (paywall 37 pour les non-abonnés). Ajouté au backlog P4/P5 ; impacte la divulgation paywall et la description ASC.
 
+**Branchement réel (soir du 1er sept 2026)** : algo de dispatch (SPECS §2) en fonction pure + 10 tests node ; chaîne 07 → 08 → 10 branchée sur `src/setup-state.js` (local, offline-first) ; le 11 calcule sur les vraies saisies (binôme simulé au même budget tant que l'invitation réelle n'existe pas) ; le 12 affiche le vrai résultat — **vérifié au simulateur** (3 tâches cochées → 3 tâches réparties, totaux exacts). Reste : Accueil/Planning sur les vraies occurrences, synchro Supabase (bloquée par Anonymous sign-ins), invitation réelle.
+
+Décisions Jeanne (1er sept 2026, soir) :
+- **Le foyer solo n'existe pas** — l'app est duo/foyer uniquement (remplace « solo = foyer à 1 » du 21 août). Impacte : textes des états vides, place de l'invitation, algo (jamais 1 seul membre).
+- Splash screen + paywalls (dont Budget verrouillé) : à faire, « plus tard ».
+- Écrans restants (21 ratée, 22 fil, 23 point hebdo, rappels, Realtime) : « plus tard ».
+- Questions sheet Mission / libellé photo / fréquence sur 10 / émojis maison : « on verra plus tard ».
+
 Questions ouvertes (à trancher par Jeanne) :
 - [ ] Restructuration du flux d'entrée (invitation d'abord, setup pendant l'attente, Home à états, profil façon Airbnb pour le 38) — discutée, « pas envie d'y toucher pour l'instant » ; place du foyer solo à clarifier si on y revient.
 - [ ] 06 : un seul libellé « Ajouter » même quand une photo est déjà choisie — garder ou distinguer ?

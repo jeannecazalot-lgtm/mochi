@@ -11,7 +11,8 @@ import { GlowBg, Card, Avatar, SetupHeader, CTAPrimary, useScrollEnd, GrowCTA } 
 import { BottomCTA, LiveCount, fill } from '../../src/components/setup/extra';
 import { Animated, FadeInDown, prefersReducedMotion, LiveMochi } from '../../src/components/motion';
 import { me, partner, byId, fmtMin } from '../../src/demo';
-import { dispatch, dispatchEmoji, weeklyLoad, balanceState } from '../../src/demo-setup';
+import { dispatch, dispatchEmoji, balanceState } from '../../src/demo-setup';
+import { loadSetup, setup } from '../../src/setup-state';
 import copy from '../../src/data/copy.json';
 import { colors, space, alpha, motion } from '../../src/theme';
 
@@ -39,7 +40,7 @@ function Row({ it, index, onToggle, onFreq }) {
     <Animated.View entering={prefersReducedMotion() ? undefined : FadeInDown.delay(index * 45).duration(motion.screen)}>
       <Card padding={0} r={12} style={{ marginBottom: 6 }}>
         <View style={s.row}>
-          <Text style={{ fontSize: 19 }}>{dispatchEmoji(it)}</Text>
+          <Text style={{ fontSize: 19 }}>{it.emoji || dispatchEmoji(it)}</Text>
           <View style={{ flex: 1 }}>
             <Text style={s.title}>{it.label}</Text>
             {/* fréquence réglable : − n×/sem + */}
@@ -71,6 +72,18 @@ export default function Dispatch() {
   const { atEnd, scrollProps } = useScrollEnd();
   // freq = occurrences/semaine (dérivée des minutes hebdo de la démo), réglable 1-14
   const [items, setItems] = useState(dispatch.map(i => ({ ...i, freq: Math.max(1, Math.round(i.weekly_min / i.mins)) })));
+  // branchement réel (1er sept 2026) : si le 11 a calculé sur les saisies de
+  // l'utilisateur, on affiche CE résultat — la démo ne sert que d'entrée directe /plan
+  useEffect(() => {
+    loadSetup().then(() => {
+      if (!setup.result?.items?.length || !setup.tasks?.length) return;
+      const byTask = Object.fromEntries(setup.tasks.map(tk => [tk.id, tk]));
+      setItems(setup.result.items.map(it => {
+        const tk = byTask[it.task_id] || {};
+        return { task_id: it.task_id, label: tk.label || it.task_id, emoji: tk.emoji, mins: tk.duration_min || 15, freq: tk.per_week || 1, weekly_min: it.weekly_min, assignee_id: it.assignee_id };
+      }));
+    });
+  }, []);
   const bumpFreq = (task_id, d) => setItems(l => l.map(i => (i.task_id === task_id ? { ...i, freq: Math.min(14, Math.max(1, i.freq + d)), weekly_min: Math.min(14, Math.max(1, i.freq + d)) * i.mins } : i)));
   // cycle du porteur : moi → binôme → les deux → moi (retour Jeanne, 23 août 2026)
   const toggle = task_id => setItems(l => l.map(i => {

@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
+import { saveDispos } from '../../src/setup-state';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GlowBg, SetupHeader, Card, CTAPrimary } from '../../src/components/ui';
@@ -121,7 +122,8 @@ export default function Dispos() {
         </Animated.View>
 
         <View style={s.ctaWrap}>
-          <CTAPrimary label={copy.common.continue} onPress={() => router.push('/(setup)/prefs')} big />
+          {/* branchement réel (1er sept 2026) : la grille et le temps/sem sont enregistrés */}
+          <CTAPrimary label={copy.common.continue} onPress={() => { saveDispos({ availability: grid, weekly_minutes: hours * 60 }); router.push('/(setup)/prefs'); }} big />
         </View>
       </SafeAreaView>
     </View>

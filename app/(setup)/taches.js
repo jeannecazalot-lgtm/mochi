@@ -12,6 +12,7 @@ import { LiveMochi } from '../../src/components/motion';
 import { CheckDot, AddButton } from '../../src/components/setup/extra';
 import { Animated, FadeInDown, prefersReducedMotion } from '../../src/components/motion';
 import { catalogue } from '../../src/demo-setup';
+import { saveTasks, freqPerWeek } from '../../src/setup-state';
 import copy from '../../src/data/copy.json';
 import { colors, space, motion } from '../../src/theme';
 
@@ -63,6 +64,15 @@ export default function Taches() {
     if (!on.includes(id)) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
     setOn(l => (l.includes(id) ? l.filter(x => x !== id) : [...l, id]));
   };
+  // branchement réel (1er sept 2026) : les tâches cochées partent dans setup-state,
+  // le 11 calcule dessus (customs : 20 min · 1×/sem par défaut, ajustables sur 12)
+  const launch = () => {
+    saveTasks([
+      ...catalogue.filter(c => on.includes(c.id)).map(c => ({ id: c.id, label: c.label, emoji: c.emoji, duration_min: c.mins, per_week: freqPerWeek(c.freq), pain: c.pain, mental_load: !!c.mental, divisible: !!c.divisible })),
+      ...customs.filter(c => on.includes(c.id)).map(c => ({ id: c.id, label: c.label, emoji: c.emoji, duration_min: 20, per_week: 1, pain: 2, mental_load: false, divisible: false })),
+    ]);
+    next();
+  };
   const broad = catalogue.filter(c => !c.specific);
   const specific = catalogue.filter(c => c.specific);
   return (
@@ -91,7 +101,7 @@ export default function Taches() {
         <GrowCTA grown={atEnd} style={s.bottom}>
           <View style={{ flexDirection: 'row', gap: 8 }}>
             <AddButton label={t.addTask} onPress={startAdding} style={{ flex: 1 }} />
-            <CTAPrimary label={t.launch} onPress={next} disabled={on.length < 3} style={{ flex: 1.6 }} />
+            <CTAPrimary label={t.launch} onPress={launch} disabled={on.length < 3} style={{ flex: 1.6 }} />
           </View>
         </GrowCTA>
       </SafeAreaView>

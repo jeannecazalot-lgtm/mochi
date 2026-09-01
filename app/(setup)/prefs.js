@@ -8,6 +8,7 @@ import { GlowBg, SetupHeader, Card, CTAPrimary } from '../../src/components/ui';
 import { LiveMochi, FadeInDown, Animated } from '../../src/components/motion';
 import { SectionLabel, setupTokens, LegendChip } from '../../src/components/setup/extra';
 import { prefsPool, prefsMax, reminderTimes } from '../../src/demo-setup';
+import { savePrefs } from '../../src/setup-state';
 import copy from '../../src/data/copy.json';
 import { colors, space, alpha } from '../../src/theme';
 
@@ -89,7 +90,8 @@ export default function Prefs() {
         </View>
 
         <View style={s.ctaWrap}>
-          <CTAPrimary label={t.letsGo} onPress={() => router.push('/(setup)/invite')} big />
+          {/* branchement réel (1er sept 2026) : préférences + heure de rappel enregistrées */}
+          <CTAPrimary label={t.letsGo} onPress={() => { savePrefs({ prefs, reminder: reminderTimes[timeIdx] }); router.push('/(setup)/invite'); }} big />
         </View>
       </SafeAreaView>
     </View>
