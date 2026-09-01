@@ -16,6 +16,7 @@ import { read } from '../../src/store';
 import { loadSetup, setup } from '../../src/setup-state';
 import { getUid, useIdentity } from '../../src/identity';
 import { localIso } from '../../src/dates';
+import { toggleOccurrence } from '../../src/occ-actions';
 import copy from '../../src/data/copy.json';
 import { colors, space, font, motion, radius } from '../../src/theme';
 
@@ -142,14 +143,15 @@ export default function Planning() {
       const byDate = {};
       for (const o of occs) {
         const tk = byTask[o.task_id] || {};
-        const late = o.due_date < todayIso && !missionDone.has(o.id);
+        const isDone = o.status === 'done' || missionDone.has(o.id);
+        const late = o.due_date < todayIso && !isDone;
         const who = o.assignee_id ? (o.assignee_id === uid ? me : partner) : null;
         const q = `occ=${o.id}&tid=${o.task_id}&title=${encodeURIComponent(tk.title || '')}&emoji=${encodeURIComponent(tk.emoji || '•')}&mins=${tk.duration_min || 15}`;
         (byDate[o.due_date] ||= []).push({
           id: o.id, emoji: tk.emoji || '•', title: tk.title || '…',
           sub: late ? t2.late : `${fmtMin(tk.duration_min || 15)}${tk.mental_load ? ` · ${t2.mental.replace('{coef}', fmtCoef(MENTAL_COEF))}` : ''}`,
           who, checkable: !o.assignee_id || o.assignee_id === uid,
-          done: missionDone.has(o.id), late,
+          done: isDone, late,
           // en retard → sheet 21 (je le fais / repasser / décaler) ; sinon sheet Mission
           href: late ? `/retard?${q}&due=${o.due_date}` : `/mission?${q}`,
         });
@@ -158,7 +160,11 @@ export default function Planning() {
       setRealGroups(groups.length ? groups : null);
     })();
   }, [occV]);
-  const toggleOcc = id => missionDone.toggle(id);
+  const toggleOcc = id => {
+    const nowDone = !missionDone.has(id);
+    missionDone.toggle(id);
+    toggleOccurrence(String(id), nowDone).catch(() => {}); // minutes = durée estimée
+  };
   // tap sur un jour du semainier → la liste défile jusqu'à ce jour (retour Jeanne)
   const scrollRef = useRef(null);
   const groupY = useRef({});

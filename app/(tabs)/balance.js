@@ -1,31 +1,100 @@
 // Écran 21 · Onglet Balance. Recette : docs/recettes/21-balance.md
 // Source : duo-v2-iridescent-iter3.jsx › BalanceEmbossed (DNA) + brief (Mochi qui penche,
 // chart 7 jours, streak, malus en cours). Onglet : pas de retour, tab bar par le layout.
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { router } from 'expo-router';
 import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GlowBg, Card, PillLabel, Micro, Divider } from '../../src/components/ui';
 import { LiveMochi, CountUp } from '../../src/components/motion';
 import { SplitBar, DarkPill, InfoRow } from '../../src/components/balance/extra';
-import { members, streak, taskById, fmtMin } from '../../src/demo';
+import { members, me, partner, streak, taskById, fmtMin } from '../../src/demo';
 import { shares, balanceState, weekInfo, nextReview, malusItems, dayMinutes } from '../../src/demo-balance';
+import { weekDays, missionDone, occStore } from '../../src/demo-core';
+import { read } from '../../src/store';
+import { loadSetup, setup } from '../../src/setup-state';
+import { getUid, useIdentity } from '../../src/identity';
+import { localIso } from '../../src/dates';
 import copy from '../../src/data/copy.json';
 import { colors, space, radius, font, slotColors } from '../../src/theme';
 
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
 const deep = m => slotColors[m.slot]?.deep ?? colors.ink;
 
+// numéro de semaine ISO
+const isoWeek = d => {
+  const x = new Date(d); x.setHours(0, 0, 0, 0);
+  x.setDate(x.getDate() + 3 - ((x.getDay() + 6) % 7));
+  const w1 = new Date(x.getFullYear(), 0, 4);
+  return 1 + Math.round(((x - w1) / 86400000 - 3 + ((w1.getDay() + 6) % 7)) / 7);
+};
+
+// ─── Balance RÉELLE (SPECS §3) sur les occurrences cochées : score =
+// durée réelle × (1 + pénibilité × 0,15), tâches mentales ×1,5. ───
+function computeRealBalance(occs, uid) {
+  const dones = occs.filter(o => o.status === 'done');
+  const score = o => (o.duration_min || 0) * (1 + (o.pain ?? 3) * 0.15) * (o.mental_load ? 1.5 : 1);
+  const mine = dones.filter(o => o.done_by === uid);
+  const other = dones.filter(o => o.done_by && o.done_by !== uid);
+  const sMe = mine.reduce((a, o) => a + score(o), 0);
+  const sP = other.reduce((a, o) => a + score(o), 0);
+  const tot = sMe + sP || 1;
+  const gap = Math.abs(sMe - sP) / tot;
+  const state = gap < 0.10 ? 'balanced' : gap <= 0.25 ? 'leaning' : 'unbalanced';
+  const parts = [
+    { member: me, minutes: mine.reduce((a, o) => a + (o.duration_min || 0), 0), pct: Math.round((sMe / tot) * 100), tasks: mine.length },
+    { member: partner, minutes: other.reduce((a, o) => a + (o.duration_min || 0), 0), pct: Math.round((sP / tot) * 100), tasks: other.length },
+  ];
+  // chart : 7 jours de la semaine courante, minutes faites par membre
+  const dows = copy.calendar.dows;
+  const days = weekDays(new Date()).map(d => {
+    const iso = localIso(d);
+    const by = { [me.id]: 0, [partner.id]: 0 };
+    dones.filter(o => o.due_date === iso).forEach(o => { by[o.done_by === uid ? me.id : partner.id] += o.duration_min || 0; });
+    return { d: dows[(d.getDay() + 6) % 7], by };
+  });
+  // streak réel : jours consécutifs (en remontant depuis hier/aujourd'hui) où tout le dû est fait
+  let streakDays = 0;
+  for (let i = 0; i < 30; i++) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const iso = localIso(d);
+    const due = occs.filter(o => o.due_date === iso);
+    if (!due.length) { if (i === 0) continue; break; }
+    if (due.every(o => o.status === 'done')) streakDays++;
+    else { if (i === 0) continue; break; } // aujourd'hui pas fini ≠ streak cassé
+  }
+  const wk = weekDays(new Date());
+  const week = { num: isoWeek(new Date()), range: `${wk[0].getDate()} au ${wk[6].getDate()}` };
+  return { parts, state, top: sMe >= sP ? me : partner, lean: Math.max(-1, Math.min(1, (sMe - sP) / tot)), days, streakDays, week };
+}
+
 export default function Balance() {
   const t = copy.balance;
-  const parts = useMemo(shares, []);
-  const { state, top, lean } = useMemo(balanceState, []);
-  const week = weekInfo();
+  useIdentity();
+  const occV = occStore.useVersion();
+  missionDone.useVersion();
+  const [real, setReal] = useState(null);
+  useEffect(() => {
+    (async () => {
+      await loadSetup();
+      if (!setup.result?.items?.length) return;
+      const occs = await read('occurrences');
+      if (occs.length) setReal(computeRealBalance(occs, getUid()));
+    })();
+  }, [occV]);
+
+  const demoParts = useMemo(shares, []);
+  const demoState = useMemo(balanceState, []);
+  const parts = real?.parts || demoParts;
+  const { state, top, lean } = real ? { state: real.state, top: real.top, lean: real.lean } : demoState;
+  const week = real?.week || weekInfo();
   const review = nextReview();
+  const chartDays = real?.days || dayMinutes;
+  const realMalus = real ? [] : malusItems; // malus réels branchés avec la table malus
   const stateLabel = fill(t[state], { name: top.first_name });
 
   // README flow : déséquilibre > 25 % → écran détail (une fois, au montage de l'onglet)
-  useEffect(() => { if (state === 'unbalanced') router.push('/balance-detail'); }, []);
+  useEffect(() => { if (!real && state === 'unbalanced') router.push('/balance-detail'); }, []);
 
   const openDetail = () => router.push('/balance-detail');
   const left = streak.next.at - streak.days;
@@ -75,7 +144,7 @@ export default function Balance() {
               <Text style={s.chartUnit}>{t.chartUnit}</Text>
             </View>
             <Card padding={14}>
-              {dayMinutes.map((d, i) => {
+              {chartDays.map((d, i) => {
                 const total = members.reduce((a, m) => a + (d.by[m.id] || 0), 0);
                 return (
                   <View key={i} style={[s.dayRow, i > 0 && { marginTop: 8 }]}>
@@ -95,10 +164,10 @@ export default function Balance() {
                 <Text style={{ fontSize: 24 }}>🔥</Text>
                 <View style={{ flex: 1 }}>
                   <Micro>{t.streakTitle}</Micro>
-                  <CountUp value={streak.days} format={v => fill(t.streakDays, { n: Math.round(v) })} style={s.streakNum} />
-                  <Text style={s.streakNext}>{fill(left === 1 ? t.streakNextOne : t.streakNextMany, { left, badge: streak.next.label })}</Text>
+                  <CountUp value={real ? real.streakDays : streak.days} format={v => fill(t.streakDays, { n: Math.round(v) })} style={s.streakNum} />
+                  {real ? null : <Text style={s.streakNext}>{fill(left === 1 ? t.streakNextOne : t.streakNextMany, { left, badge: streak.next.label })}</Text>}
                 </View>
-                <Text style={s.record}>{fill(t.streakRecord, { n: streak.record })}</Text>
+                {real ? null : <Text style={s.record}>{fill(t.streakRecord, { n: streak.record })}</Text>}
               </View>
             </Card>
           </View>
@@ -107,7 +176,7 @@ export default function Balance() {
           <View style={s.block}>
             <Card padding={14}>
               <Micro style={{ marginBottom: 10 }}>{t.malusTitle}</Micro>
-              {malusItems.length === 0 ? <Text style={font.secondary}>{t.malusNone}</Text> : malusItems.map((m, i) => {
+              {realMalus.length === 0 ? <Text style={font.secondary}>{t.malusNone}</Text> : realMalus.map((m, i) => {
                 const task = taskById(m.task_id);
                 return (
                   <View key={m.id}>

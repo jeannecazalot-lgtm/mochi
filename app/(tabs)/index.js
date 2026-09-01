@@ -14,6 +14,7 @@ import { read } from '../../src/store';
 import { loadSetup, setup } from '../../src/setup-state';
 import { useIdentity } from '../../src/identity';
 import { localIso } from '../../src/dates';
+import { toggleOccurrence } from '../../src/occ-actions';
 import copy from '../../src/data/copy.json';
 import { colors, space, font, motion } from '../../src/theme';
 
@@ -88,6 +89,8 @@ export default function Home() {
       const todays = occs.filter(o => o.due_date === today);
       if (!todays.length && !occV) return; // premier chargement sans données réelles → démo
       setReal(true);
+      // hydrate la coche depuis le statut serveur (relance de l'app)
+      todays.forEach(o => { if (o.status === 'done' && !missionDone.has(o.id)) missionDone.set(o.id, true); });
       setVms(todays.map(o => {
         const tk = byId[o.task_id] || {};
         const q = `occ=${o.id}&tid=${o.task_id}&title=${encodeURIComponent(tk.title || '')}&emoji=${encodeURIComponent(tk.emoji || '•')}&mins=${tk.duration_min || 15}`;
@@ -97,7 +100,9 @@ export default function Home() {
   }, [occV]);
   const toggle = id => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    const nowDone = !missionDone.has(id);
     missionDone.toggle(id);
+    if (real) toggleOccurrence(String(id), nowDone, vms.find(v => v.id === id)?.mins).catch(() => {});
   };
   // phrase de Mochi : sur le vrai résultat du dispatch quand il existe
   const { line, sub } = real && setup.result?.loads ? mochiLineReal(t, setup.result.loads) : mochiLine(t);

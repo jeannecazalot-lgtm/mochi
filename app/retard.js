@@ -11,7 +11,7 @@ import { LiveMochi } from '../src/components/motion';
 import { SheetHandle, Chevron } from '../src/components/social/extra';
 import { partner, fmtMin } from '../src/demo';
 import { missionDone } from '../src/demo-core';
-import { moveOccurrence } from '../src/occ-actions';
+import { moveOccurrence, toggleOccurrence } from '../src/occ-actions';
 import { localIso, addDaysIso } from '../src/dates';
 import copy from '../src/data/copy.json';
 import { colors, space, radius, font, alpha } from '../src/theme';
@@ -27,7 +27,10 @@ export default function Retard() {
   const close = () => router.back();
   const doNow = () => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-    if (occId) missionDone.set(String(occId), true);
+    if (occId) {
+      missionDone.set(String(occId), true);
+      toggleOccurrence(String(occId), true, Number(mins) || undefined).catch(() => {});
+    }
     close();
   };
   const swap = () => {

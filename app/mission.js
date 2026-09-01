@@ -11,7 +11,7 @@ import { Card, Micro } from '../src/components/ui';
 import { SheetHandle, Chevron } from '../src/components/social/extra';
 import { occurrences, taskById, me, fmtMin, partner } from '../src/demo';
 import { missionDone } from '../src/demo-core';
-import { moveOccurrence } from '../src/occ-actions';
+import { moveOccurrence, toggleOccurrence } from '../src/occ-actions';
 import { localIso } from '../src/dates';
 import copy from '../src/data/copy.json';
 import { colors, space, radius, font, alpha } from '../src/theme';
@@ -41,8 +41,11 @@ export default function Mission() {
   const closeThen = href => { close(); setTimeout(() => router.push(href), 320); };
   const markDone = () => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-    // TODO Supabase : occurrence → done + minutes réelles (comptées dans la balance)
-    if (occ) missionDone.set(occ.id, true);
+    if (occ) {
+      missionDone.set(occ.id, true);
+      // occurrence réelle : statut done + minutes réelles figées → Balance (SPECS §3)
+      toggleOccurrence(String(occ.id), true, mins).catch(() => {});
+    }
     close();
   };
   // « Déplacer » (retour Jeanne, 1er sept 2026) : rangée des 6 prochains jours —
