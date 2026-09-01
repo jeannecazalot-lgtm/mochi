@@ -1,12 +1,14 @@
 // Écran 14 · Fiche tâche (création / édition). Recette : docs/recettes/14-fiche-tache.md
-// `?id=` optionnel : pré-remplit depuis demo ; sinon fiche vierge. États locaux, pas de persistance.
-import React, { useState } from 'react';
+// `?id=` : vraie tâche du foyer (store local, Enregistrer persiste — 1er sept 2026)
+// ou tâche de démo ; sinon fiche vierge.
+import React, { useState, useEffect } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import { View, Text, TextInput, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GlowBg, Card, PillLabel, Avatar } from '../../src/components/ui';
 import { TaskHeader, Section, Toggle, Chip, StatTile, Stars, Segmented, OptionRow, ChevronRight, TaskCTA, TaskFooter, taskTokens } from '../../src/components/task/extra';
 import { loadTask, frequencies, durations, dayKeys, deadlines, me, partner, fmtMinShort, fmtStars, fmtHour } from '../../src/demo-task';
+import { loadRealTask, saveRealTask } from '../../src/task-actions';
 import copy from '../../src/data/copy.json';
 import { colors, alpha, font } from '../../src/theme';
 
@@ -19,6 +21,8 @@ export default function TaskEdit() {
   const t = copy.task;
   const [task, setTask] = useState(() => loadTask(id));
   const [open, setOpen] = useState(null); // 'window' | 'pain' | 'note'
+  // vraie tâche du foyer ? on remplace la démo dès que le store a répondu
+  useEffect(() => { loadRealTask(id).then(rt => { if (rt) setTask(rt); }); }, [id]);
   const set = patch => setTask(x => ({ ...x, ...patch }));
   const toggleOpen = k => setOpen(o => (o === k ? null : k));
 
@@ -137,7 +141,11 @@ export default function TaskEdit() {
         </ScrollView>
 
         <TaskFooter>
-          <TaskCTA label={copy.common.save} disabled={!task.title.trim()} onPress={() => router.back()} />
+          <TaskCTA label={copy.common.save} disabled={!task.title.trim()} onPress={() => {
+            // vraie tâche → persistance (store + Supabase) ; démo → simple fermeture
+            if (task.real) saveRealTask(task).catch(e => console.warn('[14] sauvegarde échouée :', e?.message || e));
+            router.back();
+          }} />
         </TaskFooter>
       </SafeAreaView>
     </View>

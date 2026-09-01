@@ -89,7 +89,7 @@ export default function Home() {
       setReal(true);
       setVms(todays.map(o => {
         const tk = byId[o.task_id] || {};
-        const q = `occ=${o.id}&title=${encodeURIComponent(tk.title || '')}&emoji=${encodeURIComponent(tk.emoji || '•')}&mins=${tk.duration_min || 15}`;
+        const q = `occ=${o.id}&tid=${o.task_id}&title=${encodeURIComponent(tk.title || '')}&emoji=${encodeURIComponent(tk.emoji || '•')}&mins=${tk.duration_min || 15}`;
         return { id: o.id, emoji: tk.emoji || '•', title: tk.title || '…', mental: !!tk.mental_load, badge: null, mins: tk.duration_min || 15, href: `/mission?${q}`, ping: null };
       }));
     })();

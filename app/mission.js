@@ -18,14 +18,14 @@ import { colors, space, radius, font, alpha } from '../src/theme';
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
 
 export default function Mission() {
-  const { occ: occId, title, emoji, mins: minsParam } = useLocalSearchParams();
+  const { occ: occId, tid, title, emoji, mins: minsParam } = useLocalSearchParams();
   const insets = useSafeAreaInsets();
   const t = copy.mission;
 
   // démo : occurrence connue de demo.js — réel (1er sept 2026) : l'Accueil passe
   // titre/émoji/durée en paramètres (la tâche vit dans le store local, pas en démo)
   const demoOcc = occurrences.find(o => o.id === occId);
-  const fromStore = !demoOcc && title ? { id: null, title: String(title), emoji: String(emoji || '•'), duration_min: Number(minsParam) || 15 } : null;
+  const fromStore = !demoOcc && title ? { id: tid ? String(tid) : null, title: String(title), emoji: String(emoji || '•'), duration_min: Number(minsParam) || 15 } : null;
   const occ = demoOcc || (fromStore ? { id: occId } : occurrences.find(o => o.assignee_id === me.id && o.status !== 'done'));
   const task = fromStore || (occ ? taskById(occ.task_id) : null);
   const [mins, setMins] = useState(task?.duration_min || 15);
@@ -150,7 +150,7 @@ export default function Mission() {
         </Card>
       </Pressable>}
 
-      {task?.id == null ? null : <Pressable onPress={view} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
+      {!demoOcc ? null : <Pressable onPress={view} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
         <Card r={radius.row} padding={0}>
           <View style={s.optRow}>
             <Text style={{ fontSize: 19 }}>👀</Text>
