@@ -143,7 +143,8 @@ export default function Dispatch() {
 
         <View style={{ paddingHorizontal: space.headerX, paddingTop: 18 }}>
           <Animated.View entering={prefersReducedMotion() ? undefined : FadeInDown.duration(motion.screen)}>
-            <Card padding={0} r={20} accent={colors.sage} style={{ marginBottom: 14 }}>
+            {/* Retour Jeanne (1er sept 2026) : encadré vert si équilibré, rouge sinon */}
+            <Card padding={0} r={20} accent={state === 'balanced' ? colors.sage : colors.coral} style={{ marginBottom: 14 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, height: 96, paddingHorizontal: 18 }}>
                 <View style={{ flex: 1 }}>
                   <Text style={s.state} numberOfLines={1}>{t[state]}</Text>
