@@ -34,6 +34,9 @@ export default function Dispos() {
   // pré-sélectionné ; le CTA reste actif quoi qu'il arrive.
   const [grid, setGrid] = useState(disposEmpty);
   const [hours, setHours] = useState(2); // slider 2→8 h — démarre au minimum : rien de pré-rempli (règle Jeanne, 23 août 2026)
+  // slider jamais touché = « pas de contrainte de temps » (null), PAS « 2 h » —
+  // sinon l'algo croit qu'on n'a presque pas de temps (retour Jeanne, 1er sept 2026)
+  const [hoursTouched, setHoursTouched] = useState(false);
   const [demoV, setDemoV] = useState(null);  // valeur jouée sur la case d'exemple (démo seulement)
   const hintO = useSharedValue(1);
   const hintStyle = useAnimatedStyle(() => ({ opacity: hintO.value }));
@@ -116,14 +119,14 @@ export default function Dispos() {
           <Card padding={0} r={16}>
             <View style={{ paddingVertical: 12, paddingHorizontal: 16 }}>
               <Text style={s.sliderValue}>{hours >= 8 ? '8+' : String(hours).replace('.', ',')} <Text style={s.sliderUnit}>{t.perWeek}</Text></Text>
-              <HourSlider value={hours} onChange={v => { stopDemo(); setHours(v); }} />
+              <HourSlider value={hours} onChange={v => { stopDemo(); setHours(v); setHoursTouched(true); }} />
             </View>
           </Card>
         </Animated.View>
 
         <View style={s.ctaWrap}>
           {/* branchement réel (1er sept 2026) : la grille et le temps/sem sont enregistrés */}
-          <CTAPrimary label={copy.common.continue} onPress={() => { saveDispos({ availability: grid, weekly_minutes: hours * 60 }); router.push('/(setup)/prefs'); }} big />
+          <CTAPrimary label={copy.common.continue} onPress={() => { saveDispos({ availability: grid, weekly_minutes: hoursTouched ? hours * 60 : null }); router.push('/(setup)/prefs'); }} big />
         </View>
       </SafeAreaView>
     </View>

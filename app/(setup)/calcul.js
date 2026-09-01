@@ -57,7 +57,8 @@ export default function Calcul() {
     (async () => {
       await loadSetup();
       if (!setup.tasks?.length) return;
-      const weekly = setup.weekly_minutes || 8 * 60;
+      // slider jamais touché → null → aucune contrainte de temps (l'algo met l'infini)
+      const weekly = setup.weekly_minutes ?? undefined;
       const members = [{ id: me.id, weekly_minutes: weekly }, { id: partner.id, weekly_minutes: weekly }];
       const pains = Object.fromEntries(Object.entries(setup.prefs || {}).map(([tid, v]) => [tid, { [me.id]: v }]));
       saveResult(computeDispatch({ members, tasks: setup.tasks, pains }));
