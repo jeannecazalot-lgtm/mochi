@@ -14,7 +14,7 @@
 // ═══════════════════════════════════════════════════════════════════
 import { supabase } from './supabase';
 import { ensureSession } from './profile';
-import { uuid, mutate, drain } from './store';
+import { uuid, mutate, drain, resetLocal } from './store';
 import { setup, saveRealTaskIds } from './setup-state';
 import { me } from './demo';
 
@@ -62,7 +62,10 @@ export async function syncSetup(result) {
 
   saveRealTaskIds(realId);
 
-  // occurrences de la semaine à venir, réparties selon la fréquence du 12
+  // occurrences de la semaine à venir, réparties selon la fréquence du 12.
+  // Cache local remis à zéro d'abord : rejouer « C'est parti » régénère la semaine
+  // au lieu d'empiler (côté serveur, unique(task_id, due_date, kind) dédoublonne).
+  await resetLocal('occurrences');
   for (const it of result?.items || []) {
     const t = (setup.tasks || []).find(x => x.id === it.task_id);
     if (!t) continue;

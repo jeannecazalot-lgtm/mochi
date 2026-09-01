@@ -15,6 +15,9 @@ import { supabase, SUPABASE_READY } from './supabase';
 const K = { table: t => `mochi:t:${t}`, queue: 'mochi:queue', sync: t => `mochi:sync:${t}` };
 export const uuid = () => Crypto.randomUUID();
 
+// vide la copie locale d'une table (le serveur, lui, dédoublonne par ses contraintes)
+export async function resetLocal(table) { await AsyncStorage.setItem(K.table(table), '[]'); }
+
 export async function read(table) {
   const raw = await AsyncStorage.getItem(K.table(table));
   return raw ? JSON.parse(raw) : [];
