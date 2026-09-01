@@ -35,10 +35,11 @@ export default function Balance() {
       <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }} edges={['top']}>
         <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
-          {/* en-tête : pastille semaine + titre */}
+          {/* Retour Jeanne (1er sept 2026) : titre aligné sur les autres onglets
+              (même ligne de base que Planning/Budget), pastille semaine à sa droite */}
           <View style={s.header}>
-            <View style={{ marginBottom: 6 }}><PillLabel color={colors.sky}>{fill(t.weekPill, { n: week.num, range: week.range })}</PillLabel></View>
             <Text style={s.title}>{t.title}</Text>
+            <PillLabel color={colors.sky}>{fill(t.weekPill, { n: week.num, range: week.range })}</PillLabel>
           </View>
 
           {/* Mochi qui penche vers celui qui porte plus */}
@@ -130,7 +131,7 @@ export default function Balance() {
 
 const s = StyleSheet.create({
   scroll: { paddingBottom: 24 },
-  header: { paddingTop: 14, paddingHorizontal: space.headerX, marginBottom: 14 },
+  header: { paddingTop: 14, paddingHorizontal: space.headerX, marginBottom: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   title: { fontSize: 22, fontWeight: '600', letterSpacing: -1.2, lineHeight: 22, color: colors.ink },
   mochiWrap: { alignItems: 'center', gap: 8, marginBottom: 14 },
   stateLabel: { fontSize: 13, fontWeight: '500', color: colors.muted },

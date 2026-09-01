@@ -23,11 +23,16 @@ Réponses données pendant la repasse :
 - **Choix des tâches** : une fois pour tout le foyer ; dispos (07) et préférences (08) par personne, le binôme remplit les siennes en acceptant.
 - **Fréquence** : défaut du catalogue par tâche, ajustable sur l'écran 12 (− n×/sem +), pas sur le 10 (retour du 26/08).
 
+- **21 · Balance** : titre aligné sur les autres onglets, pastille « Semaine n · x au y » à sa droite sur la même ligne.
+
+Décision Jeanne (1er sept 2026) : **Budget = fonctionnalité payante (Duo+)** → prévoir l'état verrouillé de l'onglet Budget (paywall 37 pour les non-abonnés). Ajouté au backlog P4/P5 ; impacte la divulgation paywall et la description ASC.
+
 Questions ouvertes (à trancher par Jeanne) :
 - [ ] Restructuration du flux d'entrée (invitation d'abord, setup pendant l'attente, Home à états, profil façon Airbnb pour le 38) — discutée, « pas envie d'y toucher pour l'instant » ; place du foyer solo à clarifier si on y revient.
 - [ ] 06 : un seul libellé « Ajouter » même quand une photo est déjà choisie — garder ou distinguer ?
 - [ ] 08 : légende suffisante pour comprendre le cycle ? (le 3ᵉ tap = retour neutre n'est pas affiché)
 - [ ] Voir la fréquence dès l'écran 10 ? (aujourd'hui : écran 12 seulement)
+- [ ] Bouton pour « écrire des malus » sur Balance ? (question Jeanne 1er sept — il n'y en a jamais eu : les malus naissent d'une tâche ratée. Reco : pas de malus manuel libre, plutôt une action « marquer comme ratée » sur la tâche, qui génère le malus — garde le système objectif.)
 
 ## Décisions prises
 - **23 août 2026** — **Zéro émoji dans l'UI** (décision Jeanne : app sobre). Symboles graphiques ○ ● ✓ ‹ › et SVG conservés ; repères de rangée = pastille couleur du membre. Champs `emoji` conservés en données mais jamais affichés.
