@@ -38,7 +38,7 @@ function usePopOnChange(dep) {
   return useAnimatedStyle(() => ({ transform: [{ scale: sc.value }] }));
 }
 
-function Row({ it, index, onToggle, onFreq }) {
+function Row({ it, index, onToggle, onFreq, onOpen }) {
   const both = it.assignee_id === 'both';
   const who = both ? me : byId(it.assignee_id);
   const pop = usePopOnChange(it.assignee_id);
@@ -46,16 +46,20 @@ function Row({ it, index, onToggle, onFreq }) {
     <Animated.View entering={prefersReducedMotion() ? undefined : FadeInDown.delay(index * 45).duration(motion.screen)}>
       <Card padding={0} r={12} style={{ marginBottom: 6 }}>
         <View style={s.row}>
-          <Text style={{ fontSize: 19 }}>{it.emoji || dispatchEmoji(it)}</Text>
-          <View style={{ flex: 1 }}>
-            <Text style={s.title}>{it.label}</Text>
-            {/* fréquence réglable : − n×/sem + */}
-            <View style={s.freqRow}>
-              <Pressable onPress={() => onFreq(-1)} hitSlop={8} style={s.stepBtn}><Text style={s.stepTxt}>−</Text></Pressable>
-              <Text style={s.freqTxt}>{fill(t.timesPerWeek, { n: it.freq })}</Text>
-              <Pressable onPress={() => onFreq(1)} hitSlop={8} style={s.stepBtn}><Text style={s.stepTxt}>+</Text></Pressable>
+          {/* Retour Jeanne (1er sept 2026) : tap sur le corps de la rangée → pop-up
+              fiche tâche (fenêtre de jours, alternance…) sans quitter le 12 */}
+          <Pressable onPress={onOpen} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 }}>
+            <Text style={{ fontSize: 19 }}>{it.emoji || dispatchEmoji(it)}</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={s.title}>{it.label}</Text>
+              {/* fréquence réglable : − n×/sem + */}
+              <View style={s.freqRow}>
+                <Pressable onPress={() => onFreq(-1)} hitSlop={8} style={s.stepBtn}><Text style={s.stepTxt}>−</Text></Pressable>
+                <Text style={s.freqTxt}>{fill(t.timesPerWeek, { n: it.freq })}</Text>
+                <Pressable onPress={() => onFreq(1)} hitSlop={8} style={s.stepBtn}><Text style={s.stepTxt}>+</Text></Pressable>
+              </View>
             </View>
-          </View>
+          </Pressable>
           {/* porteur explicite : avatar + prénom, tap = bascule */}
           <Pressable onPress={onToggle} hitSlop={8} accessibilityLabel={`${it.label} · ${both ? t.both : who.first_name}`}>
             <Animated.View style={[pop, s.whoChip, { borderColor: both ? colors.ink : who.color }]}>
@@ -162,7 +166,7 @@ export default function Dispatch() {
         </View>
 
         <ScrollView {...scrollProps} contentContainerStyle={{ paddingHorizontal: space.screenX, paddingBottom: 110 }} showsVerticalScrollIndicator={false}>
-          {list.map((it, i) => <Row key={it.task_id} it={it} index={i} onToggle={() => toggle(it.task_id)} onFreq={d => bumpFreq(it.task_id, d)} />)}
+          {list.map((it, i) => <Row key={it.task_id} it={it} index={i} onToggle={() => toggle(it.task_id)} onFreq={d => bumpFreq(it.task_id, d)} onOpen={() => router.push(`/task/edit?id=${it.task_id}`)} />)}
         </ScrollView>
 
         <GrowCTA grown={atEnd} style={{ position: 'absolute', left: 24, right: 24, bottom: 24 }}><CTAPrimary label={t.go} onPress={finish} big /></GrowCTA>
