@@ -5,6 +5,7 @@
 // ═══════════════════════════════════════════════════════════════════
 import { read, mutate } from './store';
 import { occStore } from './demo-core';
+import { rescheduleReminders } from './reminders';
 
 // déplace une occurrence à une autre date ; refuse si la même tâche a déjà
 // une occurrence ce jour-là (contrainte unique task/date/kind en base)
@@ -17,5 +18,6 @@ export async function moveOccurrence(occId, dueIso) {
   }
   await mutate('occurrences', { ...row, due_date: dueIso });
   occStore.bump();
+  rescheduleReminders(); // les rappels suivent la tâche déplacée (tâche de fond)
   return { ok: true };
 }

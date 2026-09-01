@@ -1187,6 +1187,14 @@
     "s5Title": "Vous êtes deux à porter le foyer.",
     "s5Body": "Duo aide les couples à répartir équitablement la charge mentale, sans se prendre la tête."
   },
+  "reminders": {
+    "_labels": {
+      "_": "Notifications locales du récap quotidien ({n} = nombre de missions, {list} = jusqu'à 3 titres)"
+    },
+    "title": "Tes missions du jour",
+    "bodyOne": "1 mission t'attend : {list}",
+    "body": "{n} missions t'attendent : {list}"
+  },
   "retard": {
     "_labels": {
       "_": "Sheet 21 · tâche en retard, vue de l'assigné (maquette Jeanne). {n} = jours de retard, {time} = durée estimée, {name} = binôme.",

@@ -9,6 +9,7 @@ import { LiveMochi, FadeInDown, Animated } from '../../src/components/motion';
 import { SectionLabel, setupTokens, LegendChip } from '../../src/components/setup/extra';
 import { prefsPool, prefsMax, reminderTimes } from '../../src/demo-setup';
 import { savePrefs } from '../../src/setup-state';
+import { askNotificationPermission } from '../../src/notifications';
 import copy from '../../src/data/copy.json';
 import { colors, space, alpha } from '../../src/theme';
 
@@ -90,8 +91,9 @@ export default function Prefs() {
         </View>
 
         <View style={s.ctaWrap}>
-          {/* branchement réel (1er sept 2026) : préférences + heure de rappel enregistrées */}
-          <CTAPrimary label={t.letsGo} onPress={() => { savePrefs({ prefs, reminder: reminderTimes[timeIdx] }); router.push('/(setup)/invite'); }} big />
+          {/* branchement réel (1er sept 2026) : préférences + heure de rappel enregistrées ;
+              permission notifications demandée ICI, au moment utile (règle CLAUDE.md) */}
+          <CTAPrimary label={t.letsGo} onPress={() => { savePrefs({ prefs, reminder: reminderTimes[timeIdx] }); askNotificationPermission().catch(() => {}); router.push('/(setup)/invite'); }} big />
         </View>
       </SafeAreaView>
     </View>
