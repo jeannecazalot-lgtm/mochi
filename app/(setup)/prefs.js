@@ -58,10 +58,10 @@ export default function Prefs() {
       <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }}>
         {/* Retour Jeanne (1er sept 2026) : plus de sous-titre ni de phrase d'aide —
-            la légende à trois états suffit, elle porte aussi le code couleur. */}
+            la légende porte tout (code couleur + « 1 tap / 2 taps »), écran aéré. */}
         <SetupHeader hero={<LiveMochi size={96} />} step={3} total={4} title={t.prefsTitle} />
 
-        <View style={{ paddingHorizontal: space.headerX, paddingTop: 17 }}>
+        <View style={{ paddingHorizontal: space.headerX, paddingTop: 26 }}>
           <View style={s.legendTop}>
             <LegendChip state={0} label={t.prefsLegendNeutral} />
             <View style={[s.legendPill, { backgroundColor: onColor.like }]}><Text style={s.legendPillTxt}>💚 {t.prefsLegendLike}</Text></View>
@@ -97,11 +97,11 @@ export default function Prefs() {
 }
 
 const s = StyleSheet.create({
-  legendTop: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 6, marginBottom: 14 },
+  legendTop: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8, marginBottom: 18 },
   legendPill: { paddingVertical: 7, paddingHorizontal: 11, borderRadius: 999, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
   legendPillTxt: { fontSize: 12.5, fontWeight: '500', color: colors.ink },
-  wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  chip: { paddingVertical: 8, paddingHorizontal: 13, borderRadius: 999 },
+  wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 9 },
+  chip: { paddingVertical: 10, paddingHorizontal: 15, borderRadius: 999 },
   chipOff: { backgroundColor: colors.card, borderWidth: 1.5, borderColor: alpha(colors.ink, 0.10) },
   chipTxt: { fontSize: 14, fontWeight: '500', color: colors.ink },
   remRow: { flexDirection: 'row', alignItems: 'center', gap: 13, paddingVertical: 14, paddingHorizontal: 18 },

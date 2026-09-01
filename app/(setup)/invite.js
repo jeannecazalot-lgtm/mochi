@@ -46,8 +46,9 @@ export default function Invite() {
           <SkipLink onPress={next} />
         </View>
 
-        {/* carte-aperçu centrée verticalement dans l'espace disponible */}
-        <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: space.headerX }}>
+        {/* Retour Jeanne (1er sept 2026) : la carte était centrée dans l'espace restant
+            et tombait trop bas — elle vient maintenant se poser sous le titre. */}
+        <View style={{ flex: 1, paddingTop: 34, paddingHorizontal: space.headerX }}>
           <Card padding={0} r={22}>
             <View style={{ paddingTop: 28, paddingHorizontal: 24, paddingBottom: 24, alignItems: 'center' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 14 }}>
