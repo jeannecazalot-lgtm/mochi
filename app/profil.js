@@ -8,6 +8,8 @@ import { BackButton, SectionMicro, SettingRow } from '../src/components/premium/
 import { me, partner, household, streak, balance } from '../src/demo';
 import { duoSince, daysSince, lifetime, duoRules, prefs, isPremium } from '../src/demo-premium';
 import { signOut } from '../src/auth';
+import { clearSetup } from '../src/setup-state';
+import { resetLocal } from '../src/store';
 import copy from '../src/data/copy.json';
 import { colors, space, radius, font, slotColors, alpha } from '../src/theme';
 
@@ -25,7 +27,17 @@ export default function Profil() {
     { k: t.statTasks, v: String(lifetime.tasks_done) },
     { k: t.statBalance, v: `${balance.me}%` },
   ];
-  const onLogout = async () => { try { await signOut(); } catch (e) { /* mode démo */ } router.replace('/'); };
+  // Déconnexion propre (retour Jeanne, 2 sept) : session fermée + données locales
+  // purgées + retour à l'onboarding — plus d'Accueil fantôme avec les données périmées.
+  // (Un écran de déconnexion dédié est au backlog ; l'onboarding fait l'accueil en attendant.)
+  const onLogout = async () => {
+    try { await signOut(); } catch (e) { /* mode démo */ }
+    try {
+      clearSetup();
+      await Promise.all(['occurrences', 'tasks', 'task_pains', 'malus', 'swap_requests', 'household_members', 'households'].map(tb => resetLocal(tb)));
+    } catch (e) {}
+    router.replace('/onboarding');
+  };
 
   return (
     <View style={{ flex: 1 }}>

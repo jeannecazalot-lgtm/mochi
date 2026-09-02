@@ -162,8 +162,11 @@ const s = StyleSheet.create({
   footer: { backgroundColor: colors.white, borderTopWidth: 1, borderTopColor: colors.footerLine, paddingTop: space.footerTop, paddingHorizontal: space.screenX },
 });
 // ─── en-tête des écrans Setup (06-08) : points d'étape + titre + sous-titre ─
-export function SetupHeader({ step, total = 3, title, sub, hero }) {
-  const canBack = router.canGoBack();
+export function SetupHeader({ step, total = 3, title, sub, hero, backFallback }) {
+  // backFallback : chevron affiché même sans historique (ex. 06 → onboarding,
+  // retour Jeanne du 2 sept « pas de retour en arrière sur le 06 »)
+  const canBack = router.canGoBack() || !!backFallback;
+  const goBack = () => (router.canGoBack() ? router.back() : router.replace(backFallback));
   return (
     <View>
       {hero ? <View style={{ alignItems: 'center', paddingTop: 6 }}>{hero}</View> : null}
@@ -179,7 +182,7 @@ export function SetupHeader({ step, total = 3, title, sub, hero }) {
         {sub ? <Text style={[font.secondary, { fontSize: 14, marginTop: 6, lineHeight: 20 }]}>{sub}</Text> : null}
       </View>
       {canBack ? (
-        <Pressable onPress={() => router.back()} hitSlop={12} style={{ position: 'absolute', left: space.screenX, top: 4, zIndex: 2, width: 30, height: 30, borderRadius: 15, backgroundColor: colors.card, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline, alignItems: 'center', justifyContent: 'center' }}>
+        <Pressable onPress={goBack} hitSlop={12} style={{ position: 'absolute', left: space.screenX, top: 4, zIndex: 2, width: 30, height: 30, borderRadius: 15, backgroundColor: colors.card, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline, alignItems: 'center', justifyContent: 'center' }}>
           <Svg width={18} height={18} viewBox="0 0 24 24" fill="none"><Path d="M15 5l-7 7 7 7" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" /></Svg>
         </Pressable>
       ) : null}
