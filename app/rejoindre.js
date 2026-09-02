@@ -1,7 +1,7 @@
 // Rejoindre un foyer avec un code (le 2e téléphone du duo, écran 09 côté invité).
 // RPC accept_invitation puis rapatriement des données du foyer.
 import React, { useState } from 'react';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
@@ -14,7 +14,8 @@ import { colors, space, radius, font, alpha } from '../src/theme';
 export default function Rejoindre() {
   const insets = useSafeAreaInsets();
   const t = copy.join;
-  const [code, setCode] = useState('');
+  const { code: codeParam } = useLocalSearchParams(); // QR : mochi://rejoindre?code=XXXXXX
+  const [code, setCode] = useState(codeParam ? String(codeParam).toUpperCase() : '');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
 

@@ -12,24 +12,46 @@ import { SkipLink, ActionPill, ShareIcon, QRIcon, AvatarPlaceholder, fill } from
 import { me } from '../../src/demo';
 import { inviteLink } from '../../src/demo-setup';
 import { createInvitation } from '../../src/invite-actions';
+import { loadSetup, setup } from '../../src/setup-state';
+import { loadPartner, useIdentity } from '../../src/identity';
+import QRCode from 'react-native-qrcode-svg';
 import copy from '../../src/data/copy.json';
 import { colors, space } from '../../src/theme';
 
 const t = copy.setup;
-const next = () => router.push('/(setup)/duo-forme');
 
 export default function Invite() {
   // invitation RÉELLE (2 sept 2026) : code Supabase à 6 caractères, 7 jours.
   // Sans foyer (setup non terminé) ou hors ligne → démo comme avant.
   const [realCode, setRealCode] = useState(null);
+  const [waiting, setWaiting] = useState(false); // lien envoyé, on attend le binôme
+  const [qrOpen, setQrOpen] = useState(false);
   useEffect(() => { createInvitation().then(r => { if (r?.code) setRealCode(r.code); }); }, []);
-  const message = realCode ? fill(t.shareMsg, { code: realCode }) : `https://${inviteLink}`;
+
+  // Retours test à deux (2 sept) : en réel, « Envoyer » ne simule PLUS l'acceptation.
+  // On reste ici en mode attente, et on guette l'arrivée du binôme (toutes les 4 s) ;
+  // le 09b ne s'affiche que quand il a VRAIMENT rejoint. « Plus tard » → écran 10.
+  const next = () => router.push(realCode ? '/(setup)/taches' : '/(setup)/duo-forme');
+  useEffect(() => {
+    if (!realCode) return;
+    const id = setInterval(async () => {
+      await loadSetup();
+      const joined = await loadPartner(setup.householdId);
+      if (joined) { clearInterval(id); router.replace('/(setup)/duo-forme'); }
+    }, 4000);
+    return () => clearInterval(id);
+  }, [realCode]);
+
+  useIdentity(); // mon prénom/photo dans la carte et le message
+  const message = realCode ? fill(t.shareMsg, { name: me.first_name, code: realCode }) : `https://${inviteLink}`;
   const send = async () => {
     try { await Share.share({ message }); } catch (e) {}
-    next(); // démo : on simule l'acceptation du binôme (le vrai duo-formé viendra du Realtime)
+    if (realCode) setWaiting(true); // réel : on attend — démo : on simule l'acceptation
+    else next();
   };
   const shareOnly = async () => {
     try { await Share.share({ message }); } catch (e) {}
+    if (realCode) setWaiting(true);
   };
   // Retour Jeanne (1er sept 2026) : petite animation — la place vide du binôme
   // « respire » doucement (scale 1 → 1,07, boucle lente) tant qu'on attend.
@@ -61,8 +83,8 @@ export default function Invite() {
                 <Avatar initial={me.initial} color={me.color} photo={me.avatar_url} size={54} ring />
                 <Animated.View style={breathe}><AvatarPlaceholder size={54} /></Animated.View>
               </View>
-              <Text style={s.cardTitle}>{t.inviteCardTitle}</Text>
-              <Text style={s.cardSub}>{t.inviteCardSub}</Text>
+              <Text style={s.cardTitle}>{waiting ? t.waitingTitle : t.inviteCardTitle}</Text>
+              <Text style={s.cardSub}>{waiting ? t.waitingSub : t.inviteCardSub}</Text>
               {/* Retour Jeanne (1er sept 2026) : le lien n'est plus affiché — le bouton « Envoyer le lien » suffit.
                   En mode réel, le CODE à 6 caractères s'affiche : c'est lui que l'autre saisit. */}
               {realCode ? (
@@ -78,8 +100,9 @@ export default function Invite() {
             du CTA des écrans précédents (pleine largeur, bas 26) ; QR / partage /
             « Inviter plus tard » regroupés juste au-dessus. */}
         <View style={s.bottom}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12, marginBottom: 15 }}>
-            <ActionPill round icon={<QRIcon />} accessibilityLabel={t.qr} />
+          {/* paddingLeft : le bouton dev « Plan des écrans » recouvrait le QR (test du 2 sept) */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12, marginBottom: 15, paddingLeft: 56 }}>
+            <ActionPill round icon={<QRIcon />} onPress={() => setQrOpen(true)} accessibilityLabel={t.qr} />
             <ActionPill round icon={<ShareIcon />} onPress={shareOnly} accessibilityLabel={t.share} />
             <Pressable onPress={() => router.push('/rejoindre')} hitSlop={8}>
               <Text style={s.later}>{t.enterCode}</Text>
@@ -88,8 +111,20 @@ export default function Invite() {
               <Text style={s.later}>{t.inviteLater}</Text>
             </Pressable>
           </View>
-          <CTAPrimary label={t.sendLink} onPress={send} big />
+          <CTAPrimary label={waiting ? t.resendLink : t.sendLink} onPress={send} big />
         </View>
+
+        {/* QR du code (retour test à deux : le bouton ne faisait rien) — la caméra
+            de l'autre iPhone ouvre mochi directement sur « Rejoindre » pré-rempli */}
+        {qrOpen ? (
+          <Pressable style={s.qrScrim} onPress={() => setQrOpen(false)}>
+            <View style={s.qrBox}>
+              <QRCode value={realCode ? `mochi://rejoindre?code=${realCode}` : `https://${inviteLink}`} size={190} backgroundColor="transparent" color={colors.ink} />
+              {realCode ? <Text style={s.qrCode}>{realCode}</Text> : null}
+              <Text style={s.qrHint}>{t.qrHint}</Text>
+            </View>
+          </Pressable>
+        ) : null}
       </SafeAreaView>
     </View>
   );
@@ -102,4 +137,8 @@ const s = StyleSheet.create({
   bottom: { position: 'absolute', left: space.screenX, right: space.screenX, bottom: 26 },
   codePill: { marginTop: 14, backgroundColor: colors.bg, borderRadius: 12, paddingVertical: 9, paddingHorizontal: 22, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
   codeTxt: { fontSize: 22, fontWeight: '700', letterSpacing: 6, color: colors.ink, fontVariant: ['tabular-nums'] },
+  qrScrim: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(35,32,28,0.45)', alignItems: 'center', justifyContent: 'center' },
+  qrBox: { backgroundColor: colors.card, borderRadius: 22, paddingVertical: 26, paddingHorizontal: 30, alignItems: 'center', gap: 12 },
+  qrCode: { fontSize: 20, fontWeight: '700', letterSpacing: 5, color: colors.ink, marginTop: 4 },
+  qrHint: { fontSize: 12.5, fontWeight: '400', color: colors.muted, textAlign: 'center', maxWidth: 200 },
 });

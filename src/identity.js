@@ -41,6 +41,18 @@ export async function loadIdentity() {
 // abonnement pour re-rendre quand le profil arrive (Accueil, 12…)
 export const useIdentity = () => { useSyncExternalStore(cb => (subs.add(cb), () => subs.delete(cb)), () => version); return real; };
 
+// identité appliquée IMMÉDIATEMENT depuis le 06 (retour du test à deux, 2 sept :
+// « j'ai un rond avec un K » — la substitution attendait l'aller-retour serveur)
+export function setLocalIdentity({ firstName, avatarUrl }) {
+  const name = (firstName || '').trim();
+  if (!name && !avatarUrl) return;
+  real = { first_name: name || demoMe.first_name, avatar_url: avatarUrl ?? demoMe.avatar_url ?? null, initial: (name || demoMe.initial)[0].toUpperCase() };
+  demoMe.first_name = real.first_name;
+  demoMe.initial = real.initial;
+  demoMe.avatar_url = real.avatar_url;
+  notify();
+}
+
 // ─── binôme RÉEL (2 sept 2026) : quand quelqu'un rejoint le foyer, son prénom
 // et sa photo remplacent le « Julian » simulé à la source (comme pour moi).
 // L'id de démo est conservé (les calculs d'affichage s'y réfèrent) ; l'uid réel

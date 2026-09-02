@@ -8,6 +8,7 @@ import Svg, { Path, Circle } from 'react-native-svg';
 import { GlowBg, SetupHeader, Card, Micro, CTAPrimary } from '../../src/components/ui';
 import { LiveMochi } from '../../src/components/motion';
 import { saveIdentity, loadProfile } from '../../src/profile';
+import { setLocalIdentity } from '../../src/identity';
 import copy from '../../src/data/copy.json';
 import { colors, space, radius, alpha, font } from '../../src/theme';
 
@@ -25,6 +26,7 @@ export default function Identite() {
     // Décision Jeanne (22 août 2026) : la sauvegarde ne bloque JAMAIS le parcours.
     // En cas d'échec Supabase on avance quand même ; la cause est loguée pour debug.
     setSaving(true); setError(null);
+    setLocalIdentity({ firstName, avatarUrl: photo }); // visible partout tout de suite
     try { await saveIdentity({ firstName, photoUri: photo }); }
     catch (e) { console.warn('[06] saveIdentity a échoué (on avance quand même) :', e?.message || e); }
     finally { setSaving(false); router.push('/(setup)/dispos'); }
