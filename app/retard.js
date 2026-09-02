@@ -13,6 +13,7 @@ import { partner, fmtMin } from '../src/demo';
 import { missionDone } from '../src/demo-core';
 import { moveOccurrence, toggleOccurrence } from '../src/occ-actions';
 import { postponeMalus } from '../src/malus-actions';
+import { requestSwap } from '../src/swap-actions';
 import { localIso, addDaysIso } from '../src/dates';
 import copy from '../src/data/copy.json';
 import { colors, space, radius, font, alpha } from '../src/theme';
@@ -34,9 +35,10 @@ export default function Retard() {
     }
     close();
   };
-  const swap = () => {
+  const swap = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-    // TODO Supabase : swap_requests (repassage) — démo tant que le binôme est simulé
+    // binôme réel → vraie proposition (+1 dette à l'acceptation, SPECS §6)
+    await requestSwap(String(occId || '')).catch(() => {});
     close();
   };
   const postpone = async () => {

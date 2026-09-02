@@ -21,6 +21,8 @@ export function startRealtime(householdId) {
   channel = supabase.channel(`foyer:${householdId}`)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'occurrences', filter: `household_id=eq.${householdId}` }, refresh('occurrences'))
     .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks', filter: `household_id=eq.${householdId}` }, refresh('tasks'))
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'swap_requests', filter: `household_id=eq.${householdId}` }, refresh('swap_requests'))
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'malus', filter: `household_id=eq.${householdId}` }, refresh('malus'))
     .on('postgres_changes', { event: '*', schema: 'public', table: 'household_members', filter: `household_id=eq.${householdId}` }, () => { occStore.bump(); loadPartner(householdId); })
     .subscribe();
 }

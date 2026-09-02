@@ -11,7 +11,9 @@ import { activityFeed, replyPresets, partnerGender } from '../src/demo-social';
 import { read } from '../src/store';
 import { loadSetup, setup } from '../src/setup-state';
 import { missionDone, occStore } from '../src/demo-core';
-import { useIdentity } from '../src/identity';
+import { useIdentity, getUid } from '../src/identity';
+import { mySwaps, resolveSwap } from '../src/swap-actions';
+import { partner } from '../src/demo';
 import copy from '../src/data/copy.json';
 import { colors, space, radius, alpha, font } from '../src/theme';
 
@@ -111,6 +113,9 @@ export default function Activite() {
   const choose = (id, key) => {
     Haptics.selectionAsync().catch(() => {});
     setChosen(c => ({ ...c, [id]: c[id] === key ? null : key }));
+    // repassage réel : Accepter change le porteur de l'occurrence, Refuser la laisse
+    const sw = realItems?.find(x => x.id === id && x.swap_id);
+    if (sw) resolveSwap(sw.swap_id, key === 'accept').catch(() => {});
     // TODO Supabase : insérer la réponse préformatée (type reply, preset_key) dans activity
   };
 
@@ -126,14 +131,21 @@ export default function Activite() {
       if (!setup.result?.items?.length) return;
       const [occs, tasks] = await Promise.all([read('occurrences'), read('tasks')]);
       const byTask = Object.fromEntries(tasks.map(tk => [tk.id, tk]));
-      const dones = occs.filter(o => o.status === 'done' && o.done_at)
-        .sort((a, b) => new Date(b.done_at) - new Date(a.done_at));
-      setRealItems(dones.map(o => ({
-        id: o.id, type: 'task_done', actor_id: me.id,
+      const hhmm = d => new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' }).format(new Date(d));
+      const occById = Object.fromEntries(occs.map(o => [o.id, o]));
+      const titleOf = occId2 => (byTask[occById[occId2]?.task_id]?.title || '…').toLowerCase();
+      const dones = occs.filter(o => o.status === 'done' && o.done_at).map(o => ({
+        id: o.id, type: 'task_done', actor_id: o.done_by && o.done_by !== getUid() ? partner.id : me.id,
         task_title: (byTask[o.task_id]?.title || '…').toLowerCase(),
-        at: new Date(o.done_at),
-        time: new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' }).format(new Date(o.done_at)),
-      })));
+        at: new Date(o.done_at), time: hhmm(o.done_at),
+      }));
+      // repassages réels : propositions qui M'attendent (Accepter/Refuser) + acceptées
+      const { pending, resolved } = await mySwaps();
+      const swaps = [
+        ...pending.map(sw => ({ id: sw.id, swap_id: sw.id, type: 'swap_proposed', actor_id: partner.id, task_title: titleOf(sw.occurrence_id), at: new Date(sw.created_at), time: hhmm(sw.created_at) })),
+        ...resolved.filter(sw => sw.status === 'accepted').map(sw => ({ id: sw.id, type: 'swap_accepted', actor_id: sw.to_user === getUid() ? me.id : partner.id, task_title: titleOf(sw.occurrence_id), at: new Date(sw.resolved_at || sw.created_at), time: hhmm(sw.resolved_at || sw.created_at) })),
+      ];
+      setRealItems([...dones, ...swaps].sort((a, b) => b.at - a.at));
     })();
   }, [occV]);
 

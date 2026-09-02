@@ -12,6 +12,7 @@ import { SheetHandle, Chevron } from '../src/components/social/extra';
 import { occurrences, taskById, me, fmtMin, partner } from '../src/demo';
 import { missionDone } from '../src/demo-core';
 import { moveOccurrence, toggleOccurrence } from '../src/occ-actions';
+import { requestSwap } from '../src/swap-actions';
 import { localIso } from '../src/dates';
 import copy from '../src/data/copy.json';
 import { colors, space, radius, font, alpha } from '../src/theme';
@@ -60,9 +61,10 @@ export default function Mission() {
     else if (r.reason === 'introuvable') close(); // démo : rien à persister
     else Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
   };
-  const swap = () => {
+  const swap = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-    // TODO Supabase : swap_requests → proposition de repassage au binôme
+    // binôme réel → vraie proposition de repassage ; simulé → simple fermeture
+    await requestSwap(String(occId || '')).catch(() => {});
     close();
   };
   const edit = () => closeThen(`/task/edit?id=${task?.id}`);
