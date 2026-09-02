@@ -15,6 +15,7 @@ import { read } from '../../src/store';
 import { loadSetup, setup } from '../../src/setup-state';
 import { getUid, useIdentity } from '../../src/identity';
 import { localIso } from '../../src/dates';
+import { weekMalus, sweepMissed } from '../../src/malus-actions';
 import copy from '../../src/data/copy.json';
 import { colors, space, radius, font, slotColors } from '../../src/theme';
 
@@ -74,12 +75,15 @@ export default function Balance() {
   const occV = occStore.useVersion();
   missionDone.useVersion();
   const [real, setReal] = useState(null);
+  const [realMalusItems, setRealMalusItems] = useState([]);
   useEffect(() => {
     (async () => {
       await loadSetup();
       if (!setup.result?.items?.length) return;
+      await sweepMissed().catch(() => {}); // les échues deviennent missed + malus
       const occs = await read('occurrences');
       if (occs.length) setReal(computeRealBalance(occs, getUid()));
+      setRealMalusItems(await weekMalus().catch(() => []));
     })();
   }, [occV]);
 
@@ -90,7 +94,10 @@ export default function Balance() {
   const week = real?.week || weekInfo();
   const review = nextReview();
   const chartDays = real?.days || dayMinutes;
-  const realMalus = real ? [] : malusItems; // malus réels branchés avec la table malus
+  // malus réels de la semaine (écrits par sweepMissed / postponeMalus), démo sinon
+  const realMalus = real
+    ? realMalusItems.map(m => ({ id: m.id, emoji: m.task_emoji, title: m.task_title || t.malusPostponed, sub: fill(t.malusReal, { n: m.points }), points: m.points, real: true }))
+    : malusItems;
   const stateLabel = fill(t[state], { name: top.first_name });
 
   // README flow : déséquilibre > 25 % → écran détail (une fois, au montage de l'onglet)
@@ -177,12 +184,15 @@ export default function Balance() {
             <Card padding={14}>
               <Micro style={{ marginBottom: 10 }}>{t.malusTitle}</Micro>
               {realMalus.length === 0 ? <Text style={font.secondary}>{t.malusNone}</Text> : realMalus.map((m, i) => {
-                const task = taskById(m.task_id);
+                const task = m.real ? null : taskById(m.task_id);
+                const emoji = m.real ? m.emoji : task?.emoji;
+                const title = m.real ? m.title : task?.title;
+                const sub = m.real ? m.sub : fill(copy.malus.times, { n: m.times, i: m.importance });
                 return (
                   <View key={m.id}>
                     {i > 0 && <Divider />}
                     <View style={{ paddingTop: i > 0 ? 10 : 0, paddingBottom: 10 }}>
-                      <InfoRow emoji={task?.emoji} title={task?.title} sub={fill(copy.malus.times, { n: m.times, i: m.importance })} right={<DarkPill>{fill(t.malusPts, { n: m.points })}</DarkPill>} />
+                      <InfoRow emoji={emoji} title={title} sub={sub} right={<DarkPill>{fill(t.malusPts, { n: m.points })}</DarkPill>} />
                     </View>
                   </View>
                 );

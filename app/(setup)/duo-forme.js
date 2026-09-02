@@ -1,7 +1,7 @@
 // Écran 09b · Duo formé — l'autre a accepté. Recette : docs/recettes/09b-duo-forme.md
 // Retours Jeanne 22 août 2026 : arrivée « waouh » — confetti palette + Mochi en
 // ZoomIn spring + avatars qui glissent l'un vers l'autre puis léger pulse.
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { router } from 'expo-router';
 import { View, Text, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -14,6 +14,8 @@ import {
 } from 'react-native-reanimated';
 import { fill } from '../../src/components/setup/extra';
 import { me, partner } from '../../src/demo';
+import { loadSetup, setup } from '../../src/setup-state';
+import { useIdentity } from '../../src/identity';
 import copy from '../../src/data/copy.json';
 import { colors, space, motion } from '../../src/theme';
 
@@ -22,6 +24,10 @@ const confettiPalette = [colors.coral, colors.butter, colors.sage, colors.lavend
 
 export default function DuoForme() {
   const reduced = prefersReducedMotion();
+  useIdentity(); // le vrai prénom du binôme dans « Bravo, {name} a rejoint le duo ! »
+  // « joiner » = j'ai rejoint un foyer existant (code) : pas de tâches locales à moi
+  const [joiner, setJoiner] = useState(false);
+  useEffect(() => { loadSetup().then(() => setJoiner(!!setup.householdId && !setup.tasks?.length)); }, []);
   // avatars : partent écartés (±46 px), glissent l'un vers l'autre en spring
   // jusqu'au léger chevauchement du layout final, puis pulse 1 → 1.06 → 1.
   // (restaurée le 1er sept 2026 — Jeanne signale son absence sur le 09b)
@@ -52,7 +58,13 @@ export default function DuoForme() {
           <Text style={s.sub}>{t.duoSub}</Text>
         </View>
         <View style={s.ctaWrap}>
-          <CTAPrimary label={t.chooseTasks} onPress={() => router.push('/(setup)/taches')} big />
+          {/* celui qui REJOINT un foyer existant (2 sept 2026) : les tâches sont déjà
+              choisies par l'autre → direction l'Accueil, pas l'écran 10 */}
+          <CTAPrimary
+            label={joiner ? copy.common.continue : t.chooseTasks}
+            onPress={() => (joiner ? router.replace('/(tabs)') : router.push('/(setup)/taches'))}
+            big
+          />
         </View>
       </SafeAreaView>
       {/* confetti au-dessus de tout ; rend null si « réduire les animations » */}

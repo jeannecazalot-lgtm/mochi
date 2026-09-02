@@ -12,6 +12,7 @@ import { SheetHandle, Chevron } from '../src/components/social/extra';
 import { partner, fmtMin } from '../src/demo';
 import { missionDone } from '../src/demo-core';
 import { moveOccurrence, toggleOccurrence } from '../src/occ-actions';
+import { postponeMalus } from '../src/malus-actions';
 import { localIso, addDaysIso } from '../src/dates';
 import copy from '../src/data/copy.json';
 import { colors, space, radius, font, alpha } from '../src/theme';
@@ -41,7 +42,7 @@ export default function Retard() {
   const postpone = async () => {
     const r = await moveOccurrence(String(occId || ''), addDaysIso(1));
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-    // TODO Supabase : +1 malus (table malus) au report d'une tâche en retard
+    if (r.ok) postponeMalus(String(occId)).catch(() => {}); // « +1 malus mais ça passe »
     if (r.ok || r.reason === 'introuvable') close();
   };
 

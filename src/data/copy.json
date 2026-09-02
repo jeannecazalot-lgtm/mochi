@@ -188,6 +188,8 @@
     "malusTitle": "Malus en cours",
     "malusNone": "Aucun malus cette semaine 🎉",
     "malusPts": "+{n}",
+    "malusReal": "{n} pt · tâche ratée",
+    "malusPostponed": "Tâche décalée",
     "weeklyLink": "Point hebdo · {day} ›",
     "detailHeader": "Détail",
     "detailPillBalanced": "Équilibré · {n}% d'écart",

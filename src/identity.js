@@ -6,7 +6,7 @@
 // ═══════════════════════════════════════════════════════════════════
 import { useSyncExternalStore } from 'react';
 import { supabase } from './supabase';
-import { me as demoMe } from './demo';
+import { me as demoMe, partner as demoPartner } from './demo';
 
 let real = null;
 let uidVal = null;
@@ -40,3 +40,31 @@ export async function loadIdentity() {
 
 // abonnement pour re-rendre quand le profil arrive (Accueil, 12…)
 export const useIdentity = () => { useSyncExternalStore(cb => (subs.add(cb), () => subs.delete(cb)), () => version); return real; };
+
+// ─── binôme RÉEL (2 sept 2026) : quand quelqu'un rejoint le foyer, son prénom
+// et sa photo remplacent le « Julian » simulé à la source (comme pour moi).
+// L'id de démo est conservé (les calculs d'affichage s'y réfèrent) ; l'uid réel
+// vit à côté pour les écritures (repassage, assignations).
+let partnerUidVal = null;
+export const getPartnerUid = () => partnerUidVal;
+
+export async function loadPartner(householdId) {
+  if (!householdId) return null;
+  try {
+    const { data } = await supabase.auth.getSession();
+    if (!data.session) return null;
+    const uid = data.session.user.id;
+    const { data: members } = await supabase.from('household_members').select('user_id').eq('household_id', householdId);
+    const other = (members || []).find(m => m.user_id !== uid);
+    if (!other) return null;
+    partnerUidVal = other.user_id;
+    const { data: p } = await supabase.from('profiles').select('first_name, avatar_url').eq('id', other.user_id).maybeSingle();
+    const name = (p?.first_name || '').trim();
+    if (name || p?.avatar_url) {
+      if (name) { demoPartner.first_name = name; demoPartner.initial = name[0].toUpperCase(); }
+      demoPartner.avatar_url = p?.avatar_url || null;
+      notify();
+    }
+    return other.user_id;
+  } catch (e) { return null; }
+}

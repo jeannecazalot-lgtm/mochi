@@ -7,11 +7,20 @@ import TabBar from '../../src/components/TabBar';
 import FabSheet, { useFabSheet } from '../../src/components/FabSheet';
 import { loadSetup, setup } from '../../src/setup-state';
 import { startRealtime } from '../../src/realtime';
+import { loadPartner } from '../../src/identity';
+import { sweepMissed } from '../../src/malus-actions';
 
 export default function TabsLayout() {
   const fab = useFabSheet();
-  // temps réel : dès qu'on connaît le foyer, les changements distants rafraîchissent l'UI
-  React.useEffect(() => { loadSetup().then(() => { if (setup.householdId) startRealtime(setup.householdId); }); }, []);
+  // temps réel + binôme réel + balayage des tâches ratées (malus), dès qu'on connaît le foyer
+  React.useEffect(() => {
+    loadSetup().then(() => {
+      if (!setup.householdId) return;
+      startRealtime(setup.householdId);
+      loadPartner(setup.householdId);
+      sweepMissed().catch(() => {});
+    });
+  }, []);
   return (
     <View style={{ flex: 1 }}>
       <Tabs tabBar={props => <TabBar {...props} onFab={fab.toggle} />} screenOptions={{ headerShown: false }}>

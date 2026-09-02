@@ -6,6 +6,7 @@
 import { supabase } from './supabase';
 import { pull } from './store';
 import { occStore } from './demo-core';
+import { loadPartner } from './identity';
 
 let channel = null;
 let currentHid = null;
@@ -20,6 +21,6 @@ export function startRealtime(householdId) {
   channel = supabase.channel(`foyer:${householdId}`)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'occurrences', filter: `household_id=eq.${householdId}` }, refresh('occurrences'))
     .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks', filter: `household_id=eq.${householdId}` }, refresh('tasks'))
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'household_members', filter: `household_id=eq.${householdId}` }, () => occStore.bump())
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'household_members', filter: `household_id=eq.${householdId}` }, () => { occStore.bump(); loadPartner(householdId); })
     .subscribe();
 }

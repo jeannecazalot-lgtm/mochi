@@ -7,6 +7,7 @@ import { supabase } from './supabase';
 import { ensureSession } from './profile';
 import { uuid, pull } from './store';
 import { saveHouseholdId } from './setup-state';
+import { loadPartner } from './identity';
 
 // 6 caractères lisibles (pas de I/L/O/0/1)
 const CODE_CHARS = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
@@ -39,6 +40,7 @@ export async function joinWithCode(code) {
     if (error) return { ok: false, reason: error.message };
     saveHouseholdId(hid);
     await Promise.all(['tasks', 'occurrences', 'task_pains'].map(tb => pull(tb, hid)));
+    loadPartner(hid); // le prénom/photo de l'autre remplace le binôme simulé
     return { ok: true, householdId: hid };
   } catch (e) { return { ok: false, reason: e?.message || 'réseau' }; }
 }
