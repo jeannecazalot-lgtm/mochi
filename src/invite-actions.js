@@ -6,27 +6,46 @@
 import { supabase } from './supabase';
 import { ensureSession } from './profile';
 import { uuid, pull } from './store';
-import { saveHouseholdId } from './setup-state';
+import { loadSetup, setup, saveHouseholdId } from './setup-state';
 import { loadPartner } from './identity';
 
 // 6 caractères lisibles (pas de I/L/O/0/1)
 const CODE_CHARS = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 const genCode = () => Array.from({ length: 6 }, () => CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)]).join('');
 
+// Le foyer naît DÈS l'invitation (bug du test à deux, 2 sept : le 09 arrive
+// AVANT le « C'est parti » du 12 qui créait le foyer → l'app retombait sur le
+// lien de démo mentalfree.app). Créé ici s'il manque ; syncSetup le réutilise.
+async function ensureHousehold(uid) {
+  const { data: mine } = await supabase.from('household_members').select('household_id').eq('user_id', uid).maybeSingle();
+  if (mine) { saveHouseholdId(mine.household_id); return mine.household_id; }
+  await loadSetup();
+  const householdId = uuid();
+  const { error: e1 } = await supabase.from('households').insert({ id: householdId, created_by: uid });
+  if (e1) return null;
+  const { error: e2 } = await supabase.from('household_members').insert({
+    household_id: householdId, user_id: uid, slot: 1,
+    availability: setup.availability || {}, weekly_minutes: setup.weekly_minutes || 300,
+  });
+  if (e2) return null;
+  saveHouseholdId(householdId);
+  return householdId;
+}
+
 // crée (ou réutilise) l'invitation en cours de mon foyer → { code } | null
 export async function createInvitation() {
   try {
     const session = await ensureSession();
     const uid = session.user.id;
-    const { data: mine } = await supabase.from('household_members').select('household_id').eq('user_id', uid).maybeSingle();
-    if (!mine) return null; // pas encore de foyer : le setup n'est pas passé par « C'est parti »
+    const householdId = await ensureHousehold(uid);
+    if (!householdId) return null;
     const { data: existing } = await supabase.from('invitations')
-      .select('code').eq('household_id', mine.household_id).is('accepted_at', null)
+      .select('code').eq('household_id', householdId).is('accepted_at', null)
       .gt('expires_at', new Date().toISOString())
       .order('created_at', { ascending: false }).limit(1).maybeSingle();
     if (existing) return { code: existing.code };
     const code = genCode();
-    const { error } = await supabase.from('invitations').insert({ id: uuid(), household_id: mine.household_id, code, created_by: uid });
+    const { error } = await supabase.from('invitations').insert({ id: uuid(), household_id: householdId, code, created_by: uid });
     if (error) return null;
     return { code };
   } catch (e) { return null; }

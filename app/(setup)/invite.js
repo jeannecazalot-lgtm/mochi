@@ -119,9 +119,13 @@ export default function Invite() {
         {qrOpen ? (
           <Pressable style={s.qrScrim} onPress={() => setQrOpen(false)}>
             <View style={s.qrBox}>
-              <QRCode value={realCode ? `mochi://rejoindre?code=${realCode}` : `https://${inviteLink}`} size={190} backgroundColor="transparent" color={colors.ink} />
+              <Text style={s.qrTitle}>{t.qrTitle}</Text>
+              <View style={s.qrFrame}>
+                <QRCode value={realCode ? `mochi://rejoindre?code=${realCode}` : `https://${inviteLink}`} size={180} backgroundColor="#FFFFFF" color={colors.ink} />
+              </View>
               {realCode ? <Text style={s.qrCode}>{realCode}</Text> : null}
               <Text style={s.qrHint}>{t.qrHint}</Text>
+              <Text style={s.qrClose}>{t.qrClose}</Text>
             </View>
           </Pressable>
         ) : null}
@@ -137,8 +141,11 @@ const s = StyleSheet.create({
   bottom: { position: 'absolute', left: space.screenX, right: space.screenX, bottom: 26 },
   codePill: { marginTop: 14, backgroundColor: colors.bg, borderRadius: 12, paddingVertical: 9, paddingHorizontal: 22, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
   codeTxt: { fontSize: 22, fontWeight: '700', letterSpacing: 6, color: colors.ink, fontVariant: ['tabular-nums'] },
-  qrScrim: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(35,32,28,0.45)', alignItems: 'center', justifyContent: 'center' },
-  qrBox: { backgroundColor: colors.card, borderRadius: 22, paddingVertical: 26, paddingHorizontal: 30, alignItems: 'center', gap: 12 },
-  qrCode: { fontSize: 20, fontWeight: '700', letterSpacing: 5, color: colors.ink, marginTop: 4 },
-  qrHint: { fontSize: 12.5, fontWeight: '400', color: colors.muted, textAlign: 'center', maxWidth: 200 },
+  qrScrim: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(35,32,28,0.5)', alignItems: 'center', justifyContent: 'center' },
+  qrBox: { backgroundColor: colors.card, borderRadius: 26, paddingVertical: 24, paddingHorizontal: 28, alignItems: 'center', gap: 13, marginHorizontal: 40, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 24, shadowOffset: { width: 0, height: 10 } },
+  qrTitle: { fontSize: 17, fontWeight: '600', letterSpacing: -0.4, color: colors.ink },
+  qrFrame: { backgroundColor: '#FFFFFF', borderRadius: 18, padding: 14, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
+  qrCode: { fontSize: 22, fontWeight: '700', letterSpacing: 6, color: colors.ink, fontVariant: ['tabular-nums'] },
+  qrHint: { fontSize: 12.5, fontWeight: '400', color: colors.muted, textAlign: 'center', maxWidth: 210, lineHeight: 17 },
+  qrClose: { fontSize: 12.5, fontWeight: '500', color: colors.muted, marginTop: 2 },
 });
