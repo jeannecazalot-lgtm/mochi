@@ -85,6 +85,13 @@ Questions ouvertes (à trancher par Jeanne) :
 - [ ] **Profil (38) : tout revoir** (Jeanne, 2 sept ~00h30) — refonte complète à prévoir, à rapprocher de sa piste « profil façon Airbnb » (photo, Mes préférences, Invite ton binôme) du 1er sept.
 - [ ] Bouton pour « écrire des malus » sur Balance ? (question Jeanne 1er sept — il n'y en a jamais eu : les malus naissent d'une tâche ratée. Reco : pas de malus manuel libre, plutôt une action « marquer comme ratée » sur la tâche, qui génère le malus — garde le système objectif.)
 
+## 3 sept 2026 — déblocage du test à deux (migration 0003)
+- **Bug trouvé et corrigé** : « elle n'arrive pas à rentrer mon code et moi le sien ». Cause : le foyer naissant dès l'écran 09 (correctif build 6), **Ketley avait déjà son propre foyer solo** en ouvrant l'écran d'invitation — et la RPC `accept_invitation` refusait (`already_in_household`) quiconque a déjà un foyer. Vérifié en base : 2 foyers solo créés le 3 sept (codes X548GX et 7YB7NB actifs) + l'ancien foyer du 1er sept (2 membres, code F422U9 accepté — identités orphelines d'avant la déconnexion).
+- **Migration 0003** (appliquée en prod) : rejoindre quand on est **seul** dans son foyer = on le quitte automatiquement (foyer orphelin supprimé en cascade) puis on rejoint. Refus conservés : déjà membre du foyer cible, foyer actuel à 2+ membres. **Côté serveur → aucune nouvelle build nécessaire, build 6 suffit.**
+- Consigne de test : **une seule direction** — Ketley tape le code affiché sur l'écran 09 de Jeanne (pas les deux en même temps, sinon échange de foyers).
+- À faire (prochaine build) : message d'erreur dédié pour `household_not_empty` (aujourd'hui il tombe sur « réseau »).
+- **Décision Jeanne : lien à envoyer plutôt que code.** Comme Tricount : Universal Links sur un domaine (tricount.com chez eux). Plan : hébergement gratuit GitHub Pages pour démarrer (AASA + associatedDomains + page d'atterrissage avec le code et renvoi TestFlight), domaine propre plus tard. En attente : OK de Jeanne pour activer GitHub Pages sur son compte.
+
 ## Décisions prises
 - **23 août 2026** — **Zéro émoji dans l'UI** (décision Jeanne : app sobre). Symboles graphiques ○ ● ✓ ‹ › et SVG conservés ; repères de rangée = pastille couleur du membre. Champs `emoji` conservés en données mais jamais affichés.
 - **23 août 2026** — Écran 07 : proposition A (légende chips + « Tape une case ») + slider 2→8 h. Écran 08 : liste unique à bascule (neutre → j'aime → je déteste, 3 max par côté). Écrans 12+13 fusionnés. CTA taille Airbnb (52, marges 24), dégradé qui avance à l'appui. Flèche retour épinglée en haut.
