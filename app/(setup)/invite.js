@@ -11,7 +11,7 @@ import { LiveMochi, Animated, prefersReducedMotion } from '../../src/components/
 import { SkipLink, ActionPill, ShareIcon, QRIcon, AvatarPlaceholder, fill } from '../../src/components/setup/extra';
 import { me } from '../../src/demo';
 import { inviteLink } from '../../src/demo-setup';
-import { createInvitation } from '../../src/invite-actions';
+import { createInvitation, inviteUrl } from '../../src/invite-actions';
 import { loadSetup, setup } from '../../src/setup-state';
 import { loadPartner, useIdentity } from '../../src/identity';
 import QRCode from 'react-native-qrcode-svg';
@@ -43,7 +43,9 @@ export default function Invite() {
   }, [realCode]);
 
   useIdentity(); // mon prénom/photo dans la carte et le message
-  const message = realCode ? fill(t.shareMsg, { name: me.first_name, code: realCode }) : `https://${inviteLink}`;
+  // Lien universel façon Tricount (demande Jeanne, 3 sept 2026) : le tap sur le
+  // lien fait entrer directement dans le foyer ; la page web montre le code sinon.
+  const message = realCode ? fill(t.shareMsg, { name: me.first_name, link: inviteUrl(realCode) }) : `https://${inviteLink}`;
   const send = async () => {
     try { await Share.share({ message }); } catch (e) {}
     if (realCode) setWaiting(true); // réel : on attend — démo : on simule l'acceptation
@@ -121,7 +123,7 @@ export default function Invite() {
             <View style={s.qrBox}>
               <Text style={s.qrTitle}>{t.qrTitle}</Text>
               <View style={s.qrFrame}>
-                <QRCode value={realCode ? `mochi://rejoindre?code=${realCode}` : `https://${inviteLink}`} size={180} backgroundColor="#FFFFFF" color={colors.ink} />
+                <QRCode value={realCode ? inviteUrl(realCode) : `https://${inviteLink}`} size={180} backgroundColor="#FFFFFF" color={colors.ink} />
               </View>
               {realCode ? <Text style={s.qrCode}>{realCode}</Text> : null}
               <Text style={s.qrHint}>{t.qrHint}</Text>

@@ -9,6 +9,10 @@ import { uuid, pull } from './store';
 import { loadSetup, setup, saveHouseholdId } from './setup-state';
 import { loadPartner } from './identity';
 
+// Lien universel (3 sept 2026) : hébergé sur GitHub Pages (AASA du domaine →
+// l'app s'ouvre au tap si installée, sinon page d'atterrissage avec le code).
+export const inviteUrl = (code) => `https://jeannecazalot-lgtm.github.io/j/?code=${code}`;
+
 // 6 caractères lisibles (pas de I/L/O/0/1)
 const CODE_CHARS = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 const genCode = () => Array.from({ length: 6 }, () => CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)]).join('');

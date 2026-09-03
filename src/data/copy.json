@@ -509,7 +509,7 @@
     "copy": "Copier",
     "copied": "Copié",
     "sendLink": "Envoyer le lien",
-    "shareMsg": "{name} t'invite sur mochi 🍡 Installe l'app, choisis « J'ai reçu un code » et tape : {code}",
+    "shareMsg": "{name} t'invite sur mochi 🍡 Rejoins ton foyer ici : {link}",
     "waitingTitle": "Invitation envoyée !",
     "waitingSub": "Dès que l'autre entre ton code, on passe à la suite — reste ici ou reviens plus tard.",
     "resendLink": "Renvoyer le lien",
@@ -577,7 +577,8 @@
     "calcDone": "C'est prêt.",
     "both": "Ensemble",
     "alternate": "Alterné",
-    "perWeekSlash": "/ semaine"
+    "perWeekSlash": "/ semaine",
+    "shareMsgNoLink": "{name} t'invite sur mochi 🍡 Installe l'app, choisis « J'ai reçu un code » et tape : {code}"
   },
   "event": {
     "_labels": {
@@ -1212,7 +1213,10 @@
     "joining": "Connexion…",
     "errInvalid": "Code invalide ou expiré — revérifie avec ton binôme.",
     "errAlready": "Tu es déjà dans un foyer (un seul foyer par personne).",
-    "errNetwork": "Impossible de rejoindre — vérifie ta connexion."
+    "errNetwork": "Impossible de rejoindre — vérifie ta connexion.",
+    "linkJoining": "On te fait entrer dans le foyer…",
+    "errFull": "Ce foyer est complet.",
+    "errNotEmpty": "Vous êtes déjà deux dans ton foyer — quitte-le d'abord depuis le profil."
   },
   "reminders": {
     "_labels": {

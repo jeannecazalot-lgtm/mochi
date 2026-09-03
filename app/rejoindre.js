@@ -29,7 +29,9 @@ export default function Rejoindre() {
       router.replace('/(setup)/duo-forme'); // célébration, puis choix des tâches ensemble
     } else {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
-      setError(/invalid/.test(r.reason || '') ? t.errInvalid : /already/.test(r.reason || '') ? t.errAlready : t.errNetwork);
+      const why = r.reason || '';
+      setError(/invalid/.test(why) ? t.errInvalid : /already/.test(why) ? t.errAlready
+        : /not_empty/.test(why) ? t.errNotEmpty : /full/.test(why) ? t.errFull : t.errNetwork);
     }
   };
 
