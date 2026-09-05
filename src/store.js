@@ -58,6 +58,15 @@ const PK = { household_members: ['household_id', 'user_id'], task_pains: ['task_
 // 1er sept 2026 : 403 sur households). Insert d'abord ; en cas de doublon
 // (rejouage de la file), update ciblé sur la clé primaire.
 async function push(table, row) {
+  // tables à clé composite (membre, pénibilité) : mise à jour D'ABORD — un insert
+  // idempotent y réveille des triggers (taille du foyer) avant la détection de doublon
+  // (vu à l'écran le 5 sept 2026 : « household_full » bloquait la file du rejoignant)
+  if (PK[table]) {
+    let u = supabase.from(table).update(row);
+    for (const k of PK[table]) u = u.eq(k, row[k]);
+    const { data, error: eu } = await u.select();
+    if (!eu && data && data.length) return null;
+  }
   const { error } = await supabase.from(table).insert(row);
   if (!error) return null;
   const dup = error.code === '23505' || /duplicate|already exists/i.test(error.message || '');
@@ -82,7 +91,8 @@ export async function flush() {
       if (error) {
         // refus définitif (contrainte 23xxx, donnée 22xxx, RLS 42501) : on jette cette
         // mutation pour ne pas bloquer les suivantes — un réseau absent, lui, fait attendre
-        const definitive = /^(22|23|42)/.test(String(error.code || ''));
+        // P0001 = refus levé par nos propres triggers/RPC (household_full…) : définitif aussi
+        const definitive = /^(22|23|42)/.test(String(error.code || '')) || error.code === 'P0001';
         console.warn(`[store] push ${table} ${definitive ? 'rejeté' : 'bloqué'} :`, error.message || error.code);
         if (!definitive) break;
       }
