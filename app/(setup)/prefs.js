@@ -8,7 +8,8 @@ import { GlowBg, SetupHeader, Card, CTAPrimary } from '../../src/components/ui';
 import { LiveMochi, FadeInDown, Animated } from '../../src/components/motion';
 import { SectionLabel, setupTokens, LegendChip } from '../../src/components/setup/extra';
 import { prefsPool, prefsMax, reminderTimes } from '../../src/demo-setup';
-import { savePrefs } from '../../src/setup-state';
+import { savePrefs, loadSetup, setup } from '../../src/setup-state';
+import { syncJoinerPrefs } from '../../src/sync-setup';
 import { askNotificationPermission } from '../../src/notifications';
 import copy from '../../src/data/copy.json';
 import { colors, space, alpha } from '../../src/theme';
@@ -93,7 +94,15 @@ export default function Prefs() {
         <View style={s.ctaWrap}>
           {/* branchement réel (1er sept 2026) : préférences + heure de rappel enregistrées ;
               permission notifications demandée ICI, au moment utile (règle CLAUDE.md) */}
-          <CTAPrimary label={t.letsGo} onPress={() => { savePrefs({ prefs, reminder: reminderTimes[timeIdx] }); askNotificationPermission().catch(() => {}); router.push('/(setup)/invite'); }} big />
+          {/* celui qui a REJOINT un foyer (décision Jeanne 5 sept 2026) : ses dispos et
+              préférences partent au foyer et il atterrit à l'Accueil — pas d'écran 09 */}
+          <CTAPrimary label={t.letsGo} onPress={async () => {
+            savePrefs({ prefs, reminder: reminderTimes[timeIdx] });
+            askNotificationPermission().catch(() => {});
+            await loadSetup();
+            if (setup.householdId && !setup.tasks?.length) { syncJoinerPrefs().catch(() => {}); router.replace('/(tabs)'); }
+            else router.push('/(setup)/invite');
+          }} big />
         </View>
       </SafeAreaView>
     </View>

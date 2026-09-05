@@ -54,15 +54,17 @@ export default function DuoForme() {
             <Animated.View style={[s.ring, right]}><Avatar initial={partner.initial} color={partner.color} size={62} /></Animated.View>
           </View>
           <View style={{ marginBottom: 11 }}><PillLabel color={colors.sageDeep}>{t.duoPill}</PillLabel></View>
-          <Text style={s.title}>{fill(t.duoTitle, { name: partner.first_name })}</Text>
-          <Text style={s.sub}>{t.duoSub}</Text>
+          {/* celui qui rejoint lit « Tu as rejoint le foyer de X » (décision Jeanne, 5 sept) */}
+          <Text style={s.title}>{fill(joiner ? t.duoTitleJoiner : t.duoTitle, { name: partner.first_name })}</Text>
+          <Text style={s.sub}>{joiner ? t.duoSubJoiner : t.duoSub}</Text>
         </View>
         <View style={s.ctaWrap}>
-          {/* celui qui REJOINT un foyer existant (2 sept 2026) : les tâches sont déjà
-              choisies par l'autre → direction l'Accueil, pas l'écran 10 */}
+          {/* celui qui REJOINT un foyer existant : les tâches sont déjà choisies par
+              l'autre → il passe par 06 → 07 → 08 (prénom/photo, dispos, préférences —
+              décision Jeanne 5 sept 2026, « un rond avec un K » sinon) puis l'Accueil */}
           <CTAPrimary
             label={joiner ? copy.common.continue : t.chooseTasks}
-            onPress={() => (joiner ? router.replace('/(tabs)') : router.push('/(setup)/taches'))}
+            onPress={() => (joiner ? router.push('/(setup)/identite') : router.push('/(setup)/taches'))}
             big
           />
         </View>

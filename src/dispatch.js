@@ -107,13 +107,15 @@ export const preferredDays = availability => {
 // Place n occurrences sur les 7 prochains jours : d'abord les jours cochés au 07
 // (« courses le jeudi »), puis étalement uniforme pour le reste. Un même jour ne
 // reçoit jamais deux occurrences de la même tâche (contrainte unique en base).
-export const placeDays = (perWeek, availability, todayDow) => {
+// `seed` (index de la tâche) décale l'étalement de repli : sans grille, deux tâches
+// hebdo ne tombent plus toutes « aujourd'hui » (retour Jeanne, 5 sept 2026).
+export const placeDays = (perWeek, availability, todayDow, seed = 0) => {
   const n = Math.min(7, Math.max(1, Math.round(perWeek || 1)));
   const toOffset = dayIdx => (dayIdx - todayDow + 7) % 7;
   const preferred = preferredDays(availability).map(toOffset);
   const chosen = [];
   for (const off of preferred) { if (chosen.length >= n) break; if (!chosen.includes(off)) chosen.push(off); }
-  for (const off of spreadDays(n)) { if (chosen.length >= n) break; if (!chosen.includes(off)) chosen.push(off); }
+  for (const off of spreadDays(n).map(o => (o + seed) % 7)) { if (chosen.length >= n) break; if (!chosen.includes(off)) chosen.push(off); }
   for (let off = 0; chosen.length < n && off < 7; off++) if (!chosen.includes(off)) chosen.push(off);
   return chosen.sort((a, b) => a - b);
 };

@@ -1,7 +1,8 @@
 // Écran 38 · Profil & réglages (accès par l'avatar). Recette : docs/recettes/38-profil.md
 import React, { useState, useEffect } from 'react';
 import { router } from 'expo-router';
-import { View, Text, Pressable, Switch, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, Pressable, Switch, ScrollView, StyleSheet, Alert } from 'react-native';
+import { leaveHousehold } from '../src/invite-actions';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GlowBg, Card, PillLabel, Avatar } from '../src/components/ui';
 import { BackButton, SectionMicro, SettingRow } from '../src/components/premium/extra';
@@ -49,6 +50,10 @@ export default function Profil() {
   // Déconnexion propre (retour Jeanne, 2 sept) : session fermée + données locales
   // purgées + retour à l'onboarding — plus d'Accueil fantôme avec les données périmées.
   // (Un écran de déconnexion dédié est au backlog ; l'onboarding fait l'accueil en attendant.)
+  const onLeave = () => Alert.alert(t.leaveTitle, t.leaveBody, [
+    { text: t.leaveCancel, style: 'cancel' },
+    { text: t.leaveOk, style: 'destructive', onPress: async () => { const r = await leaveHousehold(); if (r.ok) router.replace('/(setup)/invite'); } },
+  ]);
   const onLogout = async () => {
     try { await signOut(); } catch (e) { /* mode démo */ }
     try {
@@ -103,6 +108,12 @@ export default function Profil() {
               <SettingRow emoji="🗺" title={t.plan} sub={t.planSub} onPress={() => router.push('/plan')} />
             </View>
 
+            {/* quitter le foyer (décision Jeanne 5 sept 2026) : confirmation, puis écran 09 */}
+            {real ? (
+              <Pressable onPress={onLeave} style={({ pressed }) => ({ paddingTop: 14, paddingBottom: 4, alignItems: 'center', opacity: pressed ? 0.6 : 1 })}>
+                <Text style={s.leave}>{t.leave}</Text>
+              </Pressable>
+            ) : null}
             <Pressable onPress={onLogout} style={({ pressed }) => ({ paddingVertical: 10, alignItems: 'center', opacity: pressed ? 0.6 : 1 })}>
               <Text style={s.logout}>{t.logout}</Text>
             </Pressable>
@@ -119,4 +130,5 @@ const s = StyleSheet.create({
   statVal: { fontSize: 21, fontWeight: '600', letterSpacing: -0.6, color: colors.ink, fontVariant: ['tabular-nums'] },
   value: { fontSize: 13.5, fontWeight: '600', color: colors.ink, fontVariant: ['tabular-nums'] },
   logout: { fontSize: 14.5, fontWeight: '600', color: colors.coralDeep },
+  leave: { fontSize: 14.5, fontWeight: '600', color: colors.muted },
 });

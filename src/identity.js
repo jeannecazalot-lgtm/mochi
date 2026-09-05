@@ -22,6 +22,12 @@ const notify = () => { version++; subs.forEach(f => f()); };
 const pick = o => ({ first_name: o.first_name, initial: o.initial, avatar_url: o.avatar_url ?? null });
 const DEFAULT_ME = pick(demoMe);
 const DEFAULT_PARTNER = pick(demoPartner);
+// on quitte le foyer : le binôme redevient celui de démo, mon profil reste
+export function resetPartner() {
+  partnerUidVal = null;
+  Object.assign(demoPartner, DEFAULT_PARTNER);
+  notify();
+}
 export function resetIdentity() {
   real = null; uidVal = null; started = false; partnerUidVal = null;
   Object.assign(demoMe, DEFAULT_ME);

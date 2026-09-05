@@ -87,5 +87,9 @@ const T = (id, duration_min, per_week, pain = 2, extra = {}) => ({ id, duration_
   check('8d. quotidien sans grille → les 7 jours', r4.length === 7 && new Set(r4).size === 7, JSON.stringify(r4));
   const r5 = placeDays(2, null, 4);
   check('8e. sans grille → étalement uniforme', r5.length === 2, JSON.stringify(r5));
+  const r6 = [0, 1, 2, 3].map(seed => placeDays(1, {}, 0, seed)[0]);
+  check('8f. sans grille, 4 tâches hebdo → 4 jours différents (seed)', new Set(r6).size === 4, JSON.stringify(r6));
+  const r7 = placeDays(7, {}, 2, 5);
+  check('8g. quotidien + seed → toujours les 7 jours', r7.length === 7 && new Set(r7).size === 7, JSON.stringify(r7));
 }
 process.exit(failed ? 1 : 0);

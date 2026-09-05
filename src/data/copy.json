@@ -583,7 +583,9 @@
     "both": "Ensemble",
     "alternate": "Alterné",
     "perWeekSlash": "/ semaine",
-    "shareMsgNoLink": "{name} t'invite sur mochi 🍡 Installe l'app, choisis « J'ai reçu un code » et tape : {code}"
+    "shareMsgNoLink": "{name} t'invite sur mochi 🍡 Installe l'app, choisis « J'ai reçu un code » et tape : {code}",
+    "duoTitleJoiner": "Tu as rejoint le foyer de {name} !",
+    "duoSubJoiner": "Encore trois petites étapes : ton prénom, tes dispos, tes préférences."
   },
   "event": {
     "_labels": {
@@ -992,7 +994,12 @@
     "plan": "Plan des écrans",
     "planSub": "Navigation de développement",
     "logout": "Se déconnecter",
-    "duoWithReal": "En duo avec {name}"
+    "duoWithReal": "En duo avec {name}",
+    "leave": "Quitter le foyer",
+    "leaveTitle": "Quitter le foyer ?",
+    "leaveBody": "Tes missions et ton historique ici seront perdus. Tu pourras créer ou rejoindre un autre foyer.",
+    "leaveOk": "Quitter",
+    "leaveCancel": "Rester"
   },
   "activity": {
     "_labels": {
@@ -1221,7 +1228,7 @@
     "errAlready": "Tu es déjà dans un foyer (un seul foyer par personne).",
     "errNetwork": "Impossible de rejoindre — vérifie ta connexion.",
     "linkJoining": "On te fait entrer dans le foyer…",
-    "errFull": "Ce foyer est complet.",
+    "errFull": "Ce foyer est déjà complet — mochi, c'est à deux.",
     "errNotEmpty": "Vous êtes déjà deux dans ton foyer — quitte-le d'abord depuis le profil."
   },
   "reminders": {

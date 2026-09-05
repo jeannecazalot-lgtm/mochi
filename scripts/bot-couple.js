@@ -164,14 +164,15 @@ const warn = (label) => { console.log(`△ fragile : ${label}`); fragile.push(la
   const j2 = await rpc(carol.tok, 'accept_invitation', { p_code: code });
   ok(/invitation_invalid/.test(JSON.stringify(j2.data)), 'S10 un code déjà utilisé est refusé');
   ok(/invitation_invalid/.test(JSON.stringify((await rpc(carol.tok, 'accept_invitation', { p_code: 'ZZZZZZ' })).data)), 'S10 code bidon refusé');
+  // duo strict (migration 0005, décision 5 sept) : un 3e membre est refusé
   const code2 = genCode();
   await post(alice.tok, 'invitations', { id: uuid(), household_id: HA, code: code2, created_by: alice.uid });
   const j3 = await rpc(carol.tok, 'accept_invitation', { p_code: code2 });
-  ok(j3.data === HA, 'S10 3e membre (Carol) via une nouvelle invitation — foyer 2→10');
-  const m3 = await get(carol.tok, `/rest/v1/household_members?household_id=eq.${HA}&select=slot&order=slot`);
-  ok(m3.length === 3 && m3[2].slot === 3, 'S10 Carol en slot 3');
+  ok(/household_full/.test(JSON.stringify(j3.data)), 'S10 un 3e membre (Carol) est refusé : duo strict', j3.data);
+  const m3 = await get(alice.tok, `/rest/v1/household_members?household_id=eq.${HA}&select=slot&order=slot`);
+  ok(m3.length === 2, 'S10 le foyer reste à 2');
   const j4 = await rpc(bob.tok, 'accept_invitation', { p_code: code2 });
-  ok(/invitation_invalid|already/.test(JSON.stringify(j4.data)), 'S10 Bob (déjà dans un foyer à 3) ne peut pas rejoindre ailleurs');
+  ok(/household_not_empty|already/.test(JSON.stringify(j4.data)), 'S10 Bob (déjà en duo) ne peut pas rejoindre ailleurs');
 
   // ── S11 · Isolation : un inconnu ne voit ni ne touche rien ─────────
   const dave = await anon('Dave');
@@ -199,9 +200,12 @@ const warn = (label) => { console.log(`△ fragile : ${label}`); fragile.push(la
   ok(clash.status === 409, 'S14 deux occurrences de la même tâche le même jour : refusé (409)', clash.status);
 
   // ── S12 · Départ volontaire ───────────────────────────────────────
-  const leave = await api(carol.tok, 'DELETE', `/rest/v1/household_members?user_id=eq.${carol.uid}`);
-  ok(leave.status === 204, 'S12 Carol quitte le foyer (delete de sa ligne)');
-  ok((await get(alice.tok, `/rest/v1/household_members?household_id=eq.${HA}&select=slot`)).length === 2, 'S12 le foyer repasse à 2');
+  const leave = await api(bob.tok, 'DELETE', `/rest/v1/household_members?user_id=eq.${bob.uid}`);
+  ok(leave.status === 204, 'S12 Bob quitte le foyer (profil → « Quitter le foyer »)');
+  ok((await get(alice.tok, `/rest/v1/household_members?household_id=eq.${HA}&select=slot`)).length === 1, 'S12 le foyer repasse à 1, Alice garde tout');
+  const code3 = genCode();
+  await post(alice.tok, 'invitations', { id: uuid(), household_id: HA, code: code3, created_by: alice.uid });
+  ok((await rpc(carol.tok, 'accept_invitation', { p_code: code3 })).data === HA, 'S12 la place libérée peut être reprise (Carol)');
 
   console.log(`\n${failed ? `✗ ${failed} échec(s)` : '✓✓ tout passe'} · ${fragile.length} point(s) fragile(s)`);
   fragile.forEach(f => console.log('   △ ' + f));

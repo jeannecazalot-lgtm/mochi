@@ -6,8 +6,8 @@
 import { supabase } from './supabase';
 import { ensureSession } from './profile';
 import { uuid, pull, resetAll } from './store';
-import { loadSetup, setup, saveHouseholdId } from './setup-state';
-import { loadPartner, loadIdentity } from './identity';
+import { loadSetup, setup, saveHouseholdId, clearSetup } from './setup-state';
+import { loadPartner, loadIdentity, resetPartner } from './identity';
 
 // Lien universel (3 sept 2026) : hébergé sur GitHub Pages (AASA du domaine →
 // l'app s'ouvre au tap si installée, sinon page d'atterrissage avec le code).
@@ -53,6 +53,21 @@ export async function createInvitation() {
     if (error) return null;
     return { code };
   } catch (e) { return null; }
+}
+
+// quitter son foyer (profil, décision Jeanne 5 sept 2026) : ma ligne membre disparaît,
+// le foyer et ses données restent à l'autre ; localement on repart de zéro (le profil
+// — prénom, photo — est conservé). Ensuite : écran 09, créer ou rejoindre un foyer.
+export async function leaveHousehold() {
+  try {
+    const session = await ensureSession();
+    const { error } = await supabase.from('household_members').delete().eq('user_id', session.user.id);
+    if (error) return { ok: false, reason: error.message };
+    clearSetup();
+    await resetAll();
+    resetPartner();
+    return { ok: true };
+  } catch (e) { return { ok: false, reason: e?.message || 'réseau' }; }
 }
 
 // rejoint un foyer avec un code, puis rapatrie ses données
