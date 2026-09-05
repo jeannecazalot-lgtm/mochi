@@ -183,7 +183,7 @@ export default function AFaire() {
             <View key={g.label} style={{ marginBottom: 10 }}>
               <View style={s.groupHead}>
                 <Text style={s.groupLabel}>{g.label}</Text>
-                <Text style={s.groupCount}>{fill(t.groupCount, { n: g.items.length })}</Text>
+                <Text style={s.groupCount}>{g.items.length === 1 ? t.groupCountOne : fill(t.groupCount, { n: g.items.length })}</Text>
               </View>
               {g.items.map(o => <Row key={o.id} occ={o} done={isDone(o)} onToggle={toggle} />)}
             </View>

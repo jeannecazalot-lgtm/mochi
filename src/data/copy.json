@@ -1079,7 +1079,8 @@
     "swipeSwap": "Repasser",
     "swipePostpone": "Reporter",
     "daysAgo": "{n} j",
-    "hoursAgo": "{n} h"
+    "hoursAgo": "{n} h",
+    "groupCountOne": "1 tâche"
   },
   "onboarding": {
     "_labels": {
