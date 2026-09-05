@@ -111,6 +111,7 @@ Questions ouvertes (à trancher par Jeanne) :
 - Pas encore buildé (consigne : à la demande de Jeanne).
 
 ## Décisions prises
+- **5 sept 2026 (soir)** — **Pas de vrai compte e-mail/Apple pour l'instant** : « se créer un compte » en rejoignant = prénom/photo + dispos + préférences (06 → 07 → 08), sessions anonymes conservées. **Budget gratuit** le temps du test. **Malus conservé**, affiché uniquement comme montant effaçable (sheet 21 « Malus en cours : n pt — le faire maintenant l'efface », pastille « n pt » sur les retards, section Balance) — règle proposée, à confirmer.
 - **5 sept 2026 (soir)** — **Les émojis restent** dans l'interface (« on en laisse » — annule le « zéro émoji » du 23 août). **La « dette » disparaît** (fil Activité, sheet 21) : la balance suffit. Sheet 21 : proposition « Malus en cours : n pt — le faire maintenant l'efface » montrée en capture, en attente du verdict de Jeanne.
 - **23 août 2026** — **Zéro émoji dans l'UI** (décision Jeanne : app sobre). Symboles graphiques ○ ● ✓ ‹ › et SVG conservés ; repères de rangée = pastille couleur du membre. Champs `emoji` conservés en données mais jamais affichés.
 - **23 août 2026** — Écran 07 : proposition A (légende chips + « Tape une case ») + slider 2→8 h. Écran 08 : liste unique à bascule (neutre → j'aime → je déteste, 3 max par côté). Écrans 12+13 fusionnés. CTA taille Airbnb (52, marges 24), dégradé qui avance à l'appui. Flèche retour épinglée en haut.
