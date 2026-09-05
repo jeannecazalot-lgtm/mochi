@@ -182,6 +182,22 @@ const warn = (label) => { console.log(`△ fragile : ${label}`); fragile.push(la
   const hackMal = await post(dave.tok, 'malus', { id: uuid(), household_id: HA, user_id: alice.uid, points: 99, week_start: monday });
   ok(hackMal.status !== 201, 'S11 …ni écrire un malus dans le foyer');
 
+  // ── S13 · Invitation expirée ────────────────────────────────────────
+  const codeOld = genCode();
+  const rOld = await post(alice.tok, 'invitations', { id: uuid(), household_id: HA, code: codeOld, created_by: alice.uid, expires_at: new Date(Date.now() - 3600000).toISOString() });
+  if (rOld.status === 201) {
+    const eve = await anon('Eve');
+    const jx = await rpc(eve.tok, 'accept_invitation', { p_code: codeOld });
+    ok(/invitation_invalid/.test(JSON.stringify(jx.data)), 'S13 une invitation expirée est refusée');
+  } else ok(false, 'S13 création d\'une invitation expirée (pour le test)', rOld.data);
+
+  // ── S14 · Déplacer sur un jour où la même tâche existe déjà → refus base ──
+  const o1 = { id: uuid(), household_id: HA, task_id: realId.lessive, kind: 'exec', due_date: addDays(20), assignee_id: alice.uid };
+  const o2 = { id: uuid(), household_id: HA, task_id: realId.lessive, kind: 'exec', due_date: addDays(21), assignee_id: alice.uid };
+  await post(alice.tok, 'occurrences', [o1, o2]);
+  const clash = await patch(alice.tok, 'occurrences', `id=eq.${o2.id}`, { due_date: addDays(20) });
+  ok(clash.status === 409, 'S14 deux occurrences de la même tâche le même jour : refusé (409)', clash.status);
+
   // ── S12 · Départ volontaire ───────────────────────────────────────
   const leave = await api(carol.tok, 'DELETE', `/rest/v1/household_members?user_id=eq.${carol.uid}`);
   ok(leave.status === 204, 'S12 Carol quitte le foyer (delete de sa ligne)');
