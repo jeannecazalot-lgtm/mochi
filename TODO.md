@@ -111,6 +111,7 @@ Questions ouvertes (à trancher par Jeanne) :
 - Pas encore buildé (consigne : à la demande de Jeanne).
 
 ## Décisions prises
+- **5 sept 2026 (soir)** — **Les émojis restent** dans l'interface (« on en laisse » — annule le « zéro émoji » du 23 août). **La « dette » disparaît** (fil Activité, sheet 21) : la balance suffit. Sheet 21 : proposition « Malus en cours : n pt — le faire maintenant l'efface » montrée en capture, en attente du verdict de Jeanne.
 - **23 août 2026** — **Zéro émoji dans l'UI** (décision Jeanne : app sobre). Symboles graphiques ○ ● ✓ ‹ › et SVG conservés ; repères de rangée = pastille couleur du membre. Champs `emoji` conservés en données mais jamais affichés.
 - **23 août 2026** — Écran 07 : proposition A (légende chips + « Tape une case ») + slider 2→8 h. Écran 08 : liste unique à bascule (neutre → j'aime → je déteste, 3 max par côté). Écrans 12+13 fusionnés. CTA taille Airbnb (52, marges 24), dégradé qui avance à l'appui. Flèche retour épinglée en haut.
 - **21 août 2026 (soir)** — Jeanne demande **tous les écrans navigables + animations** avant la validation page par page. Méthode : tous les écrans construits avec des **données de démo** (`src/demo.js`, personnes **Ketley** (slot 1) et **Julian** (slot 2)), reliés selon la flow map, animations du brief ; la validation visuelle et le branchement Supabase se font ensuite écran par écran. Écran « Plan des écrans » (`/plan`) pour sauter partout.
