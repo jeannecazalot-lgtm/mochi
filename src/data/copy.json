@@ -1469,5 +1469,59 @@
     "bWhy": "Hero simple en haut, toutes les actions empilées en bas : zéro hésitation.",
     "cLabel": "C · Minimaliste",
     "cWhy": "Le QR géant fait tout le travail côte à côte ; une seule action, aucun détour."
+  },
+  "missionV2": {
+    "_labels": {
+      "_": "Proto sheet Tâche v2 (5 sept 2026) — une seule sheet, étage moment + étage règle. {name} = prénom du binôme, {time} = durée, {amount} = dépense, {day} = jour"
+    },
+    "metaYou": "Toi",
+    "metaToday": "aujourd'hui",
+    "metaApprox": "≈ {time}",
+    "timeLabel": "Temps passé",
+    "expenseLabel": "Dépense",
+    "expenseAdd": "Ajouter",
+    "doneLabel": "C'est fait",
+    "doneSub": "{time} comptés dans la balance",
+    "doneCta": "C'est fait · {time}",
+    "noTimeLabel": "Je n'aurai pas le temps",
+    "noTimeSub": "Déplacer, ou repasser à {name}",
+    "moveLabel": "Déplacer à",
+    "moveWarn": "{name} recevra une notification",
+    "swapLabel": "Repasser à {name}",
+    "swapSub": "Il devra accepter",
+    "ruleLabel": "La règle",
+    "ruleSummary": "{freq} · {days} · {who}",
+    "ruleFreq": "Tous les combien",
+    "ruleDays": "Quels jours",
+    "ruleWho": "Qui s'en occupe",
+    "ruleDuration": "Durée estimée",
+    "ruleNote": "Note",
+    "freq": {
+      "daily": "Chaque jour",
+      "twiceWeek": "2× / semaine",
+      "weekly": "1× / semaine",
+      "monthly": "1× / mois",
+      "once": "Une fois"
+    },
+    "days": [
+      "L",
+      "M",
+      "M",
+      "J",
+      "V",
+      "S",
+      "D"
+    ],
+    "whoMe": "Moi",
+    "whoAlt": "On alterne",
+    "whoAuto": "Mochi décide",
+    "noteSample": "Lessive à 40°, pas le pull rouge",
+    "confirmDone": "C'est fait",
+    "confirmDoneSub": "{time} et {amount} comptés dans la balance",
+    "confirmMoved": "Déplacé à {day}",
+    "confirmMovedSub": "{name} est prévenu",
+    "confirmSwap": "Proposé à {name}",
+    "confirmSwapSub": "Tu restes porteur jusqu'à sa réponse",
+    "confirmSwapPill": "En attente"
   }
 }
