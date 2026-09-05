@@ -6,6 +6,7 @@
 // Le compteur « 3 refus/semaine → refaites le setup » se lira dans ces lignes.
 // ═══════════════════════════════════════════════════════════════════
 import { read, mutate, uuid } from './store';
+import { supabase } from './supabase';
 import { occStore } from './demo-core';
 import { getUid, getPartnerUid } from './identity';
 
@@ -35,6 +36,8 @@ export async function resolveSwap(swapId, accept) {
     const occs = await read('occurrences');
     const o = occs.find(x => x.id === sw.occurrence_id);
     if (o) await mutate('occurrences', { ...o, assignee_id: sw.to_user });
+    // pas encore en cache (temps réel en retard) : changement de porteur direct au serveur
+    else { try { await supabase.from('occurrences').update({ assignee_id: sw.to_user }).eq('id', sw.occurrence_id); } catch (e) { /* rejoué au prochain pull */ } }
   }
   occStore.bump();
   return true;
