@@ -69,15 +69,11 @@ export default function Retard() {
         <LiveMochi size={54} mood="sad" float={false} />
         <View style={{ flex: 1 }}>
           <View style={{ alignSelf: 'flex-start', marginBottom: 5 }}>
-            <PillLabel color={colors.coralDeep} tint={colors.coral}>{fill(t.pill, { n: daysLate })}</PillLabel>
+            {/* Jeanne (5 sept) : l'encadré rouge était « lourd » — le malus tient dans la pastille */}
+            <PillLabel color={colors.coralDeep} tint={colors.coral}>{points == null ? fill(t.pill, { n: daysLate }) : fill(t.pillMalus, { n: daysLate, pts: fmtPts(points) })}</PillLabel>
           </View>
           <Text style={s.headTitle} numberOfLines={1}>{emoji ? `${emoji} ` : ''}{title || t.fallbackTitle}</Text>
         </View>
-      </View>
-
-      {/* le malus réel de cette tâche (proposition montrée à Jeanne le 5 sept 2026) */}
-      <View style={s.warn}>
-        <Text style={s.warnTxt}>{points == null ? t.warn : fill(t.warnReal, { n: fmtPts(points) })}</Text>
       </View>
 
       <Micro style={{ marginBottom: 7 }}>{t.recommended}</Micro>
