@@ -12,7 +12,7 @@ import { me, partner, balance, streak, myToday, taskById, fmtMin } from '../../s
 import { fmtHeaderDate, mochiLean, moreLoaded, hasUnreadPing, missionDone, occStore } from '../../src/demo-core';
 import { read } from '../../src/store';
 import { loadSetup, setup, inRealMode } from '../../src/setup-state';
-import { useIdentity } from '../../src/identity';
+import { useIdentity, getUid } from '../../src/identity';
 import { localIso } from '../../src/dates';
 import { toggleOccurrence } from '../../src/occ-actions';
 import copy from '../../src/data/copy.json';
@@ -73,7 +73,7 @@ const demoVms = () => myToday().map(o => {
 export default function Home() {
   const t = copy.home;
   missionDone.useVersion(); // re-rend quand la sheet Mission coche/décoche
-  useIdentity(); // re-rend quand le vrai profil (prénom + photo) arrive
+  const ident = useIdentity(); // re-rend quand le vrai profil (prénom + photo + uid) arrive
   // Branchement réel (1er sept 2026) : si le setup a tourné, l'Accueil affiche les
   // VRAIES occurrences du jour (cache local du store) ; la démo n'est qu'un fallback.
   // null = pas encore chargé (rien ne s'affiche : pas de flash de démo chez les vrais foyers)
@@ -89,7 +89,10 @@ export default function Home() {
       const [occs, tasks] = await Promise.all([read('occurrences'), read('tasks')]);
       const byId = Object.fromEntries(tasks.map(tk => [tk.id, tk]));
       const today = localIso();
-      const todays = occs.filter(o => o.due_date === today);
+      // « pour toi » = mes missions + les communes (bot/simulateur 5 sept 2026 :
+      // l'Accueil montrait aussi celles du binôme) ; sans uid (hors ligne) : tout
+      const uid = getUid();
+      const todays = occs.filter(o => o.due_date === today && (!uid || !o.assignee_id || o.assignee_id === uid));
       setReal(true);
       // hydrate la coche depuis le statut serveur (relance de l'app)
       todays.forEach(o => { if (o.status === 'done' && !missionDone.has(o.id)) missionDone.set(o.id, true); });
@@ -99,7 +102,7 @@ export default function Home() {
         return { id: o.id, emoji: tk.emoji || '•', title: tk.title || '…', mental: !!tk.mental_load, badge: null, mins: tk.duration_min || 15, href: `/mission?${q}`, ping: null };
       }));
     })();
-  }, [occV]);
+  }, [occV, ident]);
   const toggle = id => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
     const nowDone = !missionDone.has(id);
