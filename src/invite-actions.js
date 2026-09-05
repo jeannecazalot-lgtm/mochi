@@ -7,7 +7,7 @@ import { supabase } from './supabase';
 import { ensureSession } from './profile';
 import { uuid, pull, resetAll } from './store';
 import { loadSetup, setup, saveHouseholdId } from './setup-state';
-import { loadPartner } from './identity';
+import { loadPartner, loadIdentity } from './identity';
 
 // Lien universel (3 sept 2026) : hébergé sur GitHub Pages (AASA du domaine →
 // l'app s'ouvre au tap si installée, sinon page d'atterrissage avec le code).
@@ -62,6 +62,7 @@ export async function joinWithCode(code) {
     const { data: hid, error } = await supabase.rpc('accept_invitation', { p_code: String(code).trim().toUpperCase() });
     if (error) return { ok: false, reason: error.message };
     saveHouseholdId(hid);
+    await loadIdentity(); // uid + profil de LA session qui vient de rejoindre
     await resetAll(); // nouveau foyer : cache, filigranes et file repartent de zéro
     await Promise.all(['tasks', 'occurrences', 'task_pains', 'swap_requests', 'malus'].map(tb => pull(tb, hid)));
     loadPartner(hid); // le prénom/photo de l'autre remplace le binôme simulé

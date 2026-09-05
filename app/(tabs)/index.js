@@ -12,7 +12,7 @@ import { me, partner, balance, streak, myToday, taskById, fmtMin } from '../../s
 import { fmtHeaderDate, mochiLean, moreLoaded, hasUnreadPing, missionDone, occStore } from '../../src/demo-core';
 import { read } from '../../src/store';
 import { loadSetup, setup, inRealMode } from '../../src/setup-state';
-import { useIdentity, getUid } from '../../src/identity';
+import { useIdentity, getUid, loadIdentity } from '../../src/identity';
 import { localIso } from '../../src/dates';
 import { toggleOccurrence } from '../../src/occ-actions';
 import copy from '../../src/data/copy.json';
@@ -79,6 +79,7 @@ export default function Home() {
   // null = pas encore chargé (rien ne s'affiche : pas de flash de démo chez les vrais foyers)
   const [vms, setVms] = useState(null);
   const [real, setReal] = useState(false);
+  const [anyOcc, setAnyOcc] = useState(false); // le foyer a-t-il déjà des missions (pas forcément à moi) ?
   const occV = occStore.useVersion(); // « Déplacer » depuis la sheet → on relit le store
   useEffect(() => {
     (async () => {
@@ -91,9 +92,11 @@ export default function Home() {
       const today = localIso();
       // « pour toi » = mes missions + les communes (bot/simulateur 5 sept 2026 :
       // l'Accueil montrait aussi celles du binôme) ; sans uid (hors ligne) : tout
+      await loadIdentity(); // uid de la session courante (peut avoir changé)
       const uid = getUid();
       const todays = occs.filter(o => o.due_date === today && (!uid || !o.assignee_id || o.assignee_id === uid));
       setReal(true);
+      setAnyOcc(occs.length > 0);
       // hydrate la coche depuis le statut serveur (relance de l'app)
       todays.forEach(o => { if (o.status === 'done' && !missionDone.has(o.id)) missionDone.set(o.id, true); });
       setVms(todays.map(o => {
@@ -115,7 +118,7 @@ export default function Home() {
   const { line, sub } = vms === null ? { line: ' ', sub: ' ' }
     : real
       ? (setup.result?.loads ? mochiLineReal(t, setup.result.loads)
-        : list.length ? { line: t.mochiBalanced, sub: t.mochiBalancedSub }
+        : (list.length || anyOcc) ? { line: t.mochiBalanced, sub: t.mochiBalancedSub }
           : { line: t.mochiNew, sub: t.mochiNewSub })
       : mochiLine(t);
   const meta = vms === null ? '' : fill(list.length === 1 ? t.missionMeta : t.missionsMeta, { n: list.length, time: fmtMin(list.reduce((s2, v) => s2 + (v.mins || 0), 0)) });

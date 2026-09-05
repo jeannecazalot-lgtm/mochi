@@ -30,13 +30,17 @@ export function resetIdentity() {
 }
 
 export async function loadIdentity() {
+  // l'uid suit TOUJOURS la session courante (déconnexion/reconnexion sans
+  // redémarrage, 5 sept 2026) ; le profil, lui, n'est chargé qu'une fois par compte
+  let session = null;
+  try { session = (await supabase.auth.getSession()).data.session; } catch (e) { return real; }
+  if (!session) return null;
+  if (uidVal && uidVal !== session.user.id) { started = false; real = null; }
+  uidVal = session.user.id;
   if (started) return real;
   started = true;
   try {
-    const { data } = await supabase.auth.getSession();
-    if (!data.session) return null;
-    uidVal = data.session.user.id;
-    const { data: p } = await supabase.from('profiles').select('first_name, avatar_url').eq('id', data.session.user.id).maybeSingle();
+    const { data: p } = await supabase.from('profiles').select('first_name, avatar_url').eq('id', session.user.id).maybeSingle();
     if (p && (p.first_name || p.avatar_url)) {
       const name = (p.first_name || '').trim();
       real = { first_name: name || demoMe.first_name, avatar_url: p.avatar_url || null, initial: (name || demoMe.initial)[0].toUpperCase() };
