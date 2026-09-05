@@ -12,7 +12,7 @@ import { members, me, partner, streak, taskById, fmtMin } from '../../src/demo';
 import { shares, balanceState, weekInfo, nextReview, malusItems, dayMinutes } from '../../src/demo-balance';
 import { weekDays, missionDone, occStore } from '../../src/demo-core';
 import { read } from '../../src/store';
-import { loadSetup, setup } from '../../src/setup-state';
+import { loadSetup, setup, inRealMode } from '../../src/setup-state';
 import { getUid, useIdentity } from '../../src/identity';
 import { localIso } from '../../src/dates';
 import { weekMalus, sweepMissed } from '../../src/malus-actions';
@@ -79,10 +79,11 @@ export default function Balance() {
   useEffect(() => {
     (async () => {
       await loadSetup();
-      if (!setup.result?.items?.length) return;
+      // Réel dès qu'on a un foyer, même vide (retour test à deux, 3 sept 2026)
+      if (!inRealMode()) return;
       await sweepMissed().catch(() => {}); // les échues deviennent missed + malus
       const occs = await read('occurrences');
-      if (occs.length) setReal(computeRealBalance(occs, getUid()));
+      setReal(computeRealBalance(occs, getUid())); // gère aussi zéro occurrence
       setRealMalusItems(await weekMalus().catch(() => []));
     })();
   }, [occV]);

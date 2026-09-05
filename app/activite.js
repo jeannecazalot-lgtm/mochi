@@ -9,7 +9,7 @@ import { CenterHeader, ReplyChip } from '../src/components/social/extra';
 import { taskById, byId, occurrences, me, streak, today } from '../src/demo';
 import { activityFeed, replyPresets, partnerGender } from '../src/demo-social';
 import { read } from '../src/store';
-import { loadSetup, setup } from '../src/setup-state';
+import { loadSetup, setup, inRealMode } from '../src/setup-state';
 import { missionDone, occStore } from '../src/demo-core';
 import { useIdentity, getUid } from '../src/identity';
 import { mySwaps, resolveSwap } from '../src/swap-actions';
@@ -115,7 +115,11 @@ export default function Activite() {
     setChosen(c => ({ ...c, [id]: c[id] === key ? null : key }));
     // repassage réel : Accepter change le porteur de l'occurrence, Refuser la laisse
     const sw = realItems?.find(x => x.id === id && x.swap_id);
-    if (sw) resolveSwap(sw.swap_id, key === 'accept').catch(() => {});
+    // la carte part tout de suite (retour Jeanne 3 sept : « la notif devrait partir »)
+    if (sw) {
+      setRealItems(items => items.filter(x => x.id !== id));
+      resolveSwap(sw.swap_id, key === 'accept').then(() => occStore.bump()).catch(() => {});
+    }
     // TODO Supabase : insérer la réponse préformatée (type reply, preset_key) dans activity
   };
 
@@ -128,7 +132,9 @@ export default function Activite() {
   useEffect(() => {
     (async () => {
       await loadSetup();
-      if (!setup.result?.items?.length) return;
+      // Réel dès qu'on a un foyer, même vide (retour test à deux, 3 sept 2026 :
+      // le fil de démo montrait des notifs inertes — Accepter/émoji sans effet)
+      if (!inRealMode()) return;
       const [occs, tasks] = await Promise.all([read('occurrences'), read('tasks')]);
       const byTask = Object.fromEntries(tasks.map(tk => [tk.id, tk]));
       const hhmm = d => new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' }).format(new Date(d));

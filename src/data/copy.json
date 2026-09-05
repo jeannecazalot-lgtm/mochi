@@ -108,7 +108,9 @@
     "mochiUnbalancedMe": "Ça penche nettement de ton côté.",
     "mochiUnbalancedSub": "Mochi propose un rééquilibrage — regarde la Balance.",
     "activityA11y": "Fil d’activité",
-    "profileA11y": "Profil et réglages"
+    "profileA11y": "Profil et réglages",
+    "mochiNew": "Votre foyer démarre tout juste.",
+    "mochiNewSub": "Choisissez vos tâches ensemble pour lancer la répartition."
   },
   "planning": {
     "_labels": {
@@ -134,7 +136,8 @@
     "grabbed": "Glisse vers un avatar pour réattribuer",
     "monthHint": "Tape un jour pour voir son planning",
     "late": "En retard",
-    "realHint": "Tape une tâche pour la valider ou la déplacer"
+    "realHint": "Tape une tâche pour la valider ou la déplacer",
+    "emptyReal": "Rien de planifié pour l'instant — la répartition arrive après le choix des tâches."
   },
   "balance": {
     "_labels": {

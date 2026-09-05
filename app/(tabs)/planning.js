@@ -13,7 +13,7 @@ import { Icon, ICON, Segment, AvatarPair, Hint, CheckCircle } from '../../src/co
 import { members, byId, taskById, today, me, partner, fmtMin } from '../../src/demo';
 import { weekDays, dayDots, planningGroups, sameDay, fmtDayLabel, weekdayShort, MENTAL_COEF, fmtCoef, missionDone, occStore } from '../../src/demo-core';
 import { read } from '../../src/store';
-import { loadSetup, setup } from '../../src/setup-state';
+import { loadSetup, setup, inRealMode } from '../../src/setup-state';
 import { getUid, useIdentity } from '../../src/identity';
 import { localIso } from '../../src/dates';
 import { toggleOccurrence } from '../../src/occ-actions';
@@ -141,9 +141,9 @@ export default function Planning() {
   useEffect(() => {
     (async () => {
       await loadSetup();
-      if (!setup.result?.items?.length) return;
+      // Réel dès qu'on a un foyer, même vide (retour test à deux, 3 sept 2026)
+      if (!inRealMode()) return;
       const [occs, tasks] = await Promise.all([read('occurrences'), read('tasks')]);
-      if (!occs.length) return;
       const byTask = Object.fromEntries(tasks.map(tk => [tk.id, tk]));
       const uid = getUid();
       const todayIso = localIso();
@@ -164,7 +164,7 @@ export default function Planning() {
         });
       }
       const groups = Object.keys(byDate).sort().map(d => ({ iso: d, date: new Date(d + 'T12:00:00'), items: byDate[d] }));
-      setRealGroups(groups.length ? groups : null);
+      setRealGroups(groups); // [] = foyer réel encore vide (état vide, pas la démo)
     })();
   }, [occV, ident]);
   const toggleOcc = id => {
@@ -234,7 +234,9 @@ export default function Planning() {
                     {g.items.map(o => <TaskRow key={o.id} occ={o} onGrab={setGrabbed} />)}
                   </View>
                 ))}
-              <Hint>{realGroups ? t.realHint : grabbed ? t.grabbed : t.dragHint}</Hint>
+              {realGroups && realGroups.length === 0
+                ? <Text style={[font.secondary, { textAlign: 'center', paddingVertical: 24 }]}>{t.emptyReal}</Text> : null}
+              <Hint>{realGroups ? (realGroups.length ? t.realHint : '') : grabbed ? t.grabbed : t.dragHint}</Hint>
             </ScrollView>
           </Animated.View>
 

@@ -42,3 +42,9 @@ export function clearSetup() { Object.keys(state).forEach(k => { state[k] = null
 
 // fréquence du catalogue ({ daily } | { perWeek: n } | { perDay: n }) → occurrences/semaine
 export const freqPerWeek = f => (f?.daily ? 7 : f?.perDay ? f.perDay * 7 : f?.perWeek || 1);
+
+// Mode réel = on a un foyer (créé OU rejoint), même encore vide — retour test à
+// deux du 3 sept 2026 : qui rejoignait n'avait jamais de dispatch local et
+// retombait sur la démo figée (fausses tâches validées, fausses notifs, faux jour).
+// À appeler après loadSetup().
+export const inRealMode = () => !!(state.householdId || state.result?.items?.length);

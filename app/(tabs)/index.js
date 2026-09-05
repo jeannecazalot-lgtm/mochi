@@ -11,7 +11,7 @@ import { Icon, ICON, BadgePill, CheckCircle, RoundButton, Hint } from '../../src
 import { me, partner, balance, streak, myToday, taskById, fmtMin } from '../../src/demo';
 import { fmtHeaderDate, mochiLean, moreLoaded, hasUnreadPing, missionDone, occStore } from '../../src/demo-core';
 import { read } from '../../src/store';
-import { loadSetup, setup } from '../../src/setup-state';
+import { loadSetup, setup, inRealMode } from '../../src/setup-state';
 import { useIdentity } from '../../src/identity';
 import { localIso } from '../../src/dates';
 import { toggleOccurrence } from '../../src/occ-actions';
@@ -76,18 +76,20 @@ export default function Home() {
   useIdentity(); // re-rend quand le vrai profil (prénom + photo) arrive
   // Branchement réel (1er sept 2026) : si le setup a tourné, l'Accueil affiche les
   // VRAIES occurrences du jour (cache local du store) ; la démo n'est qu'un fallback.
-  const [vms, setVms] = useState(demoVms);
+  // null = pas encore chargé (rien ne s'affiche : pas de flash de démo chez les vrais foyers)
+  const [vms, setVms] = useState(null);
   const [real, setReal] = useState(false);
   const occV = occStore.useVersion(); // « Déplacer » depuis la sheet → on relit le store
   useEffect(() => {
     (async () => {
       await loadSetup();
-      if (!setup.result?.items?.length) return;
+      // Réel dès qu'on a un foyer, même vide (retour test à deux, 3 sept 2026 :
+      // qui rejoignait voyait la démo figée — fausses missions, faux jour, streak)
+      if (!inRealMode()) { setVms(demoVms()); return; }
       const [occs, tasks] = await Promise.all([read('occurrences'), read('tasks')]);
       const byId = Object.fromEntries(tasks.map(tk => [tk.id, tk]));
       const today = localIso();
       const todays = occs.filter(o => o.due_date === today);
-      if (!todays.length && !occV) return; // premier chargement sans données réelles → démo
       setReal(true);
       // hydrate la coche depuis le statut serveur (relance de l'app)
       todays.forEach(o => { if (o.status === 'done' && !missionDone.has(o.id)) missionDone.set(o.id, true); });
@@ -102,11 +104,18 @@ export default function Home() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
     const nowDone = !missionDone.has(id);
     missionDone.toggle(id);
-    if (real) toggleOccurrence(String(id), nowDone, vms.find(v => v.id === id)?.mins).catch(() => {});
+    if (real) toggleOccurrence(String(id), nowDone, (vms || []).find(v => v.id === id)?.mins).catch(() => {});
   };
-  // phrase de Mochi : sur le vrai résultat du dispatch quand il existe
-  const { line, sub } = real && setup.result?.loads ? mochiLineReal(t, setup.result.loads) : mochiLine(t);
-  const meta = fill(vms.length === 1 ? t.missionMeta : t.missionsMeta, { n: vms.length, time: fmtMin(vms.reduce((s2, v) => s2 + (v.mins || 0), 0)) });
+  // phrase de Mochi : vrai dispatch si dispo ; foyer réel sans dispatch local
+  // (on vient de rejoindre) → phrase neutre, jamais la phrase de démo
+  const list = vms || [];
+  const { line, sub } = vms === null ? { line: ' ', sub: ' ' }
+    : real
+      ? (setup.result?.loads ? mochiLineReal(t, setup.result.loads)
+        : list.length ? { line: t.mochiBalanced, sub: t.mochiBalancedSub }
+          : { line: t.mochiNew, sub: t.mochiNewSub })
+      : mochiLine(t);
+  const meta = vms === null ? '' : fill(list.length === 1 ? t.missionMeta : t.missionsMeta, { n: list.length, time: fmtMin(list.reduce((s2, v) => s2 + (v.mins || 0), 0)) });
   const left = Math.max(0, streak.next.at - streak.days);
 
   return (
@@ -116,10 +125,12 @@ export default function Home() {
         <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
           {/* Header : date + bulle activité + avatar */}
           <View style={s.header}>
-            <Text style={[font.micro, { flex: 1, fontWeight: '500' }]}>{fmtHeaderDate(real ? new Date() : undefined)}</Text>
+            {/* vraie date par défaut ; la date de démo n'apparaît qu'en démo confirmée */}
+            <Text style={[font.micro, { flex: 1, fontWeight: '500' }]}>{fmtHeaderDate(real || vms === null ? new Date() : undefined)}</Text>
             <RoundButton onPress={() => router.push('/activite')} accessibilityLabel={t.activityA11y}>
               <Icon d={ICON.bubble} size={17} />
-              {hasUnreadPing() ? <View style={s.dot} /> : null}
+              {/* pastille « non lu » de démo : jamais en mode réel */}
+              {!real && hasUnreadPing() ? <View style={s.dot} /> : null}
             </RoundButton>
             <Pressable onPress={() => router.push('/profil')} accessibilityLabel={t.profileA11y}>
               <Avatar initial={me.initial} color={me.color} photo={me.avatar_url} size={36} />
@@ -143,9 +154,9 @@ export default function Home() {
           <View style={{ paddingHorizontal: space.screenX }}>
             <Card padding={0} style={{ paddingVertical: 11, paddingHorizontal: 14 }}>
               {/* Retour Jeanne (2 sept 2026) : une mission cochée descend en bas de la liste */}
-              {vms.length === 0
+              {vms !== null && list.length === 0
                 ? <Text style={[font.secondary, { textAlign: 'center', paddingVertical: 10 }]}>{t.emptyToday}</Text>
-                : [...vms].sort((a, b) => (missionDone.has(a.id) ? 1 : 0) - (missionDone.has(b.id) ? 1 : 0))
+                : [...list].sort((a, b) => (missionDone.has(a.id) ? 1 : 0) - (missionDone.has(b.id) ? 1 : 0))
                   .map((v, i) => (
                     <Animated.View key={v.id} layout={LinearTransition.duration(280)}>
                       <MissionRow vm={v} first={i === 0} done={missionDone.has(v.id)} onToggle={() => toggle(v.id)} />
@@ -160,7 +171,7 @@ export default function Home() {
 
           {/* Bloc 4 · Streak discret — masqué en mode réel (pas d'historique encore) */}
           <View style={{ flex: 1 }} />
-          {real ? null : <Text style={s.streak}>{fill(t.streak, { n: streak.days, left, badge: streak.next.label })}</Text>}
+          {real || vms === null ? null : <Text style={s.streak}>{fill(t.streak, { n: streak.days, left, badge: streak.next.label })}</Text>}
         </ScrollView>
       </SafeAreaView>
     </View>
