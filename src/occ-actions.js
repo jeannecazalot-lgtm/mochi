@@ -34,7 +34,9 @@ export async function moveOccurrence(occId, dueIso) {
   if (occs.some(o => o.id !== occId && o.task_id === row.task_id && o.due_date === dueIso && o.kind === row.kind)) {
     return { ok: false, reason: 'doublon' };
   }
-  await mutate('occurrences', { ...row, due_date: dueIso });
+  // une tâche ratée qu'on décale redevient « à faire » (vu à l'écran 5 sept : elle
+  // restait 'missed' à sa nouvelle date, donc jamais en retard ni re-balayée)
+  await mutate('occurrences', { ...row, due_date: dueIso, status: row.status === 'missed' ? 'pending' : row.status });
   occStore.bump();
   rescheduleReminders(); // les rappels suivent la tâche déplacée (tâche de fond)
   return { ok: true };
