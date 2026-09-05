@@ -250,7 +250,8 @@
     "you": "toi",
     "gateTitle": "Le budget, c'est Duo+",
     "gateSub": "Dépenses partagées, solde du foyer et « On est à zéro » — inclus dans Duo+.",
-    "gateCta": "Découvrir"
+    "gateCta": "Découvrir",
+    "emptyReal": "Aucune dépense pour l'instant — elles arriveront en cochant une tâche avec dépense, ou via le ➕."
   },
   "paywall": {
     "_labels": {
