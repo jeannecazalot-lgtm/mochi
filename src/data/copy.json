@@ -1251,14 +1251,18 @@
     "warn": "Si tu ne fais rien : +1 malus ce mois",
     "recommended": "Recommandé",
     "doNow": "Je le fais maintenant",
-    "doNowSub": "≈{time} · efface le malus",
+    "doNowSub": "≈{time}",
     "orElse": "Ou sinon",
     "swap": "Repasser à {name}",
     "swapSub": "{name} décide",
     "postpone": "Décaler à demain",
     "postponeSub": "Demain · +1 pt",
     "warnReal": "Malus en cours : {n} pt — le faire maintenant l'efface",
-    "pillMalus": "{n} j de retard · {pts} pt"
+    "pillMalus": "{n} j de retard · {pts} pt",
+    "lateCaption": "En retard de {n} j",
+    "lateCaptionMalus": "En retard de {n} j · {pts} pt de malus",
+    "doNowSubMalus": "≈{time} · efface {pts} pt de malus",
+    "footerMalus": "Malus en cours : {pts} pt — il s'efface si tu la fais"
   },
   "malus": {
     "_labels": {

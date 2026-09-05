@@ -22,7 +22,10 @@ import { colors, space, radius, font, alpha } from '../src/theme';
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
 
 export default function Retard() {
-  const { occ: occId, tid, title, emoji, mins, due } = useLocalSearchParams();
+  // v = a | b | c : trois placements du malus proposés à Jeanne le 6 sept 2026
+  // (« pas au-dessus du titre ») — a : légende sous le titre · b : dans le bouton
+  // recommandé · c : note en bas de la sheet. Défaut : a, en attendant son choix.
+  const { occ: occId, tid, title, emoji, mins, due, v = 'a' } = useLocalSearchParams();
   const insets = useSafeAreaInsets();
   const t = copy.retard;
   const daysLate = due ? Math.max(1, Math.round((new Date(localIso()) - new Date(String(due))) / 86400000)) : 1;
@@ -68,11 +71,8 @@ export default function Retard() {
       <View style={s.head}>
         <LiveMochi size={54} mood="sad" float={false} />
         <View style={{ flex: 1 }}>
-          <View style={{ alignSelf: 'flex-start', marginBottom: 5 }}>
-            {/* Jeanne (5 sept) : l'encadré rouge était « lourd » — le malus tient dans la pastille */}
-            <PillLabel color={colors.coralDeep} tint={colors.coral}>{points == null ? fill(t.pill, { n: daysLate }) : fill(t.pillMalus, { n: daysLate, pts: fmtPts(points) })}</PillLabel>
-          </View>
           <Text style={s.headTitle} numberOfLines={1}>{emoji ? `${emoji} ` : ''}{title || t.fallbackTitle}</Text>
+          <Text style={s.headSub}>{v === 'a' && points != null ? fill(t.lateCaptionMalus, { n: daysLate, pts: fmtPts(points) }) : fill(t.lateCaption, { n: daysLate })}</Text>
         </View>
       </View>
 
@@ -83,7 +83,7 @@ export default function Retard() {
             <Text style={{ fontSize: 19 }}>✅</Text>
             <View style={{ flex: 1 }}>
               <Text style={s.optLabel}>{t.doNow}</Text>
-              <Text style={s.optSub}>{fill(t.doNowSub, { time: fmtMin(Number(mins) || 15) })}</Text>
+              <Text style={s.optSub}>{v === 'b' && points != null ? fill(t.doNowSubMalus, { time: fmtMin(Number(mins) || 15), pts: fmtPts(points) }) : fill(t.doNowSub, { time: fmtMin(Number(mins) || 15) })}</Text>
             </View>
             <Chevron />
           </View>
@@ -115,6 +115,7 @@ export default function Retard() {
           </View>
         </Card>
       </Pressable>
+      {v === 'c' && points != null ? <Text style={s.footer}>{fill(t.footerMalus, { pts: fmtPts(points) })}</Text> : null}
     </View>
   );
 }
@@ -123,6 +124,8 @@ const s = StyleSheet.create({
   sheet: { backgroundColor: colors.card, paddingTop: 10, paddingHorizontal: space.screenX },
   head: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 4, marginBottom: 12 },
   headTitle: { fontSize: 17, fontWeight: '600', letterSpacing: -0.3, color: colors.ink },
+  headSub: { ...font.caption, color: colors.coralDeep, marginTop: 3 },
+  footer: { ...font.caption, textAlign: 'center', marginTop: 14 },
   warn: { backgroundColor: alpha(colors.coral, 0.14), borderRadius: 12, paddingVertical: 10, paddingHorizontal: 13, marginBottom: 13 },
   warnTxt: { fontSize: 13.5, fontWeight: '500', color: colors.coralDeep, lineHeight: 19 },
   optRow: { flexDirection: 'row', alignItems: 'center', gap: 13, paddingVertical: 13, paddingHorizontal: 14 },
