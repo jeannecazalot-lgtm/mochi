@@ -22,10 +22,10 @@ import { colors, space, radius, font, alpha } from '../src/theme';
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
 
 export default function Retard() {
-  // v = a | b | c : trois placements du malus proposés à Jeanne le 6 sept 2026
-  // (« pas au-dessus du titre ») — a : légende sous le titre · b : dans le bouton
-  // recommandé · c : note en bas de la sheet. Défaut : a, en attendant son choix.
-  const { occ: occId, tid, title, emoji, mins, due, v = 'a' } = useLocalSearchParams();
+  // Décision Jeanne (6 sept 2026) : le malus n'apparaît QUE dans le bouton recommandé
+  // (« ≈1h · efface 8 pt de malus ») — variante b des trois proposées ; a (légende sous
+  // le titre) et c (note en bas) restent accessibles par ?v= pour comparaison.
+  const { occ: occId, tid, title, emoji, mins, due, v = 'b' } = useLocalSearchParams();
   const insets = useSafeAreaInsets();
   const t = copy.retard;
   const daysLate = due ? Math.max(1, Math.round((new Date(localIso()) - new Date(String(due))) / 86400000)) : 1;
