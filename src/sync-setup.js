@@ -18,7 +18,8 @@ import { uuid, mutate, drain, resetLocal } from './store';
 import { setup, saveRealTaskIds, saveHouseholdId } from './setup-state';
 import { placeDays } from './dispatch';
 import { localIso, addDaysIso } from './dates';
-import { me } from './demo';
+import { me, partner } from './demo';
+import { getPartnerUid } from './identity';
 
 const DAY = 86400000;
 
@@ -72,10 +73,13 @@ export async function syncSetup(result) {
     const perWeek = t.per_week ? Math.round(it.weekly_min / (t.duration_min || 15)) : 1;
     const offsets = placeDays(perWeek, setup.availability, todayDow);
     for (let k = 0; k < offsets.length; k++) {
-      // moi → uid réel ; binôme simulé / 'both' → null (commun) ;
+      // moi → uid réel ; binôme → son uid RÉEL s'il a rejoint (bot couple, 4 sept
+      // 2026 : ses tâches partaient en « commun ») sinon null ; 'both' → null ;
       // 'alt' → zigzag : une occurrence sur deux à moi, l'autre au binôme
+      const partnerUid = getPartnerUid() || null;
       const assignee = it.assignee_id === me.id ? uid
-        : it.assignee_id === 'alt' ? (k % 2 === 0 ? uid : null)
+        : it.assignee_id === partner.id ? partnerUid
+        : it.assignee_id === 'alt' ? (k % 2 === 0 ? uid : partnerUid)
         : null;
       await mutate('occurrences', {
         id: uuid(), household_id: householdId, task_id: realId[t.id],

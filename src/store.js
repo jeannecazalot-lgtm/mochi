@@ -79,10 +79,17 @@ export async function flush() {
 export async function pull(table, householdId) {
   if (!SUPABASE_READY) return read(table);
   const since = (await AsyncStorage.getItem(K.sync(table))) || '1970-01-01';
-  const { data, error } = await supabase.from(table).select('*').eq('household_id', householdId).gt('updated_at', since);
+  // task_pains n'a pas de household_id (clé task+user) : la RLS suffit à filtrer —
+  // avec le filtre, la requête échouait en silence et les pénibilités ne descendaient
+  // jamais ; et sans clé composite, toutes ses lignes s'écrasaient dans rows[0]
+  let q = supabase.from(table).select('*').gt('updated_at', since);
+  if (table !== 'task_pains') q = q.eq('household_id', householdId);
+  const { data, error } = await q;
   if (error || !data) return read(table);
+  const keys = PK[table] || ['id'];
+  const same = (a, b) => keys.every(k => a[k] === b[k]);
   let rows = await read(table);
-  for (const r of data) { const i = rows.findIndex(x => x.id === r.id); if (i >= 0) rows[i] = r; else rows.push(r); }
+  for (const r of data) { const i = rows.findIndex(x => same(x, r)); if (i >= 0) rows[i] = r; else rows.push(r); }
   await AsyncStorage.setItem(K.table(table), JSON.stringify(rows));
   await AsyncStorage.setItem(K.sync(table), new Date().toISOString());
   return rows;

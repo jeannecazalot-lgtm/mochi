@@ -17,7 +17,7 @@ export async function toggleOccurrence(occId, done, minutes) {
   const tasks = await read('tasks');
   const tk = tasks.find(x => x.id === row.task_id);
   const pains = await read('task_pains');
-  const mine = pains.find(p => p.task_id === row.task_id);
+  const mine = pains.find(p => p.task_id === row.task_id && p.user_id === getUid()); // MA pénibilité, pas celle du binôme
   await mutate('occurrences', done
     ? { ...row, status: 'done', done_at: new Date().toISOString(), done_by: getUid(), duration_min: minutes || tk?.duration_min || 15, pain: mine?.pain ?? 3, mental_load: !!tk?.mental_load }
     : { ...row, status: 'pending', done_at: null, done_by: null, duration_min: null, pain: null, mental_load: null });
