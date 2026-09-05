@@ -1,6 +1,6 @@
 // Écran 22 · Balance détail. Recette : docs/recettes/22-balance-detail.md
 // Source : duo-embossed-pings-balance-malus.jsx › BalanceDetailEmbossed. Écran poussé (retour).
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { router } from 'expo-router';
 import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -8,8 +8,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { GlowBg, Card, PillLabel, Micro, Avatar } from '../src/components/ui';
 import { CountUp } from '../src/components/motion';
 import { ScreenHeader, SplitBar, VBar, OffsetCard, InfoRow, NoteBox } from '../src/components/balance/extra';
-import { members, byId, taskById, fmtMin } from '../src/demo';
+import { members, byId, taskById, fmtMin, me } from '../src/demo';
 import { shares, balanceState, dayMinutes, contributors } from '../src/demo-balance';
+import { read } from '../src/store';
+import { loadSetup, inRealMode } from '../src/setup-state';
+import { getUid, loadIdentity, useIdentity } from '../src/identity';
+import { computeRealBalance, realContributors } from '../src/balance-real';
 import copy from '../src/data/copy.json';
 import { colors, space, radius, gradients, shadows, slotColors } from '../src/theme';
 
@@ -19,9 +23,29 @@ const PILL = { balanced: { key: 'detailPillBalanced', color: colors.sageDeep }, 
 
 export default function BalanceDetail() {
   const t = copy.balance;
-  const parts = useMemo(shares, []);
-  const { state, gap, top } = useMemo(balanceState, []);
-  const maxMin = Math.max(1, ...dayMinutes.flatMap(d => members.map(m => d.by[m.id] || 0)));
+  // Réel (5 sept 2026, audit QA) : mêmes calculs que l'onglet Balance ; « ce qui pèse » =
+  // les 3 tâches où l'écart de minutes faites est le plus grand
+  useIdentity();
+  const [real, setReal] = useState(null);
+  useEffect(() => {
+    (async () => {
+      await loadSetup();
+      if (!inRealMode()) return;
+      await loadIdentity();
+      const [occs, tasks] = await Promise.all([read('occurrences'), read('tasks')]);
+      const uid = getUid();
+      setReal({ bal: computeRealBalance(occs, uid), contribs: realContributors(occs, tasks, uid) });
+    })();
+  }, []);
+  const demoParts = useMemo(shares, []);
+  const demoState = useMemo(balanceState, []);
+  const parts = real ? real.bal.parts : demoParts;
+  const { state, gap, top } = real ? { state: real.bal.state, gap: real.bal.gap, top: real.bal.top } : demoState;
+  const days = real ? real.bal.days : dayMinutes;
+  const maxMin = Math.max(1, ...days.flatMap(d => members.map(m => d.by[m.id] || 0)));
+  const weighs = real
+    ? real.contribs.map(c => ({ id: c.task_id, kind: 'task', emoji: c.task.emoji || '•', title: c.task.title, member_id: c.who.id, delta_min: c.delta_min, accent: 'coral', sub: fill(t.contribRealSub, { a: c.who.id === me.id ? c.mine : c.other, b: c.who.id === me.id ? c.other : c.mine }) }))
+    : contributors;
 
   return (
     <View style={{ flex: 1 }}>
@@ -63,7 +87,7 @@ export default function BalanceDetail() {
             </View>
             <Card padding={14}>
               <View style={s.chart}>
-                {dayMinutes.map((d, i) => (
+                {days.map((d, i) => (
                   <View key={i} style={s.chartCol}>
                     <View style={s.chartBars}>
                       {members.map(m => <VBar key={m.id} ratio={(d.by[m.id] || 0) / maxMin} color={m.color} delay={i * 40} />)}
@@ -78,12 +102,13 @@ export default function BalanceDetail() {
           {/* ce qui pèse */}
           <Micro style={s.section}>{t.weighsTitle}</Micro>
           <View style={s.block}>
-            {contributors.map(c => {
+            {real && weighs.length === 0 ? <Text style={s.weighsNone}>{t.weighsNone}</Text> : null}
+            {weighs.map(c => {
               const who = byId(c.member_id);
-              const title = c.kind === 'mental' ? t.contribMental : (taskById(c.task_ids[0])?.title || '');
-              const sub = c.kind === 'mental'
+              const title = c.title ?? (c.kind === 'mental' ? t.contribMental : (taskById(c.task_ids[0])?.title || ''));
+              const sub = c.sub ?? (c.kind === 'mental'
                 ? fill(t.contribMentalSub, { examples: c.examples.join(', ') })
-                : fill(t.contribCyclesSub, { a: c.cycles[who.id] ?? 0, b: Math.max(...members.filter(m => m.id !== who.id).map(m => c.cycles[m.id] ?? 0)) });
+                : fill(t.contribCyclesSub, { a: c.cycles[who.id] ?? 0, b: Math.max(...members.filter(m => m.id !== who.id).map(m => c.cycles[m.id] ?? 0)) }));
               return (
                 <OffsetCard key={c.id} accent={colors[c.accent]} padding={0}>
                   <View style={{ paddingVertical: 9, paddingHorizontal: 13 }}>
@@ -133,6 +158,7 @@ const s = StyleSheet.create({
   dayLabel: { fontSize: 11.5, fontWeight: '600', color: colors.muted },
   section: { paddingHorizontal: space.headerX, paddingTop: 8, paddingBottom: 8 },
   delta: { fontSize: 13, fontWeight: '600', color: colors.coralDeep, fontVariant: ['tabular-nums'] },
+  weighsNone: { fontSize: 13.5, fontWeight: '400', color: colors.muted, paddingHorizontal: 4, paddingBottom: 8 },
   ctaWrap: { position: 'absolute', left: space.screenX, right: space.screenX, bottom: 26 },
   cta: { borderRadius: radius.row, paddingVertical: 14, paddingHorizontal: 18, flexDirection: 'row', alignItems: 'center', gap: 10 },
   ctaText: { flex: 1, fontSize: 15, fontWeight: '600', color: colors.ink },

@@ -1,5 +1,5 @@
 // Écran 38 · Profil & réglages (accès par l'avatar). Recette : docs/recettes/38-profil.md
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { router } from 'expo-router';
 import { View, Text, Pressable, Switch, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -8,9 +8,10 @@ import { BackButton, SectionMicro, SettingRow } from '../src/components/premium/
 import { me, partner, household, streak, balance } from '../src/demo';
 import { duoSince, daysSince, lifetime, duoRules, prefs, isPremium } from '../src/demo-premium';
 import { signOut } from '../src/auth';
-import { clearSetup } from '../src/setup-state';
-import { resetIdentity } from '../src/identity';
-import { resetAll } from '../src/store';
+import { clearSetup, loadSetup, inRealMode } from '../src/setup-state';
+import { resetIdentity, getUid, loadIdentity, useIdentity } from '../src/identity';
+import { resetAll, read } from '../src/store';
+import { computeRealBalance } from '../src/balance-real';
 import copy from '../src/data/copy.json';
 import { colors, space, radius, font, slotColors, alpha } from '../src/theme';
 
@@ -21,9 +22,26 @@ const fmtDate = d => new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: '
 export default function Profil() {
   const [cross, setCross] = useState(prefs.cross_reminder);
   const premium = isPremium();
+  // Réel (5 sept 2026, audit QA) : streak, tâches faites et part d'équilibre calculés
+  // sur les vraies occurrences — plus de « 6 j · 148 · 48 % » de démo. (Refonte du
+  // profil au backlog ; en attendant, pas de faux chiffres.)
+  useIdentity();
+  const [real, setReal] = useState(null);
+  useEffect(() => {
+    (async () => {
+      await loadSetup();
+      if (!inRealMode()) return;
+      await loadIdentity();
+      setReal(computeRealBalance(await read('occurrences'), getUid()));
+    })();
+  }, []);
   // « En duo avec {name} · depuis {n} jours » : le prénom du binôme est rendu à part, en couleur
-  const duoParts = t.duoWith.split('{name}').map(part => fill(part, { n: daysSince(duoSince) }));
-  const stats = [
+  const duoParts = (real ? t.duoWithReal : t.duoWith).split('{name}').map(part => fill(part, { n: daysSince(duoSince) }));
+  const stats = real ? [
+    { k: t.statStreak, v: fill(t.days, { n: real.streakDays }) },
+    { k: t.statTasks, v: String(real.parts.reduce((a, p) => a + p.tasks, 0)) },
+    { k: t.statBalance, v: `${real.parts[0].pct}%` },
+  ] : [
     { k: t.statStreak, v: fill(t.days, { n: streak.days }) },
     { k: t.statTasks, v: String(lifetime.tasks_done) },
     { k: t.statBalance, v: `${balance.me}%` },

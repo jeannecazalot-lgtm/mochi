@@ -207,7 +207,9 @@
     "contribMental": "Charge mentale",
     "contribMentalSub": "{examples}…",
     "contribCyclesSub": "{a} cycles vs {b} · cette semaine",
-    "rebalanceCta": "Rééquilibrer avec Mochi"
+    "rebalanceCta": "Rééquilibrer avec Mochi",
+    "contribRealSub": "{a} min contre {b} min",
+    "weighsNone": "Rien ne pèse encore — coche des missions et l'écart apparaîtra ici."
   },
   "budget": {
     "_labels": {
@@ -989,7 +991,8 @@
     "subscriptionOff": "Découvrir Duo+",
     "plan": "Plan des écrans",
     "planSub": "Navigation de développement",
-    "logout": "Se déconnecter"
+    "logout": "Se déconnecter",
+    "duoWithReal": "En duo avec {name}"
   },
   "activity": {
     "_labels": {

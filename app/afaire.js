@@ -11,6 +11,12 @@ import { Animated, useCheckPop } from '../src/components/motion';
 import { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { BackButton, CheckCircle, FilterChip, social } from '../src/components/social/extra';
 import { occurrences, taskById, byId, me, partner, malus, today } from '../src/demo';
+import { read } from '../src/store';
+import { loadSetup, inRealMode } from '../src/setup-state';
+import { getUid, useIdentity, loadIdentity } from '../src/identity';
+import { occStore } from '../src/demo-core';
+import { toggleOccurrence } from '../src/occ-actions';
+import { localIso } from '../src/dates';
 import copy from '../src/data/copy.json';
 import { colors, space, radius, font, motion } from '../src/theme';
 
@@ -22,12 +28,15 @@ const dayLong = (d) => new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day:
 const SWIPE_W = 72;
 
 // ─── rangée swipeable ────────────────────────────────────────────────
+// occ réelle (5 sept 2026) : normalisée par l'écran avec _task, _today, _points, _href
 function Row({ occ, done, onToggle }) {
-  const task = taskById(occ.task_id);
+  const task = occ._task || taskById(occ.task_id);
   const who = occ.assignee_id ? byId(occ.assignee_id) : null;
-  const late = occ.status === 'missed' || (occ.status === 'pending' && occ.due_date < today);
-  const diffDays = Math.round((today - occ.due_date) / DAY);
-  const points = malus.filter(m => m.task_id === occ.task_id && m.user_id === occ.assignee_id).reduce((a, m) => a + m.points, 0);
+  const now = occ._today || today;
+  const late = occ.status === 'missed' || (occ.status === 'pending' && occ.due_date < now);
+  const diffDays = Math.round((now - occ.due_date) / DAY);
+  const points = occ._points ?? malus.filter(m => m.task_id === occ.task_id && m.user_id === occ.assignee_id).reduce((a, m) => a + m.points, 0);
+  const href = occ._href || `/task/${task.id}`;
   const ref = useRef(null);
 
   const pop = useCheckPop(done);
@@ -51,10 +60,10 @@ function Row({ occ, done, onToggle }) {
   );
   const renderOptions = () => (
     <View style={{ flexDirection: 'row' }}>
-      <Pressable onPress={() => { ref.current?.close(); router.push(`/task/${task.id}`); }} style={[s.action, { backgroundColor: social.swipeSwap, width: 78 }]}>
+      <Pressable onPress={() => { ref.current?.close(); router.push(href); }} style={[s.action, { backgroundColor: social.swipeSwap, width: 78 }]}>
         <Text style={s.actionIcon}>⇄</Text><Text style={s.actionLabel}>{t.swipeSwap}</Text>
       </Pressable>
-      <Pressable onPress={() => { ref.current?.close(); router.push(`/task/${task.id}`); }} style={[s.action, { backgroundColor: social.swipePostpone, width: 78 }]}>
+      <Pressable onPress={() => { ref.current?.close(); router.push(href); }} style={[s.action, { backgroundColor: social.swipePostpone, width: 78 }]}>
         <Text style={s.actionIcon}>⏰</Text><Text style={s.actionLabel}>{t.swipePostpone}</Text>
       </Pressable>
     </View>
@@ -83,7 +92,7 @@ function Row({ occ, done, onToggle }) {
       onSwipeableWillOpen={haptic} onSwipeableOpen={onOpen}
       containerStyle={{ marginBottom: 4, borderRadius: radius.row, overflow: 'hidden' }}
     >
-      <Pressable onPress={() => router.push(`/task/${task.id}`)}>
+      <Pressable onPress={() => router.push(href)}>
         <Animated.View style={fadeStyle}>
           {accent
             ? <Card r={radius.row} padding={0} accent={accent} style={{ paddingVertical: 8, paddingHorizontal: 11 }}>{inner}</Card>
@@ -98,18 +107,50 @@ function Row({ occ, done, onToggle }) {
 export default function AFaire() {
   const [filter, setFilter] = useState('all');
   const [doneMap, setDoneMap] = useState({});
+  // Réel (5 sept 2026, audit QA) : les vraies occurrences du foyer, normalisées à la
+  // forme de la démo (dates en Date, porteur = me/partner de démo pour les filtres)
+  const [realAll, setRealAll] = useState(null);
+  const ident = useIdentity();
+  const occV = occStore.useVersion();
+  useEffect(() => {
+    (async () => {
+      await loadSetup();
+      if (!inRealMode()) return;
+      await loadIdentity();
+      const [occs, tasks, mal] = await Promise.all([read('occurrences'), read('tasks'), read('malus')]);
+      const byTask = Object.fromEntries(tasks.map(tk => [tk.id, tk]));
+      const uid = getUid();
+      const now = new Date(`${localIso()}T12:00:00`);
+      setRealAll(occs.filter(o => o.status !== 'done' || o.due_date >= localIso()).map(o => {
+        const tk = byTask[o.task_id] || { id: o.task_id, title: '…', emoji: '•', duration_min: 15 };
+        const q = `occ=${o.id}&tid=${o.task_id}&title=${encodeURIComponent(tk.title)}&emoji=${encodeURIComponent(tk.emoji || '•')}&mins=${tk.duration_min || 15}`;
+        return {
+          id: o.id, task_id: o.task_id, status: o.status || 'pending',
+          assignee_id: o.assignee_id ? (o.assignee_id === uid ? me.id : partner.id) : null,
+          due_date: new Date(`${o.due_date}T12:00:00`), _today: now, _task: tk, _href: `/mission?${q}`,
+          _points: mal.filter(m => m.occurrence_id === o.id).reduce((a, m) => a + Number(m.points || 0), 0),
+        };
+      }));
+    })();
+  }, [occV, ident]);
+  const source = realAll || occurrences;
+  const now = realAll ? new Date(`${localIso()}T12:00:00`) : today;
   const isDone = (o) => doneMap[o.id] ?? (o.status === 'done');
-  const toggle = (id) => setDoneMap(m => ({ ...m, [id]: !isDone(occurrences.find(o => o.id === id)) }));
-  // TODO Supabase : status done/pending sur occurrences au lieu de doneMap
+  const toggle = (id) => {
+    const o = source.find(x => x.id === id);
+    const nowDone = !isDone(o);
+    setDoneMap(m => ({ ...m, [id]: nowDone }));
+    if (realAll) toggleOccurrence(String(id), nowDone, o?._task?.duration_min).catch(() => {});
+  };
 
-  const isLate = (o) => o.status === 'missed' || (o.status === 'pending' && o.due_date < today);
-  const all = occurrences.filter(o => o.due_date >= today || isLate(o));
+  const isLate = (o) => o.status === 'missed' || (o.status === 'pending' && o.due_date < now);
+  const all = source.filter(o => o.due_date >= now || isLate(o));
   const counts = { all: all.length, me: all.filter(o => o.assignee_id === me.id).length, partner: all.filter(o => o.assignee_id === partner.id).length, late: all.filter(isLate).length };
   const visible = all.filter(o => filter === 'all' || (filter === 'me' && o.assignee_id === me.id) || (filter === 'partner' && o.assignee_id === partner.id) || (filter === 'late' && isLate(o)));
 
   const groups = [];
   visible.sort((a, b) => a.due_date - b.due_date).forEach(o => {
-    const diff = Math.round((o.due_date - today) / DAY);
+    const diff = Math.round((o.due_date - now) / DAY);
     const label = isLate(o) ? t.groupLate : diff === 0 ? fill(t.groupToday, { day: dayShort(o.due_date) }) : diff === 1 ? fill(t.groupTomorrow, { day: dayShort(o.due_date) }) : dayLong(o.due_date);
     let g = groups.find(x => x.label === label);
     if (!g) { g = { label, items: [] }; groups.push(g); }
