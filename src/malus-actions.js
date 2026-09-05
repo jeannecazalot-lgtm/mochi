@@ -8,7 +8,9 @@
 //    (« Décaler à demain · +1 malus mais ça passe », sheet 21).
 // Un malus par occurrence : occurrence_id sert de garde anti-doublon.
 // ═══════════════════════════════════════════════════════════════════
-import { read, mutate, uuid } from './store';
+import { read, mutate, uuid, resetTable, pull } from './store';
+import { supabase } from './supabase';
+import { loadSetup, setup } from './setup-state';
 import { occStore } from './demo-core';
 import { getUid } from './identity';
 import { localIso } from './dates';
@@ -79,4 +81,14 @@ export async function weekMalus() {
       const t = m.occurrence_id ? byTask[byOcc[m.occurrence_id]?.task_id] : null;
       return { ...m, task_title: t?.title || null, task_emoji: t?.emoji || '⏰', importance: t?.importance || 3 };
     });
+}
+
+// tâche ratée finalement faite (sheet 21 « Je le fais maintenant », 5 sept 2026) :
+// son malus s'efface — les malus de décalage (occurrence_id null) restent
+export async function clearMalusFor(occId) {
+  await loadSetup();
+  try { await supabase.from('malus').delete().eq('occurrence_id', occId); } catch (e) { /* hors ligne : repris au prochain balayage */ }
+  await resetTable('malus');
+  if (setup.householdId) await pull('malus', setup.householdId);
+  occStore.bump();
 }

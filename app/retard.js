@@ -1,7 +1,7 @@
 // Écran 21 · Tâche en retard — sheet de l'ASSIGNÉ (maquette Jeanne, 1er sept 2026).
 // Ouvert depuis une rangée en retard du Planning. La vue lecture du non-assigné
 // viendra avec l'invitation réelle. `?occ=&tid=&title=&emoji=&mins=&due=`.
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -12,7 +12,8 @@ import { SheetHandle, Chevron } from '../src/components/social/extra';
 import { partner, fmtMin } from '../src/demo';
 import { missionDone } from '../src/demo-core';
 import { moveOccurrence, toggleOccurrence } from '../src/occ-actions';
-import { postponeMalus } from '../src/malus-actions';
+import { postponeMalus, malusPoints, clearMalusFor } from '../src/malus-actions';
+import { read } from '../src/store';
 import { requestSwap } from '../src/swap-actions';
 import { localIso, addDaysIso } from '../src/dates';
 import copy from '../src/data/copy.json';
@@ -21,10 +22,22 @@ import { colors, space, radius, font, alpha } from '../src/theme';
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
 
 export default function Retard() {
-  const { occ: occId, title, emoji, mins, due } = useLocalSearchParams();
+  const { occ: occId, tid, title, emoji, mins, due } = useLocalSearchParams();
   const insets = useSafeAreaInsets();
   const t = copy.retard;
   const daysLate = due ? Math.max(1, Math.round((new Date(localIso()) - new Date(String(due))) / 86400000)) : 1;
+  // le VRAI malus de cette occurrence (SPECS §4) : déjà posé par sweepMissed, sinon
+  // celui qui tombera (importance × (1 + retard × 0,5)) — plus de « +1 » de démo
+  const [points, setPoints] = useState(null);
+  useEffect(() => {
+    (async () => {
+      const [malus, tasks] = await Promise.all([read('malus'), read('tasks')]);
+      const posed = malus.filter(m => m.occurrence_id === String(occId)).reduce((a, m) => a + Number(m.points || 0), 0);
+      const tk = tasks.find(x => x.id === String(tid));
+      setPoints(posed || malusPoints(tk?.importance, daysLate));
+    })();
+  }, [occId]);
+  const fmtPts = n => String(Math.round(n * 10) / 10).replace('.', ',');
 
   const close = () => router.back();
   const doNow = () => {
@@ -32,6 +45,7 @@ export default function Retard() {
     if (occId) {
       missionDone.set(String(occId), true);
       toggleOccurrence(String(occId), true, Number(mins) || undefined).catch(() => {});
+      clearMalusFor(String(occId)).catch(() => {}); // faite, même en retard : le malus s'efface
     }
     close();
   };
@@ -61,9 +75,9 @@ export default function Retard() {
         </View>
       </View>
 
-      {/* avertissement malus (compteur réel avec la table malus, à venir) */}
+      {/* le malus réel de cette tâche (proposition montrée à Jeanne le 5 sept 2026) */}
       <View style={s.warn}>
-        <Text style={s.warnTxt}>⚠️ {t.warn}</Text>
+        <Text style={s.warnTxt}>{points == null ? t.warn : fill(t.warnReal, { n: fmtPts(points) })}</Text>
       </View>
 
       <Micro style={{ marginBottom: 7 }}>{t.recommended}</Micro>

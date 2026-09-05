@@ -1028,7 +1028,7 @@
     "taskDone": "{name} a terminé {task} ✅",
     "swapProposed": "{name} propose de te repasser {task}",
     "swapAccepted": "{name} a accepté de reprendre {task}",
-    "swapDebt": "Si tu acceptes : +1 dette pour {pronoun}",
+    "swapDebt": "Si tu acceptes, la mission passe chez toi",
     "pronounShe": "elle",
     "pronounHe": "lui",
     "accept": "Accepter",
@@ -1250,12 +1250,13 @@
     "warn": "Si tu ne fais rien : +1 malus ce mois",
     "recommended": "Recommandé",
     "doNow": "Je le fais maintenant",
-    "doNowSub": "Aucun malus · ≈{time}",
+    "doNowSub": "Efface le malus · ≈{time}",
     "orElse": "Ou sinon",
     "swap": "Repasser à {name}",
-    "swapSub": "{name} décide · +1 dette pour toi",
+    "swapSub": "{name} décide",
     "postpone": "Décaler à demain",
-    "postponeSub": "+1 malus mais ça passe"
+    "postponeSub": "+1 malus mais ça passe",
+    "warnReal": "Malus en cours : {n} pt — le faire maintenant l'efface"
   },
   "malus": {
     "_labels": {
