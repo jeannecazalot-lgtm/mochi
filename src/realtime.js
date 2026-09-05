@@ -14,6 +14,10 @@ let currentHid = null;
 export function startRealtime(householdId) {
   if (!householdId || householdId === currentHid) return;
   if (channel) { supabase.removeChannel(channel); channel = null; }
+  // le client garde les canaux par sujet : s'il en reste un déjà abonné à ce foyer
+  // (rechargement, déconnexion/reconnexion), le réutiliser plante avec
+  // « cannot add postgres_changes callbacks after subscribe() » — vu au simulateur le 5 sept 2026
+  supabase.getChannels().filter(c => c.topic === `realtime:foyer:${householdId}`).forEach(c => supabase.removeChannel(c));
   currentHid = householdId;
   const refresh = table => async () => {
     try { await pull(table, householdId); occStore.bump(); } catch (e) { /* re-pull au prochain événement */ }
