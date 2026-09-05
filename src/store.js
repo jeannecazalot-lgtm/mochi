@@ -84,10 +84,14 @@ export async function flush() {
   if (!net.isConnected) return;
   flushing = true;
   try {
+    // la file est relue à CHAQUE tour : une mutation ajoutée pendant qu'une autre
+    // part (accepter un repassage = 2 écritures d'affilée) était oubliée jusqu'au
+    // prochain déclencheur — vu à l'écran le 5 sept 2026 (porteur jamais changé)
     let q = JSON.parse((await AsyncStorage.getItem(K.queue)) || '[]');
     while (q.length) {
       const { table, row } = q[0];
       const error = await push(table, row);
+      q = JSON.parse((await AsyncStorage.getItem(K.queue)) || '[]');
       if (error) {
         // refus définitif (contrainte 23xxx, donnée 22xxx, RLS 42501) : on jette cette
         // mutation pour ne pas bloquer les suivantes — un réseau absent, lui, fait attendre
@@ -118,6 +122,7 @@ export async function pull(table, householdId) {
   for (const r of data) { const i = rows.findIndex(x => same(x, r)); if (i >= 0) rows[i] = r; else rows.push(r); }
   await AsyncStorage.setItem(K.table(table), JSON.stringify(rows));
   await AsyncStorage.setItem(K.sync(table), new Date().toISOString());
+  flush(); // chaque réception (temps réel, join) est aussi l'occasion de vider la file
   return rows;
 }
 
