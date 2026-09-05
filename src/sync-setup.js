@@ -33,8 +33,11 @@ export async function syncSetup(result) {
   const householdId = mine?.household_id || uuid();
   saveHouseholdId(householdId);
   if (!mine) await mutate('households', { id: householdId, created_by: uid });
+  // déjà membre (foyer rejoint) : on met à jour dispos/temps SANS toucher au slot —
+  // forcer slot 1 entrait en conflit avec le créateur et bloquait toute la file
+  // (bot + simulateur, 5 sept 2026 : « C'est parti » du rejoignant n'écrivait rien)
   await mutate('household_members', {
-    household_id: householdId, user_id: uid, slot: 1,
+    household_id: householdId, user_id: uid, ...(mine ? {} : { slot: 1 }),
     availability: setup.availability || {}, weekly_minutes: setup.weekly_minutes || 300,
   });
 

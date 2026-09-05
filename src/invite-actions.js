@@ -5,7 +5,7 @@
 // ═══════════════════════════════════════════════════════════════════
 import { supabase } from './supabase';
 import { ensureSession } from './profile';
-import { uuid, pull } from './store';
+import { uuid, pull, resetAll } from './store';
 import { loadSetup, setup, saveHouseholdId } from './setup-state';
 import { loadPartner } from './identity';
 
@@ -62,7 +62,8 @@ export async function joinWithCode(code) {
     const { data: hid, error } = await supabase.rpc('accept_invitation', { p_code: String(code).trim().toUpperCase() });
     if (error) return { ok: false, reason: error.message };
     saveHouseholdId(hid);
-    await Promise.all(['tasks', 'occurrences', 'task_pains'].map(tb => pull(tb, hid)));
+    await resetAll(); // nouveau foyer : cache, filigranes et file repartent de zéro
+    await Promise.all(['tasks', 'occurrences', 'task_pains', 'swap_requests', 'malus'].map(tb => pull(tb, hid)));
     loadPartner(hid); // le prénom/photo de l'autre remplace le binôme simulé
     return { ok: true, householdId: hid };
   } catch (e) { return { ok: false, reason: e?.message || 'réseau' }; }

@@ -17,6 +17,16 @@ export const uuid = () => Crypto.randomUUID();
 
 // vide la copie locale d'une table (le serveur, lui, dédoublonne par ses contraintes)
 export async function resetLocal(table) { await AsyncStorage.setItem(K.table(table), '[]'); }
+// oublie aussi la date de dernière synchro : la prochaine pull() reprend TOUT
+// (changement de foyer / de compte — 5 sept 2026 : le rejoignant repartait d'un
+// filigrane périmé et ratait les lignes plus anciennes)
+export async function resetTable(table) { await resetLocal(table); await AsyncStorage.removeItem(K.sync(table)); }
+export const SYNCED_TABLES = ['occurrences', 'tasks', 'task_pains', 'malus', 'swap_requests', 'household_members', 'households'];
+// nouveau compte / nouveau foyer : cache, filigranes ET file de mutations
+export async function resetAll() {
+  await Promise.all(SYNCED_TABLES.map(resetTable));
+  await AsyncStorage.setItem(K.queue, '[]');
+}
 
 export async function read(table) {
   const raw = await AsyncStorage.getItem(K.table(table));
@@ -69,7 +79,13 @@ export async function flush() {
     while (q.length) {
       const { table, row } = q[0];
       const error = await push(table, row);
-      if (error) { console.warn(`[store] push ${table} bloqué :`, error.message || error.code); break; }
+      if (error) {
+        // refus définitif (contrainte 23xxx, donnée 22xxx, RLS 42501) : on jette cette
+        // mutation pour ne pas bloquer les suivantes — un réseau absent, lui, fait attendre
+        const definitive = /^(22|23|42)/.test(String(error.code || ''));
+        console.warn(`[store] push ${table} ${definitive ? 'rejeté' : 'bloqué'} :`, error.message || error.code);
+        if (!definitive) break;
+      }
       q.shift();
       await AsyncStorage.setItem(K.queue, JSON.stringify(q));
     }
