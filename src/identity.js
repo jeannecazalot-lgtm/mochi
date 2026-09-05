@@ -16,6 +16,19 @@ const subs = new Set();
 let version = 0;
 const notify = () => { version++; subs.forEach(f => f()); };
 
+// valeurs de démo d'origine, pour tout remettre à plat à la déconnexion / au changement
+// de binôme (5 sept 2026 : l'ancien uid et le prénom/photo de l'ancien binôme hantaient
+// le nouveau compte jusqu'au redémarrage de l'app)
+const pick = o => ({ first_name: o.first_name, initial: o.initial, avatar_url: o.avatar_url ?? null });
+const DEFAULT_ME = pick(demoMe);
+const DEFAULT_PARTNER = pick(demoPartner);
+export function resetIdentity() {
+  real = null; uidVal = null; started = false; partnerUidVal = null;
+  Object.assign(demoMe, DEFAULT_ME);
+  Object.assign(demoPartner, DEFAULT_PARTNER);
+  notify();
+}
+
 export async function loadIdentity() {
   if (started) return real;
   started = true;
@@ -75,8 +88,10 @@ export async function loadPartner(householdId) {
     if (name || p?.avatar_url) {
       if (name) { demoPartner.first_name = name; demoPartner.initial = name[0].toUpperCase(); }
       demoPartner.avatar_url = p?.avatar_url || null;
-      notify();
+    } else {
+      Object.assign(demoPartner, DEFAULT_PARTNER); // binôme sans profil : jamais le prénom d'un ancien binôme
     }
+    notify();
     return other.user_id;
   } catch (e) { return null; }
 }

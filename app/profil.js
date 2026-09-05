@@ -9,6 +9,7 @@ import { me, partner, household, streak, balance } from '../src/demo';
 import { duoSince, daysSince, lifetime, duoRules, prefs, isPremium } from '../src/demo-premium';
 import { signOut } from '../src/auth';
 import { clearSetup } from '../src/setup-state';
+import { resetIdentity } from '../src/identity';
 import { resetAll } from '../src/store';
 import copy from '../src/data/copy.json';
 import { colors, space, radius, font, slotColors, alpha } from '../src/theme';
@@ -34,6 +35,7 @@ export default function Profil() {
     try { await signOut(); } catch (e) { /* mode démo */ }
     try {
       clearSetup();
+      resetIdentity(); // uid, prénom/photo, binôme : tout à plat
       await resetAll(); // cache + filigranes de synchro + file de mutations (sinon l'ancien compte hante le nouveau)
     } catch (e) {}
     router.replace('/onboarding');
