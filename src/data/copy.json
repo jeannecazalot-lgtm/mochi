@@ -137,7 +137,8 @@
     "monthHint": "Tape un jour pour voir son planning",
     "late": "En retard",
     "realHint": "Tape une tâche pour la valider ou la déplacer",
-    "emptyReal": "Rien de planifié pour l'instant — la répartition arrive après le choix des tâches."
+    "emptyReal": "Rien de planifié pour l'instant — la répartition arrive après le choix des tâches.",
+    "lateGroup": "En retard"
   },
   "balance": {
     "_labels": {
@@ -178,7 +179,7 @@
     "balanced": "Équilibré",
     "leaning": "Légèrement chez {name}",
     "unbalanced": "Ça penche chez {name}",
-    "weekPill": "Sem. {n} · {range}",
+    "weekPill": "Du {range}",
     "heroTasks": "{pct}% · {n} tâches",
     "chartTitle": "7 derniers jours",
     "chartUnit": "en min/jour",
@@ -902,7 +903,9 @@
     "gateSub": "Aperçu — passe à Duo+ pour naviguer librement.",
     "gateCta": "Découvrir Duo+",
     "prev": "Mois précédent",
-    "next": "Mois suivant"
+    "next": "Mois suivant",
+    "prevMonth": "Mois précédent",
+    "nextMonth": "Mois suivant"
   },
   "analyse": {
     "_labels": {

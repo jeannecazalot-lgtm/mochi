@@ -50,7 +50,8 @@ export function computeRealBalance(occs, uid) {
     else { if (i === 0) continue; break; } // aujourd'hui pas fini ≠ streak cassé
   }
   const wk = weekDays(new Date());
-  const week = { num: isoWeek(new Date()), range: `${wk[0].getDate()} au ${wk[6].getDate()}` };
+  const mois = d => new Intl.DateTimeFormat('fr-FR', { month: 'short' }).format(d).replace('.', '');
+  const week = { num: isoWeek(new Date()), range: `${wk[0].getDate()} ${mois(wk[0])} au ${wk[6].getDate()} ${mois(wk[6])}` };
   return { parts, state, top: sMe >= sP ? me : partner, lean: Math.max(-1, Math.min(1, (sMe - sP) / tot)), days, streakDays, week, gap: Math.round(gap * 100) };
 }
 

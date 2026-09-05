@@ -3,7 +3,7 @@
 // écran — les deux vues glissent l'une vers l'autre dans la page (slide 320 ms),
 // la vue mois est une grille calendrier, tap sur un jour → sheet « planning du jour ».
 import React, { useState, useEffect, useRef } from 'react';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { View, Text, Pressable, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSharedValue, useAnimatedStyle, withSpring, withTiming, Easing } from 'react-native-reanimated';
@@ -12,6 +12,7 @@ import { Animated } from '../../src/components/motion';
 import { Icon, ICON, Segment, AvatarPair, Hint, CheckCircle } from '../../src/components/core/extra';
 import { members, byId, taskById, today, me, partner, fmtMin } from '../../src/demo';
 import { weekDays, dayDots, planningGroups, sameDay, fmtDayLabel, weekdayShort, MENTAL_COEF, fmtCoef, missionDone, occStore } from '../../src/demo-core';
+import { addDaysIso } from '../../src/dates';
 import { read } from '../../src/store';
 import { loadSetup, setup, inRealMode } from '../../src/setup-state';
 import { getUid, useIdentity } from '../../src/identity';
@@ -66,34 +67,53 @@ function TaskRow({ occ, onGrab }) {
   );
 }
 
-// Vue mois : grille calendrier du mois courant (même recette que l'écran 35),
-// tap sur un jour → sheet /jour avec le planning de la journée.
-function MonthPane() {
+// Vue mois : grille calendrier (même recette que l'écran 35), tap sur un jour →
+// sheet /jour. Réel (retour Jeanne 6 sept 2026 : « on est en juillet », « je vois le 7 ») :
+// mois COURANT, points réels, et on glisse d'un mois à l'autre (ou flèches ‹ ›).
+function MonthPane({ real, dots }) {
   const tc = copy.calendar;
-  const year = today.getFullYear(), month = today.getMonth();
+  const base = real ? new Date() : today;
+  const [offset, setOffset] = useState(0);
+  const first = new Date(base.getFullYear(), base.getMonth() + offset, 1);
+  const year = first.getFullYear(), month = first.getMonth();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const firstDow = (new Date(year, month, 1).getDay() + 6) % 7; // lundi = 0
+  const firstDow = (first.getDay() + 6) % 7; // lundi = 0
   const cells = Array.from({ length: Math.ceil((firstDow + daysInMonth) / 7) * 7 }, (_, i) => { const d = i - firstDow + 1; return d >= 1 && d <= daysInMonth ? d : null; });
+  // glissement horizontal : un simple suivi du doigt suffit (pas de lib)
+  const touchX = useRef(null);
+  const onTouchStart = e => { touchX.current = e.nativeEvent.pageX; };
+  const onTouchEnd = e => {
+    if (touchX.current == null) return;
+    const dx = e.nativeEvent.pageX - touchX.current; touchX.current = null;
+    if (dx < -50) setOffset(o => o + 1); else if (dx > 50) setOffset(o => o - 1);
+  };
+  const dotsOf = date => (real ? (dots[localIso(date)] || []) : dayDots(date));
   return (
     <ScrollView contentContainerStyle={{ paddingHorizontal: space.screenX, paddingBottom: 16 }} showsVerticalScrollIndicator={false}>
-      <Micro style={{ paddingHorizontal: 4, paddingBottom: 8 }}>{tc.months[month].toUpperCase()}</Micro>
-      <View style={s.grid}>{tc.dows.map((d, i) => <Text key={i} style={s.dow}>{d}</Text>)}</View>
-      <View style={s.grid}>
-        {cells.map((d, i) => {
-          if (!d) return <View key={i} style={s.cell} />;
-          const date = new Date(year, month, d);
-          const isToday = sameDay(date, today);
-          return (
-            <View key={i} style={s.cell}>
-              <Pressable onPress={() => router.push(`/jour?d=${date.getTime()}`)} style={[s.day, isToday && s.today]}>
-                <Text style={[s.dayNum, isToday && { color: colors.card }]}>{d}</Text>
-                <View style={{ flexDirection: 'row', gap: 5, height: 4 }}>
-                  {dayDots(date).map((c, j) => <View key={j} style={[s.dot, { backgroundColor: isToday ? colors.butterLight : c }]} />)}
-                </View>
-              </Pressable>
-            </View>
-          );
-        })}
+      <View onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+        <View style={s.monthHead}>
+          <Pressable onPress={() => setOffset(o => o - 1)} hitSlop={10} accessibilityLabel={tc.prevMonth}><Text style={s.monthArrow}>‹</Text></Pressable>
+          <Micro>{tc.months[month].toUpperCase()}{year !== base.getFullYear() ? ` ${year}` : ''}</Micro>
+          <Pressable onPress={() => setOffset(o => o + 1)} hitSlop={10} accessibilityLabel={tc.nextMonth}><Text style={s.monthArrow}>›</Text></Pressable>
+        </View>
+        <View style={s.grid}>{tc.dows.map((d, i) => <Text key={i} style={s.dow}>{d}</Text>)}</View>
+        <View style={s.grid}>
+          {cells.map((d, i) => {
+            if (!d) return <View key={i} style={s.cell} />;
+            const date = new Date(year, month, d);
+            const isToday = sameDay(date, base);
+            return (
+              <View key={i} style={s.cell}>
+                <Pressable onPress={() => router.push(`/jour?d=${date.getTime()}`)} style={[s.day, isToday && s.today]}>
+                  <Text style={[s.dayNum, isToday && { color: colors.card }]}>{d}</Text>
+                  <View style={{ flexDirection: 'row', gap: 5, height: 4 }}>
+                    {dotsOf(date).map((c, j) => <View key={j} style={[s.dot, { backgroundColor: isToday ? colors.butterLight : c }]} />)}
+                  </View>
+                </Pressable>
+              </View>
+            );
+          })}
+        </View>
       </View>
       <Hint style={{ marginTop: 8 }}>{t.monthHint}</Hint>
     </ScrollView>
@@ -131,10 +151,13 @@ function RealRow({ vm, onToggle }) {
 
 export default function Planning() {
   const [grabbed, setGrabbed] = useState(false);
-  const [mode, setMode] = useState('week');
+  // ?view=month : ouvrir directement la vue mois (lien, notification, test)
+  const { view } = useLocalSearchParams();
+  const [mode, setMode] = useState(view === 'month' ? 'month' : 'week');
   const t2 = copy.planning;
   // ─── vraies occurrences groupées par jour (démo en fallback) ───
   const [realGroups, setRealGroups] = useState(null);
+  const [realDots, setRealDots] = useState({}); // iso → couleurs des porteurs (semaine + mois)
   const occV = occStore.useVersion();
   missionDone.useVersion();
   const ident = useIdentity(); // la liste se reconstruit quand l'uid/photo arrivent
@@ -148,13 +171,18 @@ export default function Planning() {
       const uid = getUid();
       const todayIso = localIso();
       const byDate = {};
+      const lateItems = [];
+      const dotMap = {};
       for (const o of occs) {
         const tk = byTask[o.task_id] || {};
         const isDone = o.status === 'done' || missionDone.has(o.id);
         const late = o.due_date < todayIso && !isDone;
         const who = o.assignee_id ? (o.assignee_id === uid ? me : partner) : null;
         const q = `occ=${o.id}&tid=${o.task_id}&title=${encodeURIComponent(tk.title || '')}&emoji=${encodeURIComponent(tk.emoji || '•')}&mins=${tk.duration_min || 15}`;
-        (byDate[o.due_date] ||= []).push({
+        const dotColor = who ? who.color : null;
+        (dotMap[o.due_date] ||= new Set()); if (dotColor) dotMap[o.due_date].add(dotColor); else members.forEach(m => dotMap[o.due_date].add(m.color));
+        if (isDone && o.due_date < todayIso) continue; // passé et fait : c'est de l'historique
+        (late ? lateItems : (byDate[o.due_date] ||= [])).push({
           id: o.id, emoji: tk.emoji || '•', title: tk.title || '…',
           sub: late ? t2.late : `${fmtMin(tk.duration_min || 15)}${tk.mental_load ? ` · ${t2.mental.replace('{coef}', fmtCoef(MENTAL_COEF))}` : ''}`,
           who, checkable: !o.assignee_id || o.assignee_id === uid || !uid,
@@ -164,7 +192,10 @@ export default function Planning() {
         });
       }
       const groups = Object.keys(byDate).sort().map(d => ({ iso: d, date: new Date(d + 'T12:00:00'), items: byDate[d] }));
+      // retour Jeanne 6 sept : les retards forment UNE section en tête, la semaine commence à aujourd'hui
+      if (lateItems.length) groups.unshift({ iso: '__late', late: true, items: lateItems });
       setRealGroups(groups); // [] = foyer réel encore vide (état vide, pas la démo)
+      setRealDots(Object.fromEntries(Object.entries(dotMap).map(([k, v]) => [k, [...v]])));
     })();
   }, [occV, ident]);
   const toggleOcc = id => {
@@ -178,6 +209,13 @@ export default function Planning() {
   const todayIso = localIso();
   // Retour Jeanne (2 sept) : le jour TAPÉ devient noir (sélection), pas figé sur aujourd'hui
   const [selectedIso, setSelectedIso] = useState(todayIso);
+  // à l'arrivée sur l'onglet, la liste s'ouvre sur aujourd'hui (retour Jeanne 6 sept)
+  const openedOnToday = useRef(false);
+  useEffect(() => {
+    if (!realGroups || openedOnToday.current) return;
+    const id = setTimeout(() => { const y = groupY.current[todayIso]; if (y != null) { scrollRef.current?.scrollTo({ y: Math.max(0, y - 8), animated: false }); openedOnToday.current = true; } }, 80);
+    return () => clearTimeout(id);
+  }, [realGroups]);
   const jumpTo = date => {
     const iso = localIso(date);
     setSelectedIso(iso);
@@ -187,15 +225,12 @@ export default function Planning() {
   // points du semainier en mode réel : couleurs des porteurs du jour
   const dotsFor = d => {
     const iso = localIso(d);
-    const g2 = (realGroups || []).find(x => x.iso === iso);
-    if (!g2) return [];
-    const set = new Set();
-    g2.items.forEach(it => { if (it.who) set.add(it.who.color); else members.forEach(m => set.add(m.color)); });
-    return [...set];
+    return realDots[iso] || [];
   };
   const W = useWindowDimensions().width;
-  const slide = useSharedValue(0); // 0 = semaine, 1 = mois
+  const slide = useSharedValue(view === 'month' ? 1 : 0); // 0 = semaine, 1 = mois
   const onSegment = v => { setMode(v); slide.value = withTiming(v === 'month' ? 1 : 0, { duration: 320, easing: Easing.inOut(Easing.cubic) }); };
+  useEffect(() => { if (view === 'month' && mode !== 'month') onSegment('month'); }, [view]); // lien reçu alors que l'onglet est déjà monté
   const weekStyle = useAnimatedStyle(() => ({ transform: [{ translateX: -slide.value * W }] }));
   const monthStyle = useAnimatedStyle(() => ({ transform: [{ translateX: (1 - slide.value) * W }] }));
   return (
@@ -224,7 +259,7 @@ export default function Planning() {
               {realGroups
                 ? realGroups.map(g => (
                   <View key={g.iso} style={{ marginBottom: 11 }} onLayout={e => { groupY.current[g.iso] = e.nativeEvent.layout.y; }}>
-                    <Micro style={s.groupLabel}>{fmtDayLabel(g.date)}{g.iso === todayIso ? ` · ${t.todaySuffix}` : ''}</Micro>
+                    <Micro style={[s.groupLabel, g.late && { color: colors.coralDeep }]}>{g.late ? t.lateGroup : fmtDayLabel(g.date)}{g.iso === todayIso ? ` · ${t.todaySuffix}` : ''}</Micro>
                     {g.items.map(vm => <RealRow key={vm.id} vm={vm} onToggle={() => toggleOcc(vm.id)} />)}
                   </View>
                 ))
@@ -242,7 +277,7 @@ export default function Planning() {
 
           {/* vue mois */}
           <Animated.View style={[StyleSheet.absoluteFill, monthStyle]}>
-            <MonthPane />
+            <MonthPane real={!!realGroups} dots={realDots} />
           </Animated.View>
         </View>
       </SafeAreaView>
@@ -256,6 +291,8 @@ const s = StyleSheet.create({
   chip: { flex: 1, alignItems: 'center', paddingVertical: 8, borderRadius: 12, backgroundColor: colors.card, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
   chipOn: { backgroundColor: colors.ink, borderColor: colors.ink, shadowColor: colors.ink, shadowOpacity: 0.25, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 4 },
   groupLabel: { paddingHorizontal: 4, paddingBottom: 7 },
+  monthHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 4, paddingBottom: 8 },
+  monthArrow: { fontSize: 22, lineHeight: 24, color: colors.ink, paddingHorizontal: 8 },
   row: { backgroundColor: colors.card, borderRadius: radius.row, paddingVertical: 10, paddingHorizontal: 13, marginBottom: 6, flexDirection: 'row', alignItems: 'center', gap: 10, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
   // grille mois — même recette que l'écran 35 (7 colonnes 1/7, gouttière 5)
   grid: { flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: -2.5, marginBottom: 6 },
