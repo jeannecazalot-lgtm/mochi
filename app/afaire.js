@@ -10,6 +10,7 @@ import { GlowBg, Card, Avatar, PillLabel } from '../src/components/ui';
 import { Animated, useCheckPop } from '../src/components/motion';
 import { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { BackButton, CheckCircle, FilterChip, social } from '../src/components/social/extra';
+import { AvatarPair } from '../src/components/core/extra';
 import { occurrences, taskById, byId, me, partner, malus, today } from '../src/demo';
 import { read } from '../src/store';
 import { loadSetup, inRealMode } from '../src/setup-state';
@@ -49,14 +50,16 @@ function Row({ occ, done, onToggle }) {
     : [occ.time || occ.badge, `${task.duration_min}ʼ`].filter(Boolean).join(' · ');
 
   const haptic = () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+  // décision Jeanne (6 sept 2026) : glisser vers la DROITE = fait (coche verte à gauche),
+  // glisser vers la GAUCHE = reporter / repasser ; le tap ouvre la sheet. `dir` = sens du geste.
   const onOpen = (dir) => {
     if (dir === 'right') { onToggle(occ.id); ref.current?.close(); }
   };
 
   const renderCheck = () => (
-    <View style={[s.action, { backgroundColor: colors.sage, width: SWIPE_W }]}>
+    <Pressable onPress={() => { onToggle(occ.id); ref.current?.close(); }} style={[s.action, { backgroundColor: colors.sage, width: SWIPE_W }]}>
       <CheckCircle done size={22} />
-    </View>
+    </Pressable>
   );
   const renderOptions = () => (
     <View style={{ flexDirection: 'row' }}>
@@ -72,7 +75,8 @@ function Row({ occ, done, onToggle }) {
   const accent = !done && late ? colors.coral : !done && occ.urgent ? colors.sage : null;
   const inner = (
     <View style={s.rowInner}>
-      <Animated.View style={pop}><CheckCircle done={done} /></Animated.View>
+      {/* le rond coche/décoche directement, comme sur l'Accueil (test du 6 sept 2026) */}
+      <Pressable onPress={() => onToggle(occ.id)} hitSlop={8}><Animated.View style={pop}><CheckCircle done={done} /></Animated.View></Pressable>
       <Text style={{ fontSize: 19 }}>{task.emoji}</Text>
       <View style={{ flex: 1 }}>
         <Text style={[s.title, done && s.titleDone]} numberOfLines={1}>{task.title}</Text>
@@ -81,14 +85,14 @@ function Row({ occ, done, onToggle }) {
           {late && !done && points ? <PillLabel color={colors.coralDeep} tint={colors.coral}>{fill(t.malusPill, { n: points })}</PillLabel> : null}
         </View>
       </View>
-      {who ? <Avatar initial={who.initial} color={who.color} photo={who.avatar_url} size={26} /> : <Avatar initial="?" color={colors.muted} size={26} />}
+      {who ? <Avatar initial={who.initial} color={who.color} photo={who.avatar_url} size={26} /> : <AvatarPair members={[me, partner]} size={22} />}
     </View>
   );
 
   return (
     <ReanimatedSwipeable
       ref={ref} friction={1.6} leftThreshold={60} rightThreshold={SWIPE_W} overshootLeft={false} overshootRight={false}
-      renderLeftActions={renderOptions} renderRightActions={renderCheck}
+      renderLeftActions={renderCheck} renderRightActions={renderOptions}
       onSwipeableWillOpen={haptic} onSwipeableOpen={onOpen}
       containerStyle={{ marginBottom: 4, borderRadius: radius.row, overflow: 'hidden' }}
     >
@@ -136,17 +140,28 @@ export default function AFaire() {
   const source = realAll || occurrences;
   const now = realAll ? new Date(`${localIso()}T12:00:00`) : today;
   const isDone = (o) => doneMap[o.id] ?? (o.status === 'done');
+  // « Annuler » quelques secondes après une coche (glissement ou tâche future — test du 6 sept 2026)
+  const [undo, setUndo] = useState(null);
+  const undoTimer = useRef(null);
   const toggle = (id) => {
     const o = source.find(x => x.id === id);
     const nowDone = !isDone(o);
     setDoneMap(m => ({ ...m, [id]: nowDone }));
     if (realAll) toggleOccurrence(String(id), nowDone, o?._task?.duration_min).catch(() => {});
+    if (undoTimer.current) clearTimeout(undoTimer.current);
+    if (nowDone) { setUndo({ id, title: (o?._task || taskById(o.task_id))?.title || '' }); undoTimer.current = setTimeout(() => setUndo(null), 6000); }
+    else setUndo(null);
   };
+  useEffect(() => () => { if (undoTimer.current) clearTimeout(undoTimer.current); }, []);
 
   const isLate = (o) => o.status === 'missed' || (o.status === 'pending' && o.due_date < now);
   const all = source.filter(o => o.due_date >= now || isLate(o));
-  const counts = { all: all.length, me: all.filter(o => o.assignee_id === me.id).length, partner: all.filter(o => o.assignee_id === partner.id).length, late: all.filter(isLate).length };
-  const visible = all.filter(o => filter === 'all' || (filter === 'me' && o.assignee_id === me.id) || (filter === 'partner' && o.assignee_id === partner.id) || (filter === 'late' && isLate(o)));
+  // compteurs = ce qui reste à faire ; une tâche commune compte pour les deux
+  const todo = all.filter(o => !isDone(o));
+  const forMe = o => o.assignee_id === me.id || o.assignee_id == null;
+  const forPartner = o => o.assignee_id === partner.id || o.assignee_id == null;
+  const counts = { all: todo.length, me: todo.filter(forMe).length, partner: todo.filter(forPartner).length, late: todo.filter(isLate).length };
+  const visible = all.filter(o => filter === 'all' || (filter === 'me' && forMe(o)) || (filter === 'partner' && forPartner(o)) || (filter === 'late' && isLate(o)));
 
   const groups = [];
   visible.sort((a, b) => a.due_date - b.due_date).forEach(o => {
@@ -172,10 +187,10 @@ export default function AFaire() {
           <BackButton onPress={() => router.back()} />
           <View style={{ flex: 1 }}>
             <Text style={s.h1}>{t.title}</Text>
-            <Text style={s.h2}>{counts.late ? fill(t.subtitle, { n: counts.all, m: counts.late }) : fill(t.subtitleNoLate, { n: counts.all })}</Text>
+            <Text style={s.h2}>{counts.late ? fill(t.subtitle, { n: counts.all, m: counts.late }) : counts.all === 1 ? t.groupCountOne : counts.all === 0 ? t.subtitleNone : fill(t.subtitleNoLate, { n: counts.all })}</Text>
           </View>
         </View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }} contentContainerStyle={s.filters}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0, flexShrink: 0, minHeight: 50 }} contentContainerStyle={s.filters}>
           {filters.map(f => <FilterChip key={f.k} label={f.l} count={f.c} active={filter === f.k} alert={f.alert} onPress={() => setFilter(f.k)} />)}
         </ScrollView>
         <ScrollView contentContainerStyle={s.list} showsVerticalScrollIndicator={false}>
@@ -183,18 +198,30 @@ export default function AFaire() {
             <View key={g.label} style={{ marginBottom: 10 }}>
               <View style={s.groupHead}>
                 <Text style={s.groupLabel}>{g.label}</Text>
-                <Text style={s.groupCount}>{g.items.length === 1 ? t.groupCountOne : fill(t.groupCount, { n: g.items.length })}</Text>
+                <Text style={s.groupCount}>{(n => n === 1 ? t.groupCountOne : n === 0 ? t.groupCountZero : fill(t.groupCount, { n }))(g.items.filter(o => !isDone(o)).length)}</Text>
               </View>
               {g.items.map(o => <Row key={o.id} occ={o} done={isDone(o)} onToggle={toggle} />)}
             </View>
           ))}
         </ScrollView>
+        {undo ? (
+          <View style={s.undoWrap} pointerEvents="box-none">
+            <View style={s.undo}>
+              <Text style={s.undoTxt} numberOfLines={1}>{fill(t.undoDone, { title: undo.title })}</Text>
+              <Pressable onPress={() => toggle(undo.id)} hitSlop={8}><Text style={s.undoBtn}>{t.undo}</Text></Pressable>
+            </View>
+          </View>
+        ) : null}
       </SafeAreaView>
     </View>
   );
 }
 
 const s = StyleSheet.create({
+  undoWrap: { position: 'absolute', left: 0, right: 0, bottom: 28, alignItems: 'center' },
+  undo: { flexDirection: 'row', alignItems: 'center', gap: 14, backgroundColor: colors.ink, borderRadius: 999, paddingVertical: 11, paddingHorizontal: 18, maxWidth: '86%' },
+  undoTxt: { color: colors.card, fontSize: 14, fontWeight: '500', flexShrink: 1 },
+  undoBtn: { color: colors.butter, fontSize: 14, fontWeight: '700' },
   header: { paddingTop: 10, paddingHorizontal: space.screenX, flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 7 },
   h1: { fontSize: 22, fontWeight: '600', letterSpacing: -1.2, lineHeight: 24, color: colors.ink },
   h2: { fontSize: 13, fontWeight: '400', color: colors.muted, marginTop: 3, ...font.tabular },

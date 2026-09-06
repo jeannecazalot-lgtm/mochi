@@ -15,6 +15,7 @@ import { loadSetup, setup, inRealMode } from '../../src/setup-state';
 import { useIdentity, getUid, loadIdentity } from '../../src/identity';
 import { localIso } from '../../src/dates';
 import { toggleOccurrence } from '../../src/occ-actions';
+import { computeRealBalance } from '../../src/balance-real';
 import copy from '../../src/data/copy.json';
 import { colors, space, font, motion } from '../../src/theme';
 
@@ -55,6 +56,7 @@ function MissionRow({ vm, first, done, onToggle }) {
         <Text style={{ fontSize: 19 }}>{vm.emoji}</Text>
         <Text style={[font.body, { flex: 1 }, done && { textDecorationLine: 'line-through' }]} numberOfLines={1}>{vm.title}</Text>
         {vm.badge ? <BadgePill color={colors.coralDeep} tint={colors.coral} a={0.14}>{vm.badge}</BadgePill>
+          : vm.together ? <BadgePill color={colors.sageDeep} tint={colors.sage} a={0.22}>{copy.home.togetherBadge}</BadgePill>
           : vm.mental ? <BadgePill color={colors.lavenderDeep} tint={colors.lavender} a={0.18}>{copy.home.mentalBadge}</BadgePill> : null}
         <Pressable onPress={onToggle} hitSlop={8}>
           <Animated.View style={pop}><CheckCircle done={done} /></Animated.View>
@@ -81,6 +83,7 @@ export default function Home() {
   const [real, setReal] = useState(false);
   const [anyOcc, setAnyOcc] = useState(false); // le foyer a-t-il déjà des missions (pas forcément à moi) ?
   const [noTask, setNoTask] = useState(false); // foyer sans aucune tâche (on vient de le former) → bouton vers l'écran 10
+  const [bal, setBal] = useState(null); // balance réelle de la semaine → la phrase de Mochi dit la même chose que l'onglet Balance (6 sept 2026)
   const occV = occStore.useVersion(); // « Déplacer » depuis la sheet → on relit le store
   useEffect(() => {
     (async () => {
@@ -99,12 +102,13 @@ export default function Home() {
       setReal(true);
       setAnyOcc(occs.length > 0);
       setNoTask(tasks.length === 0);
+      setBal(uid && occs.some(o => o.status === 'done') ? computeRealBalance(occs, uid) : null);
       // hydrate la coche depuis le statut serveur (relance de l'app)
       todays.forEach(o => { if (o.status === 'done' && !missionDone.has(o.id)) missionDone.set(o.id, true); });
       setVms(todays.map(o => {
         const tk = byId[o.task_id] || {};
         const q = `occ=${o.id}&tid=${o.task_id}&title=${encodeURIComponent(tk.title || '')}&emoji=${encodeURIComponent(tk.emoji || '•')}&mins=${tk.duration_min || 15}`;
-        return { id: o.id, emoji: tk.emoji || '•', title: tk.title || '…', mental: !!tk.mental_load, badge: null, mins: tk.duration_min || 15, href: `/mission?${q}`, ping: null };
+        return { id: o.id, emoji: tk.emoji || '•', title: tk.title || '…', mental: !!tk.mental_load, badge: null, together: !o.assignee_id, mins: tk.duration_min || 15, href: `/mission?${q}`, ping: null };
       }));
     })();
   }, [occV, ident]);
@@ -117,13 +121,26 @@ export default function Home() {
   // phrase de Mochi : vrai dispatch si dispo ; foyer réel sans dispatch local
   // (on vient de rejoindre) → phrase neutre, jamais la phrase de démo
   const list = vms || [];
+  const remaining = list.filter(v => !missionDone.has(v.id));
+  const allDone = list.length > 0 && remaining.length === 0;
+  // phrase : balance réelle de la semaine (même calcul que l'onglet Balance) ; sous-phrase :
+  // ce qu'il reste à faire aujourd'hui — fini le « Rien à faire » au-dessus de 2 missions
+  const balanceLine = () => {
+    if (bal) {
+      const who = bal.top; const other = who.id !== me.id;
+      if (bal.state === 'balanced') return t.mochiBalanced;
+      if (bal.state === 'unbalanced') return fill(other ? t.mochiUnbalancedOther : t.mochiUnbalancedMe, { name: who.first_name });
+      return fill(other ? t.mochiLeaningOther : t.mochiLeaningMe, { name: who.first_name });
+    }
+    return setup.result?.loads ? mochiLineReal(t, setup.result.loads).line : t.mochiBalanced;
+  };
+  const todoSub = allDone ? t.allDoneSub : remaining.length === 0 ? t.mochiBalancedSub : remaining.length === 1 ? t.todoSubOne : fill(t.todoSub, { n: remaining.length });
   const { line, sub } = vms === null ? { line: ' ', sub: ' ' }
     : real
-      ? (setup.result?.loads ? mochiLineReal(t, setup.result.loads)
-        : (list.length || anyOcc) ? { line: t.mochiBalanced, sub: t.mochiBalancedSub }
-          : { line: t.mochiNew, sub: t.mochiNewSub })
+      ? ((list.length || anyOcc) ? { line: allDone ? t.allDoneLine : balanceLine(), sub: todoSub } : { line: t.mochiNew, sub: t.mochiNewSub })
       : mochiLine(t);
-  const meta = vms === null ? '' : fill(list.length === 1 ? t.missionMeta : t.missionsMeta, { n: list.length, time: fmtMin(list.reduce((s2, v) => s2 + (v.mins || 0), 0)) });
+  const meta = vms === null ? '' : list.length === 0 ? '' : allDone ? t.allDoneMeta
+    : fill(remaining.length === 1 ? t.remainingMetaOne : t.remainingMeta, { n: remaining.length, time: fmtMin(remaining.reduce((s2, v) => s2 + (v.mins || 0), 0)) });
   const left = Math.max(0, streak.next.at - streak.days);
 
   return (
@@ -147,7 +164,7 @@ export default function Home() {
 
           {/* Bloc 1 · Mochi qui penche + phrase */}
           <View style={s.mochiBlock}>
-            <LiveMochi size={104} mood="neutral" lean={mochiLean()} />
+            <LiveMochi size={104} mood={allDone ? 'happy' : 'neutral'} lean={bal ? bal.lean : mochiLean()} />
             <View style={{ flex: 1 }}>
               <Text style={[font.cardTitle, { lineHeight: 23 }]}>{line}</Text>
               <Text style={[font.secondary, { marginTop: 4 }]}>{sub}</Text>
@@ -174,7 +191,7 @@ export default function Home() {
             {/* test à deux du 6 sept 2026 : la rejoignante lisait « Choisissez vos tâches » sans aucun bouton */}
             {real && noTask
               ? <View style={{ marginTop: 14 }}><CTAPrimary label={t.chooseTasksCta} onPress={() => router.push('/(setup)/taches')} /></View>
-              : list.length ? <Hint style={{ marginTop: 6 }}>{t.swipeHint}</Hint> : null}
+              : null}{/* plus d'indice de glissement ici : le geste n'existe que dans À faire (décision Jeanne 6 sept 2026) */}
           </View>
 
           {/* Bloc « Côté binôme » retiré (retour Jeanne, 1er sept 2026) : redondant

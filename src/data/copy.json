@@ -88,7 +88,15 @@
       "mochiUnbalancedSub": "Sous-phrase déséquilibre",
       "activityA11y": "Libellé accessibilité bulle activité",
       "profileA11y": "Libellé accessibilité avatar profil",
-      "chooseTasksCta": "Bouton sous la liste vide quand le foyer n a encore aucune tâche (→ écran 10)"
+      "chooseTasksCta": "Bouton sous la liste vide quand le foyer n a encore aucune tâche (→ écran 10)",
+      "todoSub": "Sous-phrase Mochi : {n} missions restantes aujourd hui",
+      "todoSubOne": "Idem au singulier",
+      "allDoneLine": "Phrase Mochi quand toutes les missions du jour sont cochées",
+      "allDoneSub": "Sous-phrase idem",
+      "allDoneMeta": "Compteur à droite du titre quand tout est fait",
+      "remainingMeta": "Compteur : {n} missions restantes, {time} durée restante",
+      "remainingMetaOne": "Idem au singulier",
+      "togetherBadge": "Pastille des missions communes (à deux)"
     },
     "todayTitle": "Aujourd'hui pour toi",
     "emptyToday": "Rien pour toi aujourd'hui.",
@@ -112,7 +120,15 @@
     "profileA11y": "Profil et réglages",
     "mochiNew": "Votre foyer démarre tout juste.",
     "mochiNewSub": "Choisissez vos tâches ensemble pour lancer la répartition.",
-    "chooseTasksCta": "Choisir nos tâches"
+    "chooseTasksCta": "Choisir nos tâches",
+    "todoSub": "{n} missions t’attendent aujourd’hui.",
+    "todoSubOne": "1 mission t’attend aujourd’hui.",
+    "allDoneLine": "Tout est fait pour aujourd’hui.",
+    "allDoneSub": "Mochi est content.",
+    "allDoneMeta": "Tout est fait ✓",
+    "remainingMeta": "{n} restantes · ≈ {time}",
+    "remainingMetaOne": "1 restante · ≈ {time}",
+    "togetherBadge": "à deux"
   },
   "planning": {
     "_labels": {
@@ -1089,7 +1105,11 @@
       "swipeSwap": "Action swipe repasser",
       "swipePostpone": "Action swipe reporter",
       "daysAgo": "Durée en jours ({n})",
-      "hoursAgo": "Durée en heures ({n})"
+      "hoursAgo": "Durée en heures ({n})",
+      "subtitleNone": "Sous-titre quand il ne reste rien",
+      "undoDone": "Bandeau après une coche ({title} = tâche)",
+      "undo": "Bouton du bandeau",
+      "groupCountZero": "Compteur de groupe à zéro"
     },
     "title": "À faire",
     "subtitle": "{n} tâches · dont {m} en retard",
@@ -1107,7 +1127,11 @@
     "swipePostpone": "Reporter",
     "daysAgo": "{n} j",
     "hoursAgo": "{n} h",
-    "groupCountOne": "1 tâche"
+    "groupCountOne": "1 tâche",
+    "subtitleNone": "Rien à faire",
+    "undoDone": "{title} · fait ✓",
+    "undo": "Annuler",
+    "groupCountZero": "0 tâche"
   },
   "onboarding": {
     "_labels": {

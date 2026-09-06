@@ -85,7 +85,7 @@ export function AvatarPair({ members, size = 24 }) {
   return (
     <View style={{ flexDirection: 'row' }}>
       {members.map((m, i) => (
-        <View key={m.id} style={{ marginLeft: i ? -7 : 0 }}><Avatar initial={m.initial} color={m.color} size={size} ring /></View>
+        <View key={m.id} style={{ marginLeft: i ? -7 : 0 }}><Avatar initial={m.initial} color={m.color} photo={m.avatar_url} size={size} ring /></View>
       ))}
     </View>
   );
