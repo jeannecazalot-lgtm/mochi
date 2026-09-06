@@ -71,7 +71,7 @@ export default function ProtoMission() {
       {head}
 
       {/* ─── étage « ce moment-ci » (replié en une ligne quand la règle est ouverte) ─── */}
-      {ruleOpen ? (
+      {ruleOpen && checkInHead ? null : ruleOpen ? (
         <Card r={16} padding={0} style={st.block}>
           <Row first strong label={t.doneLabel} sub={fill(t.doneSub, { time })} left={<DoneCircle />} right={<Arrow />} onPress={close} />
         </Card>
