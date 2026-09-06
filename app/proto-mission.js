@@ -18,7 +18,6 @@ const me = { initial: 'J', first_name: 'Jeanne', color: slotColors[1].main };
 const partner = { initial: 'K', first_name: 'Ketley', color: slotColors[2].main };
 
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
-const FREQS = ['daily', 'twiceWeek', 'weekly', 'monthly', 'once'];
 
 export default function ProtoMission() {
   const { v = 'a', s = 'home' } = useLocalSearchParams();
@@ -67,7 +66,12 @@ export default function ProtoMission() {
       <SheetHandle />
       {head}
 
-      {/* ─── étage « ce moment-ci » ─── */}
+      {/* ─── étage « ce moment-ci » (replié en une ligne quand la règle est ouverte) ─── */}
+      {ruleOpen ? (
+        <Card r={16} padding={0} style={st.block}>
+          <Row first strong label={t.doneLabel} sub={fill(t.doneSub, { time })} left={<DoneCircle />} right={<Arrow />} onPress={close} />
+        </Card>
+      ) : (
       <Card r={16} padding={0} style={st.block}>
         <Row first label={t.timeLabel} right={stepper} />
         <Row label={t.expenseLabel} right={expenseChip} />
@@ -89,18 +93,16 @@ export default function ProtoMission() {
           </View>
         )}
       </Card>
+      )}
       {v === 'b' ? <CTAPrimary big label={fill(t.doneCta, { time })} onPress={close} style={st.cta} /> : null}
 
       {/* ─── étage « la règle » ─── */}
       <Card r={16} padding={0}>
         {!ruleOpen ? (
-          <Row first label={t.ruleLabel} sub={fill(t.ruleSummary, { freq: t.freq[task.frequency], days: 'lun, jeu', who: t.whoAuto })} right={<Arrow />} onPress={() => {}} />
+          <Row first label={t.ruleLabel} sub={`lun, jeu · ${t.whoAuto} · ${fmtMin(est)}`} right={<Arrow />} onPress={() => {}} />
         ) : (
           <View>
-            <RuleGroup first label={t.ruleFreq}>
-              {FREQS.map(f => <PillChip key={f} label={t.freq[f]} selected={f === task.frequency} onPress={() => {}} />)}
-            </RuleGroup>
-            <RuleGroup label={t.ruleDays} row>
+            <RuleGroup first label={t.ruleDays} row>
               {t.days.map((d, i) => <PillChip key={i} flex label={d} selected={i === 0 || i === 3} onPress={() => {}} />)}
             </RuleGroup>
             <RuleGroup label={t.ruleWho}>
