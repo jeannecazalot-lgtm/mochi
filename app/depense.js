@@ -8,7 +8,11 @@ import { ScreenTitle, Micro, Card, Avatar, CTAPrimary, Footer } from '../src/com
 
 import { Icon, ICON, Chip, RoundButton, SheetHandle } from '../src/components/core/extra';
 import { me, members } from '../src/demo';
-import { expenseCategories } from '../src/demo-core';
+import { expenseCategories, occStore } from '../src/demo-core';
+import { mutate, read, uuid } from '../src/store';
+import { loadSetup, setup } from '../src/setup-state';
+import { getUid, getPartnerUid, useIdentity } from '../src/identity';
+import { localIso } from '../src/dates';
 import copy from '../src/data/copy.json';
 import { colors, space, font, alpha, radius, motion } from '../src/theme';
 
@@ -17,6 +21,7 @@ const parseAmount = s => Math.round(parseFloat(String(s).replace(',', '.')) * 10
 
 export default function Depense() {
   const insets = useSafeAreaInsets();
+  useIdentity(); // vrais prénoms/photos des payeurs
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
   const [paidBy, setPaidBy] = useState(me.id);
@@ -24,8 +29,31 @@ export default function Depense() {
   const [dayOffset, setDayOffset] = useState(0);
   const valid = title.trim().length > 0 && parseAmount(amount) > 0;
 
-  // persistance Supabase à brancher ; pour l'instant on ferme simplement
-  const submit = () => { router.back(); };
+  // Dépense RÉELLE (décision Jeanne 6 sept 2026 : table expenses synchronisée à deux) :
+  // ligne locale + file de synchro, le Budget se relit via occStore ; sans foyer (démo) on ferme.
+  const [busy, setBusy] = useState(false);
+  const submit = async () => {
+    if (busy) return;
+    setBusy(true);
+    try {
+      await loadSetup();
+      const hid = setup.householdId;
+      const uid = getUid();
+      if (hid && uid) {
+        const households = await read('households');
+        const currency = households.find(h => h.id === hid)?.currency || 'EUR';
+        const d = new Date(); d.setDate(d.getDate() - dayOffset);
+        await mutate('expenses', {
+          id: uuid(), household_id: hid, title: title.trim(), emoji: null,
+          amount_cents: parseAmount(amount), currency,
+          paid_by: paidBy === me.id ? uid : (getPartnerUid() || uid),
+          split_mode: 'equal', category: category || 'autre', spent_on: localIso(d), created_by: uid,
+        });
+        occStore.bump();
+      }
+    } catch (e) { /* hors ligne : la file rejouera */ }
+    router.back();
+  };
 
   return (
     <View style={{ flex: 1 }}>
@@ -58,7 +86,7 @@ export default function Depense() {
                 return (
                   <Pressable key={m.id} onPress={() => setPaidBy(m.id)} style={{ flex: 1 }}>
                     <Card padding={0} accent={on ? m.color : undefined} style={s.payer}>
-                      <Avatar initial={m.initial} color={m.color} size={28} />
+                      <Avatar initial={m.initial} color={m.color} photo={m.avatar_url} size={28} />
                       <Text style={font.row}>{m.first_name}</Text>
                     </Card>
                   </Pressable>
@@ -78,7 +106,7 @@ export default function Depense() {
             </View>
           </ScrollView>
 
-          <Footer bottom={Math.max(insets.bottom, space.footerBottom)}><CTAPrimary label={t.cta} disabled={!valid} onPress={submit} /></Footer>
+          <Footer bottom={Math.max(insets.bottom, space.footerBottom)}><CTAPrimary label={t.cta} disabled={!valid || busy} onPress={submit} /></Footer>
         </View>
     </View>
   );
