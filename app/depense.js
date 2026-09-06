@@ -8,7 +8,7 @@ import { ScreenTitle, Micro, Card, Avatar, CTAPrimary, Footer } from '../src/com
 
 import { Icon, ICON, Chip, RoundButton, SheetHandle } from '../src/components/core/extra';
 import { me, members } from '../src/demo';
-import { expenseCategories, occStore } from '../src/demo-core';
+import { occStore } from '../src/demo-core';
 import { mutate, read, uuid } from '../src/store';
 import { loadSetup, setup } from '../src/setup-state';
 import { getUid, getPartnerUid, useIdentity } from '../src/identity';
@@ -25,11 +25,11 @@ export default function Depense() {
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
   const [paidBy, setPaidBy] = useState(me.id);
-  const [category, setCategory] = useState(null);
   const [dayOffset, setDayOffset] = useState(0);
   const valid = title.trim().length > 0 && parseAmount(amount) > 0;
 
-  // Dépense RÉELLE (décision Jeanne 6 sept 2026 : table expenses synchronisée à deux) :
+  // Dépense RÉELLE (décision Jeanne 6 sept 2026 : table expenses synchronisée à deux) —
+  // sans catégorie (décision Jeanne 6 sept : rien ne s'en sert en v1, la base garde « autre ») :
   // ligne locale + file de synchro, le Budget se relit via occStore ; sans foyer (démo) on ferme.
   const [busy, setBusy] = useState(false);
   const submit = async () => {
@@ -47,7 +47,7 @@ export default function Depense() {
           id: uuid(), household_id: hid, title: title.trim(), emoji: null,
           amount_cents: parseAmount(amount), currency,
           paid_by: paidBy === me.id ? uid : (getPartnerUid() || uid),
-          split_mode: 'equal', category: category || 'autre', spent_on: localIso(d), created_by: uid,
+          split_mode: 'equal', category: 'autre', spent_on: localIso(d), created_by: uid,
         });
         occStore.bump();
       }
@@ -92,11 +92,6 @@ export default function Depense() {
                   </Pressable>
                 );
               })}
-            </View>
-
-            <Micro style={s.label}>{t.categoryLabel}</Micro>
-            <View style={s.chips}>
-              {expenseCategories.map(c => <Chip key={c} label={t.categories[c]} on={c === category} onPress={() => setCategory(c)} />)}
             </View>
 
             <Micro style={s.label}>{t.dateLabel}</Micro>

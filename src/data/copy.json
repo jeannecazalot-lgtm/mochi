@@ -742,12 +742,10 @@
       "amountLabel": "Micro-label montant",
       "amountPlaceholder": "Placeholder montant",
       "paidByLabel": "Micro-label payé par",
-      "categoryLabel": "Micro-label catégorie",
       "dateLabel": "Micro-label date",
       "dateToday": "Chip date aujourd hui",
       "dateYesterday": "Chip date hier",
-      "cta": "Bouton valider",
-      "categories": "Libellés des catégories (clé = identifiant en base)"
+      "cta": "Bouton valider"
     },
     "title": "Nouvelle dépense",
     "titleLabel": "Intitulé",
@@ -755,19 +753,10 @@
     "amountLabel": "Montant",
     "amountPlaceholder": "0,00",
     "paidByLabel": "Payé par",
-    "categoryLabel": "Catégorie",
     "dateLabel": "Date",
     "dateToday": "Aujourd’hui",
     "dateYesterday": "Hier",
-    "cta": "Ajouter la dépense",
-    "categories": {
-      "courses": "Courses",
-      "sorties": "Sorties",
-      "maison": "Maison",
-      "enfants": "Enfants",
-      "sante": "Santé",
-      "autre": "Autre"
-    }
+    "cta": "Ajouter la dépense"
   },
   "wrapped": {
     "_labels": {
