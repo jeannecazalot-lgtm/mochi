@@ -13,7 +13,7 @@ import { SheetHandle, CheckCircle } from '../src/components/social/extra';
 import { Animated, FadeIn, useCheckPop } from '../src/components/motion';
 import { Row, Stepper, PillChip, RuleGroup, ConfirmBlock, Arrow, Caption } from '../src/components/task/proto';
 import { loadMission, saveRule, completeMission, parseAmount } from '../src/mission-data';
-import { moveOccurrence } from '../src/occ-actions';
+import { moveOccurrence, toggleOccurrence } from '../src/occ-actions';
 import { requestSwap } from '../src/swap-actions';
 import { missionDone } from '../src/demo-core';
 import { me, partner, fmtMin } from '../src/demo';
@@ -42,6 +42,9 @@ export default function Mission() {
   const [confirm, setConfirm] = useState(null); // 'done' | 'moved' | 'swap'
   const [movedTo, setMovedTo] = useState(null);
   const [done, setDone] = useState(false);
+  // mission déjà cochée à l'ouverture (test du 6 sept 2026) : rond plein, étage « ce moment-ci »
+  // remplacé par « Déjà fait · tape pour la remettre à faire », report et repassage masqués
+  const [already, setAlready] = useState(false);
   const pop = useCheckPop(done);
   const dirty = useRef(false);
   const ruleRef = useRef(null);
@@ -50,7 +53,9 @@ export default function Mission() {
     loadMission({ occId, tid, title, mins }).then(r => {
       if (!r) { router.back(); return; }
       setM(r);
-      setSpent(r.task.duration_min);
+      const wasDone = r.occ?.status === 'done' || missionDone.has(r.occ?.id);
+      if (wasDone) { setDone(true); setAlready(true); }
+      setSpent(wasDone && r.occ?.duration_min ? r.occ.duration_min : r.task.duration_min);
       setRule({ window_days: r.task.window_days, who: r.task.who, duration_min: r.task.duration_min, note: r.task.note });
     });
   }, []);
@@ -62,7 +67,15 @@ export default function Mission() {
   const close = () => router.back();
   const finish = kind => { setConfirm(kind); setTimeout(close, CLOSE_AFTER); };
 
+  const undo = () => {
+    if (!m) return;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    missionDone.set(m.occ.id, false);
+    toggleOccurrence(String(m.occ.id), false).catch(() => {});
+    setDone(false); setAlready(false);
+  };
   const markDone = async () => {
+    if (already) { undo(); return; }
     if (done || !m) return;
     setDone(true);
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
@@ -129,8 +142,14 @@ export default function Mission() {
       <SheetHandle />
       {head}
 
-      {/* ─── étage « ce moment-ci » (replié quand la règle est ouverte) ─── */}
-      {ruleOpen ? null : (
+      {/* ─── étage « ce moment-ci » (replié quand la règle est ouverte ; remplacé si déjà fait) ─── */}
+      {ruleOpen ? null : already ? (
+        <Animated.View layout={layout}>
+          <Card r={16} padding={0} style={s.block}>
+            <Row first strong label={t.doneAlready} sub={t.doneAlreadySub} onPress={undo} />
+          </Card>
+        </Animated.View>
+      ) : (
         <Animated.View layout={layout}>
           <Card r={16} padding={0} style={s.block}>
             <Row first label={t.timeLabel} right={<Stepper value={fmtMin(spent)} onMinus={() => setSpent(v => Math.max(5, v - 5))} onPlus={() => setSpent(v => v + 5)} />} />

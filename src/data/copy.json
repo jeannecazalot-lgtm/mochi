@@ -353,6 +353,8 @@
     "expenseLabel": "Dépense",
     "expenseAdd": "Ajouter",
     "doneLabel": "C'est fait",
+    "doneAlready": "Déjà fait ✓",
+    "doneAlreadySub": "Tape pour la remettre à faire",
     "doneSub": "{time} comptés dans la balance",
     "noTimeLabel": "Je n'aurai pas le temps",
     "noTimeSub": "Déplacer, ou repasser à {name}",
