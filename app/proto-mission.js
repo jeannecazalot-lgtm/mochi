@@ -23,7 +23,7 @@ export default function ProtoMission() {
   const { v = 'a', s = 'home', c } = useLocalSearchParams();
   const checkInHead = c === 'head';
   const insets = useSafeAreaInsets();
-  const t = copy.missionV2;
+  const t = copy.mission;
   const task = taskById('t-lessive');
   const [mins, setMins] = useState(task.duration_min);
   const [est, setEst] = useState(task.duration_min);
@@ -98,25 +98,25 @@ export default function ProtoMission() {
         )}
       </Card>
       )}
-      {v === 'b' ? <CTAPrimary big label={fill(t.doneCta, { time })} onPress={close} style={st.cta} /> : null}
+      {v === 'b' ? <CTAPrimary big label={`${t.doneLabel} · ${time}`} onPress={close} style={st.cta} /> : null}
 
       {/* ─── étage « la règle » ─── */}
       <Card r={16} padding={0}>
         {!ruleOpen ? (
-          <Row first label={t.ruleLabel} sub={`lun, jeu · ${t.whoAuto} · ${fmtMin(est)}`} right={<Arrow />} onPress={() => {}} />
+          <Row first label={t.ruleLabel} sub={`lun, jeu · ${t.who.auto} · ${fmtMin(est)}`} right={<Arrow />} onPress={() => {}} />
         ) : (
           <View>
             <RuleGroup first label={t.ruleDays} row>
-              {t.days.map((d, i) => <PillChip key={i} flex label={d} selected={i === 0 || i === 3} onPress={() => {}} />)}
+              {copy.calendar.dows.map((d, i) => <PillChip key={i} flex label={d} selected={i === 0 || i === 3} onPress={() => {}} />)}
             </RuleGroup>
             <RuleGroup label={t.ruleWho}>
-              <PillChip label={t.whoMe} avatar={me} onPress={() => {}} />
+              <PillChip label={t.who.me} avatar={me} onPress={() => {}} />
               <PillChip label={partner.first_name} avatar={partner} onPress={() => {}} />
-              <PillChip label={t.whoAlt} onPress={() => {}} />
-              <PillChip label={t.whoAuto} selected onPress={() => {}} />
+              <PillChip label={t.who.alt} onPress={() => {}} />
+              <PillChip label={t.who.auto} selected onPress={() => {}} />
             </RuleGroup>
             <Row label={t.ruleDuration} right={<Stepper value={fmtMin(est)} onMinus={() => setEst(m => Math.max(5, m - 5))} onPlus={() => setEst(m => m + 5)} />} />
-            <Row label={t.ruleNote} sub={t.noteSample} right={<Arrow />} onPress={() => {}} />
+            <Row label={t.ruleNote} sub={"Lessive à 40°, pas le pull rouge"} right={<Arrow />} onPress={() => {}} />
           </View>
         )}
       </Card>

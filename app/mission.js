@@ -1,202 +1,203 @@
-// Sheet Mission (Accueil → tap sur le titre/émoji d'une mission du jour).
-// Demande Jeanne (1er sept 2026) : pop-up pour agir sur la tâche — la valider en
-// notant le temps réel passé, dire qu'on n'aura pas le temps, ou la modifier.
-// `?occ=<id>` = occurrence concernée. Démo : la coche repasse par missionDone (demo-core).
-import React, { useState, useEffect } from 'react';
+// Sheet Tâche v2 (validée par Jeanne le 6 sept 2026) — Accueil / Planning → tap sur une mission.
+// Une seule sheet, deux étages : « ce moment-ci » (temps, dépense, pas le temps) et « la règle »
+// (jours, qui, durée, note) repliée en bas. Jamais de push d'écran : tout se déplie en place.
+// Recette : docs/recettes/17c-sheet-tache-v2.md. `?occ=<id>` = occurrence (réelle ou démo).
+import React, { useEffect, useRef, useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable, TextInput, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
-import { Card, Micro } from '../src/components/ui';
-import { SheetHandle, Chevron } from '../src/components/social/extra';
-import { occurrences, taskById, me, fmtMin, partner } from '../src/demo';
-import { missionDone } from '../src/demo-core';
-import { moveOccurrence, toggleOccurrence } from '../src/occ-actions';
+import { LinearTransition } from 'react-native-reanimated';
+import { Card, Micro, Avatar } from '../src/components/ui';
+import { SheetHandle, CheckCircle } from '../src/components/social/extra';
+import { Animated, FadeIn, useCheckPop } from '../src/components/motion';
+import { Row, Stepper, PillChip, RuleGroup, ConfirmBlock, Arrow, Caption } from '../src/components/task/proto';
+import { loadMission, saveRule, completeMission, parseAmount } from '../src/mission-data';
+import { moveOccurrence } from '../src/occ-actions';
 import { requestSwap } from '../src/swap-actions';
+import { missionDone } from '../src/demo-core';
+import { me, partner, fmtMin } from '../src/demo';
+import { fmtWeekday } from '../src/demo-task';
 import { localIso } from '../src/dates';
-import { read } from '../src/store';
 import copy from '../src/data/copy.json';
-import { colors, space, radius, font, alpha } from '../src/theme';
+import { colors, space, font, alpha, motion } from '../src/theme';
 
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
+const fmtAmount = cents => `${(cents / 100).toFixed(2).replace('.', ',')} €`;
+const CLOSE_AFTER = 900; // la confirmation reste visible avant la fermeture automatique
+const layout = LinearTransition.springify().damping(motion.spring.damping).stiffness(motion.spring.stiffness);
 
 export default function Mission() {
-  const { occ: occId, tid, title, emoji, mins: minsParam } = useLocalSearchParams();
+  const { occ: occId, tid, title, mins } = useLocalSearchParams();
   const insets = useSafeAreaInsets();
   const t = copy.mission;
-
-  // démo : occurrence connue de demo.js — réel (1er sept 2026) : l'Accueil passe
-  // titre/émoji/durée en paramètres (la tâche vit dans le store local, pas en démo)
-  const demoOcc = occurrences.find(o => o.id === occId);
-  const fromStore = !demoOcc && title ? { id: tid ? String(tid) : null, title: String(title), emoji: String(emoji || '•'), duration_min: Number(minsParam) || 15 } : null;
-  const occ = demoOcc || (fromStore ? { id: occId } : occurrences.find(o => o.assignee_id === me.id && o.status !== 'done'));
-  const task = fromStore || (occ ? taskById(occ.task_id) : null);
-  const [mins, setMins] = useState(task?.duration_min || 15);
-  // « Je n'aurai pas le temps » ouvre un vrai choix dans la sheet (retour Jeanne,
-  // 1er sept 2026 : une action qui ne fait rien ne doit pas être affichée comme active)
+  const [m, setM] = useState(null); // { real, occ, task, dueIso, mine }
+  const [spent, setSpent] = useState(15);
+  const [amount, setAmount] = useState('');
+  const [expenseOpen, setExpenseOpen] = useState(false);
   const [asking, setAsking] = useState(false);
-  const step = d => setMins(m => Math.max(5, m + d * 5));
-  // mission déjà cochée (test du 6 sept 2026 : la sheet proposait encore « C'est fait »
-  // et « Repasser » sur une mission faite) : coche locale, puis statut réel du store
-  const [done, setDone] = useState(() => !!(occ && missionDone.has(occ.id)));
-  useEffect(() => {
-    if (!occId) return;
-    read('occurrences').then(list => { const o = list.find(x => x.id === String(occId)); if (o) setDone(o.status === 'done'); }).catch(() => {});
-  }, [occId]);
-  const undo = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-    if (occ) { missionDone.set(occ.id, false); toggleOccurrence(String(occ.id), false).catch(() => {}); }
-    close();
-  };
+  const [ruleOpen, setRuleOpen] = useState(false);
+  const [rule, setRule] = useState(null); // { window_days, who, duration_min, note }
+  const [noteOpen, setNoteOpen] = useState(false);
+  const [confirm, setConfirm] = useState(null); // 'done' | 'moved' | 'swap'
+  const [movedTo, setMovedTo] = useState(null);
+  const [done, setDone] = useState(false);
+  const pop = useCheckPop(done);
+  const dirty = useRef(false);
+  const ruleRef = useRef(null);
 
+  useEffect(() => {
+    loadMission({ occId, tid, title, mins }).then(r => {
+      if (!r) { router.back(); return; }
+      setM(r);
+      setSpent(r.task.duration_min);
+      setRule({ window_days: r.task.window_days, who: r.task.who, duration_min: r.task.duration_min, note: r.task.note });
+    });
+  }, []);
+  // la règle s'enregistre d'elle-même à la fermeture (pas de bouton Enregistrer)
+  useEffect(() => () => { if (dirty.current && ruleRef.current) saveRule(ruleRef.current.id, ruleRef.current); }, []);
+  useEffect(() => { if (m && rule) ruleRef.current = { id: m.task.id, ...rule }; }, [m, rule]);
+
+  const patchRule = p => { dirty.current = true; setRule(r => ({ ...r, ...p })); Haptics.selectionAsync().catch(() => {}); };
   const close = () => router.back();
-  // la navigation attend la fin de l'animation de fermeture de la sheet,
-  // sinon les deux transitions se chevauchent (retour Jeanne : « pas smooth »)
-  const closeThen = href => { close(); setTimeout(() => router.push(href), 320); };
-  const markDone = () => {
+  const finish = kind => { setConfirm(kind); setTimeout(close, CLOSE_AFTER); };
+
+  const markDone = async () => {
+    if (done || !m) return;
+    setDone(true);
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-    if (occ) {
-      missionDone.set(occ.id, true);
-      // occurrence réelle : statut done + minutes réelles figées → Balance (SPECS §3)
-      toggleOccurrence(String(occ.id), true, mins).catch(() => {});
-    }
-    close();
+    missionDone.set(m.occ.id, true);
+    completeMission(m.occ, m.task, spent, parseAmount(amount)).catch(() => {});
+    setTimeout(() => finish('done'), motion.check);
   };
-  // « Déplacer » (retour Jeanne, 1er sept 2026) : rangée des 6 prochains jours —
-  // « courses jeudi, pas aujourd'hui ». Refus haptique si la tâche a déjà ce jour.
-  const days = Array.from({ length: 6 }, (_, i) => {
-    const d = new Date(Date.now() + (i + 1) * 86400000);
-    return { iso: localIso(d), label: copy.calendar.dows[(d.getDay() + 6) % 7] };
-  });
-  const moveTo = async isoDate => {
-    const r = await moveOccurrence(String(occId || ''), isoDate);
-    if (r.ok) { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {}); close(); }
-    else if (r.reason === 'introuvable') close(); // démo : rien à persister
+  const moveTo = async d => {
+    const r = await moveOccurrence(String(occId || ''), d.iso);
+    if (r.ok || r.reason === 'introuvable') { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {}); setMovedTo(d); finish('moved'); }
     else Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
   };
   const swap = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-    // binôme réel → vraie proposition de repassage ; simulé → simple fermeture
     await requestSwap(String(occId || '')).catch(() => {});
-    close();
+    finish('swap');
   };
-  const edit = () => closeThen(`/task/edit?id=${task?.id}`);
-  const view = () => closeThen(`/task/${task?.id}`);
 
-  if (!task) return null;
+  if (!m || !rule) return <View style={[s.sheet, { height: 120 }]} />;
+  const { task } = m;
+  const today = localIso();
+  const who = m.mine ? me : partner;
+  const dayLabel = m.dueIso === today ? t.metaToday : fmtWeekday(new Date(m.dueIso + 'T12:00:00'));
+  const cents = parseAmount(amount);
+  const days = Array.from({ length: 6 }, (_, i) => {
+    const d = new Date(Date.now() + (i + 1) * 86400000);
+    return { iso: localIso(d), label: copy.calendar.dowsLong[(d.getDay() + 6) % 7].toLowerCase(), long: fmtWeekday(d) };
+  });
+
+  const head = (
+    <View style={s.head}>
+      <View style={s.titleRow}>
+        <Text style={[s.title, { flex: 1 }]} numberOfLines={2}>{task.title}</Text>
+        {m.mine ? (
+          <Pressable onPress={markDone} hitSlop={12} accessibilityRole="button" accessibilityLabel={t.doneLabel}>
+            <Animated.View style={pop}><CheckCircle done={done} size={26} /></Animated.View>
+          </Pressable>
+        ) : null}
+      </View>
+      <View style={s.meta}>
+        <Avatar initial={who.initial} color={who.color} photo={who.avatar_url} size={18} />
+        <Text style={s.metaTxt}>{m.mine ? t.metaYou : who.first_name} · {dayLabel} · {done ? fmtMin(spent) : fill(t.metaApprox, { time: fmtMin(rule.duration_min) })}</Text>
+      </View>
+    </View>
+  );
+
+  if (confirm) {
+    const props = confirm === 'done'
+      ? { kind: 'done', title: t.confirmDone, sub: cents ? fill(t.confirmDoneSub, { time: fmtMin(spent), amount: fmtAmount(cents) }) : fill(t.doneSub, { time: fmtMin(spent) }) }
+      : confirm === 'moved'
+        ? { kind: 'moved', title: fill(t.confirmMoved, { day: movedTo?.long }), sub: fill(t.confirmMovedSub, { name: partner.first_name }) }
+        : { kind: 'swap', who: partner, title: fill(t.confirmSwap, { name: partner.first_name }), sub: t.confirmSwapSub, pill: t.confirmSwapPill };
+    return (
+      <View style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 31) }]}>
+        <SheetHandle />
+        {head}
+        <Animated.View entering={FadeIn.duration(motion.micro)}><ConfirmBlock {...props} /></Animated.View>
+      </View>
+    );
+  }
+
   return (
     <View style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 31) }]}>
       <SheetHandle />
-      <View style={s.head}>
-        <Text style={{ fontSize: 22 }}>{task.emoji}</Text>
-        <Text style={s.headTitle} numberOfLines={1}>{task.title}</Text>
-      </View>
+      {head}
 
-      {/* temps réel passé : − n min + */}
-      <Card r={radius.row} padding={0} style={{ marginBottom: 6 }}>
-        <View style={s.timeRow}>
-          <Micro style={{ flex: 1 }}>{t.timeLabel}</Micro>
-          <Pressable onPress={() => step(-1)} hitSlop={8} style={s.stepBtn}><Text style={s.stepTxt}>−</Text></Pressable>
-          <Text style={s.timeTxt}>{fmtMin(mins)}</Text>
-          <Pressable onPress={() => step(1)} hitSlop={8} style={s.stepBtn}><Text style={s.stepTxt}>+</Text></Pressable>
-        </View>
-      </Card>
-
-      <Pressable onPress={done ? undo : markDone} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
-        <Card r={radius.row} padding={0} style={{ marginBottom: 6 }} accent={colors.sage}>
-          <View style={s.optRow}>
-            <Text style={{ fontSize: 19 }}>{done ? '↩️' : '✅'}</Text>
-            <View style={{ flex: 1 }}>
-              <Text style={s.optLabel}>{done ? t.doneAlready : t.doneLabel}</Text>
-              <Text style={s.optSub}>{done ? t.doneAlreadySub : fill(t.doneSub, { time: fmtMin(mins) })}</Text>
-            </View>
-            <Chevron />
-          </View>
-        </Card>
-      </Pressable>
-
-      {done ? null : !asking ? (
-        <Pressable onPress={() => setAsking(true)} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
-          <Card r={radius.row} padding={0} style={{ marginBottom: 6 }}>
-            <View style={s.optRow}>
-              <Text style={{ fontSize: 19 }}>⏭️</Text>
-              <View style={{ flex: 1 }}>
-                <Text style={s.optLabel}>{t.noTimeLabel}</Text>
-                <Text style={s.optSub}>{fill(t.noTimeSub, { name: partner.first_name })}</Text>
-              </View>
-              <Chevron />
-            </View>
+      {/* ─── étage « ce moment-ci » (replié quand la règle est ouverte) ─── */}
+      {ruleOpen ? null : (
+        <Animated.View layout={layout}>
+          <Card r={16} padding={0} style={s.block}>
+            <Row first label={t.timeLabel} right={<Stepper value={fmtMin(spent)} onMinus={() => setSpent(v => Math.max(5, v - 5))} onPlus={() => setSpent(v => v + 5)} />} />
+            <Row label={t.expenseLabel} right={expenseOpen
+              ? <View style={s.amountBox}><TextInput value={amount} onChangeText={setAmount} placeholder={t.expensePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)} keyboardType="decimal-pad" style={s.amountInput} /><Text style={s.amountUnit}>€</Text></View>
+              : <PillChip label={cents ? fmtAmount(cents) : t.expenseAdd} selected={!!cents} onPress={() => setExpenseOpen(true)} />} />
+            {!asking ? (
+              <Row strong label={t.noTimeLabel} sub={fill(t.noTimeSub, { name: partner.first_name })} right={<Arrow />} onPress={() => { Haptics.selectionAsync().catch(() => {}); setAsking(true); }} />
+            ) : (
+              <Animated.View entering={FadeIn.duration(motion.micro)}>
+                <View style={s.moveBox}>
+                  <Micro>{t.moveLabel}</Micro>
+                  <View style={s.days}>
+                    {days.map(d => <PillChip key={d.iso} flex label={d.label} onPress={() => moveTo(d)} />)}
+                  </View>
+                  <Caption style={{ textAlign: 'left' }}>{fill(t.moveWarn, { name: partner.first_name })}</Caption>
+                </View>
+                <Row strong label={fill(t.swapLabel, { name: partner.first_name })} sub={t.swapSub} left={<Avatar initial={partner.initial} color={partner.color} photo={partner.avatar_url} size={22} />} right={<Arrow />} onPress={swap} />
+              </Animated.View>
+            )}
           </Card>
-        </Pressable>
-      ) : (
-        <View style={{ marginBottom: 6 }}>
-          <Card r={radius.row} padding={0} style={{ marginBottom: 6 }}>
-            <View style={{ paddingVertical: 12, paddingHorizontal: 14 }}>
-              <Micro>{t.moveLabel}</Micro>
-              <View style={{ flexDirection: 'row', gap: 7, marginTop: 9 }}>
-                {days.map(d => (
-                  <Pressable key={d.iso} onPress={() => moveTo(d.iso)} style={({ pressed }) => [s.dayBtn, pressed && { opacity: 0.7 }]}>
-                    <Text style={s.dayTxt}>{d.label}</Text>
-                  </Pressable>
-                ))}
-              </View>
-            </View>
-          </Card>
-          <Pressable onPress={swap} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
-            <Card r={radius.row} padding={0}>
-              <View style={s.optRow}>
-                <Text style={{ fontSize: 19 }}>🤝</Text>
-                <Text style={s.optLabel}>{fill(t.noTimeSwap, { name: partner.first_name })}</Text>
-                <Chevron />
-              </View>
-            </Card>
-          </Pressable>
-        </View>
+        </Animated.View>
       )}
 
-      {/* Modifier / Voir : seulement pour les tâches de démo — les fiches 14/16
-          ne sont pas encore branchées sur les vraies tâches du store */}
-      {task?.id == null ? null : <Pressable onPress={edit} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
-        <Card r={radius.row} padding={0} style={{ marginBottom: 6 }}>
-          <View style={s.optRow}>
-            <Text style={{ fontSize: 19 }}>✏️</Text>
-            <View style={{ flex: 1 }}>
-              <Text style={s.optLabel}>{t.editLabel}</Text>
-              <Text style={s.optSub}>{t.editSub}</Text>
-            </View>
-            <Chevron />
-          </View>
+      {/* ─── étage « la règle » ─── */}
+      <Animated.View layout={layout}>
+        <Card r={16} padding={0}>
+          {!ruleOpen ? (
+            <Row first label={t.ruleLabel} right={<Arrow />} onPress={() => { Haptics.selectionAsync().catch(() => {}); setRuleOpen(true); }}
+              sub={[rule.window_days.length ? rule.window_days.map(i => copy.calendar.dowsLong[i].toLowerCase()).join(', ') : t.ruleAnyDay, t.who[rule.who] || partner.first_name, fmtMin(rule.duration_min)].join(' · ')} />
+          ) : (
+            <Animated.View entering={FadeIn.duration(motion.micro)}>
+              <RuleGroup first label={t.ruleDays} row>
+                {copy.calendar.dows.map((d, i) => <PillChip key={i} flex label={d} selected={rule.window_days.includes(i)}
+                  onPress={() => patchRule({ window_days: rule.window_days.includes(i) ? rule.window_days.filter(x => x !== i) : [...rule.window_days, i].sort() })} />)}
+              </RuleGroup>
+              <RuleGroup label={t.ruleWho}>
+                <PillChip label={t.who.me} avatar={me} selected={rule.who === 'me'} onPress={() => patchRule({ who: 'me' })} />
+                <PillChip label={partner.first_name} avatar={partner} selected={rule.who === 'partner'} onPress={() => patchRule({ who: 'partner' })} />
+                <PillChip label={t.who.alt} selected={rule.who === 'alt'} onPress={() => patchRule({ who: 'alt' })} />
+                <PillChip label={t.who.auto} selected={rule.who === 'auto'} onPress={() => patchRule({ who: 'auto' })} />
+              </RuleGroup>
+              <Row label={t.ruleDuration} right={<Stepper value={fmtMin(rule.duration_min)} onMinus={() => patchRule({ duration_min: Math.max(5, rule.duration_min - 5) })} onPlus={() => patchRule({ duration_min: rule.duration_min + 5 })} />} />
+              {noteOpen
+                ? <View style={s.noteBox}><TextInput value={rule.note} onChangeText={v => patchRule({ note: v })} placeholder={t.notePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)} multiline style={s.noteInput} /></View>
+                : <Row label={t.ruleNote} sub={rule.note || t.notePlaceholder} right={<Arrow />} onPress={() => setNoteOpen(true)} />}
+            </Animated.View>
+          )}
         </Card>
-      </Pressable>}
-
-      {!demoOcc ? null : <Pressable onPress={view} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
-        <Card r={radius.row} padding={0}>
-          <View style={s.optRow}>
-            <Text style={{ fontSize: 19 }}>👀</Text>
-            <View style={{ flex: 1 }}>
-              <Text style={s.optLabel}>{t.viewLabel}</Text>
-              <Text style={s.optSub}>{t.viewSub}</Text>
-            </View>
-            <Chevron />
-          </View>
-        </Card>
-      </Pressable>}
+      </Animated.View>
     </View>
   );
 }
 
 const s = StyleSheet.create({
   sheet: { backgroundColor: colors.card, paddingTop: 10, paddingHorizontal: space.screenX },
-  head: { flexDirection: 'row', alignItems: 'center', gap: 11, marginTop: 4, marginBottom: 13, paddingHorizontal: 2 },
-  headTitle: { fontSize: 17, fontWeight: '600', letterSpacing: -0.3, color: colors.ink, flex: 1 },
-  timeRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 11, paddingHorizontal: 14 },
-  stepBtn: { width: 26, height: 26, borderRadius: 13, backgroundColor: alpha(colors.ink, 0.06), alignItems: 'center', justifyContent: 'center' },
-  stepTxt: { fontSize: 15, fontWeight: '600', color: colors.ink, lineHeight: 17 },
-  timeTxt: { fontSize: 15, fontWeight: '600', color: colors.ink, fontVariant: ['tabular-nums'], minWidth: 52, textAlign: 'center' },
-  optRow: { flexDirection: 'row', alignItems: 'center', gap: 13, paddingVertical: 13, paddingHorizontal: 14 },
-  choiceCol: { alignItems: 'center', gap: 6, paddingVertical: 13, paddingHorizontal: 10 },
-  dayBtn: { flex: 1, alignItems: 'center', paddingVertical: 9, borderRadius: 10, backgroundColor: alpha(colors.ink, 0.05), borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
-  dayTxt: { fontSize: 13, fontWeight: '600', color: colors.ink },
-  optLabel: { fontSize: 15.5, fontWeight: '600', color: colors.ink },
-  optSub: { ...font.caption, marginTop: 3 },
+  head: { marginTop: 2, marginBottom: 12, paddingHorizontal: 2, gap: 4 },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  title: { ...font.cardTitle },
+  meta: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  metaTxt: { fontSize: 13, fontWeight: '400', color: colors.muted },
+  block: { marginBottom: 8 },
+  moveBox: { paddingVertical: 12, paddingHorizontal: 14, gap: 9, borderTopWidth: 1, borderTopColor: colors.line },
+  days: { flexDirection: 'row', gap: 6 },
+  amountBox: { flexDirection: 'row', alignItems: 'center', gap: 4, borderBottomWidth: 1.5, borderBottomColor: colors.ink, paddingBottom: 2 },
+  amountInput: { fontSize: 15, fontWeight: '600', color: colors.ink, minWidth: 56, textAlign: 'right', padding: 0, fontVariant: ['tabular-nums'] },
+  amountUnit: { fontSize: 15, fontWeight: '600', color: colors.ink },
+  noteBox: { paddingVertical: 10, paddingHorizontal: 14, borderTopWidth: 1, borderTopColor: colors.line },
+  noteInput: { fontSize: 15, fontWeight: '400', color: colors.ink, minHeight: 44, padding: 0 },
 });
