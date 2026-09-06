@@ -6,7 +6,7 @@
 import { supabase } from './supabase';
 import { ensureSession } from './profile';
 import { uuid, pull, resetAll } from './store';
-import { loadSetup, setup, saveHouseholdId, clearSetup } from './setup-state';
+import { loadSetup, setup, saveHouseholdId, clearSetup, saveInvited, saveJoined } from './setup-state';
 import { loadPartner, loadIdentity, resetPartner } from './identity';
 
 // Lien universel (3 sept 2026) : hébergé sur GitHub Pages (AASA du domaine →
@@ -47,10 +47,11 @@ export async function createInvitation() {
       .select('code').eq('household_id', householdId).is('accepted_at', null)
       .gt('expires_at', new Date().toISOString())
       .order('created_at', { ascending: false }).limit(1).maybeSingle();
-    if (existing) return { code: existing.code };
+    if (existing) { saveInvited(true); return { code: existing.code }; }
     const code = genCode();
     const { error } = await supabase.from('invitations').insert({ id: uuid(), household_id: householdId, code, created_by: uid });
     if (error) return null;
+    saveInvited(true);
     return { code };
   } catch (e) { return null; }
 }
@@ -77,6 +78,7 @@ export async function joinWithCode(code) {
     const { data: hid, error } = await supabase.rpc('accept_invitation', { p_code: String(code).trim().toUpperCase() });
     if (error) return { ok: false, reason: error.message };
     saveHouseholdId(hid);
+    saveJoined(true);
     await loadIdentity(); // uid + profil de LA session qui vient de rejoindre
     await resetAll(); // nouveau foyer : cache, filigranes et file repartent de zéro
     await Promise.all(['tasks', 'occurrences', 'task_pains', 'swap_requests', 'malus'].map(tb => pull(tb, hid)));

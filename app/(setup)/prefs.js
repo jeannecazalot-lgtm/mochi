@@ -8,7 +8,7 @@ import { GlowBg, SetupHeader, Card, CTAPrimary } from '../../src/components/ui';
 import { LiveMochi, FadeInDown, Animated } from '../../src/components/motion';
 import { SectionLabel, setupTokens, LegendChip } from '../../src/components/setup/extra';
 import { prefsPool, prefsMax, reminderTimes } from '../../src/demo-setup';
-import { savePrefs, loadSetup, setup } from '../../src/setup-state';
+import { savePrefs, loadSetup, setup, isJoiner } from '../../src/setup-state';
 import { syncJoinerPrefs } from '../../src/sync-setup';
 import { askNotificationPermission } from '../../src/notifications';
 import copy from '../../src/data/copy.json';
@@ -100,7 +100,7 @@ export default function Prefs() {
             savePrefs({ prefs, reminder: reminderTimes[timeIdx] });
             askNotificationPermission().catch(() => {});
             await loadSetup();
-            if (setup.householdId && !setup.tasks?.length) { syncJoinerPrefs().catch(() => {}); router.replace('/(tabs)'); }
+            if (isJoiner()) { syncJoinerPrefs().catch(() => {}); router.replace('/(tabs)'); }
             else router.push('/(setup)/invite');
           }} big />
         </View>

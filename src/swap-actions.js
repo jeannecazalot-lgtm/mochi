@@ -17,6 +17,7 @@ export async function requestSwap(occId) {
   const occs = await read('occurrences');
   const o = occs.find(x => x.id === occId);
   if (!o) return { ok: false, reason: 'introuvable' };
+  if (o.status === 'done') return { ok: false, reason: 'deja_fait' }; // test du 6 sept 2026 : repassage envoyé sur une mission cochée
   const swaps = await read('swap_requests');
   if (swaps.some(s => s.occurrence_id === occId && s.status === 'pending')) return { ok: true, already: true };
   await mutate('swap_requests', {
@@ -31,10 +32,12 @@ export async function resolveSwap(swapId, accept) {
   const swaps = await read('swap_requests');
   const sw = swaps.find(s => s.id === swapId);
   if (!sw) return false;
+  const occs = await read('occurrences');
+  const o = occs.find(x => x.id === sw.occurrence_id);
+  // occurrence déjà faite entre-temps : la proposition tombe, le porteur ne bouge pas
+  if (accept && o && o.status === 'done') accept = false;
   await mutate('swap_requests', { ...sw, status: accept ? 'accepted' : 'refused', resolved_at: new Date().toISOString() });
   if (accept) {
-    const occs = await read('occurrences');
-    const o = occs.find(x => x.id === sw.occurrence_id);
     if (o) await mutate('occurrences', { ...o, assignee_id: sw.to_user });
     // pas encore en cache (temps réel en retard) : changement de porteur direct au serveur
     else { try { await supabase.from('occurrences').update({ assignee_id: sw.to_user }).eq('id', sw.occurrence_id); } catch (e) { /* rejoué au prochain pull */ } }
@@ -48,8 +51,11 @@ export async function mySwaps() {
   const uid = getUid();
   if (!uid) return { pending: [], resolved: [] };
   const swaps = await read('swap_requests');
+  const occs = await read('occurrences');
+  const done = new Set(occs.filter(o => o.status === 'done').map(o => o.id));
   return {
-    pending: swaps.filter(s => s.status === 'pending' && s.to_user === uid),
+    // une proposition sur une mission déjà faite n'a plus de sens : on ne l'affiche pas
+    pending: swaps.filter(s => s.status === 'pending' && s.to_user === uid && !done.has(s.occurrence_id)),
     resolved: swaps.filter(s => s.status !== 'pending' && (s.to_user === uid || s.from_user === uid)),
   };
 }

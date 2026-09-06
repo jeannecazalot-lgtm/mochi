@@ -17,6 +17,8 @@ const state = {
   result: null,           // 11 · sortie de computeDispatch + méta d'affichage
   realTaskIds: null,      // synchro · id local → uuid Supabase (rejouer ≠ dupliquer)
   householdId: null,      // foyer réel (créé au « C'est parti » ou rejoint par code)
+  invitedCode: null,      // 09 · j'ai créé une invitation (je suis l'inviteur·se)
+  joinedByCode: null,     // 09 · j'ai rejoint un foyer avec un code (je suis le/la rejoignant·e)
 };
 
 let loadedPromise = null;
@@ -38,6 +40,12 @@ export function saveTasks(tasks) { state.tasks = tasks; persist(); }
 export function saveResult(result) { state.result = result; persist(); }
 export function saveRealTaskIds(map) { state.realTaskIds = map; persist(); }
 export function saveHouseholdId(id) { state.householdId = id; persist(); }
+export function saveInvited(v) { state.invitedCode = !!v; if (v) state.joinedByCode = false; persist(); }
+export function saveJoined(v) { state.joinedByCode = !!v; if (v) state.invitedCode = false; persist(); }
+// Test à deux du 6 sept 2026 : l'inviteuse (foyer sans tâches encore) était prise pour
+// une rejoignante → jamais d'écran 10. Rejoignant = a saisi un code ; sinon, à défaut
+// de marqueur (anciennes installs), foyer sans tâches locales ET sans invitation créée.
+export const isJoiner = () => state.joinedByCode === true || (!state.invitedCode && state.joinedByCode !== false && !!state.householdId && !state.tasks?.length);
 export function clearSetup() { Object.keys(state).forEach(k => { state[k] = null; }); persist(); }
 
 // fréquence du catalogue ({ daily } | { perWeek: n } | { perDay: n }) → occurrences/semaine

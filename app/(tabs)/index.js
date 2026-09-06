@@ -5,7 +5,7 @@ import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { useSharedValue, useAnimatedStyle, withTiming, LinearTransition } from 'react-native-reanimated';
-import { GlowBg, Card, Divider, Avatar } from '../../src/components/ui';
+import { GlowBg, Card, Divider, Avatar, CTAPrimary } from '../../src/components/ui';
 import { LiveMochi, useCheckPop, Animated } from '../../src/components/motion';
 import { Icon, ICON, BadgePill, CheckCircle, RoundButton, Hint } from '../../src/components/core/extra';
 import { me, partner, balance, streak, myToday, taskById, fmtMin } from '../../src/demo';
@@ -80,6 +80,7 @@ export default function Home() {
   const [vms, setVms] = useState(null);
   const [real, setReal] = useState(false);
   const [anyOcc, setAnyOcc] = useState(false); // le foyer a-t-il déjà des missions (pas forcément à moi) ?
+  const [noTask, setNoTask] = useState(false); // foyer sans aucune tâche (on vient de le former) → bouton vers l'écran 10
   const occV = occStore.useVersion(); // « Déplacer » depuis la sheet → on relit le store
   useEffect(() => {
     (async () => {
@@ -97,6 +98,7 @@ export default function Home() {
       const todays = occs.filter(o => o.due_date === today && (!uid || !o.assignee_id || o.assignee_id === uid));
       setReal(true);
       setAnyOcc(occs.length > 0);
+      setNoTask(tasks.length === 0);
       // hydrate la coche depuis le statut serveur (relance de l'app)
       todays.forEach(o => { if (o.status === 'done' && !missionDone.has(o.id)) missionDone.set(o.id, true); });
       setVms(todays.map(o => {
@@ -169,7 +171,10 @@ export default function Home() {
                     </Animated.View>
                   ))}
             </Card>
-            <Hint style={{ marginTop: 6 }}>{t.swipeHint}</Hint>
+            {/* test à deux du 6 sept 2026 : la rejoignante lisait « Choisissez vos tâches » sans aucun bouton */}
+            {real && noTask
+              ? <View style={{ marginTop: 14 }}><CTAPrimary label={t.chooseTasksCta} onPress={() => router.push('/(setup)/taches')} /></View>
+              : list.length ? <Hint style={{ marginTop: 6 }}>{t.swipeHint}</Hint> : null}
           </View>
 
           {/* Bloc « Côté binôme » retiré (retour Jeanne, 1er sept 2026) : redondant

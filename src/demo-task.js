@@ -72,4 +72,4 @@ export const fmtWeekday = date => new Intl.DateTimeFormat('fr-FR', { weekday: 'l
 export const fmtMinShort = min => (min < 60 ? `${min}ʼ` : fmtMin(min));
 export const fmtStars = n => `${n} ★`;
 export const fmtHour = hhmm => (hhmm ? `${parseInt(hhmm, 10)}h` : '');
-export { me, partner, byId };
+export { me, partner, byId, fmtMin };

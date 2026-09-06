@@ -2,7 +2,7 @@
 // Demande Jeanne (1er sept 2026) : pop-up pour agir sur la tâche — la valider en
 // notant le temps réel passé, dire qu'on n'aura pas le temps, ou la modifier.
 // `?occ=<id>` = occurrence concernée. Démo : la coche repasse par missionDone (demo-core).
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,6 +14,7 @@ import { missionDone } from '../src/demo-core';
 import { moveOccurrence, toggleOccurrence } from '../src/occ-actions';
 import { requestSwap } from '../src/swap-actions';
 import { localIso } from '../src/dates';
+import { read } from '../src/store';
 import copy from '../src/data/copy.json';
 import { colors, space, radius, font, alpha } from '../src/theme';
 
@@ -35,6 +36,18 @@ export default function Mission() {
   // 1er sept 2026 : une action qui ne fait rien ne doit pas être affichée comme active)
   const [asking, setAsking] = useState(false);
   const step = d => setMins(m => Math.max(5, m + d * 5));
+  // mission déjà cochée (test du 6 sept 2026 : la sheet proposait encore « C'est fait »
+  // et « Repasser » sur une mission faite) : coche locale, puis statut réel du store
+  const [done, setDone] = useState(() => !!(occ && missionDone.has(occ.id)));
+  useEffect(() => {
+    if (!occId) return;
+    read('occurrences').then(list => { const o = list.find(x => x.id === String(occId)); if (o) setDone(o.status === 'done'); }).catch(() => {});
+  }, [occId]);
+  const undo = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    if (occ) { missionDone.set(occ.id, false); toggleOccurrence(String(occ.id), false).catch(() => {}); }
+    close();
+  };
 
   const close = () => router.back();
   // la navigation attend la fin de l'animation de fermeture de la sheet,
@@ -89,20 +102,20 @@ export default function Mission() {
         </View>
       </Card>
 
-      <Pressable onPress={markDone} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
+      <Pressable onPress={done ? undo : markDone} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
         <Card r={radius.row} padding={0} style={{ marginBottom: 6 }} accent={colors.sage}>
           <View style={s.optRow}>
-            <Text style={{ fontSize: 19 }}>✅</Text>
+            <Text style={{ fontSize: 19 }}>{done ? '↩️' : '✅'}</Text>
             <View style={{ flex: 1 }}>
-              <Text style={s.optLabel}>{t.doneLabel}</Text>
-              <Text style={s.optSub}>{fill(t.doneSub, { time: fmtMin(mins) })}</Text>
+              <Text style={s.optLabel}>{done ? t.doneAlready : t.doneLabel}</Text>
+              <Text style={s.optSub}>{done ? t.doneAlreadySub : fill(t.doneSub, { time: fmtMin(mins) })}</Text>
             </View>
             <Chevron />
           </View>
         </Card>
       </Pressable>
 
-      {!asking ? (
+      {done ? null : !asking ? (
         <Pressable onPress={() => setAsking(true)} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
           <Card r={radius.row} padding={0} style={{ marginBottom: 6 }}>
             <View style={s.optRow}>

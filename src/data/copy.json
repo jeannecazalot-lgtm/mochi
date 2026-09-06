@@ -87,7 +87,8 @@
       "mochiUnbalancedMe": "Phrase Mochi quand ça penche nettement chez toi",
       "mochiUnbalancedSub": "Sous-phrase déséquilibre",
       "activityA11y": "Libellé accessibilité bulle activité",
-      "profileA11y": "Libellé accessibilité avatar profil"
+      "profileA11y": "Libellé accessibilité avatar profil",
+      "chooseTasksCta": "Bouton sous la liste vide quand le foyer n a encore aucune tâche (→ écran 10)"
     },
     "todayTitle": "Aujourd'hui pour toi",
     "emptyToday": "Rien pour toi aujourd'hui.",
@@ -110,7 +111,8 @@
     "activityA11y": "Fil d’activité",
     "profileA11y": "Profil et réglages",
     "mochiNew": "Votre foyer démarre tout juste.",
-    "mochiNewSub": "Choisissez vos tâches ensemble pour lancer la répartition."
+    "mochiNewSub": "Choisissez vos tâches ensemble pour lancer la répartition.",
+    "chooseTasksCta": "Choisir nos tâches"
   },
   "planning": {
     "_labels": {
@@ -335,6 +337,8 @@
     "timeLabel": "Temps passé",
     "doneLabel": "C'est fait",
     "doneSub": "Compté {time} dans la balance",
+    "doneAlready": "Déjà fait ✓",
+    "doneAlreadySub": "Tape pour la remettre à faire",
     "noTimeLabel": "Je n'aurai pas le temps",
     "noTimeSub": "Reporter, ou repasser à {name}",
     "moveLabel": "Déplacer à…",
@@ -587,7 +591,8 @@
     "perWeekSlash": "/ semaine",
     "shareMsgNoLink": "{name} t'invite sur mochi 🍡 Installe l'app, choisis « J'ai reçu un code » et tape : {code}",
     "duoTitleJoiner": "Tu as rejoint le foyer de {name} !",
-    "duoSubJoiner": "Encore trois petites étapes : ton prénom, tes dispos, tes préférences."
+    "duoSubJoiner": "Encore trois petites étapes : ton prénom, tes dispos, tes préférences.",
+    "duoSubJoinerReady": "Tout est prêt : tes dispos et tes préférences partent dans le foyer."
   },
   "event": {
     "_labels": {

@@ -48,17 +48,19 @@ export default function Taches() {
   const [customs, setCustoms] = useState([]);   // tâches ajoutées à la main (cochées d'office)
   const [adding, setAdding] = useState(false);
   const [draft, setDraft] = useState('');
+  const draftRef = React.useRef(''); // valeur la plus fraîche : Entrée arrive parfois avant le re-rendu du dernier caractère (test du 6 sept 2026 : « jardin » → « jardi »)
+  const onDraft = v => { draftRef.current = v; setDraft(v); };
   const submitting = React.useRef(false); // garde anti-doublon : Entrée ET la perte de focus appellent addCustom
   const addCustom = () => {
     if (submitting.current) return;
     submitting.current = true;
     setTimeout(() => { submitting.current = false; }, 400);
-    const label = draft.trim();
+    const label = draftRef.current.trim();
     if (!label) { setAdding(false); return; }
     const id = `custom-${Date.now()}`;
     setCustoms(l => [...l, { id, emoji: '📝', label }]);
     setOn(l => [...l, id]);
-    setDraft(''); setAdding(false);
+    draftRef.current = ''; setDraft(''); setAdding(false);
   };
   const toggle = id => {
     if (!on.includes(id)) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
@@ -88,7 +90,7 @@ export default function Taches() {
             <Card padding={0} r={14} style={{ marginBottom: 6 }} accent={colors.sage}>
               <View style={s.row}>
                 <TextInput
-                  value={draft} onChangeText={setDraft} placeholder={t.addTaskPlaceholder} placeholderTextColor={colors.muted}
+                  value={draft} onChangeText={onDraft} placeholder={t.addTaskPlaceholder} placeholderTextColor={colors.muted}
                   autoCapitalize="sentences" returnKeyType="done" onSubmitEditing={addCustom} onBlur={addCustom}
                   style={[s.title, { flex: 1, paddingVertical: 0 }]} />
               </View>

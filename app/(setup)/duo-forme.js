@@ -14,7 +14,8 @@ import {
 } from 'react-native-reanimated';
 import { fill } from '../../src/components/setup/extra';
 import { me, partner } from '../../src/demo';
-import { loadSetup, setup } from '../../src/setup-state';
+import { loadSetup, setup, isJoiner } from '../../src/setup-state';
+import { syncJoinerPrefs } from '../../src/sync-setup';
 import { useIdentity } from '../../src/identity';
 import copy from '../../src/data/copy.json';
 import { colors, space, motion } from '../../src/theme';
@@ -24,10 +25,12 @@ const confettiPalette = [colors.coral, colors.butter, colors.sage, colors.lavend
 
 export default function DuoForme() {
   const reduced = prefersReducedMotion();
-  useIdentity(); // le vrai prénom du binôme dans « Bravo, {name} a rejoint le duo ! »
-  // « joiner » = j'ai rejoint un foyer existant (code) : pas de tâches locales à moi
+  const realMe = useIdentity(); // le vrai prénom du binôme dans « Bravo, {name} a rejoint le duo ! »
+  const filled = !!(realMe?.first_name && setup.availability && setup.prefs); // 06 + 07 + 08 déjà faits avant le code
+  // « joiner » = j'ai rejoint un foyer existant avec un code (marqueur posé par joinWithCode) ;
+  // l'inviteur·se, même sans tâches encore, va choisir les tâches (bug du 6 sept 2026)
   const [joiner, setJoiner] = useState(false);
-  useEffect(() => { loadSetup().then(() => setJoiner(!!setup.householdId && !setup.tasks?.length)); }, []);
+  useEffect(() => { loadSetup().then(() => setJoiner(isJoiner())); }, []);
   // avatars : partent écartés (±46 px), glissent l'un vers l'autre en spring
   // jusqu'au léger chevauchement du layout final, puis pulse 1 → 1.06 → 1.
   // (restaurée le 1er sept 2026 — Jeanne signale son absence sur le 09b)
@@ -56,7 +59,7 @@ export default function DuoForme() {
           <View style={{ marginBottom: 11 }}><PillLabel color={colors.sageDeep}>{t.duoPill}</PillLabel></View>
           {/* celui qui rejoint lit « Tu as rejoint le foyer de X » (décision Jeanne, 5 sept) */}
           <Text style={s.title}>{fill(joiner ? t.duoTitleJoiner : t.duoTitle, { name: partner.first_name })}</Text>
-          <Text style={s.sub}>{joiner ? t.duoSubJoiner : t.duoSub}</Text>
+          <Text style={s.sub}>{joiner ? (filled ? t.duoSubJoinerReady : t.duoSubJoiner) : t.duoSub}</Text>
         </View>
         <View style={s.ctaWrap}>
           {/* celui qui REJOINT un foyer existant : les tâches sont déjà choisies par
@@ -64,7 +67,13 @@ export default function DuoForme() {
               décision Jeanne 5 sept 2026, « un rond avec un K » sinon) puis l'Accueil */}
           <CTAPrimary
             label={joiner ? copy.common.continue : t.chooseTasks}
-            onPress={() => (joiner ? router.push('/(setup)/identite') : router.push('/(setup)/taches'))}
+            onPress={() => {
+              if (!joiner) { router.push('/(setup)/taches'); return; }
+              // décision Jeanne (6 sept 2026) : on saute ce qui est déjà rempli — prénom, dispos,
+              // préférences faits avant de saisir le code → Accueil direct, réglages envoyés au foyer
+              if (filled) { syncJoinerPrefs().catch(() => {}); router.replace('/(tabs)'); }
+              else router.push('/(setup)/identite');
+            }}
             big
           />
         </View>
