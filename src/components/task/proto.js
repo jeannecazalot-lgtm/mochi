@@ -72,7 +72,7 @@ export function ConfirmBlock({ kind, title, sub, pill, who }) {
   );
 }
 
-export const DoneCircle = ({ done }) => <CheckCircle done={done} size={22} />;
+export const DoneCircle = ({ done, size = 22 }) => <CheckCircle done={done} size={size} />;
 export const Arrow = () => <Chevron />;
 export const Caption = ({ children, style }) => <Text style={[s.caption, style]}>{children}</Text>;
 

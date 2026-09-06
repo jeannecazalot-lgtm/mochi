@@ -4,7 +4,7 @@
 //   v=a : « C'est fait » en rangée cochable · v=b : « C'est fait » en CTA dégradé.
 import React, { useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Card, Micro, Avatar, CTAPrimary } from '../src/components/ui';
 import { SheetHandle } from '../src/components/social/extra';
@@ -20,7 +20,8 @@ const partner = { initial: 'K', first_name: 'Ketley', color: slotColors[2].main 
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
 
 export default function ProtoMission() {
-  const { v = 'a', s = 'home' } = useLocalSearchParams();
+  const { v = 'a', s = 'home', c } = useLocalSearchParams();
+  const checkInHead = c === 'head';
   const insets = useSafeAreaInsets();
   const t = copy.missionV2;
   const task = taskById('t-lessive');
@@ -34,7 +35,10 @@ export default function ProtoMission() {
 
   const head = (
     <View style={st.head}>
-      <Text style={st.title}>{task.title}</Text>
+      <View style={st.titleRow}>
+        <Text style={[st.title, { flex: 1 }]}>{task.title}</Text>
+        {checkInHead ? <Pressable onPress={close} hitSlop={10}><DoneCircle size={26} /></Pressable> : null}
+      </View>
       <View style={st.meta}>
         <Avatar initial={me.initial} color={me.color} size={18} />
         <Text style={st.metaTxt}>{t.metaYou} · {t.metaToday} · {fill(t.metaApprox, { time: fmtMin(est) })}</Text>
@@ -75,7 +79,7 @@ export default function ProtoMission() {
       <Card r={16} padding={0} style={st.block}>
         <Row first label={t.timeLabel} right={stepper} />
         <Row label={t.expenseLabel} right={expenseChip} />
-        {v === 'a' ? (
+        {v === 'a' && !checkInHead ? (
           <Row strong label={t.doneLabel} sub={fill(t.doneSub, { time })} left={<DoneCircle />} right={<Arrow />} onPress={close} />
         ) : null}
         {!asking ? (
@@ -123,6 +127,7 @@ export default function ProtoMission() {
 const st = StyleSheet.create({
   sheet: { backgroundColor: colors.card, paddingTop: 10, paddingHorizontal: space.screenX },
   head: { marginTop: 2, marginBottom: 12, paddingHorizontal: 2, gap: 4 },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   title: { ...font.cardTitle },
   meta: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   metaTxt: { fontSize: 13, fontWeight: '400', color: colors.muted },
