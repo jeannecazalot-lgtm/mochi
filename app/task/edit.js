@@ -8,7 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { GlowBg, Card, PillLabel, Avatar } from '../../src/components/ui';
 import { TaskHeader, Section, Toggle, Chip, StatTile, Stars, Segmented, OptionRow, ChevronRight, TaskCTA, TaskFooter, taskTokens } from '../../src/components/task/extra';
 import { loadTask, frequencies, durations, dayKeys, deadlines, me, partner, fmtMinShort, fmtStars, fmtHour } from '../../src/demo-task';
-import { loadRealTask, saveRealTask } from '../../src/task-actions';
+import { loadRealTask, saveRealTask, createRealTask } from '../../src/task-actions';
 import copy from '../../src/data/copy.json';
 import { colors, alpha, font } from '../../src/theme';
 
@@ -144,6 +144,8 @@ export default function TaskEdit() {
           <TaskCTA label={copy.common.save} disabled={!task.title.trim()} onPress={() => {
             // vraie tâche → persistance (store + Supabase) ; démo → simple fermeture
             if (task.real) saveRealTask(task).catch(e => console.warn('[14] sauvegarde échouée :', e?.message || e));
+            // nouvelle tâche (FAB) : créée dans le foyer avec ses occurrences (6 sept 2026)
+            else if (!id) createRealTask(task).catch(e => console.warn('[14] création échouée :', e?.message || e));
             router.back();
           }} />
         </TaskFooter>

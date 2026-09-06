@@ -1,6 +1,6 @@
 // Écran 08 · Setup C — Préférences. Recette : docs/recettes/08-prefs.md
-import React, { useState } from 'react';
-import { router } from 'expo-router';
+import React, { useState, useEffect } from 'react';
+import { router, useLocalSearchParams } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -9,7 +9,7 @@ import { LiveMochi, FadeInDown, Animated } from '../../src/components/motion';
 import { SectionLabel, setupTokens, LegendChip } from '../../src/components/setup/extra';
 import { prefsPool, prefsMax, reminderTimes } from '../../src/demo-setup';
 import { savePrefs, loadSetup, setup, isJoiner } from '../../src/setup-state';
-import { syncJoinerPrefs } from '../../src/sync-setup';
+import { syncJoinerPrefs, syncMyPains } from '../../src/sync-setup';
 import { askNotificationPermission } from '../../src/notifications';
 import copy from '../../src/data/copy.json';
 import { colors, space, alpha } from '../../src/theme';
@@ -34,6 +34,16 @@ export default function Prefs() {
   // Aucun état pré-rempli ; cycle neutre → j'aime → je déteste → neutre.
   const [prefs, setPrefs] = useState({});
   const [timeIdx, setTimeIdx] = useState(0);
+  // ?mode=settings : ouvert depuis le profil (6 sept 2026) ; déjà saisi → pré-rempli
+  const { mode } = useLocalSearchParams();
+  const settings = mode === 'settings';
+  useEffect(() => {
+    loadSetup().then(() => {
+      if (setup.prefs) setPrefs({ ...setup.prefs });
+      const i = reminderTimes.indexOf(setup.reminder);
+      if (i >= 0) setTimeIdx(i);
+    });
+  }, []);
   const count = tone => Object.values(prefs).filter(v => v === tone).length;
 
   // Cycle neutre → j'aime → je déteste → neutre. Si l'état visé est plein,
@@ -62,7 +72,7 @@ export default function Prefs() {
       <SafeAreaView style={{ flex: 1 }}>
         {/* Retour Jeanne (1er sept 2026) : plus de sous-titre ni de phrase d'aide —
             la légende porte tout (code couleur + « 1 tap / 2 taps »), écran aéré. */}
-        <SetupHeader hero={<LiveMochi size={96} />} step={3} total={4} title={t.prefsTitle} />
+        <SetupHeader hero={<LiveMochi size={96} />} step={settings ? undefined : 3} total={settings ? undefined : 4} title={t.prefsTitle} />
 
         <View style={{ paddingHorizontal: space.headerX, paddingTop: 26 }}>
           <View style={s.legendTop}>
@@ -96,11 +106,12 @@ export default function Prefs() {
               permission notifications demandée ICI, au moment utile (règle CLAUDE.md) */}
           {/* celui qui a REJOINT un foyer (décision Jeanne 5 sept 2026) : ses dispos et
               préférences partent au foyer et il atterrit à l'Accueil — pas d'écran 09 */}
-          <CTAPrimary label={t.letsGo} onPress={async () => {
+          <CTAPrimary label={settings ? copy.common.save : t.letsGo} onPress={async () => {
             savePrefs({ prefs, reminder: reminderTimes[timeIdx] });
             askNotificationPermission().catch(() => {});
             await loadSetup();
-            if (isJoiner()) { syncJoinerPrefs().catch(() => {}); router.replace('/(tabs)'); }
+            if (settings) { syncMyPains().catch(() => {}); router.back(); }
+            else if (isJoiner()) { syncJoinerPrefs().catch(() => {}); router.replace('/(tabs)'); }
             else router.push('/(setup)/invite');
           }} big />
         </View>

@@ -41,6 +41,13 @@ const mergeAvail = (a, b) => {
 // ses dispos/temps partent sur sa ligne membre et ses préférences (aimées/détestées)
 // deviennent des pénibilités perso sur les tâches EXISTANTES du foyer (par catalog_key).
 export async function syncJoinerPrefs() {
+  const okA = await syncMyAvailability();
+  if (!okA) return false;
+  await syncMyPains();
+  return drain();
+}
+// mes dispos/temps → ma ligne membre (07, et réglage « Mes disponibilités » du profil)
+export async function syncMyAvailability() {
   const session = await ensureSession();
   const uid = session.user.id;
   const householdId = setup.householdId;
@@ -49,6 +56,12 @@ export async function syncJoinerPrefs() {
     household_id: householdId, user_id: uid,
     availability: setup.availability || {}, weekly_minutes: setup.weekly_minutes || 300,
   });
+  return true;
+}
+// mes préférences (08, et réglage « Mes préférences » du profil) → pénibilités perso
+export async function syncMyPains() {
+  const session = await ensureSession();
+  const uid = session.user.id;
   const tasks = await read('tasks');
   for (const tk of tasks) {
     const pref = tk.catalog_key ? setup.prefs?.[tk.catalog_key] : null;
@@ -57,7 +70,7 @@ export async function syncJoinerPrefs() {
     const pain = Math.min(5, Math.max(1, base + (pref === 'hate' ? 1 : -1)));
     await mutate('task_pains', { task_id: tk.id, user_id: uid, pain });
   }
-  return drain();
+  return true;
 }
 
 

@@ -1,8 +1,9 @@
 // Écran 07 · Setup B — Dispos & énergie. Recette : docs/recettes/07-dispos.md
 import React, { useState, useEffect, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { router } from 'expo-router';
-import { saveDispos } from '../../src/setup-state';
+import { router, useLocalSearchParams } from 'expo-router';
+import { saveDispos, loadSetup, setup } from '../../src/setup-state';
+import { syncMyAvailability } from '../../src/sync-setup';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GlowBg, SetupHeader, Card, CTAPrimary } from '../../src/components/ui';
@@ -30,6 +31,10 @@ function Cell({ v, onPress, delay }) {
 }
 
 export default function Dispos() {
+  // ?mode=settings : ouvert depuis le profil (6 sept 2026) — pas de points d'étape,
+  // « Enregistrer » renvoie au profil et pousse ma ligne membre au foyer
+  const { mode } = useLocalSearchParams();
+  const settings = mode === 'settings';
   // Retour Jeanne (22 août 2026) : la grille démarre VIDE et aucun temps n'est
   // pré-sélectionné ; le CTA reste actif quoi qu'il arrive.
   const [grid, setGrid] = useState(disposEmpty);
@@ -38,6 +43,13 @@ export default function Dispos() {
   // sinon l'algo croit qu'on n'a presque pas de temps (retour Jeanne, 1er sept 2026)
   const [hoursTouched, setHoursTouched] = useState(false);
   const [demoV, setDemoV] = useState(null);  // valeur jouée sur la case d'exemple (démo seulement)
+  // déjà saisi (rejoignante revenue ici, ou réglage) : on repart de ce qui existe (6 sept 2026)
+  useEffect(() => {
+    loadSetup().then(() => {
+      if (setup.availability?.morning && setup.availability?.evening) setGrid({ morning: [...setup.availability.morning], evening: [...setup.availability.evening] });
+      if (setup.weekly_minutes) { setHours(Math.min(8, Math.max(2, setup.weekly_minutes / 60))); setHoursTouched(true); }
+    });
+  }, []);
   const hintO = useSharedValue(1);
   const hintStyle = useAnimatedStyle(() => ({ opacity: hintO.value }));
   const hintPulse = () => { hintO.value = withSequence(withTiming(0.35, { duration: 220 }), withTiming(1, { duration: 320 })); };
@@ -51,7 +63,7 @@ export default function Dispos() {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      if (prefersReducedMotion()) return;
+      if (prefersReducedMotion() || settings) return;
       const seen = await AsyncStorage.getItem(SEEN_KEY).catch(() => null);
       if (seen || cancelled) return;
       AsyncStorage.setItem(SEEN_KEY, '1').catch(() => {});
@@ -84,7 +96,7 @@ export default function Dispos() {
     <View style={{ flex: 1 }}>
       <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }}>
-        <SetupHeader hero={<LiveMochi size={96} />} step={2} total={4} title={t.disposTitle} sub={t.disposSub2} />
+        <SetupHeader hero={<LiveMochi size={96} />} step={settings ? undefined : 2} total={settings ? undefined : 4} title={t.disposTitle} sub={t.disposSub2} />
 
         <Animated.View entering={prefersReducedMotion() ? undefined : FadeInDown.duration(350).withInitialValues({ opacity: 0, transform: [{ translateY: 10 }] })} onTouchStart={stopDemo} style={{ paddingHorizontal: space.headerX, paddingTop: 18 }}>
           <Card padding={0} r={18} style={{ marginBottom: 10 }}>
@@ -126,7 +138,11 @@ export default function Dispos() {
 
         <View style={s.ctaWrap}>
           {/* branchement réel (1er sept 2026) : la grille et le temps/sem sont enregistrés */}
-          <CTAPrimary label={copy.common.continue} onPress={() => { saveDispos({ availability: grid, weekly_minutes: hoursTouched ? hours * 60 : null }); router.push('/(setup)/prefs'); }} big />
+          <CTAPrimary label={settings ? copy.common.save : copy.common.continue} onPress={() => {
+            saveDispos({ availability: grid, weekly_minutes: hoursTouched ? hours * 60 : null });
+            if (settings) { syncMyAvailability().catch(() => {}); router.back(); }
+            else router.push('/(setup)/prefs');
+          }} big />
         </View>
       </SafeAreaView>
     </View>

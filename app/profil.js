@@ -1,6 +1,6 @@
 // Écran 38 · Profil & réglages (accès par l'avatar). Recette : docs/recettes/38-profil.md
 import React, { useState, useEffect } from 'react';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { View, Text, Pressable, Switch, ScrollView, StyleSheet, Alert } from 'react-native';
 import { leaveHousehold } from '../src/invite-actions';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -9,7 +9,7 @@ import { BackButton, SectionMicro, SettingRow } from '../src/components/premium/
 import { me, partner, household, streak, balance } from '../src/demo';
 import { duoSince, daysSince, lifetime, duoRules, prefs, isPremium } from '../src/demo-premium';
 import { signOut } from '../src/auth';
-import { clearSetup, loadSetup, inRealMode } from '../src/setup-state';
+import { clearSetup, loadSetup, inRealMode, setup } from '../src/setup-state';
 import { resetIdentity, getUid, loadIdentity, useIdentity } from '../src/identity';
 import { resetAll, read } from '../src/store';
 import { computeRealBalance } from '../src/balance-real';
@@ -28,9 +28,21 @@ export default function Profil() {
   // profil au backlog ; en attendant, pas de faux chiffres.)
   useIdentity();
   const [real, setReal] = useState(null);
+  // sous-titres calculés depuis ce qui est vraiment saisi (6 sept 2026 : « Soirs + week-end » était de la démo)
+  const [mine, setMine] = useState(null);
+  const refreshMine = async () => {
+    await loadSetup();
+    const a = setup.availability;
+    const slots = a ? [...(a.morning || []), ...(a.evening || [])].filter(v => v > 0).length : 0;
+    const h = setup.weekly_minutes ? String(Math.round((setup.weekly_minutes / 60) * 2) / 2).replace('.', ',') : null;
+    const likes = Object.values(setup.prefs || {}).filter(v => v === 'like').length;
+    const hates = Object.values(setup.prefs || {}).filter(v => v === 'hate').length;
+    setMine({ slots, h, likes, hates, hasPrefs: !!setup.prefs });
+  };
+  useFocusEffect(React.useCallback(() => { refreshMine(); }, [])); // retour des réglages → sous-titres à jour
   useEffect(() => {
     (async () => {
-      await loadSetup();
+      await refreshMine();
       if (!inRealMode()) return;
       await loadIdentity();
       setReal(computeRealBalance(await read('occurrences'), getUid()));
@@ -94,7 +106,12 @@ export default function Profil() {
             <SectionMicro>{t.sectionMine}</SectionMicro>
             <View style={{ gap: 6 }}>
               <SettingRow emoji="🔔" title={t.notifs} sub={fill(t.notifsSub, { n: duoRules.reminder_before_min })} onPress={() => router.push('/notifs')} />
-              <SettingRow emoji="🗓" title={t.dispos} sub={t.disposSub} onPress={() => router.push('/(setup)/dispos')} />
+              <SettingRow emoji="🗓" title={t.dispos}
+                sub={!mine || (!mine.slots && !mine.h) ? t.notSet : fill(mine.slots === 1 ? t.disposSubOne : t.disposSubReal, { n: mine.slots }) + (mine.h ? fill(t.disposSubHours, { h: mine.h }) : '')}
+                onPress={() => router.push('/(setup)/dispos?mode=settings')} />
+              <SettingRow emoji="💚" title={t.prefs}
+                sub={!mine || !mine.hasPrefs ? t.notSet : fill(t.prefsSub, { like: mine.likes, hate: mine.hates, ls: mine.likes > 1 ? 's' : '', hs: mine.hates > 1 ? 's' : '' })}
+                onPress={() => router.push('/(setup)/prefs?mode=settings')} />
               <SettingRow emoji="🔁" title={t.crossReminder} sub={t.crossReminderSub} right={<Switch value={cross} onValueChange={setCross} trackColor={{ true: colors.sage, false: alpha(colors.ink, 0.12) }} ios_backgroundColor={alpha(colors.ink, 0.12)} />} />
               <SettingRow emoji="⬇️" title={t.export} sub={t.exportSub} onPress={() => {}} />
             </View>
