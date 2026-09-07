@@ -14,7 +14,8 @@
 // ═══════════════════════════════════════════════════════════════════
 import { supabase } from './supabase';
 import { ensureSession } from './profile';
-import { uuid, mutate, drain, resetLocal, read } from './store';
+import { uuid, mutate, drain, resetLocal, read, pull } from './store';
+import { localIso as todayIso } from './dates';
 import { setup, saveRealTaskIds, saveHouseholdId } from './setup-state';
 import { placeDays } from './dispatch';
 import { localIso, addDaysIso } from './dates';
@@ -94,8 +95,15 @@ export async function syncSetup(result) {
   // tâches du foyer + pénibilité perso (08 : aimée = pain − 1, détestée = pain + 1)
   // ids stables entre deux synchros : rejouer « C'est parti » met à jour au lieu de dupliquer
   const realId = { ...(setup.realTaskIds || {}) };
+  // Garde-fou SERVEUR (retour test n°2, 7 sept 2026 : deux « Vaisselle » dans le même foyer,
+  // une par téléphone) : une tâche déjà en base pour ce foyer (même clé catalogue ou même
+  // titre) est réutilisée, jamais recréée — la table d'ids locale ne suffit pas à deux.
+  let existing = [];
+  try { const { data } = await supabase.from('tasks').select('id,catalog_key,title').eq('household_id', householdId); existing = data || []; } catch (e) { /* hors ligne : ids locaux */ }
   for (const t of setup.tasks || []) {
-    const id = realId[t.id] || uuid();
+    const isCustom = String(t.id).startsWith('custom-');
+    const found = existing.find(e => (!isCustom && e.catalog_key === t.id) || e.title === t.label);
+    const id = found?.id || realId[t.id] || uuid();
     realId[t.id] = id;
     await mutate('tasks', {
       id, household_id: householdId, title: t.label, emoji: t.emoji || '•',
@@ -124,10 +132,17 @@ export async function syncSetup(result) {
   // grilles additionnées ; sans grille, un décalage par tâche évite que tout tombe
   // aujourd'hui (retour Jeanne 5 sept, « il faudrait créer les dispos en amont »)
   const pAvail = getPartnerUid() ? await partnerAvailability(householdId, uid) : null;
+  // occurrences déjà posées par l'autre appareil pour la semaine : on ne les double pas
+  let placed = new Set();
+  try {
+    const { data } = await supabase.from('occurrences').select('task_id').eq('household_id', householdId).gte('due_date', todayIso()).neq('status', 'skipped');
+    placed = new Set((data || []).map(o => o.task_id));
+  } catch (e) { /* hors ligne : on génère, le serveur dédoublonne par (task, date) */ }
   let seed = 0;
   for (const it of result?.items || []) {
     const t = (setup.tasks || []).find(x => x.id === it.task_id);
     if (!t) continue;
+    if (placed.has(realId[t.id])) continue;
     const perWeek = t.per_week ? Math.round(it.weekly_min / (t.duration_min || 15)) : 1;
     const avail = it.assignee_id === partner.id ? (pAvail || setup.availability)
       : it.assignee_id === me.id ? setup.availability
@@ -152,5 +167,7 @@ export async function syncSetup(result) {
 
   const ok = await drain();
   if (!ok) console.warn('[sync] file non vidée — rejouée au retour réseau');
+  // ce que l'autre a déjà posé redescend tout de suite (tâches + occurrences)
+  try { await Promise.all([pull('tasks', householdId), pull('occurrences', householdId)]); } catch (e) { /* realtime rattrapera */ }
   return householdId;
 }

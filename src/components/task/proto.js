@@ -36,9 +36,9 @@ export function Stepper({ value, onMinus, onPlus }) {
 }
 
 // ─── chip pill : sélection = fond encre / texte crème ───────────────
-export function PillChip({ label, selected, onPress, avatar, flex }) {
+export function PillChip({ label, selected, onPress, avatar, flex, dim }) {
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [s.chip, flex && { flex: 1 }, selected && s.chipOn, pressed && { opacity: 0.7 }]}>
+    <Pressable onPress={onPress} style={({ pressed }) => [s.chip, flex && { flex: 1 }, selected && s.chipOn, dim && { opacity: 0.35 }, pressed && { opacity: 0.7 }]}>
       {avatar ? <Avatar initial={avatar.initial} color={avatar.color} photo={avatar.avatar_url} size={18} /> : null}
       <Text style={[s.chipTxt, selected && { color: colors.card }]}>{label}</Text>
     </Pressable>

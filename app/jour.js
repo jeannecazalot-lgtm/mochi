@@ -13,6 +13,7 @@ import { occurrencesOn, fmtDayLabel, sameDay } from '../src/demo-core';
 import { read } from '../src/store';
 import { loadSetup, inRealMode } from '../src/setup-state';
 import { getUid } from '../src/identity';
+import { isLive } from '../src/occ-actions';
 import { localIso } from '../src/dates';
 import copy from '../src/data/copy.json';
 import { colors, space, font } from '../src/theme';
@@ -31,7 +32,7 @@ export default function Jour() {
       const byTask = Object.fromEntries(tasks.map(tk => [tk.id, tk]));
       const uid = getUid();
       const iso = localIso(date);
-      setReal(occs.filter(o => o.due_date === iso).map(o => ({
+      setReal(occs.filter(o => isLive(o) && o.due_date === iso).map(o => ({
         id: o.id, task: byTask[o.task_id] || { title: '…', emoji: '•' },
         who: o.assignee_id ? (o.assignee_id === uid ? me : partner) : null,
       })));

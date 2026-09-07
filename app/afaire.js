@@ -16,7 +16,7 @@ import { read } from '../src/store';
 import { loadSetup, inRealMode } from '../src/setup-state';
 import { getUid, useIdentity, loadIdentity } from '../src/identity';
 import { occStore } from '../src/demo-core';
-import { toggleOccurrence } from '../src/occ-actions';
+import { toggleOccurrence, isLive } from '../src/occ-actions';
 import { localIso } from '../src/dates';
 import copy from '../src/data/copy.json';
 import { colors, space, radius, font, motion } from '../src/theme';
@@ -125,7 +125,7 @@ export default function AFaire() {
       const byTask = Object.fromEntries(tasks.map(tk => [tk.id, tk]));
       const uid = getUid();
       const now = new Date(`${localIso()}T12:00:00`);
-      setRealAll(occs.filter(o => o.status !== 'done' || o.due_date >= localIso()).map(o => {
+      setRealAll(occs.filter(o => isLive(o) && (o.status !== 'done' || o.due_date >= localIso())).map(o => {
         const tk = byTask[o.task_id] || { id: o.task_id, title: '…', emoji: '•', duration_min: 15 };
         const q = `occ=${o.id}&tid=${o.task_id}&title=${encodeURIComponent(tk.title)}&emoji=${encodeURIComponent(tk.emoji || '•')}&mins=${tk.duration_min || 15}`;
         return {

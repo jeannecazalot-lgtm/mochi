@@ -38,6 +38,7 @@ export async function sweepMissed() {
   const todayI = localIso();
   let changed = false;
   for (const o of occs) {
+    if (o.status === 'skipped') continue;
     if ((o.status || 'pending') !== 'pending' || o.due_date >= todayI) continue;
     const late = daysLate(o.due_date);
     const t = byTask[o.task_id] || {};

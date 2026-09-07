@@ -46,6 +46,10 @@ export function saveJoined(v) { state.joinedByCode = !!v; if (v) state.invitedCo
 // une rejoignante → jamais d'écran 10. Rejoignant = a saisi un code ; sinon, à défaut
 // de marqueur (anciennes installs), foyer sans tâches locales ET sans invitation créée.
 export const isJoiner = () => state.joinedByCode === true || (!state.invitedCode && state.joinedByCode !== false && !!state.householdId && !state.tasks?.length);
+// on rejoint un foyer : ses tâches sont celles de l'autre — les miennes (choisies dans un foyer
+// solo abandonné) et leur table d'ids ne doivent JAMAIS repartir vers le nouveau foyer
+// (retour test n°2, 7 sept 2026 : « Vaisselle » en double, une par téléphone)
+export function clearSetupTasks() { state.tasks = null; state.result = null; state.realTaskIds = null; persist(); }
 export function clearSetup() { Object.keys(state).forEach(k => { state[k] = null; }); persist(); }
 
 // fréquence du catalogue ({ daily } | { perWeek: n } | { perDay: n }) → occurrences/semaine

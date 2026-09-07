@@ -17,7 +17,7 @@ import { read } from '../../src/store';
 import { loadSetup, setup, inRealMode } from '../../src/setup-state';
 import { getUid, useIdentity } from '../../src/identity';
 import { localIso } from '../../src/dates';
-import { toggleOccurrence } from '../../src/occ-actions';
+import { toggleOccurrence, isLive } from '../../src/occ-actions';
 import copy from '../../src/data/copy.json';
 import { colors, space, font, motion, radius } from '../../src/theme';
 
@@ -178,6 +178,7 @@ export default function Planning() {
       const lateItems = [];
       const dotMap = {};
       for (const o of occs) {
+        if (!isLive(o)) continue;
         const tk = byTask[o.task_id] || {};
         const isDone = o.status === 'done' || missionDone.has(o.id);
         const late = o.due_date < todayIso && !isDone;

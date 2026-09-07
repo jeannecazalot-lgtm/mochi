@@ -3,7 +3,7 @@
 // Tap sur une rangée ou son avatar = la tâche bascule vers l'autre membre (pop),
 // totaux et équilibre recalculés en direct. Recette : docs/recettes/12-dispatch.md
 import React, { useEffect, useRef, useState } from 'react';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSharedValue, useAnimatedStyle, withTiming, withSpring, withSequence, Easing } from 'react-native-reanimated';
@@ -12,7 +12,7 @@ import { BottomCTA, LiveCount, fill } from '../../src/components/setup/extra';
 import { Animated, FadeInDown, prefersReducedMotion, LiveMochi } from '../../src/components/motion';
 import { me, partner, byId, fmtMin } from '../../src/demo';
 import { dispatch, dispatchEmoji, balanceState } from '../../src/demo-setup';
-import { loadSetup, setup, saveResult } from '../../src/setup-state';
+import { loadSetup, setup, saveResult, saveTasks } from '../../src/setup-state';
 import { syncSetup } from '../../src/sync-setup';
 import { rescheduleReminders } from '../../src/reminders';
 import { useIdentity } from '../../src/identity';
@@ -92,7 +92,8 @@ const itemsFromSetup = () => {
   const byTask = Object.fromEntries(setup.tasks.map(tk => [tk.id, tk]));
   return setup.result.items.map(it => {
     const tk = byTask[it.task_id] || {};
-    return { task_id: it.task_id, label: tk.label || it.task_id, emoji: tk.emoji, mins: tk.duration_min || 15, freq: tk.per_week || 1, weekly_min: it.weekly_min, assignee_id: it.assignee_id };
+    const mins = tk.duration_min || 15, freq = tk.per_week || 1;
+    return { task_id: it.task_id, label: tk.label || it.task_id, emoji: tk.emoji, mins, freq, weekly_min: freq * mins, assignee_id: it.assignee_id };
   });
 };
 
@@ -113,6 +114,8 @@ export default function Dispatch() {
       setItems(real || dispatch.map(i => ({ ...i, freq: Math.max(1, Math.round(i.weekly_min / i.mins)) })));
     });
   }, []);
+  // retour de la fiche courte (nom, durée, fréquence, type) : la liste se relit depuis le setup
+  useFocusEffect(React.useCallback(() => { if (realMode.current) { const real = itemsFromSetup(); if (real) setItems(real); } }, []));
   // les réglages − / + et les bascules de porteur repartent dans le résultat
   // stocké : c'est LUI que « C'est parti » synchronise vers Supabase
   useEffect(() => {
@@ -120,7 +123,11 @@ export default function Dispatch() {
     saveResult({ ...(setup.result || {}), items: items.map(i => ({ task_id: i.task_id, assignee_id: i.assignee_id, weekly_min: i.weekly_min })) });
   }, [items]);
   const list = items || [];
-  const bumpFreq = (task_id, d) => setItems(l => l.map(i => (i.task_id === task_id ? { ...i, freq: Math.min(14, Math.max(1, i.freq + d)), weekly_min: Math.min(14, Math.max(1, i.freq + d)) * i.mins } : i)));
+  const bumpFreq = (task_id, d) => setItems(l => {
+    const next = l.map(i => (i.task_id === task_id ? { ...i, freq: Math.min(14, Math.max(1, i.freq + d)), weekly_min: Math.min(14, Math.max(1, i.freq + d)) * i.mins } : i));
+    if (realMode.current && setup.tasks) saveTasks(setup.tasks.map(tk => (tk.id === task_id ? { ...tk, per_week: next.find(i => i.task_id === task_id).freq } : tk)));
+    return next;
+  });
   // cycle du porteur : moi → binôme → alterné (zigzag) → les deux → moi
   // (« alterné » ajouté le 1er sept 2026 — cuisine/vaisselle un jour chacun)
   const toggle = task_id => setItems(l => l.map(i => {
@@ -176,7 +183,7 @@ export default function Dispatch() {
         </View>
 
         <ScrollView {...scrollProps} contentContainerStyle={{ paddingHorizontal: space.screenX, paddingBottom: 110 }} showsVerticalScrollIndicator={false}>
-          {list.map((it, i) => <Row key={it.task_id} it={it} index={i} onToggle={() => toggle(it.task_id)} onFreq={d => bumpFreq(it.task_id, d)} onOpen={() => router.push(`/task/edit?id=${it.task_id}`)} />)}
+          {list.map((it, i) => <Row key={it.task_id} it={it} index={i} onToggle={() => toggle(it.task_id)} onFreq={d => bumpFreq(it.task_id, d)} onOpen={() => router.push(`/task/edit?setup=${it.task_id}`)} />)}
         </ScrollView>
 
         <GrowCTA grown={atEnd} style={{ position: 'absolute', left: 24, right: 24, bottom: 24 }}><CTAPrimary label={t.go} onPress={finish} big /></GrowCTA>

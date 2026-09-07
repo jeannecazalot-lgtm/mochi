@@ -5,7 +5,7 @@
 // ═══════════════════════════════════════════════════════════════════
 import { read, mutate, uuid } from './store';
 import { occStore } from './demo-core';
-import { toggleOccurrence } from './occ-actions';
+import { toggleOccurrence, applyRuleToOccurrences } from './occ-actions';
 import { getUid, getPartnerUid } from './identity';
 import { loadSetup, setup } from './setup-state';
 import { occurrences as demoOccs, taskById, me, partner } from './demo';
@@ -31,6 +31,9 @@ export async function loadMission({ occId, tid, title, mins }) {
     return {
       real: true, occ: row, dueIso: row.due_date,
       mine: !row.assignee_id || !uid || row.assignee_id === uid,
+      // jours où la même tâche est déjà prévue : « Déplacer à » les grise au lieu de refuser en silence
+      // (retour Ketlon 7 sept 2026 : « je peux pas appuyer sur une autre date »)
+      busy: occs.filter(o => o.id !== occId && o.task_id === row.task_id && o.kind === row.kind && o.status !== 'skipped').map(o => o.due_date),
       task: { id: tk.id || row.task_id, title: tk.title || String(title || '…'), duration_min: tk.duration_min || Number(mins) || 15,
         window_days: tk.window_days || [], who: whoOf(tk, uid), note: tk.note || '' },
     };
@@ -40,7 +43,7 @@ export async function loadMission({ occId, tid, title, mins }) {
   if (!tk && !title) return null;
   return {
     real: false, occ: demo || { id: occId }, dueIso: demo ? localIso(demo.due_date) : localIso(),
-    mine: !demo || demo.assignee_id === me.id,
+    mine: !demo || demo.assignee_id === me.id, busy: [],
     task: { id: tid ? String(tid) : tk?.id || null, title: tk?.title || String(title), duration_min: tk?.duration_min || Number(mins) || 15,
       window_days: [], who: tk ? whoOf(tk) : 'auto', note: '' },
   };
@@ -51,7 +54,9 @@ export async function saveRule(taskId, rule) {
   const rows = await read('tasks');
   const row = rows.find(r => r.id === taskId);
   if (!row) return false;
-  await mutate('tasks', { ...row, window_days: rule.window_days, duration_min: rule.duration_min, note: rule.note || null, ...whoToCols(rule.who, getUid()) });
+  const next = { ...row, window_days: rule.window_days, duration_min: rule.duration_min, note: rule.note || null, ...whoToCols(rule.who, getUid()) };
+  await mutate('tasks', next);
+  await applyRuleToOccurrences(next, rule); // les prochaines occurrences suivent (7 sept 2026)
   occStore.bump();
   return true;
 }

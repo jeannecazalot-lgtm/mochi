@@ -9,6 +9,8 @@ import { GlowBg, Card, Avatar } from '../../src/components/ui';
 import { TaskHeader, Section, Toggle, Chip, StatTile, Stars, Segmented, OptionRow, ChevronRight, TaskCTA, TaskFooter, taskTokens } from '../../src/components/task/extra';
 import { loadTask, frequencies, durations, dayKeys, deadlines, me, partner, fmtMinShort, fmtStars, fmtHour } from '../../src/demo-task';
 import { loadRealTask, saveRealTask, createRealTask } from '../../src/task-actions';
+import { setup, saveTasks, saveResult, freqPerWeek } from '../../src/setup-state';
+import { catalogue } from '../../src/demo-setup';
 import copy from '../../src/data/copy.json';
 import { colors, alpha, font } from '../../src/theme';
 
@@ -16,13 +18,25 @@ const f = (s, vars) => s.replace(/\{(\w+)\}/g, (_, k) => (vars[k] ?? ''));
 const FREQ_KEY = { daily: 'freqDaily', twiceWeek: 'freqTwiceWeek', weekly: 'freqWeekly', monthly: 'freqMonthly', once: 'freqOnce' };
 const next = (list, v) => list[(list.indexOf(v) + 1) % list.length];
 
+// Fiche COURTE depuis l'écran 12 (retour Jeanne 7 sept 2026 : « trop d'infos », titre vide) :
+// la tâche vit encore dans setup.tasks (pas d'uuid) → nom, type, fréquence, durée, note.
+const fromSetupTask = sid => {
+  const c = catalogue.find(x => x.id === sid); // entrée directe /plan (démo) : le catalogue fait foi
+  const tk = (setup.tasks || []).find(x => x.id === sid) || (c ? { label: c.label, emoji: c.emoji, duration_min: c.mins, per_week: freqPerWeek(c.freq), mental_load: !!c.mental } : null);
+  return { ...loadTask(null), short: true, setupId: sid, title: tk?.label || '', emoji: tk?.emoji || '', duration_min: tk?.duration_min || 15, per_week: tk?.per_week || 1, mental_load: !!tk?.mental_load, note: tk?.note || '' };
+};
+const saveSetupTask = fiche => {
+  saveTasks((setup.tasks || []).map(tk => (tk.id === fiche.setupId ? { ...tk, label: fiche.title.trim(), duration_min: fiche.duration_min, per_week: fiche.per_week, mental_load: !!fiche.mental_load, note: fiche.note || '' } : tk)));
+  if (setup.result?.items) saveResult({ ...setup.result, items: setup.result.items.map(it => (it.task_id === fiche.setupId ? { ...it, weekly_min: fiche.per_week * fiche.duration_min } : it)) });
+};
+
 export default function TaskEdit() {
-  const { id } = useLocalSearchParams();
+  const { id, setup: setupId } = useLocalSearchParams();
   const t = copy.task;
-  const [task, setTask] = useState(() => loadTask(id));
+  const [task, setTask] = useState(() => (setupId ? fromSetupTask(setupId) : loadTask(id)));
   const [open, setOpen] = useState(null); // 'window' | 'pain' | 'note'
   // vraie tâche du foyer ? on remplace la démo dès que le store a répondu
-  useEffect(() => { loadRealTask(id).then(rt => { if (rt) setTask(rt); }); }, [id]);
+  useEffect(() => { if (!setupId) loadRealTask(id).then(rt => { if (rt) setTask(rt); }); }, [id]);
   const set = patch => setTask(x => ({ ...x, ...patch }));
   const toggleOpen = k => setOpen(o => (o === k ? null : k));
 
@@ -43,7 +57,7 @@ export default function TaskEdit() {
     <View style={{ flex: 1 }}>
       <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }} edges={['top']}>
-        <TaskHeader title={t.headerEdit} backLabel={t.back} />
+        <TaskHeader title={!id && !setupId ? t.headerNew : t.headerEdit} backLabel={t.back} />
 
         <ScrollView contentContainerStyle={s.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
           {/* Héro */}
@@ -65,8 +79,41 @@ export default function TaskEdit() {
             />
           </Card>
 
+          {task.short ? (
+            <>
+              <Section label={t.secWhen}>
+                <Card r={14} padding={0} style={s.whenCard}>
+                  <View style={[s.freqRow, { borderBottomWidth: 0, paddingBottom: 2 }]}>
+                    <Text style={s.rowTitle}>{t.frequency}</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                      <Chip small onPress={() => set({ per_week: Math.max(1, task.per_week - 1) })}>−</Chip>
+                      <Text style={[s.rowTitle, { minWidth: 56, textAlign: 'center' }]}>{copy.setup.timesPerWeek.replace('{n}', String(task.per_week))}</Text>
+                      <Chip small onPress={() => set({ per_week: Math.min(14, task.per_week + 1) })}>+</Chip>
+                    </View>
+                  </View>
+                </Card>
+              </Section>
+              <Section label={t.secDetails}>
+                <View style={s.grid}>
+                  <StatTile label={t.statDuration} value={fmtMinShort(task.duration_min)} onPress={() => set({ duration_min: next(durations, task.duration_min) })} />
+                </View>
+              </Section>
+              <Section label={t.secOptions}>
+                <Card r={14} padding={0} style={s.optCard}>
+                  <OptionRow first title={t.optNote} sub={task.note ? f(t.optNoteSub, { note: task.note }) : t.optNoteEmpty} control={<ChevronRight />} onPress={() => toggleOpen('note')} />
+                  {open === 'note' ? (
+                    <TextInput
+                      value={task.note} onChangeText={v => set({ note: v })} placeholder={t.notePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)}
+                      multiline cursorColor={colors.coral} selectionColor={colors.coral} style={s.noteInput}
+                    />
+                  ) : null}
+                </Card>
+              </Section>
+            </>
+          ) : null}
+
           {/* Quand */}
-          <Section label={t.secWhen}>
+          {task.short ? null : <Section label={t.secWhen}>
             <Card r={14} padding={0} style={s.whenCard}>
               <View style={s.freqRow}>
                 <Text style={s.rowTitle}>{t.frequency}</Text>
@@ -94,10 +141,10 @@ export default function TaskEdit() {
                 </View>
               ) : null}
             </Card>
-          </Section>
+          </Section>}
 
           {/* Détails */}
-          <Section label={t.secDetails}>
+          {task.short ? null : <Section label={t.secDetails}>
             <View style={s.grid}>
               <StatTile label={t.statDuration} value={fmtMinShort(task.duration_min)} onPress={() => set({ duration_min: next(durations, task.duration_min) })} />
               <StatTile label={t.statPain} value={fmtStars(task.pains[me.id])} hint={f(t.painOf, { name: partner.first_name, stars: fmtStars(task.pains[partner.id]) })} active={open === 'pain'} onPress={() => toggleOpen('pain')} />
@@ -114,10 +161,10 @@ export default function TaskEdit() {
                 ))}
               </Card>
             ) : null}
-          </Section>
+          </Section>}
 
           {/* Assignation */}
-          <Section label={t.secAssign}>
+          {task.short ? null : <Section label={t.secAssign}>
             <Card r={14} padding={0} style={s.assignCard}>
               <Segmented
                 value={task.assign_mode} onChange={k => set({ assign_mode: k })}
@@ -130,10 +177,10 @@ export default function TaskEdit() {
                 </Pressable>
               ) : null}
             </Card>
-          </Section>
+          </Section>}
 
           {/* Options */}
-          <Section label={t.secOptions}>
+          {task.short ? null : <Section label={t.secOptions}>
             <Card r={14} padding={0} style={s.optCard}>
               <OptionRow first title={t.optDivisible} sub={t.optDivisibleSub} control={<Toggle on={!!task.divisible} onChange={v => set({ divisible: v })} />} />
               <OptionRow title={t.optExpense} sub={t.optExpenseSub} control={<Toggle on={!!task.has_expense} onChange={v => set({ has_expense: v })} />} />
@@ -145,13 +192,15 @@ export default function TaskEdit() {
                 />
               ) : null}
             </Card>
-          </Section>
+          </Section>}
         </ScrollView>
 
         <TaskFooter>
           <TaskCTA label={copy.common.save} disabled={!task.title.trim()} onPress={() => {
+            // fiche courte du 12 : la tâche du setup est mise à jour (le 12 se relit au retour)
+            if (task.short) saveSetupTask(task);
             // vraie tâche → persistance (store + Supabase) ; démo → simple fermeture
-            if (task.real) saveRealTask(task).catch(e => console.warn('[14] sauvegarde échouée :', e?.message || e));
+            else if (task.real) saveRealTask(task).catch(e => console.warn('[14] sauvegarde échouée :', e?.message || e));
             // nouvelle tâche (FAB) : créée dans le foyer avec ses occurrences (6 sept 2026)
             else if (!id) createRealTask(task).catch(e => console.warn('[14] création échouée :', e?.message || e));
             router.back();

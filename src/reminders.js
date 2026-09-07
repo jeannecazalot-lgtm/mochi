@@ -26,7 +26,7 @@ export async function rescheduleReminders() {
       const when = new Date(`${dIso}T00:00:00`);
       when.setHours(Number.isFinite(h) ? h : 19, Number.isFinite(m) ? m : 30, 0, 0);
       if (when <= new Date()) continue;
-      const dayOccs = occs.filter(o => o.due_date === dIso);
+      const dayOccs = occs.filter(o => o.status !== 'skipped' && o.due_date === dIso);
       const titles = dayOccs.map(o => byTask[o.task_id]?.title).filter(Boolean);
       await scheduleAt(when, {
         title: t.title,

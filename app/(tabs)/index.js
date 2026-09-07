@@ -11,10 +11,10 @@ import { Icon, ICON, BadgePill, CheckCircle, RoundButton, Hint } from '../../src
 import { me, partner, balance, streak, myToday, taskById, fmtMin } from '../../src/demo';
 import { fmtHeaderDate, mochiLean, moreLoaded, hasUnreadPing, missionDone, occStore } from '../../src/demo-core';
 import { read } from '../../src/store';
-import { loadSetup, setup, inRealMode } from '../../src/setup-state';
+import { loadSetup, setup, inRealMode, isJoiner } from '../../src/setup-state';
 import { useIdentity, getUid, loadIdentity } from '../../src/identity';
 import { localIso } from '../../src/dates';
-import { toggleOccurrence } from '../../src/occ-actions';
+import { toggleOccurrence, isLive } from '../../src/occ-actions';
 import { computeRealBalance } from '../../src/balance-real';
 import copy from '../../src/data/copy.json';
 import { colors, space, font, motion } from '../../src/theme';
@@ -98,7 +98,7 @@ export default function Home() {
       // l'Accueil montrait aussi celles du binôme) ; sans uid (hors ligne) : tout
       await loadIdentity(); // uid de la session courante (peut avoir changé)
       const uid = getUid();
-      const todays = occs.filter(o => o.due_date === today && (!uid || !o.assignee_id || o.assignee_id === uid));
+      const todays = occs.filter(o => isLive(o) && o.due_date === today && (!uid || !o.assignee_id || o.assignee_id === uid));
       setReal(true);
       setAnyOcc(occs.length > 0);
       setNoTask(tasks.length === 0);
@@ -189,8 +189,12 @@ export default function Home() {
                   ))}
             </Card>
             {/* test à deux du 6 sept 2026 : la rejoignante lisait « Choisissez vos tâches » sans aucun bouton */}
+            {/* décision Jeanne 7 sept 2026 : UNE seule personne choisit et répartit ; qui rejoint attend
+                et ajuste ensuite depuis le Planning (avant : les deux passaient par le 10 → tâches en double) */}
             {real && noTask
-              ? <View style={{ marginTop: 14 }}><CTAPrimary label={t.chooseTasksCta} onPress={() => router.push('/(setup)/taches')} /></View>
+              ? (isJoiner()
+                ? <Text style={[font.secondary, { textAlign: 'center', paddingTop: 14, paddingHorizontal: 8 }]}>{fill(t.waitingTasks, { name: partner.first_name })}</Text>
+                : <View style={{ marginTop: 14 }}><CTAPrimary label={t.chooseTasksCta} onPress={() => router.push('/(setup)/taches')} /></View>)
               : null}{/* plus d'indice de glissement ici : le geste n'existe que dans À faire (décision Jeanne 6 sept 2026) */}
           </View>
 

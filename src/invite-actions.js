@@ -6,7 +6,7 @@
 import { supabase } from './supabase';
 import { ensureSession } from './profile';
 import { uuid, pull, resetAll } from './store';
-import { loadSetup, setup, saveHouseholdId, clearSetup, saveInvited, saveJoined } from './setup-state';
+import { loadSetup, setup, saveHouseholdId, clearSetup, saveInvited, saveJoined, clearSetupTasks } from './setup-state';
 import { loadPartner, loadIdentity, resetPartner } from './identity';
 
 // Lien universel (3 sept 2026) : hébergé sur GitHub Pages (AASA du domaine →
@@ -79,6 +79,7 @@ export async function joinWithCode(code) {
     if (error) return { ok: false, reason: error.message };
     saveHouseholdId(hid);
     saveJoined(true);
+    clearSetupTasks();
     await loadIdentity(); // uid + profil de LA session qui vient de rejoindre
     await resetAll(); // nouveau foyer : cache, filigranes et file repartent de zéro
     await Promise.all(['tasks', 'occurrences', 'task_pains', 'swap_requests', 'malus'].map(tb => pull(tb, hid)));
