@@ -11,6 +11,7 @@ import { loadPartner } from '../../src/identity';
 import { sweepMissed } from '../../src/malus-actions';
 import { pull } from '../../src/store';
 import { occStore } from '../../src/demo-core';
+import { registerPushToken } from '../../src/push';
 
 export default function TabsLayout() {
   const fab = useFabSheet();
@@ -29,6 +30,7 @@ export default function TabsLayout() {
       if (!setup.householdId) return;
       startRealtime(setup.householdId);
       loadPartner(setup.householdId);
+      registerPushToken(); // jeton push → mon profil (téléphone réel)
       refresh();
     });
     const sub = AppState.addEventListener('change', st => { if (st === 'active') loadSetup().then(refresh); });

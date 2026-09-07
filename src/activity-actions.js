@@ -10,6 +10,8 @@ import { mutate, uuid } from './store';
 import { occStore } from './demo-core';
 import { getUid, getPartnerUid } from './identity';
 import { loadSetup, setup } from './setup-state';
+import { pushToPartner } from './push';
+import copy from './data/copy.json';
 
 export async function logActivity({ type, preset_key, occurrence_id = null, payload = {} }) {
   await loadSetup();
@@ -25,4 +27,7 @@ export async function logActivity({ type, preset_key, occurrence_id = null, payl
 }
 
 // réaction rapide sous une mission terminée par l'autre
-export const react = (occId, key) => logActivity({ type: 'ping_reply', preset_key: key, occurrence_id: occId });
+export const react = (occId, key) => {
+  pushToPartner('reaction', { reply: String(copy.activity.replies[key] || key).replace('{name}', '').trim() });
+  return logActivity({ type: 'ping_reply', preset_key: key, occurrence_id: occId });
+};

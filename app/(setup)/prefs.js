@@ -11,6 +11,7 @@ import { prefsPool, prefsMax, reminderTimes } from '../../src/demo-setup';
 import { savePrefs, loadSetup, setup, isJoiner } from '../../src/setup-state';
 import { syncJoinerPrefs, syncMyPains } from '../../src/sync-setup';
 import { askNotificationPermission } from '../../src/notifications';
+import { registerPushToken } from '../../src/push';
 import copy from '../../src/data/copy.json';
 import { colors, space, alpha } from '../../src/theme';
 
@@ -131,7 +132,7 @@ export default function Prefs() {
               préférences partent au foyer et il atterrit à l'Accueil — pas d'écran 09 */}
           <CTAPrimary label={settings ? copy.common.save : t.letsGo} onPress={async () => {
             savePrefs({ prefs, reminder: time });
-            askNotificationPermission().catch(() => {});
+            askNotificationPermission().then(ok => { if (ok) registerPushToken(); }).catch(() => {});
             await loadSetup();
             if (settings) { syncMyPains().catch(() => {}); router.back(); }
             else if (isJoiner()) { syncJoinerPrefs().catch(() => {}); router.replace('/(tabs)'); }

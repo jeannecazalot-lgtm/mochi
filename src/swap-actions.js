@@ -9,6 +9,7 @@ import { read, mutate, uuid } from './store';
 import { supabase } from './supabase';
 import { occStore } from './demo-core';
 import { getUid, getPartnerUid } from './identity';
+import { pushToPartner } from './push';
 
 export async function requestSwap(occId) {
   const from = getUid();
@@ -24,6 +25,8 @@ export async function requestSwap(occId) {
     id: uuid(), household_id: o.household_id, occurrence_id: occId,
     from_user: from, to_user: to, status: 'pending',
   });
+  const tasks = await read('tasks');
+  pushToPartner('swapRequested', { task: (tasks.find(x => x.id === o.task_id)?.title || '…').toLowerCase() });
   occStore.bump();
   return { ok: true };
 }
@@ -38,6 +41,8 @@ export async function resolveSwap(swapId, accept) {
   if (accept && o && o.status === 'done') accept = false;
   await mutate('swap_requests', { ...sw, status: accept ? 'accepted' : 'refused', resolved_at: new Date().toISOString() });
   if (accept) {
+    const tasks = await read('tasks');
+    pushToPartner('swapAccepted', { task: (tasks.find(x => x.id === o?.task_id)?.title || '…').toLowerCase() });
     if (o) await mutate('occurrences', { ...o, assignee_id: sw.to_user });
     // pas encore en cache (temps réel en retard) : changement de porteur direct au serveur
     else { try { await supabase.from('occurrences').update({ assignee_id: sw.to_user }).eq('id', sw.occurrence_id); } catch (e) { /* rejoué au prochain pull */ } }

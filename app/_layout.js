@@ -10,6 +10,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import { colors, motion, radius, alpha } from '../src/theme';
 import { loadIdentity } from '../src/identity';
+import { listenNotificationTaps } from '../src/push';
 
 const base = { headerShown: false, contentStyle: { backgroundColor: colors.bg }, animationDuration: motion.screen };
 // sheets natives iOS (formSheet) : fond assombri, coins 26, montée native, touches garanties
@@ -53,7 +54,7 @@ const s = StyleSheet.create({
 
 export default function RootLayout() {
   // identité réelle (prénom + photo du profil Supabase) chargée dès la racine
-  React.useEffect(() => { loadIdentity(); }, []);
+  React.useEffect(() => { loadIdentity(); return listenNotificationTaps(url => router.push(url)); }, []);
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.bg }}>
       <StatusBar style="dark" />

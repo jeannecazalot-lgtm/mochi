@@ -10,6 +10,7 @@ import { getUid, getPartnerUid } from './identity';
 import { uuid } from './store';
 import { addDaysIso, localIso } from './dates';
 import { logActivity } from './activity-actions';
+import { pushToPartner } from './push';
 import copy from './data/copy.json';
 
 const dayLabelOf = iso => (iso === localIso() ? copy.mission.metaToday : copy.calendar.dowsLong[(new Date(iso + 'T12:00:00').getDay() + 6) % 7].toLowerCase());
@@ -28,6 +29,7 @@ export async function toggleOccurrence(occId, done, minutes) {
   const tk = tasks.find(x => x.id === row.task_id);
   const pains = await read('task_pains');
   const mine = pains.find(p => p.task_id === row.task_id && p.user_id === getUid()); // MA pénibilité, pas celle du binôme
+  if (done) pushToPartner('taskDone', { task: (tk?.title || '…').toLowerCase() });
   await mutate('occurrences', done
     ? { ...row, status: 'done', done_at: new Date().toISOString(), done_by: getUid(), duration_min: minutes || tk?.duration_min || 15, pain: mine?.pain ?? 3, mental_load: !!tk?.mental_load }
     : { ...row, status: 'pending', done_at: null, done_by: null, duration_min: null, pain: null, mental_load: null });
@@ -47,6 +49,9 @@ export async function moveOccurrence(occId, dueIso) {
   // une tâche ratée qu'on décale redevient « à faire » (vu à l'écran 5 sept : elle
   // restait 'missed' à sa nouvelle date, donc jamais en retard ni re-balayée)
   await mutate('occurrences', { ...row, due_date: dueIso, status: row.status === 'missed' ? 'pending' : row.status });
+  const tasks = await read('tasks');
+  const tk = tasks.find(x => x.id === row.task_id);
+  if (row.assignee_id && row.assignee_id !== getUid()) pushToPartner('moved', { task: (tk?.title || '…').toLowerCase(), day: dayLabelOf(dueIso) }, '/(tabs)/planning');
   occStore.bump();
   rescheduleReminders(); // les rappels suivent la tâche déplacée (tâche de fond)
   return { ok: true };
@@ -61,7 +66,9 @@ export async function takeOver(occId) {
   await mutate('occurrences', { ...row, assignee_id: uid });
   const tasks = await read('tasks');
   const tk = tasks.find(x => x.id === row.task_id);
-  logActivity({ type: 'ping', preset_key: 'tookOver', occurrence_id: row.id, payload: { task: (tk?.title || '…').toLowerCase(), day: dayLabelOf(row.due_date) } }).catch(() => {});
+  const vars = { task: (tk?.title || '…').toLowerCase(), day: dayLabelOf(row.due_date) };
+  logActivity({ type: 'ping', preset_key: 'tookOver', occurrence_id: row.id, payload: vars }).catch(() => {});
+  pushToPartner('tookOver', vars, '/(tabs)/planning');
   occStore.bump();
   rescheduleReminders();
   return true;

@@ -159,7 +159,7 @@ Fait le 7 sept 2026 (commits « Retours 7 sept, lot 1 → 3 », vérifié au sim
 Reste / à décider :
 - [ ] **Balance** : poids par tâche distincte — exemples chiffrés à valider avant branchement (voir message du 7 sept) ; aujourd'hui l'onglet Balance pondère déjà pénibilité ×0,15 et mental ×1,5, le 12 est en minutes brutes → à unifier
 - [ ] Onboarding pédago : à revoir ensemble (décision reportée)
-- [ ] Notifications push (les textes « recevra une notification » anticipent la passe notifs)
+- [x] **Notifications push entre les deux téléphones** (soir du 7 sept, à la demande de Jeanne « pourquoi pas maintenant ») : jeton Expo dans `profiles.push_token` (migration 0008), envoi direct via le service push d'Expo depuis le téléphone qui agit (`src/push.js`, textes `copy.push`) — je m'en occupe, déplacé, repassage proposé/accepté, règle changée, terminé, tâche ajoutée, réaction ; tap sur la notif → route. NON testable au simulateur : build 11 + clé APNs (voir Bloquants).
 - [ ] Vérif à deux simulateurs « mêmes tâches des deux côtés » : à refaire après le nettoyage des doublons en base
 - [ ] Détente de la sheet Tâche dépliée = 0,92 (vide en bas quand la règle est courte) : affiner
 - [ ] Notes : fichiers joints (plus tard)
@@ -181,7 +181,8 @@ Reste / à décider :
 - **21 août 2026** — Entitlement RevenueCat : `duoplus`, packages `$rc_monthly` / `$rc_annual`.
 
 ## Bloquants (actions Jeanne)
-- [ ] **7 sept 2026 — SQL à coller dans l'éditeur Supabase, dans cet ordre** : 1) `supabase/nettoyage_doublons_7sept.sql` (fusionne les tâches en double du foyer) 2) `supabase/migrations/0007_evenements_et_taches_uniques.sql` (colonne `events.details` + index unique). Sans le 2, les événements ne s'enregistrent pas.
+- [ ] **7 sept 2026 — clé APNs** : au lancement du build 11, répondre OUI à la création de la clé push (compte Apple de Jeanne) — sans elle aucune notification n'arrive. Puis tester à deux iPhones : Jeanne coche une tâche → Ketlon reçoit « Jeanne a terminé … ».
+- [ ] **7 sept 2026 — SQL à coller dans l'éditeur Supabase, dans cet ordre** : 1) `supabase/nettoyage_doublons_7sept.sql` (fusionne les tâches en double du foyer) 2) `supabase/migrations/0007_evenements_et_taches_uniques.sql` (colonne `events.details` + index unique) 3) `supabase/migrations/0008_push_token.sql` (jeton push). Sans le 2, les événements ne s'enregistrent pas ; sans le 3, pas de notifications.
 - [x] GitHub : repo privé `jeannecazalot-lgtm/mochi` en ligne, push OK — 21 août 2026
 - [x] Supabase : projet créé, `.env` rempli, 06 câblé → `profiles` + bucket `avatars` — 21 août 2026
 - [x] Supabase : **Anonymous sign-ins déjà actifs** — vérifié par test réel le 1er sept 2026 (session anonyme créée via l'API ; un utilisateur anonyme de test `37b86916…` traîne en base, à purger un jour depuis le dashboard)

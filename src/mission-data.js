@@ -11,6 +11,7 @@ import { loadSetup, setup } from './setup-state';
 import { occurrences as demoOccs, taskById, me, partner } from './demo';
 import { localIso } from './dates';
 import { logActivity } from './activity-actions';
+import { pushToPartner } from './push';
 import copy from './data/copy.json';
 
 // « Qui s'en occupe » de la sheet ↔ colonnes assign_mode / fixed_assignee
@@ -63,7 +64,9 @@ export async function saveRule(taskId, rule) {
   const t = copy.mission;
   const days = rule.window_days?.length ? rule.window_days.map(i => copy.calendar.dowsLong[i].toLowerCase()).join(', ') : t.ruleAnyDay;
   const who = t.who[rule.who] || partner.first_name;
-  logActivity({ type: 'ping', preset_key: 'ruleChanged', payload: { task: (row.title || '…').toLowerCase(), rule: `${days} · ${who} · ${rule.duration_min} min` } }).catch(() => {});
+  const vars = { task: (row.title || '…').toLowerCase(), rule: `${days} · ${who} · ${rule.duration_min} min` };
+  logActivity({ type: 'ping', preset_key: 'ruleChanged', payload: vars }).catch(() => {});
+  pushToPartner('ruleChanged', vars, '/(tabs)/planning');
   occStore.bump();
   return true;
 }

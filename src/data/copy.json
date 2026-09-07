@@ -1568,5 +1568,27 @@
     "bWhy": "Hero simple en haut, toutes les actions empilées en bas : zéro hésitation.",
     "cLabel": "C · Minimaliste",
     "cWhy": "Le QR géant fait tout le travail côte à côte ; une seule action, aucun détour."
+  },
+  "push": {
+    "_labels": {
+      "title": "Titre de toutes les notifications push",
+      "tookOver": "L'autre a repris ma tâche",
+      "moved": "L'autre a déplacé une tâche",
+      "swapRequested": "L'autre me propose de reprendre sa tâche",
+      "swapAccepted": "L'autre a accepté ma proposition",
+      "ruleChanged": "L'autre a changé la règle d'une tâche",
+      "taskDone": "L'autre a terminé une tâche",
+      "taskCreated": "L'autre a ajouté une tâche",
+      "reaction": "L'autre a réagi à ma tâche terminée"
+    },
+    "title": "mochi",
+    "tookOver": "{name} s'occupe de {task} · {day}",
+    "moved": "{name} a déplacé {task} à {day}",
+    "swapRequested": "{name} te propose de reprendre {task}",
+    "swapAccepted": "{name} a accepté de reprendre {task}",
+    "ruleChanged": "{name} a réglé {task} : {rule}",
+    "taskDone": "{name} a terminé {task} ✅",
+    "taskCreated": "{name} a ajouté {task}",
+    "reaction": "{reply} de {name}"
   }
 }
