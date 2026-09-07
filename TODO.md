@@ -181,6 +181,15 @@ Reste / à décider :
 - **21 août 2026** — Entitlement RevenueCat : `duoplus`, packages `$rc_monthly` / `$rc_annual`.
 
 ## Bloquants (actions Jeanne)
+- [x] **8 sept 2026 — forfait EAS Starter pris par Jeanne** (le quota Free de 15 builds iOS/mois était épuisé au build 16). Build 11 : PAS maintenant — après la session du 8 sept ; y activer EAS Update (canal) pour que les retouches JS n'exigent plus de build.
+
+## Session du 8 sept 2026 — programme convenu avec Jeanne
+1. Audit visuel de tout ce qui a été dessiné le 7 sept (Planning, sheet Tâche dépliée, fiche courte, Accueil « À venir », Activité, rappel, événement)
+2. Balance : poids par tâche distincte — trancher sur les exemples chiffrés (reco 15 min/tâche) puis unifier le calcul 12 / onglet Balance
+3. Onboarding pédago : à revoir
+4. Notes avec fichiers joints (stockage Supabase)
+5. Puis build 11 (clé APNs « oui » au lancement, canal EAS Update) et test des notifications à deux iPhones
+
 - [ ] **7 sept 2026 — clé APNs** : au lancement du build 11, répondre OUI à la création de la clé push (compte Apple de Jeanne) — sans elle aucune notification n'arrive. Puis tester à deux iPhones : Jeanne coche une tâche → Ketlon reçoit « Jeanne a terminé … ».
 - [x] **7 sept 2026 — SQL exécuté par Claude dans l'éditeur Supabase (soir)** : nettoyage des doublons + migrations 0007 et 0008 — « Success ». (était :) SQL à coller dans l'éditeur Supabase, dans cet ordre : 1) `supabase/nettoyage_doublons_7sept.sql` (fusionne les tâches en double du foyer) 2) `supabase/migrations/0007_evenements_et_taches_uniques.sql` (colonne `events.details` + index unique) 3) `supabase/migrations/0008_push_token.sql` (jeton push). Sans le 2, les événements ne s'enregistrent pas ; sans le 3, pas de notifications.
 - [x] GitHub : repo privé `jeannecazalot-lgtm/mochi` en ligne, push OK — 21 août 2026
