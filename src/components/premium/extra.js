@@ -18,7 +18,7 @@ export const premiumTokens = {
 // liens légaux du paywall — EULA Apple standard ; privacy À HÉBERGER (legal/privacy.html) puis renseigner ici
 export const LEGAL_URLS = {
   eula: 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/',
-  privacy: '',
+  privacy: 'https://jeannecazalot-lgtm.github.io/privacy.html', // hébergée sur GitHub Pages (8 sept 2026)
 };
 
 // ─── bouton rond 34 crème + hairline : retour (←), fermer (×), chevrons ‹ › ─

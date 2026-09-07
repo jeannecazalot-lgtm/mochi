@@ -272,7 +272,7 @@ Entrée en dev : `/plan` (Plan des écrans). Écarts artboard/README à arbitrer
 ## Fragile / à surveiller
 - **Modales (dépense, ping, événement, mood)** : présentées en form sheet native iOS (fond assombri, coins 26). Mon outil de pilotage du simulateur ne délivre pas les taps aux modales → **fermeture (×), choix, scrim à tester au doigt par Jeanne**. Le swipe des rangées « À faire » et le drag du Planning aussi.
 - Écran 06 : la saisie du prénom n'a pas pu être testée par mes outils (clavier) → test Jeanne.
-- `legal/privacy.html` non hébergé : lien « Politique de confidentialité » du paywall vide (bloquant Store) → GitHub Pages.
+- ~~`legal/privacy.html` non hébergé~~ → en ligne depuis le 8 sept 2026 : https://jeannecazalot-lgtm.github.io/privacy.html (+ support.html), lien du paywall renseigné. À reporter dans App Store Connect (URL de politique de confidentialité + URL d'assistance).
 - Les extras des agents (tokens locaux dans `src/components/*/extra.js`, `src/demo-*.js`) sont à consolider dans theme.js / demo.js quand les écrans seront validés.
 - Tous les builds passent par EAS (dev simulateur + production) ; pas de build local.
 - `react-dom` pinné à 19.2.3 (expo-router tirait 19.2.8, incompatible avec react 19.2.3 du SDK 57).
