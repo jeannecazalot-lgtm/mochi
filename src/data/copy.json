@@ -1063,8 +1063,7 @@
       "view": "Lien « Voir » de la tâche attachée",
       "mochiRebalance": "Moment Mochi : soirée équilibrée",
       "mochiStreak": "Sous-titre du moment Mochi ({n} = streak jours)",
-      "replies": "Réponses préformatées (zéro texte libre)",
-      "note": "Note de bas de fil"
+      "replies": "Réponses préformatées (zéro texte libre)"
     },
     "title": "Activité",
     "emptyReal": "Rien encore — coche des missions et le fil s'animera.",
@@ -1087,8 +1086,7 @@
       "best": "T'es la meilleure",
       "okTonight": "👍 Ok ce soir",
       "alreadyDone": "Déjà fait ✓"
-    },
-    "note": "Pas de messages libres ici — les détails vivent\ndans les notes de tâches. On ne remplace pas WhatsApp."
+    }
   },
   "afaire": {
     "_labels": {
@@ -1396,7 +1394,7 @@
       "noDeadline": "Chip : pas d'heure limite",
       "days": "Initiales des 7 jours (lun→dim) pour les chips",
       "statDuration": "Tuile durée",
-      "statPain": "Tuile ta pénibilité",
+      "statPain": "Tuile effort (pénibilité)",
       "statImport": "Tuile importance",
       "painOf": "Indice pénibilité du binôme ({name}, {stars})",
       "painMe": "Rangée d'étoiles : moi",
@@ -1474,7 +1472,7 @@
       "D"
     ],
     "statDuration": "Durée",
-    "statPain": "Ta pénib.",
+    "statPain": "Effort",
     "statImport": "Import.",
     "painOf": "{name} : {stars}",
     "painMe": "Toi",

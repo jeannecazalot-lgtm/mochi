@@ -179,7 +179,6 @@ export default function Activite() {
                 {g.items.map(it => <Item key={it.id} item={it} chosen={chosen[it.id]} onChoose={choose} />)}
               </React.Fragment>
             ))}
-          <Text style={s.note}>{t.note}</Text>
         </ScrollView>
       </SafeAreaView>
     </View>
@@ -208,5 +207,4 @@ const s = StyleSheet.create({
   moment: { alignSelf: 'center', minWidth: 230, alignItems: 'center', paddingVertical: 11, paddingHorizontal: 16 },
   momentTitle: { fontSize: 14.5, fontWeight: '600', letterSpacing: -0.2, color: colors.ink },
   momentSub: { ...font.caption, marginTop: 3 },
-  note: { ...font.caption, fontSize: 11.5, textAlign: 'center', lineHeight: 17, marginTop: 3 },
 });

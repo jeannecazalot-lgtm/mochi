@@ -35,6 +35,8 @@ const screenNo = path => {
   if (path.startsWith('/task/')) return '16';
   return SCREEN_NO[path] || null;
 };
+// Badge numéro d'écran retiré des écrans (retour Jeanne 7 sept 2026) — conservé pour un usage dev ponctuel.
+// eslint-disable-next-line no-unused-vars
 function ScreenBadge() {
   const n = screenNo(usePathname());
   if (!n) return null;
@@ -75,7 +77,6 @@ export default function RootLayout() {
         <Stack.Screen name="celebration" options={full} />
         <Stack.Screen name="plan" />
       </Stack>
-      <ScreenBadge />
     </GestureHandlerRootView>
   );
 }

@@ -51,7 +51,7 @@ export const inviteLink = `mentalfree.app/j/${inviteCode}`;
 // occurrence ; pain = pénibilité moyenne 1-5 ; mental = charge mentale.
 export const catalogue = [
   { id: 't-vaisselle', emoji: '🍽', label: 'Vaisselle', freq: { daily: true }, mins: 15, pain: 2, on: true },
-  { id: 't-cuisiner', emoji: '🍳', label: 'Cuisine', freq: { daily: true }, mins: 40, pain: 2, on: true },
+  { id: 't-cuisiner', emoji: '🍳', label: 'Cuisiner', freq: { daily: true }, mins: 40, pain: 2, on: true },
   { id: 't-courses', emoji: '🛒', label: 'Courses', freq: { perWeek: 1 }, mins: 45, pain: 2, on: true },
   { id: 't-lessive', emoji: '🧺', label: 'Lessive', freq: { perWeek: 2 }, mins: 30, pain: 2, on: true },
   { id: 't-linge-plier', emoji: '👕', label: 'Plier & ranger le linge', freq: { perWeek: 2 }, mins: 20, pain: 2, on: false },
@@ -66,7 +66,7 @@ export const catalogue = [
   { id: 't-repas', emoji: '📝', label: 'Planification des repas', freq: { perWeek: 1 }, mins: 20, pain: 3, mental: true, on: true },
   { id: 't-vacances', emoji: '🧳', label: 'Organiser les sorties & vacances', freq: { perWeek: 1 }, mins: 30, pain: 2, mental: true, on: false },
   // spécifiques « Selon ton foyer » — en fin de liste, décochées par défaut
-  { id: 't-chien-matin', emoji: '🐕', label: 'Sortie chien', freq: { perDay: 3 }, mins: 20, pain: 1, specific: true, on: false },
+  { id: 't-chien-matin', emoji: '🐕', label: 'Sortir le chien', freq: { perDay: 3 }, mins: 20, pain: 1, specific: true, on: false },
   { id: 't-plantes', emoji: '🪴', label: 'Plantes', freq: { perWeek: 1 }, mins: 10, pain: 1, specific: true, on: false },
   { id: 't-litiere', emoji: '🐈', label: 'Litière du chat', freq: { perDay: 1 }, mins: 5, pain: 2, specific: true, on: false },
 ];
@@ -77,7 +77,7 @@ export const catalogue = [
 // Reflète les tâches cochées par défaut du catalogue ci-dessus.
 export const dispatch = [
   { task_id: 't-vaisselle', label: 'Vaisselle', tag: 'tagEvening', mins: 15, weekly_min: 105, assignee_id: partner.id },
-  { task_id: 't-cuisiner', label: 'Cuisine', tag: 'tagEvening', mins: 40, weekly_min: 280, assignee_id: me.id },
+  { task_id: 't-cuisiner', label: 'Cuisiner', tag: 'tagEvening', mins: 40, weekly_min: 280, assignee_id: me.id },
   { task_id: 't-courses', label: 'Courses', tag: 'tagWednesday', mins: 45, weekly_min: 45, assignee_id: partner.id },
   { task_id: 't-lessive', label: 'Lessive', tag: 'freqPerWeek', tagN: 2, mins: 30, weekly_min: 60, assignee_id: partner.id },
   { task_id: 't-menage', label: 'Ménage', tag: 'tagSaturday', mins: 60, weekly_min: 60, assignee_id: partner.id },
