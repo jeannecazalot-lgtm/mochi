@@ -1,11 +1,11 @@
 // Écran 14 · Fiche tâche (création / édition). Recette : docs/recettes/14-fiche-tache.md
 // `?id=` : vraie tâche du foyer (store local, Enregistrer persiste — 1er sept 2026)
 // ou tâche de démo ; sinon fiche vierge.
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import { View, Text, TextInput, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { GlowBg, Card, Avatar } from '../../src/components/ui';
+import { GlowBg, Card, Avatar, LinkText } from '../../src/components/ui';
 import { TaskHeader, Section, Toggle, Chip, StatTile, Stars, Segmented, OptionRow, ChevronRight, TaskCTA, TaskFooter, taskTokens } from '../../src/components/task/extra';
 import { loadTask, frequencies, durations, dayKeys, deadlines, me, partner, fmtMinShort, fmtStars, fmtHour } from '../../src/demo-task';
 import { loadRealTask, saveRealTask, createRealTask } from '../../src/task-actions';
@@ -38,7 +38,10 @@ export default function TaskEdit() {
   // vraie tâche du foyer ? on remplace la démo dès que le store a répondu
   useEffect(() => { if (!setupId) loadRealTask(id).then(rt => { if (rt) setTask(rt); }); }, [id]);
   const set = patch => setTask(x => ({ ...x, ...patch }));
-  const toggleOpen = k => setOpen(o => (o === k ? null : k));
+  const scrollRef = useRef(null);
+  // la note est le dernier champ : on déroule jusqu'en bas quand elle s'ouvre, et le ScrollView
+  // suit le clavier (retour Jeanne 7 sept 2026 : « le champ n'apparaît pas, juste le clavier »)
+  const toggleOpen = k => setOpen(o => { const n = o === k ? null : k; if (n === 'note') setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 120); return n; });
 
   const mental = !!task.mental_load;
   const accent = mental ? colors.lavender : colors.sage;
@@ -59,7 +62,7 @@ export default function TaskEdit() {
       <SafeAreaView style={{ flex: 1 }} edges={['top']}>
         <TaskHeader title={!id && !setupId ? t.headerNew : t.headerEdit} backLabel={t.back} />
 
-        <ScrollView contentContainerStyle={s.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+        <ScrollView ref={scrollRef} contentContainerStyle={s.content} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets showsVerticalScrollIndicator={false}>
           {/* Héro */}
           <Card r={18} padding={0} accent={accent} style={s.hero}>
             {/* Type au tap (retour Jeanne 7 sept 2026) : les deux pills côte à côte, l'active pleine, l'autre en fantôme */}
@@ -100,7 +103,7 @@ export default function TaskEdit() {
               </Section>
               <Section label={t.secOptions}>
                 <Card r={14} padding={0} style={s.optCard}>
-                  <OptionRow first title={t.optNote} sub={task.note ? f(t.optNoteSub, { note: task.note }) : t.optNoteEmpty} control={<ChevronRight />} onPress={() => toggleOpen('note')} />
+                  <OptionRow first title={t.optNote} sub={task.note ? <LinkText>{f(t.optNoteSub, { note: task.note })}</LinkText> : t.optNoteEmpty} control={<ChevronRight />} onPress={() => toggleOpen('note')} />
                   {open === 'note' ? (
                     <TextInput
                       value={task.note} onChangeText={v => set({ note: v })} placeholder={t.notePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)}
@@ -184,7 +187,7 @@ export default function TaskEdit() {
             <Card r={14} padding={0} style={s.optCard}>
               <OptionRow first title={t.optDivisible} sub={t.optDivisibleSub} control={<Toggle on={!!task.divisible} onChange={v => set({ divisible: v })} />} />
               <OptionRow title={t.optExpense} sub={t.optExpenseSub} control={<Toggle on={!!task.has_expense} onChange={v => set({ has_expense: v })} />} />
-              <OptionRow title={t.optNote} sub={task.note ? f(t.optNoteSub, { note: task.note }) : t.optNoteEmpty} control={<ChevronRight />} onPress={() => toggleOpen('note')} />
+              <OptionRow title={t.optNote} sub={task.note ? <LinkText>{f(t.optNoteSub, { note: task.note })}</LinkText> : t.optNoteEmpty} control={<ChevronRight />} onPress={() => toggleOpen('note')} />
               {open === 'note' ? (
                 <TextInput
                   value={task.note} onChangeText={v => set({ note: v })} placeholder={t.notePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)}

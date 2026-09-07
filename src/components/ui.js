@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════════════════════
 import React, { useState, useRef, useEffect } from 'react';
 import { router, usePathname } from 'expo-router';
-import { View, Text, Pressable, Image, StyleSheet } from 'react-native';
+import { View, Text, Pressable, Image, StyleSheet, Linking } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, withSpring, Easing } from 'react-native-reanimated';
 import Svg, { Defs, RadialGradient, Stop, Rect, Circle, Ellipse, Path, LinearGradient as SvgLinear } from 'react-native-svg';
@@ -57,6 +57,20 @@ export function GlassRow({ children, style, onPress }) {
 }
 // ─── séparateur 1px entre rangées d'une même card ───────────────────
 export const Divider = () => <View style={s.divider} />;
+// ─── LinkText : texte dont les adresses web deviennent cliquables (notes de tâche, 7 sept 2026) ──
+// À utiliser DANS un <Text> parent (retourne des <Text> imbriqués) ou seul.
+const URL_RE = /((?:https?:\/\/|www\.)[^\s<>"']+)/gi;
+export function LinkText({ children, style }) {
+  const str = String(children ?? '');
+  const parts = str.split(URL_RE);
+  return (
+    <Text style={style}>
+      {parts.map((p, i) => URL_RE.test(p) && (URL_RE.lastIndex = 0, true)
+        ? <Text key={i} style={{ color: colors.sageDeep, textDecorationLine: 'underline' }} onPress={() => Linking.openURL(p.startsWith('http') ? p : `https://${p}`).catch(() => {})}>{p}</Text>
+        : <Text key={i}>{p}</Text>)}
+    </Text>
+  );
+}
 // ─── PillLabel : uppercase 9.5/600, fond couleur à 16 % ─────────────
 export function PillLabel({ children, color = colors.ink, tint }) {
   return (

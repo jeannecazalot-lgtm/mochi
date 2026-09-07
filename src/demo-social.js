@@ -28,5 +28,3 @@ export const replyPresets = {
 // ordre des pings de la sheet 18 (clés de copy.pings.options)
 export const pingOptions = ['reminder', 'turn', 'deadline', 'takeover'];
 
-// genre du binôme pour « +1 dette pour elle/lui » (plus tard : profil)
-export const partnerGender = 'f';

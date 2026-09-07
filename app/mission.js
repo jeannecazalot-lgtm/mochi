@@ -3,12 +3,12 @@
 // (jours, qui, durée, note) repliée en bas. Jamais de push d'écran : tout se déplie en place.
 // Recette : docs/recettes/17c-sheet-tache-v2.md. `?occ=<id>` = occurrence (réelle ou démo).
 import React, { useEffect, useRef, useState } from 'react';
-import { router, useLocalSearchParams } from 'expo-router';
-import { View, Text, Pressable, TextInput, StyleSheet } from 'react-native';
+import { router, useLocalSearchParams, useNavigation } from 'expo-router';
+import { View, Text, Pressable, TextInput, StyleSheet, KeyboardAvoidingView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { LinearTransition } from 'react-native-reanimated';
-import { Card, Micro, Avatar } from '../src/components/ui';
+import { Card, Micro, Avatar, LinkText } from '../src/components/ui';
 import { SheetHandle, CheckCircle } from '../src/components/social/extra';
 import { Animated, FadeIn, useCheckPop } from '../src/components/motion';
 import { Row, Stepper, PillChip, RuleGroup, ConfirmBlock, Arrow, Caption } from '../src/components/task/proto';
@@ -47,6 +47,11 @@ export default function Mission() {
   // remplacé par « Déjà fait · tape pour la remettre à faire », report et repassage masqués
   const [already, setAlready] = useState(false);
   const pop = useCheckPop(done);
+  // La sheet native (formSheet « fitToContents ») ne re-mesure pas quand le contenu GRANDIT : les
+  // chips au-delà de la hauteur d'ouverture ne recevaient plus les touches (vu au simulateur le
+  // 7 sept 2026). Quand la règle ou le report se déplient, on passe à une détente haute.
+  const navigation = useNavigation();
+  useEffect(() => { navigation.setOptions({ sheetAllowedDetents: (ruleOpen || asking || expenseOpen || noteOpen) ? [0.92] : 'fitToContents' }); }, [ruleOpen, asking, expenseOpen, noteOpen]);
   const dirty = useRef(false);
   const ruleRef = useRef(null);
 
@@ -161,7 +166,7 @@ export default function Mission() {
         </Card>
         <Card r={16} padding={0}>
           <Row first label={t.ruleLabel} sub={ruleSummary} />
-          {rule.note ? <Row label={t.ruleNote} sub={rule.note} /> : null}
+          {rule.note ? <Row label={t.ruleNote} sub={<LinkText>{rule.note}</LinkText>} /> : null}
         </Card>
         <Caption style={{ marginTop: 10 }}>{t.ruleReadOnly}</Caption>
       </View>
@@ -172,7 +177,7 @@ export default function Mission() {
   // (ordre décidé par Jeanne le 7 sept 2026 ; la règle ne masque plus le reste : retour Ketlon
   // « comment je retourne avant ? » — tap sur « La règle » replie)
   return (
-    <View style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 31) }]}>
+    <KeyboardAvoidingView behavior="padding" style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 31) }]}>
       <SheetHandle />
       {head}
 
@@ -220,7 +225,7 @@ export default function Mission() {
               <Row label={t.ruleDuration} right={<Stepper value={fmtMin(rule.duration_min)} onMinus={() => patchRule({ duration_min: Math.max(5, rule.duration_min - 5) })} onPlus={() => patchRule({ duration_min: rule.duration_min + 5 })} />} />
               {noteOpen
                 ? <View style={s.noteBox}><TextInput value={rule.note} onChangeText={v => patchRule({ note: v })} placeholder={t.notePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)} multiline style={s.noteInput} /></View>
-                : <Row label={t.ruleNote} sub={rule.note || t.notePlaceholder} right={<Arrow />} onPress={() => setNoteOpen(true)} />}
+                : <Row label={t.ruleNote} sub={rule.note ? <LinkText>{rule.note}</LinkText> : t.notePlaceholder} right={<Arrow />} onPress={() => setNoteOpen(true)} />}
             </Animated.View>
           ) : null}
         </Card>
@@ -235,7 +240,7 @@ export default function Mission() {
           </Card>
         </Animated.View>
       )}
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

@@ -18,6 +18,7 @@ import { loadSetup, setup, inRealMode } from '../../src/setup-state';
 import { getUid, useIdentity } from '../../src/identity';
 import { localIso } from '../../src/dates';
 import { toggleOccurrence, isLive } from '../../src/occ-actions';
+import { isPremium } from '../../src/demo-premium';
 import copy from '../../src/data/copy.json';
 import { colors, space, font, motion, radius } from '../../src/theme';
 
@@ -133,7 +134,7 @@ function RealRow({ vm, onToggle }) {
           <Text style={{ fontSize: 15.5, fontWeight: '500', color: colors.ink, textDecorationLine: vm.done ? 'line-through' : 'none', opacity: vm.done ? 0.5 : 1 }} numberOfLines={1}>{vm.title}</Text>
           <Text style={[font.caption, { marginTop: 3 }, vm.late && { color: colors.coralDeep, fontWeight: '600' }]}>{vm.sub}</Text>
         </View>
-        {vm.who
+        {vm.event ? null : vm.who
           ? <Avatar initial={vm.who.initial} color={vm.who.color} photo={vm.who.avatar_url} size={24} />
           : (
             <View style={{ flexDirection: 'row' }}>
@@ -170,7 +171,7 @@ export default function Planning() {
       await loadSetup();
       // Réel dès qu'on a un foyer, même vide (retour test à deux, 3 sept 2026)
       if (!inRealMode()) return;
-      const [occs, tasks] = await Promise.all([read('occurrences'), read('tasks')]);
+      const [occs, tasks, events] = await Promise.all([read('occurrences'), read('tasks'), read('events')]);
       const byTask = Object.fromEntries(tasks.map(tk => [tk.id, tk]));
       const uid = getUid();
       const todayIso = localIso();
@@ -195,6 +196,15 @@ export default function Planning() {
           // en retard → sheet 21 (je le fais / repasser / décaler) ; sinon sheet Mission
           href: late ? `/retard?${q}&due=${o.due_date}` : `/mission?${q}`,
         });
+      }
+      // événements réels (7 sept 2026) : une rangée à leur date, sans porteur ni coche
+      for (const ev of events) {
+        if (ev.deleted_at || !ev.starts_at) continue;
+        const iso = localIso(new Date(ev.starts_at));
+        if (iso < todayIso) continue;
+        const d = ev.details || {};
+        (byDate[iso] ||= []).push({ id: ev.id, emoji: ev.emoji || '📅', title: ev.title, sub: [d.time, d.place].filter(Boolean).join(' · ') || t2.eventSub, who: null, event: true, checkable: false, done: false, late: false, href: `/event?id=${ev.id}` });
+        (dotMap[iso] ||= new Set()).add(colors.lavenderDeep);
       }
       const groups = Object.keys(byDate).sort().map(d => ({ iso: d, date: new Date(d + 'T12:00:00'), items: byDate[d] }));
       // retour Jeanne 6 sept : les retards forment UNE section en tête, la semaine commence à aujourd'hui
@@ -239,7 +249,8 @@ export default function Planning() {
   };
   const W = useWindowDimensions().width;
   const slide = useSharedValue(view === 'month' ? 1 : 0); // 0 = semaine, 1 = mois
-  const onSegment = v => { setMode(v); slide.value = withTiming(v === 'month' ? 1 : 0, { duration: 320, easing: Easing.inOut(Easing.cubic) }); };
+  // décision Jeanne 7 sept 2026 : la vue Mois est Duo+ (le gratuit = 7 jours glissants)
+  const onSegment = v => { if (v === 'month' && !isPremium()) { router.push('/paywall'); return; } setMode(v); slide.value = withTiming(v === 'month' ? 1 : 0, { duration: 320, easing: Easing.inOut(Easing.cubic) }); };
   useEffect(() => { if (view === 'month' && mode !== 'month') onSegment('month'); }, [view]); // lien reçu alors que l'onglet est déjà monté
   const weekStyle = useAnimatedStyle(() => ({ transform: [{ translateX: -slide.value * W }] }));
   const monthStyle = useAnimatedStyle(() => ({ transform: [{ translateX: (1 - slide.value) * W }] }));

@@ -21,7 +21,7 @@ export async function resetLocal(table) { await AsyncStorage.setItem(K.table(tab
 // (changement de foyer / de compte — 5 sept 2026 : le rejoignant repartait d'un
 // filigrane périmé et ratait les lignes plus anciennes)
 export async function resetTable(table) { await resetLocal(table); await AsyncStorage.removeItem(K.sync(table)); }
-export const SYNCED_TABLES = ['occurrences', 'tasks', 'task_pains', 'malus', 'swap_requests', 'household_members', 'households', 'expenses', 'activity'];
+export const SYNCED_TABLES = ['occurrences', 'tasks', 'task_pains', 'malus', 'swap_requests', 'household_members', 'households', 'expenses', 'activity', 'events'];
 // nouveau compte / nouveau foyer : cache, filigranes ET file de mutations
 export async function resetAll() {
   await Promise.all(SYNCED_TABLES.map(resetTable));

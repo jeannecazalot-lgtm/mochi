@@ -7,7 +7,9 @@ import * as Haptics from 'expo-haptics';
 import { GlowBg, Card, Avatar, Mochi } from '../src/components/ui';
 import { CenterHeader, ReplyChip } from '../src/components/social/extra';
 import { taskById, byId, occurrences, me, streak, today } from '../src/demo';
-import { activityFeed, replyPresets, partnerGender } from '../src/demo-social';
+import { activityFeed, replyPresets } from '../src/demo-social';
+import { react } from '../src/activity-actions';
+import { computeRealBalance } from '../src/balance-real';
 import { read } from '../src/store';
 import { loadSetup, setup, inRealMode } from '../src/setup-state';
 import { missionDone, occStore } from '../src/demo-core';
@@ -39,10 +41,10 @@ const dayLabel = (date, now = today) => {
   return new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }).format(date);
 };
 
-function Replies({ item, keys, chosen, onChoose }) {
+function Replies({ item, keys, chosen, onChoose, name }) {
   return (
     <View style={s.replies}>
-      {keys.map(k => <ReplyChip key={k} label={t.replies[k]} selected={chosen === k} onPress={() => onChoose(item.id, k)} />)}
+      {keys.map(k => <ReplyChip key={k} label={fill(t.replies[k], { name })} selected={chosen === k} onPress={() => onChoose(item.id, k)} />)}
     </View>
   );
 }
@@ -62,7 +64,9 @@ function Item({ item, chosen, onChoose }) {
     return (
       <Card r={radius.card} padding={0} style={s.card}>
         {head(<RichText template={t.taskDone} vars={{ name: actor.first_name, task: task.title.toLowerCase() }} style={s.body} />)}
-        {actor.id !== me.id ? <Replies item={item} keys={replyPresets.task_done} chosen={chosen} onChoose={onChoose} /> : null}
+        {actor.id !== me.id ? <Replies item={item} keys={replyPresets.task_done} chosen={chosen} onChoose={onChoose} name={actor.first_name} /> : null}
+        {/* la réaction de l'autre sous MA mission terminée (fil réel) */}
+        {item.reaction ? <Text style={s.debt}>{fill(t.reactionFrom, { name: item.reaction.name, reply: fill(t.replies[item.reaction.key] || item.reaction.key, { name: me.first_name }) })}</Text> : null}
       </Card>
     );
   }
@@ -88,7 +92,7 @@ function Item({ item, chosen, onChoose }) {
         {head(<RichText template={proposed ? t.swapProposed : t.swapAccepted} vars={{ name: actor.first_name, task: task.title.toLowerCase() }} style={s.body} />)}
         {proposed ? (
           <>
-            <Text style={s.debt}>{fill(t.swapDebt, { pronoun: partnerGender === 'f' ? t.pronounShe : t.pronounHe })}</Text>
+            <Text style={s.debt}>{t.swapDebt}</Text>
             <View style={s.actions}>
               <Pressable onPress={() => onChoose(item.id, 'accept')} style={[s.btn, s.btnDark, chosen === 'decline' && { opacity: 0.4 }]}><Text style={s.btnDarkText}>{t.accept}</Text></Pressable>
               <Pressable onPress={() => onChoose(item.id, 'decline')} style={[s.btn, s.btnLight, chosen === 'accept' && { opacity: 0.4 }]}><Text style={s.btnLightText}>{t.decline}</Text></Pressable>
@@ -98,12 +102,20 @@ function Item({ item, chosen, onChoose }) {
       </Card>
     );
   }
+  // info préformatée (je m'en occupe, règle changée, tâche ajoutée — 7 sept 2026)
+  if (item.type === 'info') {
+    return (
+      <Card r={radius.card} padding={0} style={s.card}>
+        {head(<Text style={s.body}>{item.text}</Text>)}
+      </Card>
+    );
+  }
   // mochi_moment
   return (
     <Card r={radius.row} padding={0} style={s.moment} accent={colors.butter}>
       <View style={{ alignItems: 'center', marginBottom: 6 }}><Mochi size={34} mood="happy" /></View>
       <Text style={s.momentTitle}>{t.mochiRebalance}</Text>
-      <Text style={s.momentSub}>{fill(t.mochiStreak, { n: streak.days })}</Text>
+      <Text style={s.momentSub}>{fill(t.mochiStreak, { n: item.streak ?? streak.days })}</Text>
     </Card>
   );
 }
@@ -119,8 +131,11 @@ export default function Activite() {
     if (sw) {
       setRealItems(items => items.filter(x => x.id !== id));
       resolveSwap(sw.swap_id, key === 'accept').then(() => occStore.bump()).catch(() => {});
+      return;
     }
-    // TODO Supabase : insérer la réponse préformatée (type reply, preset_key) dans activity
+    // réaction rapide réelle (table activity) sous une mission terminée par l'autre
+    const done = realItems?.find(x => x.id === id && x.type === 'task_done');
+    if (done && key) react(String(id), key).catch(() => {});
   };
 
   // Branchement réel (2 sept 2026, retour Jeanne « encore du simulator ») :
@@ -151,7 +166,26 @@ export default function Activite() {
         ...pending.map(sw => ({ id: sw.id, swap_id: sw.id, type: 'swap_proposed', actor_id: partner.id, task_title: titleOf(sw.occurrence_id), at: new Date(sw.created_at), time: hhmm(sw.created_at) })),
         ...resolved.filter(sw => sw.status === 'accepted').map(sw => ({ id: sw.id, type: 'swap_accepted', actor_id: sw.to_user === getUid() ? me.id : partner.id, task_title: titleOf(sw.occurrence_id), at: new Date(sw.resolved_at || sw.created_at), time: hhmm(sw.resolved_at || sw.created_at) })),
       ];
-      setRealItems([...dones, ...swaps].sort((a, b) => b.at - a.at));
+      // table activity : réactions (sous la mission concernée) + infos préformatées
+      const uid = getUid();
+      const acts = await read('activity');
+      const mineReact = {};
+      for (const a of acts) {
+        if (a.type !== 'ping_reply' || !a.occurrence_id) continue;
+        if (a.actor_id === uid) mineReact[a.occurrence_id] = a.preset_key;
+        else { const d = dones.find(x => x.id === a.occurrence_id); if (d) d.reaction = { name: partner.first_name, key: a.preset_key }; }
+      }
+      if (Object.keys(mineReact).length) setChosen(c => ({ ...mineReact, ...c }));
+      const infos = acts.filter(a => a.type === 'ping' && t.presets[a.preset_key]).map(a => ({
+        id: a.id, type: 'info', actor_id: a.actor_id === uid ? me.id : partner.id,
+        text: fill(t.presets[a.preset_key], { name: a.actor_id === uid ? me.first_name : partner.first_name, ...(a.payload || {}) }),
+        at: new Date(a.created_at), time: hhmm(a.created_at),
+      }));
+      // carte « Soirée équilibrée » : hier tout était fait → streak réel (proto du 2 sept, validé le 7 sept)
+      const moments = [];
+      const sd = uid ? computeRealBalance(occs, uid).streakDays : 0;
+      if (sd > 0) { const y = new Date(); y.setDate(y.getDate() - 1); y.setHours(21, 0, 0, 0); moments.push({ id: 'streak', type: 'mochi_moment', at: y, time: '', streak: sd }); }
+      setRealItems([...dones, ...swaps, ...infos, ...moments].sort((a, b) => b.at - a.at));
     })();
   }, [occV]);
 

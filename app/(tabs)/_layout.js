@@ -21,7 +21,7 @@ export default function TabsLayout() {
     const refresh = async () => {
       const hid = setup.householdId;
       if (!hid) return;
-      try { await Promise.all(['tasks', 'occurrences', 'task_pains', 'swap_requests', 'malus', 'expenses', 'activity'].map(tb => pull(tb, hid))); } catch (e) { /* hors ligne */ }
+      try { await Promise.all(['tasks', 'occurrences', 'task_pains', 'swap_requests', 'malus', 'expenses', 'activity', 'events'].map(tb => pull(tb, hid))); } catch (e) { /* hors ligne */ }
       occStore.bump();
       sweepMissed().catch(() => {});
     };

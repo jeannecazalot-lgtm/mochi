@@ -59,7 +59,7 @@ export default function DuoForme() {
           <View style={{ marginBottom: 11 }}><PillLabel color={colors.sageDeep}>{t.duoPill}</PillLabel></View>
           {/* celui qui rejoint lit « Tu as rejoint le foyer de X » (décision Jeanne, 5 sept) */}
           <Text style={s.title}>{fill(joiner ? t.duoTitleJoiner : t.duoTitle, { name: partner.first_name })}</Text>
-          <Text style={s.sub}>{joiner ? (filled ? t.duoSubJoinerReady : t.duoSubJoiner) : t.duoSub}</Text>
+          <Text style={s.sub}>{fill(joiner ? (filled ? t.duoSubJoinerReady : t.duoSubJoiner) : t.duoSub, { name: partner.first_name })}</Text>
         </View>
         <View style={s.ctaWrap}>
           {/* celui qui REJOINT un foyer existant : les tâches sont déjà choisies par

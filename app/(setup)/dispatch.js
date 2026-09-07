@@ -180,6 +180,8 @@ export default function Dispatch() {
               </View>
             </Card>
           </Animated.View>
+          {/* décision Jeanne 7 sept 2026 : une seule personne répartit, l'autre découvre et ajuste */}
+          <Text style={s.shared}>{t.dispatchShared}</Text>
         </View>
 
         <ScrollView {...scrollProps} contentContainerStyle={{ paddingHorizontal: space.screenX, paddingBottom: 110 }} showsVerticalScrollIndicator={false}>
@@ -193,6 +195,7 @@ export default function Dispatch() {
 }
 
 const s = StyleSheet.create({
+  shared: { fontSize: 12.5, color: colors.muted, textAlign: 'center', marginTop: -4, marginBottom: 10, paddingHorizontal: 8 },
   state: { fontSize: 21, fontWeight: '600', letterSpacing: -0.6, lineHeight: 21, color: colors.ink },
   loads: { fontSize: 13, fontWeight: '400', color: colors.muted, marginTop: 6 },
   strong: { fontSize: 13, color: colors.ink, fontWeight: '600', fontVariant: ['tabular-nums'] },

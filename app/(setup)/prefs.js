@@ -33,15 +33,15 @@ function Chip({ c, state, onCycle }) {
 export default function Prefs() {
   // Aucun état pré-rempli ; cycle neutre → j'aime → je déteste → neutre.
   const [prefs, setPrefs] = useState({});
-  const [timeIdx, setTimeIdx] = useState(0);
+  const [time, setTime] = useState(reminderTimes[0]); // 'HH:MM' — heure exacte (retour Jeanne 7 sept 2026)
+  const [timeOpen, setTimeOpen] = useState(false);
   // ?mode=settings : ouvert depuis le profil (6 sept 2026) ; déjà saisi → pré-rempli
   const { mode } = useLocalSearchParams();
   const settings = mode === 'settings';
   useEffect(() => {
     loadSetup().then(() => {
       if (setup.prefs) setPrefs({ ...setup.prefs });
-      const i = reminderTimes.indexOf(setup.reminder);
-      if (i >= 0) setTimeIdx(i);
+      if (setup.reminder) setTime(setup.reminder);
     });
   }, []);
   const count = tone => Object.values(prefs).filter(v => v === tone).length;
@@ -94,10 +94,33 @@ export default function Prefs() {
                 <Text style={s.remTitle}>{t.reminderTitle}</Text>
                 <Text style={s.remSub}>{t.reminderSub}</Text>
               </View>
-              <Pressable onPress={() => setTimeIdx(i => (i + 1) % reminderTimes.length)} style={s.time}>
-                <Text style={s.timeTxt}>{reminderTimes[timeIdx]}</Text>
+              <Pressable onPress={() => setTimeOpen(o => !o)} style={[s.time, timeOpen && { backgroundColor: colors.ink }]}>
+                <Text style={[s.timeTxt, timeOpen && { color: colors.card }]}>{time}</Text>
               </Pressable>
             </View>
+            {timeOpen ? (
+              <View style={s.timePicker}>
+                {[['h', t.reminderHours, 1, 60], ['m', t.reminderMinutes, 5, 5]].map(([k, label, step]) => {
+                  const [h, m] = time.split(':').map(Number);
+                  const bump = d => {
+                    let nh = h, nm = m;
+                    if (k === 'h') nh = (h + d + 24) % 24; else { nm = m + d; if (nm >= 60) { nm -= 60; nh = (h + 1) % 24; } if (nm < 0) { nm += 60; nh = (h + 23) % 24; } }
+                    setTime(`${String(nh).padStart(2, '0')}:${String(nm).padStart(2, '0')}`);
+                    Haptics.selectionAsync().catch(() => {});
+                  };
+                  return (
+                    <View key={k} style={s.timeRow}>
+                      <Text style={s.timeLabel}>{label}</Text>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                        <Pressable onPress={() => bump(-step)} hitSlop={8} style={s.stepBtn}><Text style={s.stepTxt}>−</Text></Pressable>
+                        <Text style={s.stepVal}>{k === 'h' ? `${h} h` : String(m).padStart(2, '0')}</Text>
+                        <Pressable onPress={() => bump(step)} hitSlop={8} style={s.stepBtn}><Text style={s.stepTxt}>+</Text></Pressable>
+                      </View>
+                    </View>
+                  );
+                })}
+              </View>
+            ) : null}
           </Card>
         </View>
 
@@ -107,7 +130,7 @@ export default function Prefs() {
           {/* celui qui a REJOINT un foyer (décision Jeanne 5 sept 2026) : ses dispos et
               préférences partent au foyer et il atterrit à l'Accueil — pas d'écran 09 */}
           <CTAPrimary label={settings ? copy.common.save : t.letsGo} onPress={async () => {
-            savePrefs({ prefs, reminder: reminderTimes[timeIdx] });
+            savePrefs({ prefs, reminder: time });
             askNotificationPermission().catch(() => {});
             await loadSetup();
             if (settings) { syncMyPains().catch(() => {}); router.back(); }
@@ -133,5 +156,11 @@ const s = StyleSheet.create({
   remSub: { fontSize: 13, fontWeight: '400', color: colors.muted, marginTop: 3 },
   time: { backgroundColor: alpha(colors.ink, 0.06), borderRadius: 10, paddingVertical: 8, paddingHorizontal: 14 },
   timeTxt: { fontSize: 17, fontWeight: '600', color: colors.ink, fontVariant: ['tabular-nums'] },
+  timePicker: { borderTopWidth: 1, borderTopColor: colors.line, paddingHorizontal: 18, paddingVertical: 6 },
+  timeRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 8 },
+  timeLabel: { fontSize: 14, fontWeight: '500', color: colors.muted },
+  stepBtn: { width: 28, height: 28, borderRadius: 14, backgroundColor: alpha(colors.ink, 0.06), alignItems: 'center', justifyContent: 'center' },
+  stepTxt: { fontSize: 16, fontWeight: '600', color: colors.ink, lineHeight: 18 },
+  stepVal: { fontSize: 16, fontWeight: '600', color: colors.ink, minWidth: 44, textAlign: 'center', fontVariant: ['tabular-nums'] },
   ctaWrap: { position: 'absolute', left: space.screenX, right: space.screenX, bottom: 26 },
 });

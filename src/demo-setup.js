@@ -66,7 +66,7 @@ export const catalogue = [
   { id: 't-repas', emoji: '📝', label: 'Planification des repas', freq: { perWeek: 1 }, mins: 20, pain: 3, mental: true, on: true },
   { id: 't-vacances', emoji: '🧳', label: 'Organiser les sorties & vacances', freq: { perWeek: 1 }, mins: 30, pain: 2, mental: true, on: false },
   // spécifiques « Selon ton foyer » — en fin de liste, décochées par défaut
-  { id: 't-chien-matin', emoji: '🐕', label: 'Sortir le chien', freq: { perDay: 3 }, mins: 20, pain: 1, specific: true, on: false },
+  { id: 't-chien-matin', emoji: '🐕', label: 'Sortir le chien', freq: { perDay: 2 }, mins: 15, pain: 1, specific: true, on: false },
   { id: 't-plantes', emoji: '🪴', label: 'Plantes', freq: { perWeek: 1 }, mins: 10, pain: 1, specific: true, on: false },
   { id: 't-litiere', emoji: '🐈', label: 'Litière du chat', freq: { perDay: 1 }, mins: 5, pain: 2, specific: true, on: false },
 ];

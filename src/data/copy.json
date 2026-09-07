@@ -89,6 +89,7 @@
       "activityA11y": "Libellé accessibilité bulle activité",
       "profileA11y": "Libellé accessibilité avatar profil",
       "chooseTasksCta": "Bouton sous la liste vide quand le foyer n a encore aucune tâche (→ écran 10)",
+      "upcomingTitle": "Titre de la section des 2 jours suivants",
       "waitingTasks": "Accueil du rejoignant tant que l'autre n'a pas réparti ({name})",
       "todoSub": "Sous-phrase Mochi : {n} missions restantes aujourd hui",
       "todoSubOne": "Idem au singulier",
@@ -122,6 +123,7 @@
     "mochiNew": "Votre foyer démarre tout juste.",
     "mochiNewSub": "Choisissez vos tâches ensemble pour lancer la répartition.",
     "chooseTasksCta": "Choisir nos tâches",
+    "upcomingTitle": "À venir",
     "waitingTasks": "{name} est en train de choisir et répartir vos tâches. Tu pourras tout ajuster ensuite depuis le Planning.",
     "todoSub": "{n} missions t’attendent aujourd’hui.",
     "todoSubOne": "1 mission t’attend aujourd’hui.",
@@ -158,7 +160,8 @@
     "late": "En retard",
     "realHint": "Tape une tâche pour la valider ou la déplacer",
     "emptyReal": "Rien de planifié pour l'instant — la répartition arrive après le choix des tâches.",
-    "lateGroup": "En retard"
+    "lateGroup": "En retard",
+    "eventSub": "Événement"
   },
   "balance": {
     "_labels": {
@@ -374,7 +377,7 @@
     "confirmMoved": "Déplacé à {day}",
     "confirmMovedSub": "{name} recevra une notification",
     "confirmSwap": "Proposé à {name}",
-    "confirmSwapSub": "Tu restes porteur jusqu'à sa réponse",
+    "confirmSwapSub": "La mission reste chez toi jusqu'à sa réponse",
     "confirmSwapPill": "En attente",
     "expensePlaceholder": "0,00",
     "notePlaceholder": "Ajouter une note",
@@ -501,6 +504,9 @@
       "calcStep2": "Étape 2 du calcul qui défile (11)",
       "calcStep3": "Étape 3 du calcul qui défile (11)",
       "dispatchSubTap": "Sous-titre écran 12 (réécrit : fréquence + porteur)",
+      "dispatchShared": "Phrase sous la carte d'équilibre du 12 : l'autre verra et ajustera",
+      "reminderHours": "Libellé stepper heure du rappel",
+      "reminderMinutes": "Libellé stepper minutes du rappel",
       "tagSunday": "dimanche (créneau)",
       "legendNone": "Légende état vide (proposition A)",
       "tapHint": "Phrase sous les chips de légende (proposition A)",
@@ -612,6 +618,9 @@
     "calcStep2": "Je pèse chaque tâche…",
     "calcStep3": "J’équilibre…",
     "dispatchSubTap": "Règle la fréquence de chaque tâche, et tape le prénom pour changer qui s'en occupe.",
+    "dispatchShared": "Ton binôme verra cette répartition en rejoignant le foyer et pourra l'ajuster depuis le Planning.",
+    "reminderHours": "Heure",
+    "reminderMinutes": "Minutes",
     "tagSunday": "dimanche",
     "legendNone": "pas dispo",
     "tapHint": "Tape une case pour changer son état",
@@ -634,11 +643,16 @@
     "perWeekSlash": "/ semaine",
     "shareMsgNoLink": "{name} t'invite sur mochi 🍡 Installe l'app, choisis « J'ai reçu un code » et tape : {code}",
     "duoTitleJoiner": "Tu as rejoint le foyer de {name} !",
-    "duoSubJoiner": "Encore trois petites étapes : ton prénom, tes dispos, tes préférences.",
-    "duoSubJoinerReady": "Tout est prêt : tes dispos et tes préférences partent dans le foyer."
+    "duoSubJoiner": "{name} choisit et répartit vos tâches, tu pourras tout ajuster depuis le Planning. Encore trois petites étapes : ton prénom, tes dispos, tes préférences.",
+    "duoSubJoinerReady": "{name} choisit et répartit vos tâches, tu pourras tout ajuster depuis le Planning. Tes dispos et tes préférences partent dans le foyer."
   },
   "event": {
     "_labels": {
+      "datePlaceholder": "Chip date avant choix",
+      "timePlaceholder": "Placeholder heure",
+      "placePlaceholder": "Placeholder lieu",
+      "itemPlaceholder": "Placeholder d'une ligne qui porte quoi",
+      "addItem": "Bouton ajouter une ligne",
       "eyebrow": "Étiquette en haut du modal événement",
       "titlePlaceholder": "Champ nom de l’événement (vide)",
       "detailsPlaceholder": "Champ date · heure · lieu (vide)",
@@ -659,7 +673,12 @@
     "dressLabel": "Tenue",
     "dressPlaceholder": "Tenue",
     "dressNotePlaceholder": "« précision »",
-    "cta": "Ajouter au calendrier"
+    "datePlaceholder": "Date",
+    "timePlaceholder": "20h",
+    "placePlaceholder": "Lieu",
+    "itemPlaceholder": "Quoi ?",
+    "addItem": "+ Ajouter une chose à porter",
+    "cta": "Créer l'événement"
   },
   "notes": {
     "_labels": {
@@ -1033,7 +1052,7 @@
     "prefsSub": "{like} aimée{ls} · {hate} détestée{hs}",
     "notSet": "Pas encore renseigné",
     "crossReminder": "Rappel croisé",
-    "crossReminderSub": "Être prévenu·e quand l’autre oublie une tâche",
+    "crossReminderSub": "Recevoir une alerte quand l’autre oublie une tâche",
     "export": "Exporter mes données",
     "exportSub": "PDF ou CSV",
     "thresholds": "Seuils d’alerte",
@@ -1064,8 +1083,6 @@
       "swapProposed": "Proposition de repassage ({name}, {task})",
       "swapAccepted": "Repassage accepté ({name}, {task})",
       "swapDebt": "Sous-ligne de la proposition ({pronoun} = elle/lui)",
-      "pronounShe": "Pronom binôme féminin",
-      "pronounHe": "Pronom binôme masculin",
       "accept": "Bouton accepter",
       "decline": "Bouton refuser",
       "view": "Lien « Voir » de la tâche attachée",
@@ -1081,17 +1098,21 @@
     "swapProposed": "{name} propose de te repasser {task}",
     "swapAccepted": "{name} a accepté de reprendre {task}",
     "swapDebt": "Si tu acceptes, la mission passe chez toi",
-    "pronounShe": "elle",
-    "pronounHe": "lui",
     "accept": "Accepter",
     "decline": "Refuser",
     "view": "Voir",
     "mochiRebalance": "Soirée équilibrée 🥳",
     "mochiStreak": "+1 jour à votre streak ({n} 🔥)",
+    "reactionFrom": "{name} : {reply}",
+    "presets": {
+      "tookOver": "{name} s'occupe de {task} · {day}",
+      "ruleChanged": "{name} a réglé {task} : {rule}",
+      "taskCreated": "{name} a ajouté {task}"
+    },
     "replies": {
       "thumbs": "👍",
       "thanks": "Merci ❤️",
-      "best": "T'es la meilleure",
+      "best": "Bravo {name}",
       "okTonight": "👍 Ok ce soir",
       "alreadyDone": "Déjà fait ✓"
     }

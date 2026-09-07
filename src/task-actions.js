@@ -13,6 +13,7 @@ import { loadSetup, setup } from './setup-state';
 import { getUid, getPartnerUid } from './identity';
 import { placeDays } from './dispatch';
 import { addDaysIso } from './dates';
+import { logActivity } from './activity-actions';
 
 // enum `frequency` de la base ↔ vocabulaire de la fiche (twiceWeek n'existe pas en base)
 const DB_TO_FICHE = { daily: 'daily', weekly: 'weekly', biweekly: 'weekly', monthly: 'monthly', once: 'once' };
@@ -86,6 +87,7 @@ export async function createRealTask(fiche) {
       kind: fiche.mental_load ? 'plan' : 'exec', due_date: addDaysIso(offsets[k]), assignee_id: assignee,
     });
   }
+  logActivity({ type: 'ping', preset_key: 'taskCreated', payload: { task: fiche.title.trim().toLowerCase() } }).catch(() => {});
   occStore.bump();
   return true;
 }

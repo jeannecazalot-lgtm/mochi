@@ -9,6 +9,10 @@ import { rescheduleReminders } from './reminders';
 import { getUid, getPartnerUid } from './identity';
 import { uuid } from './store';
 import { addDaysIso, localIso } from './dates';
+import { logActivity } from './activity-actions';
+import copy from './data/copy.json';
+
+const dayLabelOf = iso => (iso === localIso() ? copy.mission.metaToday : copy.calendar.dowsLong[(new Date(iso + 'T12:00:00').getDay() + 6) % 7].toLowerCase());
 
 // une occurrence « skipped » a été retirée par une règle (jours changés) : invisible partout,
 // mais la ligne reste en base pour que l'autre appareil la voie disparaître (pas de delete)
@@ -55,6 +59,9 @@ export async function takeOver(occId) {
   const uid = getUid();
   if (!row || !uid) return false;
   await mutate('occurrences', { ...row, assignee_id: uid });
+  const tasks = await read('tasks');
+  const tk = tasks.find(x => x.id === row.task_id);
+  logActivity({ type: 'ping', preset_key: 'tookOver', occurrence_id: row.id, payload: { task: (tk?.title || '…').toLowerCase(), day: dayLabelOf(row.due_date) } }).catch(() => {});
   occStore.bump();
   rescheduleReminders();
   return true;

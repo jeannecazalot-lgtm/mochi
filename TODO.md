@@ -141,23 +141,28 @@ Questions ouvertes (à trancher par Jeanne) :
 - **Notes** : liens cliquables maintenant, fichiers plus tard.
 - **Fiche tâche** : type Domestique / Charge mentale au tap en haut (deux pills), rangée « Charge mentale » des options retirée → FAIT et validé sur capture ; « ta pénib. » → « Effort ».
 
-Lot à faire (ordre proposé) :
-- [ ] Numéro d'écran gris (badge dev) retiré des builds
-- [ ] « Cuisine » → « Cuisiner » (catalogue à l'infinitif)
-- [ ] Tâches « … » sans titre : cause + titre vide interdit ; fiche depuis le 12 avec titre prérempli et version courte (nom, fréquence, durée, qui)
-- [ ] Sheet Tâche : tâche de l'autre en lecture seule + « Je m'en occupe » ; « Repasser à X » seulement sur MA tâche ; « Déplacer à » qui ne répond pas ; ordre temps passé → pas le temps → règle → dépense ; règle intégrée (plus de 2ᵉ sheet) ; règle appliquée aux occurrences futures (et Accueil rafraîchi)
-- [ ] Vaisselle 2× le même jour : diagnostiquer (algo ou double génération)
-- [ ] Champ note masqué par le clavier (fiche 14) ; liens cliquables dans les notes
-- [ ] Rappel : heure exacte (sélecteur)
-- [ ] Planning : 7 j glissants ✔ · vue Mois Duo+ · pas d'ajout au-delà de 7 j
-- [ ] Accueil : « À venir »
-- [ ] Balance : poids par tâche + durée Sortie chien
-- [ ] Textes : prénom à la place des pronoms
-- [ ] Rejoignant : écran « X a déjà réparti » ; modif de tâche → Activité (+ notif plus tard)
-- [ ] Activité : réactions + streak ; retirer le texte WhatsApp ; vérifier que les actions des DEUX membres remontent
-- [ ] Événement : formulaire réel (date calendrier, emoji au choix, lignes « Qui porte quoi » éditables)
-- [ ] Vérifs à deux simulateurs : mêmes tâches des deux côtés ; dépense de Jeanne en base
-- [ ] Notifs : pas encore configurées (connu)
+Fait le 7 sept 2026 (commits « Retours 7 sept, lot 1 → 3 », vérifié au simulateur Pro Max, captures envoyées) :
+- [x] Badge numéro d'écran retiré · « Cuisiner » et « Sortir le chien » (2×/jour, 15 min) · « Effort » · note WhatsApp retirée
+- [x] Planning : 7 jours glissants (bande + liste) · vue Mois → paywall Duo+ · événements du foyer affichés à leur date
+- [x] Fiche tâche : type Domestique / Charge mentale au tap · « Nouvelle tâche » depuis le + · fiche COURTE depuis le 12 (titre prérempli, fréquence, durée, note) · clavier ne masque plus la note · liens cliquables dans les notes
+- [x] Sheet Tâche : tâche de l'autre = lecture seule + « Je m'en occupe » (porteur changé, ligne Activité) · ma tâche = temps passé → pas le temps → règle (repliable EN PLACE) → dépense · « Déplacer à » : jours déjà pris grisés + message · « Repasser à X » seulement sur ma tâche · règle appliquée aux prochaines occurrences (skipped + créées, porteur selon « qui ») · détente de la sheet relevée au dépliage (sinon les touches se perdaient)
+- [x] Tâches en double : réutilisation des tâches existantes du foyer côté serveur (catalog_key / titre), occurrences déjà posées respectées, rejoignant sans re-choix (`clearSetupTasks` au join, Accueil « X est en train de choisir… ») · migration 0007 (index unique) + `supabase/nettoyage_doublons_7sept.sql` À EXÉCUTER par Jeanne (voir Bloquants)
+- [x] « … » sans titre : rapatriement de toutes les tables à l'ouverture et au retour au premier plan
+- [x] Accueil : section « À venir » (2 jours suivants)
+- [x] Rappel : heure exacte (steppers heure / minutes) sur le 08
+- [x] Textes : plus de pronom genré (« {name} devra accepter », « Bravo {name} », « recevra une notification »)
+- [x] Rejoignant : « {name} choisit et répartit vos tâches… » sur 09b · phrase sous la carte du 12
+- [x] Activité RÉELLE (table activity, realtime) : réactions 👍 / Merci ❤️ / Bravo X écrites en base et visibles chez l'autre · lignes « X s'occupe de… », « X a réglé … », « X a ajouté … » · carte streak « Soirée équilibrée » sur le streak réel
+- [x] Événement : vrai formulaire (emoji au choix, calendrier, heure, lieu, lignes « qui porte quoi » éditables, budget, tenue) écrit dans `events` (details jsonb → migration 0007) ; date > 7 j en gratuit → paywall
+- [x] Vérifs en base (dashboard) : 4 dépenses dont « Courses dîner » 35 € dans le 2ᵉ foyer ; doublons de tâches confirmés dans le foyer de Jeanne (ex. « Plier & ranger le linge » ×2)
+
+Reste / à décider :
+- [ ] **Balance** : poids par tâche distincte — exemples chiffrés à valider avant branchement (voir message du 7 sept) ; aujourd'hui l'onglet Balance pondère déjà pénibilité ×0,15 et mental ×1,5, le 12 est en minutes brutes → à unifier
+- [ ] Onboarding pédago : à revoir ensemble (décision reportée)
+- [ ] Notifications push (les textes « recevra une notification » anticipent la passe notifs)
+- [ ] Vérif à deux simulateurs « mêmes tâches des deux côtés » : à refaire après le nettoyage des doublons en base
+- [ ] Détente de la sheet Tâche dépliée = 0,92 (vide en bas quand la règle est courte) : affiner
+- [ ] Notes : fichiers joints (plus tard)
 
 ## Décisions prises
 - **6 sept 2026** — **Sheet Tâche v2 VALIDÉE par Jeanne** (proto `/proto-mission?v=a&c=head`, recette 17c) : une seule sheet, jamais de push d'écran. En-tête = titre + **rond « C'est fait » à droite du titre** (comme l'Accueil) + ligne « Toi · jour · durée ». Carte du moment = Temps passé (stepper) · Dépense (chip, saisie à la validation) · « Je n'aurai pas le temps » qui déplie en place 6 jours + « {binôme} recevra une notification » + « Repasser à {binôme} · Il devra accepter ». Carte « La règle » repliée en bas, 4 lignes quand ouverte : Quels jours (7 chips, **les jours font la fréquence, plus de « tous les combien »**) · Qui s'en occupe (Moi / binôme / On alterne / Mochi décide) · Durée estimée · Note. Confirmations plein contenu (fait / déplacé / repassé « En attente ») puis fermeture auto. **Retirés** : « Voir la tâche », pénibilité, importance, divisible, charge mentale, fréquence mensuelle en UI (ponctuelles via le +). B (CTA dégradé) écartée. Garde-fous à brancher : pop + haptique sur le rond, ligne méta qui suit le stepper, même rond sur les rangées du Planning.
@@ -176,6 +181,7 @@ Lot à faire (ordre proposé) :
 - **21 août 2026** — Entitlement RevenueCat : `duoplus`, packages `$rc_monthly` / `$rc_annual`.
 
 ## Bloquants (actions Jeanne)
+- [ ] **7 sept 2026 — SQL à coller dans l'éditeur Supabase, dans cet ordre** : 1) `supabase/nettoyage_doublons_7sept.sql` (fusionne les tâches en double du foyer) 2) `supabase/migrations/0007_evenements_et_taches_uniques.sql` (colonne `events.details` + index unique). Sans le 2, les événements ne s'enregistrent pas.
 - [x] GitHub : repo privé `jeannecazalot-lgtm/mochi` en ligne, push OK — 21 août 2026
 - [x] Supabase : projet créé, `.env` rempli, 06 câblé → `profiles` + bucket `avatars` — 21 août 2026
 - [x] Supabase : **Anonymous sign-ins déjà actifs** — vérifié par test réel le 1er sept 2026 (session anonyme créée via l'API ; un utilisateur anonyme de test `37b86916…` traîne en base, à purger un jour depuis le dashboard)

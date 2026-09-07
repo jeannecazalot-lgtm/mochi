@@ -13,7 +13,8 @@ import { fmtHeaderDate, mochiLean, moreLoaded, hasUnreadPing, missionDone, occSt
 import { read } from '../../src/store';
 import { loadSetup, setup, inRealMode, isJoiner } from '../../src/setup-state';
 import { useIdentity, getUid, loadIdentity } from '../../src/identity';
-import { localIso } from '../../src/dates';
+import { localIso, addDaysIso } from '../../src/dates';
+import { fmtDayLabel } from '../../src/demo-core';
 import { toggleOccurrence, isLive } from '../../src/occ-actions';
 import { computeRealBalance } from '../../src/balance-real';
 import copy from '../../src/data/copy.json';
@@ -83,7 +84,8 @@ export default function Home() {
   const [real, setReal] = useState(false);
   const [anyOcc, setAnyOcc] = useState(false); // le foyer a-t-il déjà des missions (pas forcément à moi) ?
   const [noTask, setNoTask] = useState(false); // foyer sans aucune tâche (on vient de le former) → bouton vers l'écran 10
-  const [bal, setBal] = useState(null); // balance réelle de la semaine → la phrase de Mochi dit la même chose que l'onglet Balance (6 sept 2026)
+  const [bal, setBal] = useState(null);
+  const [upcoming, setUpcoming] = useState([]); // « À venir » : mes missions des 2 jours suivants (décision Jeanne 7 sept 2026) // balance réelle de la semaine → la phrase de Mochi dit la même chose que l'onglet Balance (6 sept 2026)
   const occV = occStore.useVersion(); // « Déplacer » depuis la sheet → on relit le store
   useEffect(() => {
     (async () => {
@@ -105,6 +107,16 @@ export default function Home() {
       setBal(uid && occs.some(o => o.status === 'done') ? computeRealBalance(occs, uid) : null);
       // hydrate la coche depuis le statut serveur (relance de l'app)
       todays.forEach(o => { if (o.status === 'done' && !missionDone.has(o.id)) missionDone.set(o.id, true); });
+      const toVm = o => {
+        const tk = byId[o.task_id] || {};
+        const q = `occ=${o.id}&tid=${o.task_id}&title=${encodeURIComponent(tk.title || '')}&emoji=${encodeURIComponent(tk.emoji || '•')}&mins=${tk.duration_min || 15}`;
+        return { id: o.id, emoji: tk.emoji || '•', title: tk.title || '…', mental: !!tk.mental_load, badge: null, together: !o.assignee_id, mins: tk.duration_min || 15, href: `/mission?${q}`, ping: null };
+      };
+      setUpcoming([1, 2].map(k => {
+        const iso = addDaysIso(k);
+        const items = occs.filter(o => isLive(o) && o.due_date === iso && o.status !== 'done' && (!uid || !o.assignee_id || o.assignee_id === uid));
+        return { iso, label: fmtDayLabel(new Date(iso + 'T12:00:00')), items: items.map(toVm) };
+      }).filter(g => g.items.length));
       setVms(todays.map(o => {
         const tk = byId[o.task_id] || {};
         const q = `occ=${o.id}&tid=${o.task_id}&title=${encodeURIComponent(tk.title || '')}&emoji=${encodeURIComponent(tk.emoji || '•')}&mins=${tk.duration_min || 15}`;
@@ -197,6 +209,21 @@ export default function Home() {
                 : <View style={{ marginTop: 14 }}><CTAPrimary label={t.chooseTasksCta} onPress={() => router.push('/(setup)/taches')} /></View>)
               : null}{/* plus d'indice de glissement ici : le geste n'existe que dans À faire (décision Jeanne 6 sept 2026) */}
           </View>
+
+          {/* Bloc 3 · À venir — les 2 jours suivants (Ketlon 7 sept 2026 : « un peu light ») */}
+          {real && upcoming.length ? (
+            <>
+              <View style={s.sectionHead}><Text style={font.sectionTitle}>{t.upcomingTitle}</Text></View>
+              <View style={{ paddingHorizontal: space.screenX, gap: 8 }}>
+                {upcoming.map(g => (
+                  <Card key={g.iso} padding={0} style={{ paddingVertical: 8, paddingHorizontal: 14 }}>
+                    <Text style={[font.micro, { paddingTop: 4, paddingBottom: 2 }]}>{g.label}</Text>
+                    {g.items.map((v, i) => <MissionRow key={v.id} vm={v} first={i === 0} done={missionDone.has(v.id)} onToggle={() => toggle(v.id)} />)}
+                  </Card>
+                ))}
+              </View>
+            </>
+          ) : null}
 
           {/* Bloc « Côté binôme » retiré (retour Jeanne, 1er sept 2026) : redondant
               avec le Planning, où l'on voit déjà ce que fait l'autre. */}

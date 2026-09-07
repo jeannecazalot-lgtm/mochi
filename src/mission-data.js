@@ -10,6 +10,8 @@ import { getUid, getPartnerUid } from './identity';
 import { loadSetup, setup } from './setup-state';
 import { occurrences as demoOccs, taskById, me, partner } from './demo';
 import { localIso } from './dates';
+import { logActivity } from './activity-actions';
+import copy from './data/copy.json';
 
 // « Qui s'en occupe » de la sheet ↔ colonnes assign_mode / fixed_assignee
 export const whoOf = (task, uid) => task.assign_mode === 'alternate' ? 'alt'
@@ -57,6 +59,11 @@ export async function saveRule(taskId, rule) {
   const next = { ...row, window_days: rule.window_days, duration_min: rule.duration_min, note: rule.note || null, ...whoToCols(rule.who, getUid()) };
   await mutate('tasks', next);
   await applyRuleToOccurrences(next, rule); // les prochaines occurrences suivent (7 sept 2026)
+  // l'autre voit la modif dans son fil (décision Jeanne 7 sept 2026)
+  const t = copy.mission;
+  const days = rule.window_days?.length ? rule.window_days.map(i => copy.calendar.dowsLong[i].toLowerCase()).join(', ') : t.ruleAnyDay;
+  const who = t.who[rule.who] || partner.first_name;
+  logActivity({ type: 'ping', preset_key: 'ruleChanged', payload: { task: (row.title || '…').toLowerCase(), rule: `${days} · ${who} · ${rule.duration_min} min` } }).catch(() => {});
   occStore.bump();
   return true;
 }
