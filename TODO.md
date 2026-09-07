@@ -182,7 +182,7 @@ Reste / à décider :
 
 ## Bloquants (actions Jeanne)
 - [ ] **7 sept 2026 — clé APNs** : au lancement du build 11, répondre OUI à la création de la clé push (compte Apple de Jeanne) — sans elle aucune notification n'arrive. Puis tester à deux iPhones : Jeanne coche une tâche → Ketlon reçoit « Jeanne a terminé … ».
-- [ ] **7 sept 2026 — SQL à coller dans l'éditeur Supabase, dans cet ordre** : 1) `supabase/nettoyage_doublons_7sept.sql` (fusionne les tâches en double du foyer) 2) `supabase/migrations/0007_evenements_et_taches_uniques.sql` (colonne `events.details` + index unique) 3) `supabase/migrations/0008_push_token.sql` (jeton push). Sans le 2, les événements ne s'enregistrent pas ; sans le 3, pas de notifications.
+- [x] **7 sept 2026 — SQL exécuté par Claude dans l'éditeur Supabase (soir)** : nettoyage des doublons + migrations 0007 et 0008 — « Success ». (était :) SQL à coller dans l'éditeur Supabase, dans cet ordre : 1) `supabase/nettoyage_doublons_7sept.sql` (fusionne les tâches en double du foyer) 2) `supabase/migrations/0007_evenements_et_taches_uniques.sql` (colonne `events.details` + index unique) 3) `supabase/migrations/0008_push_token.sql` (jeton push). Sans le 2, les événements ne s'enregistrent pas ; sans le 3, pas de notifications.
 - [x] GitHub : repo privé `jeannecazalot-lgtm/mochi` en ligne, push OK — 21 août 2026
 - [x] Supabase : projet créé, `.env` rempli, 06 câblé → `profiles` + bucket `avatars` — 21 août 2026
 - [x] Supabase : **Anonymous sign-ins déjà actifs** — vérifié par test réel le 1er sept 2026 (session anonyme créée via l'API ; un utilisateur anonyme de test `37b86916…` traîne en base, à purger un jour depuis le dashboard)
