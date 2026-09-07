@@ -129,6 +129,36 @@ Questions ouvertes (à trancher par Jeanne) :
 - **Fragile / à tester par Jeanne sur iPhone** : saisie de la dépense et de la note (clavier, je ne peux pas taper au simulateur) ; la règle réécrit la ligne `tasks` — les occurrences déjà générées ne bougent pas (comme la fiche 14) ; « Ketley » sans binôme réel → assignation fixe sur l'id de démo (ignorée côté base) ; fermeture par glissement pendant une confirmation.
 - Reste : même rond sur les rangées du Planning (déjà présent en réel), retirer la fiche 14 depuis le 12 ou l'aligner sur la règle (question ouverte du 2 sept).
 
+## 7 sept 2026 — retours du test humain n°2 (Jeanne + Ketlon, iPhones réels, build 10)
+39 retours reçus (fichier Notes + captures + échanges WhatsApp). Décisions prises avec Jeanne le 7 sept :
+- **Onboarding pédago** : reste en place, à revoir ensemble plus tard (pas dans ce lot).
+- **Balance** : minutes + un poids fixe par tâche distincte (y penser est une charge) ; durée par défaut de Sortie chien revue. Poids à calibrer et à valider sur exemples chiffrés avant branchement.
+- **Planning gratuit** : 7 jours GLISSANTS à partir d'aujourd'hui (bande + liste), rien au-delà ; pas d'ajout de tâche au-delà de 7 j. **Vue Mois = Duo+** (paywall). Idée « aujourd'hui + 2 jours » abandonnée (« je veux voir le reste des jours »). → bande glissante FAITE et validée ce jour.
+- **Accueil** : section « À venir » (2 jours suivants) sous « Aujourd'hui pour toi ».
+- **Pronoms** : pas de question de genre, pas de colonne — les textes utilisent le prénom (« Jeanne devra accepter », « Bravo Jeanne »).
+- **Choix des tâches** : UNE seule personne choisit et répartit ; qui rejoint voit le résultat (« Jeanne a déjà choisi et réparti vos tâches… ») et ajuste depuis le Planning ; toute modif de tâche par l'un → ligne Activité + notification pour l'autre.
+- **Activité** : réactions rapides sous « X a terminé » (👍 · Merci ❤️ · Bravo X) avec notification, carte streak « Soirée équilibrée » (proto du commit 8aad13e) ; texte « On ne remplace pas WhatsApp » supprimé.
+- **Notes** : liens cliquables maintenant, fichiers plus tard.
+- **Fiche tâche** : type Domestique / Charge mentale au tap en haut (deux pills), rangée « Charge mentale » des options retirée → FAIT et validé sur capture ; « ta pénib. » → « Effort ».
+
+Lot à faire (ordre proposé) :
+- [ ] Numéro d'écran gris (badge dev) retiré des builds
+- [ ] « Cuisine » → « Cuisiner » (catalogue à l'infinitif)
+- [ ] Tâches « … » sans titre : cause + titre vide interdit ; fiche depuis le 12 avec titre prérempli et version courte (nom, fréquence, durée, qui)
+- [ ] Sheet Tâche : tâche de l'autre en lecture seule + « Je m'en occupe » ; « Repasser à X » seulement sur MA tâche ; « Déplacer à » qui ne répond pas ; ordre temps passé → pas le temps → règle → dépense ; règle intégrée (plus de 2ᵉ sheet) ; règle appliquée aux occurrences futures (et Accueil rafraîchi)
+- [ ] Vaisselle 2× le même jour : diagnostiquer (algo ou double génération)
+- [ ] Champ note masqué par le clavier (fiche 14) ; liens cliquables dans les notes
+- [ ] Rappel : heure exacte (sélecteur)
+- [ ] Planning : 7 j glissants ✔ · vue Mois Duo+ · pas d'ajout au-delà de 7 j
+- [ ] Accueil : « À venir »
+- [ ] Balance : poids par tâche + durée Sortie chien
+- [ ] Textes : prénom à la place des pronoms
+- [ ] Rejoignant : écran « X a déjà réparti » ; modif de tâche → Activité (+ notif plus tard)
+- [ ] Activité : réactions + streak ; retirer le texte WhatsApp ; vérifier que les actions des DEUX membres remontent
+- [ ] Événement : formulaire réel (date calendrier, emoji au choix, lignes « Qui porte quoi » éditables)
+- [ ] Vérifs à deux simulateurs : mêmes tâches des deux côtés ; dépense de Jeanne en base
+- [ ] Notifs : pas encore configurées (connu)
+
 ## Décisions prises
 - **6 sept 2026** — **Sheet Tâche v2 VALIDÉE par Jeanne** (proto `/proto-mission?v=a&c=head`, recette 17c) : une seule sheet, jamais de push d'écran. En-tête = titre + **rond « C'est fait » à droite du titre** (comme l'Accueil) + ligne « Toi · jour · durée ». Carte du moment = Temps passé (stepper) · Dépense (chip, saisie à la validation) · « Je n'aurai pas le temps » qui déplie en place 6 jours + « {binôme} recevra une notification » + « Repasser à {binôme} · Il devra accepter ». Carte « La règle » repliée en bas, 4 lignes quand ouverte : Quels jours (7 chips, **les jours font la fréquence, plus de « tous les combien »**) · Qui s'en occupe (Moi / binôme / On alterne / Mochi décide) · Durée estimée · Note. Confirmations plein contenu (fait / déplacé / repassé « En attente ») puis fermeture auto. **Retirés** : « Voir la tâche », pénibilité, importance, divisible, charge mentale, fréquence mensuelle en UI (ponctuelles via le +). B (CTA dégradé) écartée. Garde-fous à brancher : pop + haptique sur le rond, ligne méta qui suit le stepper, même rond sur les rangées du Planning.
 - **5 sept 2026 (soir)** — **Pas de vrai compte e-mail/Apple pour l'instant** : « se créer un compte » en rejoignant = prénom/photo + dispos + préférences (06 → 07 → 08), sessions anonymes conservées. **Budget gratuit** le temps du test. **Malus conservé**, affiché uniquement comme montant effaçable (sheet 21 « Malus en cours : n pt — le faire maintenant l'efface », pastille « n pt » sur les retards, section Balance) — règle proposée, à confirmer.

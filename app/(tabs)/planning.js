@@ -11,7 +11,7 @@ import { GlowBg, ScreenTitle, Micro, Avatar } from '../../src/components/ui';
 import { Animated } from '../../src/components/motion';
 import { Icon, ICON, Segment, AvatarPair, Hint, CheckCircle } from '../../src/components/core/extra';
 import { members, byId, taskById, today, me, partner, fmtMin } from '../../src/demo';
-import { weekDays, dayDots, planningGroups, sameDay, fmtDayLabel, weekdayShort, MENTAL_COEF, fmtCoef, missionDone, occStore } from '../../src/demo-core';
+import { weekDays, addDays, dayDots, planningGroups, sameDay, fmtDayLabel, weekdayShort, MENTAL_COEF, fmtCoef, missionDone, occStore } from '../../src/demo-core';
 import { addDaysIso } from '../../src/dates';
 import { read } from '../../src/store';
 import { loadSetup, setup, inRealMode } from '../../src/setup-state';
@@ -157,6 +157,10 @@ export default function Planning() {
   const t2 = copy.planning;
   // ─── vraies occurrences groupées par jour (démo en fallback) ───
   const [realGroups, setRealGroups] = useState(null);
+  // Retour Jeanne 7 sept 2026 : 7 jours GLISSANTS à partir d'aujourd'hui (gratuit : rien au-delà),
+  // au lieu de lundi → dimanche — la semaine prochaine apparaît au fil des jours.
+  const base = realGroups ? new Date() : today; // démo : « aujourd'hui » de la démo
+  const rolling = Array.from({ length: 7 }, (_, i) => addDays(base, i));
   const [realDots, setRealDots] = useState({}); // iso → couleurs des porteurs (semaine + mois)
   const occV = occStore.useVersion();
   missionDone.useVersion();
@@ -208,7 +212,8 @@ export default function Planning() {
   const groupY = useRef({});
   const todayIso = localIso();
   // Retour Jeanne (2 sept) : le jour TAPÉ devient noir (sélection), pas figé sur aujourd'hui
-  const [selectedIso, setSelectedIso] = useState(todayIso);
+  const [selectedIso, setSelectedIso] = useState(null); // null = le jour de base (réel : aujourd'hui ; démo : son « aujourd'hui »)
+  const sel = selectedIso || localIso(base);
   // à l'arrivée sur l'onglet, la liste s'ouvre sur aujourd'hui (retour Jeanne 6 sept)
   const openedOnToday = useRef(false);
   useEffect(() => {
@@ -222,6 +227,10 @@ export default function Planning() {
     const y = groupY.current[iso];
     if (y != null) scrollRef.current?.scrollTo({ y: Math.max(0, y - 8), animated: true });
   };
+  // la liste couvre exactement les 7 jours de la bande (les retards restent en tête)
+  const lastIso = localIso(addDays(base, 6));
+  const allGroups = realGroups || planningGroups().map(g => ({ ...g, iso: localIso(g.date) }));
+  const shownGroups = allGroups.filter(g => g.late || (g.iso >= localIso(base) && g.iso <= lastIso));
   // points du semainier en mode réel : couleurs des porteurs du jour
   const dotsFor = d => {
     const iso = localIso(d);
@@ -246,10 +255,10 @@ export default function Planning() {
           {/* vue semaine — réelle (occurrences du foyer) ou démo en fallback */}
           <Animated.View style={[StyleSheet.absoluteFill, weekStyle]}>
             <View style={s.week}>
-              {(realGroups ? weekDays(new Date()) : weekDays()).map(d => (
+              {rolling.map(d => (
                 <DayChip
                   key={d.getTime()} date={d}
-                  on={realGroups ? localIso(d) === selectedIso : sameDay(d, today)}
+                  on={localIso(d) === sel}
                   dots={realGroups ? dotsFor(d) : dayDots(d)}
                   onPress={() => jumpTo(d)}
                 />
@@ -257,14 +266,14 @@ export default function Planning() {
             </View>
             <ScrollView ref={scrollRef} contentContainerStyle={{ paddingHorizontal: space.screenX, paddingBottom: 16 }} showsVerticalScrollIndicator={false}>
               {realGroups
-                ? realGroups.map(g => (
+                ? shownGroups.map(g => (
                   <View key={g.iso} style={{ marginBottom: 11 }} onLayout={e => { groupY.current[g.iso] = e.nativeEvent.layout.y; }}>
                     <Micro style={[s.groupLabel, g.late && { color: colors.coralDeep }]}>{g.late ? t.lateGroup : fmtDayLabel(g.date)}{g.iso === todayIso ? ` · ${t.todaySuffix}` : ''}</Micro>
                     {g.items.map(vm => <RealRow key={vm.id} vm={vm} onToggle={() => toggleOcc(vm.id)} />)}
                   </View>
                 ))
-                : planningGroups().map(g => (
-                  <View key={g.date.getTime()} style={{ marginBottom: 11 }}>
+                : shownGroups.map(g => (
+                  <View key={g.date.getTime()} style={{ marginBottom: 11 }} onLayout={e => { groupY.current[g.iso] = e.nativeEvent.layout.y; }}>
                     <Micro style={s.groupLabel}>{fmtDayLabel(g.date)}{sameDay(g.date, today) ? ` · ${t.todaySuffix}` : ''}</Micro>
                     {g.items.map(o => <TaskRow key={o.id} occ={o} onGrab={setGrabbed} />)}
                   </View>

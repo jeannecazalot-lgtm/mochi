@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import { View, Text, TextInput, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { GlowBg, Card, PillLabel, Avatar } from '../../src/components/ui';
+import { GlowBg, Card, Avatar } from '../../src/components/ui';
 import { TaskHeader, Section, Toggle, Chip, StatTile, Stars, Segmented, OptionRow, ChevronRight, TaskCTA, TaskFooter, taskTokens } from '../../src/components/task/extra';
 import { loadTask, frequencies, durations, dayKeys, deadlines, me, partner, fmtMinShort, fmtStars, fmtHour } from '../../src/demo-task';
 import { loadRealTask, saveRealTask, createRealTask } from '../../src/task-actions';
@@ -28,7 +28,6 @@ export default function TaskEdit() {
 
   const mental = !!task.mental_load;
   const accent = mental ? colors.lavender : colors.sage;
-  const catColor = mental ? colors.lavenderDeep : colors.sageDeep;
   const deadlineLabel = dl => (dl == null ? t.noDeadline : dl === 'morning' ? t.morning : f(t.before, { h: fmtHour(dl) }));
   const windowLabel = () => {
     const parts = [];
@@ -49,7 +48,17 @@ export default function TaskEdit() {
         <ScrollView contentContainerStyle={s.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
           {/* Héro */}
           <Card r={18} padding={0} accent={accent} style={s.hero}>
-            <PillLabel color={catColor}>{mental ? t.catMental : t.catDomestic}</PillLabel>
+            {/* Type au tap (retour Jeanne 7 sept 2026) : les deux pills côte à côte, l'active pleine, l'autre en fantôme */}
+            <View style={s.typeRow}>
+              {[{ m: false, l: t.catDomestic, c: colors.sageDeep }, { m: true, l: t.catMental, c: colors.lavenderDeep }].map(o => {
+                const on = mental === o.m;
+                return (
+                  <Pressable key={String(o.m)} onPress={() => set({ mental_load: o.m })} hitSlop={6} style={[s.typePill, { backgroundColor: alpha(o.c, on ? 0.16 : 0.05) }]}>
+                    <Text style={[font.pill, { color: on ? o.c : alpha(colors.ink, 0.35) }]}>{o.l}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
             <TextInput
               value={task.title} onChangeText={v => set({ title: v })} placeholder={t.titlePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)}
               autoCorrect={false} returnKeyType="done" cursorColor={colors.coral} selectionColor={colors.coral} style={s.heroTitle}
@@ -127,7 +136,6 @@ export default function TaskEdit() {
           <Section label={t.secOptions}>
             <Card r={14} padding={0} style={s.optCard}>
               <OptionRow first title={t.optDivisible} sub={t.optDivisibleSub} control={<Toggle on={!!task.divisible} onChange={v => set({ divisible: v })} />} />
-              <OptionRow title={t.optMental} sub={t.optMentalSub} control={<Toggle on={mental} onChange={v => set({ mental_load: v })} />} />
               <OptionRow title={t.optExpense} sub={t.optExpenseSub} control={<Toggle on={!!task.has_expense} onChange={v => set({ has_expense: v })} />} />
               <OptionRow title={t.optNote} sub={task.note ? f(t.optNoteSub, { note: task.note }) : t.optNoteEmpty} control={<ChevronRight />} onPress={() => toggleOpen('note')} />
               {open === 'note' ? (
@@ -157,6 +165,8 @@ export default function TaskEdit() {
 const s = StyleSheet.create({
   content: { paddingHorizontal: taskTokens.contentX, paddingBottom: 16 },
   hero: { paddingVertical: 10, paddingHorizontal: 12, marginBottom: 6, gap: 6 },
+  typeRow: { flexDirection: 'row', gap: 6 },
+  typePill: { paddingHorizontal: 9, paddingVertical: 4, borderRadius: 999 },
   heroTitle: { fontSize: 20, fontWeight: '600', letterSpacing: -0.8, color: colors.ink, padding: 0, lineHeight: 22 },
   whenCard: { paddingVertical: 9, paddingHorizontal: 11, marginBottom: 8 },
   freqRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 2, paddingBottom: 6, borderBottomWidth: 1, borderBottomColor: colors.line },
