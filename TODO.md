@@ -185,8 +185,8 @@ Reste / à décider :
 - [x] **8 sept 2026 — forfait EAS Starter pris par Jeanne** (le quota Free de 15 builds iOS/mois était épuisé au build 16). Build 11 : PAS maintenant — après la session du 8 sept ; y activer EAS Update (canal) pour que les retouches JS n'exigent plus de build.
 
 ## Session du 8 sept 2026 — programme convenu avec Jeanne
-1. Audit visuel de tout ce qui a été dessiné le 7 sept (Planning, sheet Tâche dépliée, fiche courte, Accueil « À venir », Activité, rappel, événement)
-2. Balance : poids par tâche distincte — trancher sur les exemples chiffrés (reco 15 min/tâche) puis unifier le calcul 12 / onglet Balance
+1. [x] Audit visuel « regard utilisateur » à la vraie date (14 écrans/sous-vues) — 5 bugs corrigés (l'app suit le jour réel via `src/day-watch.js` ; sheet « À deux » ; pluriels ; émoji Budget ; accent rogné sur le 12) ; binôme chargé dès la racine. Décisions Jeanne : A tout gratuit (`ALL_FREE`), B Balance hebdo, C « Ma part » + vrai réglage de notifs (tranché par Claude), E une seule convention de jours « lun mar mer » ; D (hauteur des sheets dépliées) laissé à la session sheet Tâche.
+2. [x] Balance : **formule unifiée** `src/charge.js` (pénibilité ×0,15, charge mentale ×1,5, +15 min « pour y penser » par tâche distincte) partagée par le 12 et l'onglet ; Balance = semaine en cours (lundi → dimanche), streak continu ; tests dispatch 18 OK.
 3. Onboarding pédago : à revoir
 4. Notes avec fichiers joints (stockage Supabase)
 5. Puis build 11 (clé APNs « oui » au lancement, canal EAS Update) et test des notifications à deux iPhones

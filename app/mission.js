@@ -214,7 +214,8 @@ export default function Mission() {
           {ruleOpen ? (
             <Animated.View entering={FadeIn.duration(motion.micro)}>
               <RuleGroup label={t.ruleDays} row>
-                {copy.calendar.dows.map((d, i) => <PillChip key={i} flex label={d} selected={rule.window_days.includes(i)}
+                {/* « lun mar mer… » comme dans « Déplacer à » — une seule convention de jours (audit 8 sept) */}
+                {copy.calendar.dowsLong.map((d, i) => <PillChip key={i} flex label={d.toLowerCase()} selected={rule.window_days.includes(i)}
                   onPress={() => patchRule({ window_days: rule.window_days.includes(i) ? rule.window_days.filter(x => x !== i) : [...rule.window_days, i].sort() })} />)}
               </RuleGroup>
               <RuleGroup label={t.ruleWho}>
