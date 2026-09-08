@@ -43,6 +43,7 @@ function desc(e, now) {
 // Budget RÉEL (5 sept 2026, « mets-le gratuit pour le moment ») : dépenses du foyer
 // (table expenses), partage à parts égales → solde du mois. La saisie (écran 30b)
 // reste à brancher ; en attendant, un état vide honnête plutôt que la démo.
+const CAT_EMOJI = { courses: '🛒', sorties: '🍽️', maison: '🏠', enfants: '🧸', sante: '💊', autre: '💶' };
 async function loadRealBudget() {
   await loadSetup();
   if (!inRealMode()) return null;
@@ -54,7 +55,7 @@ async function loadRealBudget() {
   const byTask = Object.fromEntries(tasks.map(tk => [tk.id, tk]));
   const now = new Date();
   const list = rows.filter(e => !e.deleted_at).map(e => ({
-    id: e.id, title: e.title, emoji: e.emoji || '•', amount_cents: e.amount_cents,
+    id: e.id, title: e.title, emoji: e.emoji || CAT_EMOJI[e.category] || '💶', amount_cents: e.amount_cents,
     paid_by: e.paid_by === uid ? me.id : partner.id,
     spent_on: new Date(`${e.spent_on}T12:00:00`),
     via_task: null, _viaTitle: e.occurrence_id ? (byTask[byOcc[e.occurrence_id]?.task_id]?.title || null) : null,

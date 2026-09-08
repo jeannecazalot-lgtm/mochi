@@ -89,7 +89,7 @@ export default function Balance() {
                     <View key={p.member.id} style={{ flex: 1 }}>
                       <Text style={[s.heroName, { color: deep(p.member), textAlign: align }]}>{p.member.first_name}</Text>
                       <CountUp value={p.minutes} format={v => fmtMin(Math.round(v))} style={[s.heroNum, { textAlign: align }]} />
-                      <Text style={[s.heroSub, { textAlign: align }]}>{fill(t.heroTasks, { pct: p.pct, n: p.tasks })}</Text>
+                      <Text style={[s.heroSub, { textAlign: align }]}>{p.tasks === 1 ? fill(t.heroTasksOne, { pct: p.pct }) : fill(t.heroTasks, { pct: p.pct, n: p.tasks })}</Text>
                     </View>
                   );
                 })}
@@ -126,7 +126,7 @@ export default function Balance() {
                 <Text style={{ fontSize: 24 }}>🔥</Text>
                 <View style={{ flex: 1 }}>
                   <Micro>{t.streakTitle}</Micro>
-                  <CountUp value={real ? real.streakDays : streak.days} format={v => fill(t.streakDays, { n: Math.round(v) })} style={s.streakNum} />
+                  <CountUp value={real ? real.streakDays : streak.days} format={v => (Math.round(v) === 1 ? t.streakDaysOne : fill(t.streakDays, { n: Math.round(v) }))} style={s.streakNum} />
                   {real ? null : <Text style={s.streakNext}>{fill(left === 1 ? t.streakNextOne : t.streakNextMany, { left, badge: streak.next.label })}</Text>}
                 </View>
                 {real ? null : <Text style={s.record}>{fill(t.streakRecord, { n: streak.record })}</Text>}

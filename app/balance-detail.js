@@ -69,7 +69,7 @@ export default function BalanceDetail() {
                     <View key={p.member.id} style={{ flex: 1 }}>
                       <Text style={[s.heroName, { color: deep(p.member), textAlign: align }]}>{p.member.first_name}</Text>
                       <CountUp value={p.minutes} format={v => fmtMin(Math.round(v))} style={[s.heroNum, { textAlign: align }]} />
-                      <Text style={[s.heroSub, { textAlign: align }]}>{fill(t.heroTasks, { pct: p.pct, n: p.tasks })}</Text>
+                      <Text style={[s.heroSub, { textAlign: align }]}>{p.tasks === 1 ? fill(t.heroTasksOne, { pct: p.pct }) : fill(t.heroTasks, { pct: p.pct, n: p.tasks })}</Text>
                     </View>
                   );
                 })}

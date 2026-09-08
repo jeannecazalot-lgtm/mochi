@@ -233,7 +233,9 @@
     "contribCyclesSub": "{a} cycles vs {b} · cette semaine",
     "rebalanceCta": "Rééquilibrer avec Mochi",
     "contribRealSub": "{a} min contre {b} min",
-    "weighsNone": "Rien ne pèse encore — coche des missions et l'écart apparaîtra ici."
+    "weighsNone": "Rien ne pèse encore — coche des missions et l'écart apparaîtra ici.",
+    "heroTasksOne": "{pct}% · 1 tâche",
+    "streakDaysOne": "1 jour"
   },
   "budget": {
     "_labels": {
@@ -392,7 +394,9 @@
       "me": "Moi",
       "alt": "On alterne",
       "auto": "Mochi décide"
-    }
+    },
+    "metaBoth": "À deux",
+    "noTimeSubBoth": "Déplacer à un autre jour"
   },
   "pings": {
     "_labels": {

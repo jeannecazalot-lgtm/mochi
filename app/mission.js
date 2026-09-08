@@ -130,7 +130,7 @@ export default function Mission() {
       </View>
       <View style={s.meta}>
         <Avatar initial={who.initial} color={who.color} photo={who.avatar_url} size={18} />
-        <Text style={s.metaTxt}>{m.mine ? t.metaYou : who.first_name} · {dayLabel} · {done ? fmtMin(spent) : fill(t.metaApprox, { time: fmtMin(rule.duration_min) })}</Text>
+        <Text style={s.metaTxt}>{!m.occ?.assignee_id ? t.metaBoth : m.mine ? t.metaYou : who.first_name} · {dayLabel} · {done ? fmtMin(spent) : fill(t.metaApprox, { time: fmtMin(rule.duration_min) })}</Text>
       </View>
     </View>
   );
@@ -189,7 +189,7 @@ export default function Mission() {
             <>
               <Row first label={t.timeLabel} right={<Stepper value={fmtMin(spent)} onMinus={() => setSpent(v => Math.max(5, v - 5))} onPlus={() => setSpent(v => v + 5)} />} />
               {!asking ? (
-                <Row strong label={t.noTimeLabel} sub={fill(t.noTimeSub, { name: partner.first_name })} right={<Arrow />} onPress={() => { Haptics.selectionAsync().catch(() => {}); setAsking(true); }} />
+                <Row strong label={t.noTimeLabel} sub={(!m.occ?.assignee_id ? t.noTimeSubBoth : fill(t.noTimeSub, { name: partner.first_name }))} right={<Arrow />} onPress={() => { Haptics.selectionAsync().catch(() => {}); setAsking(true); }} />
               ) : (
                 <Animated.View entering={FadeIn.duration(motion.micro)}>
                   <View style={s.moveBox}>
@@ -199,7 +199,8 @@ export default function Mission() {
                     </View>
                     <Caption style={{ textAlign: 'left' }}>{moveMsg || fill(t.moveWarn, { name: partner.first_name })}</Caption>
                   </View>
-                  <Row strong label={fill(t.swapLabel, { name: partner.first_name })} sub={fill(t.swapSub, { name: partner.first_name })} left={<Avatar initial={partner.initial} color={partner.color} photo={partner.avatar_url} size={22} />} right={<Arrow />} onPress={swap} />
+                  {/* tâche commune : rien à repasser, l'autre est déjà dessus (audit 8 sept) */}
+                  {!m.occ?.assignee_id ? null : <Row strong label={fill(t.swapLabel, { name: partner.first_name })} sub={fill(t.swapSub, { name: partner.first_name })} left={<Avatar initial={partner.initial} color={partner.color} photo={partner.avatar_url} size={22} />} right={<Arrow />} onPress={swap} />}
                 </Animated.View>
               )}
             </>
