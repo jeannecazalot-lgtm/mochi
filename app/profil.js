@@ -1,7 +1,7 @@
 // Écran 38 · Profil & réglages (accès par l'avatar). Recette : docs/recettes/38-profil.md
 import React, { useState, useEffect } from 'react';
 import { router, useFocusEffect } from 'expo-router';
-import { View, Text, Pressable, Switch, ScrollView, StyleSheet, Alert } from 'react-native';
+import { View, Text, Pressable, ScrollView, StyleSheet, Alert } from 'react-native';
 import { leaveHousehold } from '../src/invite-actions';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GlowBg, Card, PillLabel, Avatar } from '../src/components/ui';
@@ -9,7 +9,8 @@ import { BackButton, SectionMicro, SettingRow } from '../src/components/premium/
 import { me, partner, household, streak, balance } from '../src/demo';
 import { duoSince, daysSince, lifetime, duoRules, prefs, isPremium, ALL_FREE } from '../src/demo-premium';
 import { signOut } from '../src/auth';
-import { clearSetup, loadSetup, inRealMode, setup } from '../src/setup-state';
+import { clearSetup, loadSetup, inRealMode, setup , thresholdsOf } from '../src/setup-state';
+import { occStore } from '../src/demo-core';
 import { resetIdentity, getUid, loadIdentity, useIdentity } from '../src/identity';
 import { resetAll, read } from '../src/store';
 import { computeRealBalance } from '../src/balance-real';
@@ -21,7 +22,8 @@ const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
 const fmtDate = d => new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short' }).format(new Date(d));
 
 export default function Profil() {
-  const [cross, setCross] = useState(prefs.cross_reminder);
+  occStore.useVersion(); // seuils modifiés dans la sheet → ligne à jour
+  const th = thresholdsOf();
   const premium = isPremium();
   // Réel (5 sept 2026, audit QA) : streak, tâches faites et part d'équilibre calculés
   // sur les vraies occurrences — plus de « 6 j · 148 · 48 % » de démo. (Refonte du
@@ -106,20 +108,16 @@ export default function Profil() {
             <SectionMicro>{t.sectionMine}</SectionMicro>
             <View style={{ gap: 6 }}>
               <SettingRow emoji="🔔" title={t.notifs} sub={real && setup.reminder ? fill(t.notifsSubReal, { time: String(setup.reminder).replace(':', ' h ') }) : fill(t.notifsSub, { n: duoRules.reminder_before_min })} onPress={() => router.push('/notifs')} />
-              <SettingRow emoji="🗓" title={t.dispos}
-                sub={!mine || (!mine.slots && !mine.h) ? t.notSet : fill(mine.slots === 1 ? t.disposSubOne : t.disposSubReal, { n: mine.slots }) + (mine.h ? fill(t.disposSubHours, { h: mine.h }) : '')}
-                onPress={() => router.push('/(setup)/dispos?mode=settings')} />
-              <SettingRow emoji="💚" title={t.prefs}
-                sub={!mine || !mine.hasPrefs ? t.notSet : fill(t.prefsSub, { like: mine.likes, hate: mine.hates, ls: mine.likes > 1 ? 's' : '', hs: mine.hates > 1 ? 's' : '' })}
-                onPress={() => router.push('/(setup)/prefs?mode=settings')} />
-              <SettingRow emoji="🔁" title={t.crossReminder} sub={t.crossReminderSub} right={<Switch value={cross} onValueChange={setCross} trackColor={{ true: colors.sage, false: alpha(colors.ink, 0.12) }} ios_backgroundColor={alpha(colors.ink, 0.12)} />} />
+              <SettingRow emoji="🗓" title={t.mesReglages}
+                sub={!mine ? '' : [(!mine.slots && !mine.h) ? t.notSet : fill(mine.slots === 1 ? t.disposSubOne : t.disposSubReal, { n: mine.slots }) + (mine.h ? fill(t.disposSubHours, { h: mine.h }) : ''), !mine.hasPrefs ? t.notSet : fill(t.prefsSub, { like: mine.likes, hate: mine.hates, ls: mine.likes > 1 ? 's' : '', hs: mine.hates > 1 ? 's' : '' })].join(' · ')}
+                onPress={() => router.push('/mes-reglages')} />
               <SettingRow emoji="⬇️" title={t.export} sub={t.exportSub} onPress={() => {}} />
             </View>
 
             <SectionMicro style={{ marginTop: 16 }}>{t.sectionDuo}</SectionMicro>
             <View style={{ gap: 6 }}>
-              <SettingRow emoji="⚖️" title={t.thresholds} sub={fill(t.thresholdsSub, { warn: duoRules.threshold_warn_pct, alert: duoRules.threshold_alert_pct })}
-                right={<Text style={s.value}>{fill(t.thresholdsValue, { warn: duoRules.threshold_warn_pct, alert: duoRules.threshold_alert_pct })}</Text>} />
+              <SettingRow emoji="⚖️" title={t.thresholds} sub={fill(t.thresholdsSub, { warn: th.warn, alert: th.alert })}
+                right={<Text style={s.value}>{fill(t.thresholdsValue, { warn: th.warn, alert: th.alert })}</Text>} onPress={() => router.push('/seuils')} />
               <SettingRow emoji="🎯" title={t.malus} sub={t.malusSub} onPress={() => router.push('/point-hebdo')} />
               <SettingRow emoji="💳" title={t.subscription} sub={ALL_FREE ? t.subscriptionFree : premium ? fill(t.subscriptionOn, { date: fmtDate(household.premium_until) }) : t.subscriptionOff} onPress={() => router.push('/paywall')} />
               <SettingRow emoji="🗺" title={t.plan} sub={t.planSub} onPress={() => router.push('/plan')} />

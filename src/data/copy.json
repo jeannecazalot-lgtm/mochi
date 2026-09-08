@@ -1077,7 +1077,8 @@
     "leaveOk": "Quitter",
     "leaveCancel": "Rester",
     "notifsSubReal": "Récap chaque jour à {time}",
-    "subscriptionFree": "Tout est inclus pendant le test"
+    "subscriptionFree": "Tout est inclus pendant le test",
+    "mesReglages": "Mes dispos & préférences"
   },
   "activity": {
     "_labels": {
@@ -1596,5 +1597,56 @@
     "taskDone": "{name} a terminé {task} ✅",
     "taskCreated": "{name} a ajouté {task}",
     "reaction": "{reply} de {name}"
+  },
+  "mesReglages": {
+    "_labels": {
+      "_": "Profil · page unique dispos + préférences (8 sept 2026)"
+    },
+    "title": "Mes dispos & préférences",
+    "disposSection": "Quand je peux m'occuper du foyer",
+    "prefsSection": "Ce que j'aime (ou pas)"
+  },
+  "notifSettings": {
+    "_labels": {
+      "_": "Profil · Notifications, vrais réglages (8 sept 2026). {name} = binôme"
+    },
+    "title": "Notifications",
+    "dailySection": "Mon récap du jour",
+    "dailyTitle": "Chaque jour à",
+    "dailySub": "Tes missions du jour, une seule notification",
+    "duoSection": "Entre vous",
+    "pushTitle": "Ce que fait {name}",
+    "pushSub": "Quand {name} coche, déplace ou repasse une tâche",
+    "pushOn": "Activées",
+    "pushAsk": "Autoriser",
+    "crossTitle": "Rappel croisé",
+    "crossSub": "Une alerte quand {name} oublie une tâche",
+    "note": "Tu peux tout couper à tout moment dans Réglages › Notifications › mochi."
+  },
+  "seuils": {
+    "_labels": {
+      "_": "Sheet Seuils d'alerte (profil). {warn} / {alert} = pourcentages"
+    },
+    "title": "Seuils d'alerte",
+    "sub": "Communs au duo. En dessous de {warn} % d'écart, c'est équilibré ; au-dessus de {alert} %, Mochi alerte.",
+    "warnLabel": "Ça penche à partir de",
+    "alertLabel": "Alerte à partir de"
+  },
+  "pointHebdo": {
+    "_labels": {
+      "_": "Écran 23 · point hebdo réel (8 sept 2026). {day} = dimanche, {n} = points"
+    },
+    "title": "Point hebdo",
+    "pill": "Point hebdo · {day}",
+    "intro": "Chaque dimanche, on regarde les malus de la semaine — sans punition. Le lundi, on repart à zéro.",
+    "mine": "Toi",
+    "detail": "Cette semaine",
+    "none": "Aucun malus cette semaine 🎉",
+    "missed": "tâche ratée",
+    "postponed": "décalée à demain",
+    "postponedTitle": "Tâche décalée",
+    "pts": "{n} pt",
+    "resetNote": "Les malus repartent à zéro lundi.",
+    "resetNoteEmpty": "Continuez comme ça."
   }
 }

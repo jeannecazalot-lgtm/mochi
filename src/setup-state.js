@@ -19,6 +19,8 @@ const state = {
   householdId: null,      // foyer réel (créé au « C'est parti » ou rejoint par code)
   invitedCode: null,      // 09 · j'ai créé une invitation (je suis l'inviteur·se)
   joinedByCode: null,     // 09 · j'ai rejoint un foyer avec un code (je suis le/la rejoignant·e)
+  thresholds: null,       // seuils d'alerte du duo { warn, alert } en % (copie locale de households)
+  crossReminder: null,    // profil · rappel croisé (alerte quand l'autre oublie)
 };
 
 let loadedPromise = null;
@@ -40,6 +42,10 @@ export function saveTasks(tasks) { state.tasks = tasks; persist(); }
 export function saveResult(result) { state.result = result; persist(); }
 export function saveRealTaskIds(map) { state.realTaskIds = map; persist(); }
 export function saveHouseholdId(id) { state.householdId = id; persist(); }
+export function saveThresholds(th) { state.thresholds = th; persist(); }
+export function saveCrossReminder(v) { state.crossReminder = !!v; persist(); }
+// seuils d'alerte (SPECS §3 : 10 / 25 par défaut) — toujours lisibles, même sans foyer
+export const thresholdsOf = () => ({ warn: state.thresholds?.warn ?? 10, alert: state.thresholds?.alert ?? 25 });
 export function saveInvited(v) { state.invitedCode = !!v; if (v) state.joinedByCode = false; persist(); }
 export function saveJoined(v) { state.joinedByCode = !!v; if (v) state.invitedCode = false; persist(); }
 // Test à deux du 6 sept 2026 : l'inviteuse (foyer sans tâches encore) était prise pour

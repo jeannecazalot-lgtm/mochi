@@ -8,6 +8,7 @@ import { weekDays } from './demo-core';
 import { localIso } from './dates';
 import copy from './data/copy.json';
 import { chargeOf, TASK_WEIGHT_MIN } from './charge';
+import { thresholdsOf } from './setup-state';
 
 // numéro de semaine ISO
 export const isoWeek = d => {
@@ -32,7 +33,8 @@ export function computeRealBalance(occs, uid) {
   const sP = other.reduce((a, o) => a + scoreOf(o), 0) + distinct(other) * TASK_WEIGHT_MIN;
   const tot = sMe + sP || 1;
   const gap = Math.abs(sMe - sP) / tot;
-  const state = gap < 0.10 ? 'balanced' : gap <= 0.25 ? 'leaning' : 'unbalanced';
+  const th = thresholdsOf(); // seuils du duo (profil → Seuils d'alerte)
+  const state = gap * 100 < th.warn ? 'balanced' : gap * 100 <= th.alert ? 'leaning' : 'unbalanced';
   const parts = [
     { member: me, minutes: mine.reduce((a, o) => a + (o.duration_min || 0), 0), pct: Math.round((sMe / tot) * 100), tasks: mine.length },
     { member: partner, minutes: other.reduce((a, o) => a + (o.duration_min || 0), 0), pct: Math.round((sP / tot) * 100), tasks: other.length },

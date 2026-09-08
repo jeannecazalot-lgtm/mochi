@@ -8,6 +8,7 @@ import FabSheet, { useFabSheet } from '../../src/components/FabSheet';
 import { loadSetup, setup } from '../../src/setup-state';
 import { startRealtime } from '../../src/realtime';
 import { loadPartner } from '../../src/identity';
+import { loadThresholds } from '../../src/thresholds';
 import { sweepMissed } from '../../src/malus-actions';
 import { pull } from '../../src/store';
 import { occStore } from '../../src/demo-core';
@@ -30,6 +31,7 @@ export default function TabsLayout() {
       if (!setup.householdId) return;
       startRealtime(setup.householdId);
       loadPartner(setup.householdId);
+      loadThresholds(setup.householdId); // seuils d'alerte du duo
       registerPushToken(); // jeton push → mon profil (téléphone réel)
       refresh();
     });

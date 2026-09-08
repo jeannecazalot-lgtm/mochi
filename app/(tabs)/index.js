@@ -11,7 +11,7 @@ import { Icon, ICON, BadgePill, CheckCircle, RoundButton, Hint } from '../../src
 import { me, partner, balance, streak, myToday, taskById, fmtMin } from '../../src/demo';
 import { fmtHeaderDate, mochiLean, moreLoaded, hasUnreadPing, missionDone, occStore } from '../../src/demo-core';
 import { read } from '../../src/store';
-import { loadSetup, setup, inRealMode, isJoiner } from '../../src/setup-state';
+import { loadSetup, setup, inRealMode, isJoiner , thresholdsOf } from '../../src/setup-state';
 import { useIdentity, getUid, loadIdentity } from '../../src/identity';
 import { localIso, addDaysIso } from '../../src/dates';
 import { fmtDayLabel } from '../../src/demo-core';
@@ -34,10 +34,11 @@ function mochiLine(t) {
 function mochiLineReal(t, loads) {
   const a = loads[me.id] || 0, b = loads[partner.id] || 0, tot = a + b || 1;
   const gap = Math.abs(a - b) / tot;
-  if (gap < 0.10) return { line: t.mochiBalanced, sub: t.mochiBalancedSub };
+  const th = thresholdsOf();
+  if (gap * 100 < th.warn) return { line: t.mochiBalanced, sub: t.mochiBalancedSub };
   const who = b > a ? partner : me;
   const other = who.id !== me.id;
-  if (gap > 0.25) return { line: fill(other ? t.mochiUnbalancedOther : t.mochiUnbalancedMe, { name: who.first_name }), sub: t.mochiUnbalancedSub };
+  if (gap * 100 > th.alert) return { line: fill(other ? t.mochiUnbalancedOther : t.mochiUnbalancedMe, { name: who.first_name }), sub: t.mochiUnbalancedSub };
   return { line: fill(other ? t.mochiLeaningOther : t.mochiLeaningMe, { name: who.first_name }), sub: t.mochiLeaningSub };
 }
 
