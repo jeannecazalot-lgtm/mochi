@@ -196,7 +196,7 @@ export default function Dispatch() {
 
 const s = StyleSheet.create({
   shared: { fontSize: 12.5, color: colors.muted, textAlign: 'center', marginTop: -4, marginBottom: 10, paddingHorizontal: 8 },
-  state: { fontSize: 21, fontWeight: '600', letterSpacing: -0.6, lineHeight: 21, color: colors.ink },
+  state: { fontSize: 21, fontWeight: '600', letterSpacing: -0.6, lineHeight: 26, color: colors.ink }, // 26 : l'accent de « Équilibré » était rogné (audit 8 sept)
   loads: { fontSize: 13, fontWeight: '400', color: colors.muted, marginTop: 6 },
   strong: { fontSize: 13, color: colors.ink, fontWeight: '600', fontVariant: ['tabular-nums'] },
   bar: { height: 8, width: 80, borderRadius: 4, overflow: 'hidden', flexDirection: 'row', backgroundColor: alpha(colors.ink, 0.10) },
