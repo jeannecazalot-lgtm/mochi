@@ -8,7 +8,7 @@
 //   pains   : { [task_id]: { [member_id]: 'like' | 'hate' } }          ← 08
 //
 // Règle (SPECS §2)
-//   1. effort = durée × fréquence/sem × (1 + pénibilité × 0,2)
+//   1. effort = durée × fréquence/sem × (1 + pénibilité × 0,15) × (1,5 si charge mentale) + 15 min/tâche
 //      — pénibilité PERSO : celle du catalogue ± 1 selon aimée/détestée (bornée 1-4)
 //   2. cible 50/50 sur l'effort total
 //   3. allocation du plus gros effort au plus petit, au membre le moins
@@ -22,14 +22,18 @@
 //            loads: { [member_id]: effort }, state: 'ok' | 'review' }
 // ═══════════════════════════════════════════════════════════════════
 
+import { chargeOf, TASK_WEIGHT_MIN } from './charge';
+
 const painFor = (task, memberId, pains) => {
   const p = pains?.[task.id]?.[memberId];
   const base = task.pain ?? 2;
   return Math.min(5, Math.max(1, base + (p === 'hate' ? 1 : p === 'like' ? -1 : 0))); // pénibilité catalogue 1-5
 };
 
+// Formule unifiée avec l'onglet Balance (src/charge.js, 8 sept 2026) : minutes × fréquence
+// pondérées par la pénibilité perso et la charge mentale, + 15 min « pour y penser ».
 const effortFor = (task, memberId, pains) =>
-  task.duration_min * task.per_week * (1 + painFor(task, memberId, pains) * 0.2);
+  chargeOf(task.duration_min * task.per_week, painFor(task, memberId, pains), task.mental_load) + TASK_WEIGHT_MIN;
 
 export function computeDispatch({ members, tasks, pains = {} }) {
   if (!members?.length || !tasks?.length) return { items: [], loads: {}, state: 'ok' };

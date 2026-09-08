@@ -7,6 +7,7 @@ import { me, partner } from './demo';
 import { weekDays } from './demo-core';
 import { localIso } from './dates';
 import copy from './data/copy.json';
+import { chargeOf, TASK_WEIGHT_MIN } from './charge';
 
 // numéro de semaine ISO
 export const isoWeek = d => {
@@ -16,14 +17,19 @@ export const isoWeek = d => {
   return 1 + Math.round(((x - w1) / 86400000 - 3 + ((w1.getDay() + 6) % 7)) / 7);
 };
 
-export const scoreOf = o => (o.duration_min || 0) * (1 + (o.pain ?? 3) * 0.15) * (o.mental_load ? 1.5 : 1);
+export const scoreOf = o => chargeOf(o.duration_min, o.pain, o.mental_load);
 
 export function computeRealBalance(occs, uid) {
-  const dones = occs.filter(o => o.status === 'done');
+  // Décision Jeanne (8 sept 2026) : la Balance est HEBDOMADAIRE — la semaine en cours
+  // (lundi → dimanche), remise à zéro au point hebdo ; le streak, lui, reste continu.
+  const wkIso = weekDays(new Date()).map(localIso);
+  const dones = occs.filter(o => o.status === 'done' && wkIso.includes(o.due_date));
   const mine = dones.filter(o => o.done_by === uid);
   const other = dones.filter(o => o.done_by && o.done_by !== uid);
-  const sMe = mine.reduce((a, o) => a + scoreOf(o), 0);
-  const sP = other.reduce((a, o) => a + scoreOf(o), 0);
+  // + 15 min « pour y penser » par tâche distincte portée cette semaine (src/charge.js)
+  const distinct = list => new Set(list.map(o => o.task_id)).size;
+  const sMe = mine.reduce((a, o) => a + scoreOf(o), 0) + distinct(mine) * TASK_WEIGHT_MIN;
+  const sP = other.reduce((a, o) => a + scoreOf(o), 0) + distinct(other) * TASK_WEIGHT_MIN;
   const tot = sMe + sP || 1;
   const gap = Math.abs(sMe - sP) / tot;
   const state = gap < 0.10 ? 'balanced' : gap <= 0.25 ? 'leaning' : 'unbalanced';

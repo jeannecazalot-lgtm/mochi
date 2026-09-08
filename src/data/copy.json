@@ -1041,7 +1041,7 @@
     "pillPremium": "Duo+",
     "statStreak": "Streak",
     "statTasks": "Tâches",
-    "statBalance": "Équilibre",
+    "statBalance": "Ma part",
     "days": "{n} j",
     "sectionMine": "Mes préférences",
     "sectionDuo": "Nos règles du duo",
@@ -1075,7 +1075,9 @@
     "leaveTitle": "Quitter le foyer ?",
     "leaveBody": "Tes missions et ton historique ici seront perdus. Tu pourras créer ou rejoindre un autre foyer.",
     "leaveOk": "Quitter",
-    "leaveCancel": "Rester"
+    "leaveCancel": "Rester",
+    "notifsSubReal": "Récap chaque jour à {time}",
+    "subscriptionFree": "Tout est inclus pendant le test"
   },
   "activity": {
     "_labels": {

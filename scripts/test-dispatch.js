@@ -4,10 +4,16 @@ const babel = require('@babel/core');
 const fs = require('fs');
 const path = require('path');
 
+// chargeur minimal : les imports relatifs (./charge) passent aussi par Babel
+const load = file => {
+  const code = babel.transformSync(fs.readFileSync(file, 'utf8'), { filename: file, presets: ['babel-preset-expo'], babelrc: false, configFile: false }).code;
+  const m = { exports: {} };
+  const req = name => (name.startsWith('.') ? load(path.join(path.dirname(file), name.endsWith('.js') ? name : name + '.js')) : require(name));
+  new Function('module', 'exports', 'require', code)(m, m.exports, req);
+  return m.exports;
+};
 const src = path.join(__dirname, '..', 'src', 'dispatch.js');
-const code = babel.transformSync(fs.readFileSync(src, 'utf8'), { filename: src, presets: ['babel-preset-expo'], babelrc: false, configFile: false }).code;
-const mod = { exports: {} };
-new Function('module', 'exports', 'require', code)(mod, mod.exports, require);
+const mod = { exports: load(src) };
 const { computeDispatch } = mod.exports;
 
 let failed = 0;
@@ -41,10 +47,12 @@ const T = (id, duration_min, per_week, pain = 2, extra = {}) => ({ id, duration_
   check('3. grosse tâche hors budget de A → B', gros.assignee_id === 'b', JSON.stringify(r.items));
 }
 
-// 4 · effort conforme à la formule durée × freq × (1 + pain × 0,2)
+// 4 · effort conforme à la formule unifiée (src/charge.js) : durée × freq × (1 + pain × 0,15) + 15
 {
   const r = computeDispatch({ members: [A, B], tasks: [T('t1', 15, 7, 2)] });
-  check('4. effort = 15×7×1,4 = 147', Math.abs(r.items[0].effort - 147) < 1e-9, String(r.items[0].effort));
+  check('4. effort = 15×7×1,3 + 15 = 151,5', Math.abs(r.items[0].effort - 151.5) < 1e-9, String(r.items[0].effort));
+  const rm = computeDispatch({ members: [A, B], tasks: [T('t2', 20, 1, 2, { mental_load: true })] });
+  check('4b. charge mentale ×1,5 : 20×1,3×1,5 + 15 = 54', Math.abs(rm.items[0].effort - 54) < 1e-9, String(rm.items[0].effort));
 }
 
 // 5 · déséquilibre irréductible → 'review' ; divisible → 'both' quand ça aide
