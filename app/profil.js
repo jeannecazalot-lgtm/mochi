@@ -7,7 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { GlowBg, Card, PillLabel, Avatar } from '../src/components/ui';
 import { BackButton, SectionMicro, SettingRow } from '../src/components/premium/extra';
 import { me, partner, household, streak, balance } from '../src/demo';
-import { duoSince, daysSince, lifetime, duoRules, prefs, isPremium } from '../src/demo-premium';
+import { duoSince, daysSince, lifetime, duoRules, prefs, isPremium, ALL_FREE } from '../src/demo-premium';
 import { signOut } from '../src/auth';
 import { clearSetup, loadSetup, inRealMode, setup } from '../src/setup-state';
 import { resetIdentity, getUid, loadIdentity, useIdentity } from '../src/identity';
@@ -90,7 +90,7 @@ export default function Profil() {
                 {duoParts[0]}<Text style={{ color: slotColors[partner.slot].deep, fontWeight: '600' }}>{partner.first_name}</Text>{duoParts[1]}
               </Text>
             </View>
-            {premium ? <PillLabel color={colors.butter}>{t.pillPremium}</PillLabel> : null}
+            {premium && !ALL_FREE ? <PillLabel color={colors.butter}>{t.pillPremium}</PillLabel> : null}
           </View>
 
           <View style={{ paddingHorizontal: 22, flexDirection: 'row', gap: 8, marginBottom: 16 }}>
@@ -105,7 +105,7 @@ export default function Profil() {
           <View style={{ paddingHorizontal: 22 }}>
             <SectionMicro>{t.sectionMine}</SectionMicro>
             <View style={{ gap: 6 }}>
-              <SettingRow emoji="🔔" title={t.notifs} sub={fill(t.notifsSub, { n: duoRules.reminder_before_min })} onPress={() => router.push('/notifs')} />
+              <SettingRow emoji="🔔" title={t.notifs} sub={real && setup.reminder ? fill(t.notifsSubReal, { time: String(setup.reminder).replace(':', ' h ') }) : fill(t.notifsSub, { n: duoRules.reminder_before_min })} onPress={() => router.push('/notifs')} />
               <SettingRow emoji="🗓" title={t.dispos}
                 sub={!mine || (!mine.slots && !mine.h) ? t.notSet : fill(mine.slots === 1 ? t.disposSubOne : t.disposSubReal, { n: mine.slots }) + (mine.h ? fill(t.disposSubHours, { h: mine.h }) : '')}
                 onPress={() => router.push('/(setup)/dispos?mode=settings')} />
@@ -121,7 +121,7 @@ export default function Profil() {
               <SettingRow emoji="⚖️" title={t.thresholds} sub={fill(t.thresholdsSub, { warn: duoRules.threshold_warn_pct, alert: duoRules.threshold_alert_pct })}
                 right={<Text style={s.value}>{fill(t.thresholdsValue, { warn: duoRules.threshold_warn_pct, alert: duoRules.threshold_alert_pct })}</Text>} />
               <SettingRow emoji="🎯" title={t.malus} sub={t.malusSub} onPress={() => router.push('/point-hebdo')} />
-              <SettingRow emoji="💳" title={t.subscription} sub={premium ? fill(t.subscriptionOn, { date: fmtDate(household.premium_until) }) : t.subscriptionOff} onPress={() => router.push('/paywall')} />
+              <SettingRow emoji="💳" title={t.subscription} sub={ALL_FREE ? t.subscriptionFree : premium ? fill(t.subscriptionOn, { date: fmtDate(household.premium_until) }) : t.subscriptionOff} onPress={() => router.push('/paywall')} />
               <SettingRow emoji="🗺" title={t.plan} sub={t.planSub} onPress={() => router.push('/plan')} />
             </View>
 
