@@ -47,4 +47,8 @@ export function monthOccurrences(year, month) {
   return map;
 }
 
-export const isPremium = () => Boolean(household.premium_until) && new Date(household.premium_until) > today;
+// Décision Jeanne (8 sept 2026) : TOUT est gratuit le temps du test — « on statuera sur
+// ce qui est payant et on fera les paywalls plus tard ». Repasser ALL_FREE à false
+// (et brancher RevenueCat) pour réactiver les verrous Duo+ (vue Mois, Budget…).
+export const ALL_FREE = true;
+export const isPremium = () => ALL_FREE || (Boolean(household.premium_until) && new Date(household.premium_until) > today);

@@ -73,7 +73,7 @@ export default function Budget() {
   // sans abonnement, l'onglet montre sa promesse verrouillée + l'accès au paywall (37).
   // 5 sept 2026 : « mets-le gratuit pour le moment » — verrou désactivé le temps
   // du test, à réactiver (BUDGET_FREE = false) quand RevenueCat sera branché.
-  const BUDGET_FREE = true;
+  const BUDGET_FREE = true; // redondant avec ALL_FREE (demo-premium) — gardé pour un verrou Budget seul
   useIdentity();
   const occV = occStore.useVersion();
   const [real, setReal] = useState(null);
