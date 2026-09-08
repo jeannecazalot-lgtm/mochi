@@ -9,7 +9,8 @@ import { Stack } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import { colors, motion, radius, alpha } from '../src/theme';
-import { loadIdentity } from '../src/identity';
+import { loadIdentity, loadPartner } from '../src/identity';
+import { loadSetup, setup } from '../src/setup-state';
 import { listenNotificationTaps } from '../src/push';
 import { startDayWatch } from '../src/day-watch';
 
@@ -55,7 +56,9 @@ const s = StyleSheet.create({
 
 export default function RootLayout() {
   // identité réelle (prénom + photo du profil Supabase) chargée dès la racine
-  React.useEffect(() => { loadIdentity(); const stopDay = startDayWatch(); const stopTaps = listenNotificationTaps(url => router.push(url)); return () => { stopDay(); stopTaps && stopTaps(); }; }, []);
+  // le binôme (prénom/photo) se charge aussi à la racine : une arrivée directe (notification,
+  // lien) sans passer par l'Accueil affichait encore le prénom de démo (audit 8 sept 2026)
+  React.useEffect(() => { loadIdentity().then(() => loadSetup()).then(() => { if (setup.householdId) loadPartner(setup.householdId); }); const stopDay = startDayWatch(); const stopTaps = listenNotificationTaps(url => router.push(url)); return () => { stopDay(); stopTaps && stopTaps(); }; }, []);
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.bg }}>
       <StatusBar style="dark" />
