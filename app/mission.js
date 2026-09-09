@@ -26,7 +26,9 @@ import { colors, space, font, alpha, motion } from '../src/theme';
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
 const fmtAmount = cents => `${(cents / 100).toFixed(2).replace('.', ',')} €`;
 const CLOSE_AFTER = 1200; // la confirmation reste visible avant la fermeture automatique
-const layout = LinearTransition.springify().damping(motion.spring.damping).stiffness(motion.spring.stiffness);
+// Retour Jeanne 9 sept 2026 (« j'aime pas comment bouge Modifier la tâche ») : plus de ressort,
+// les cartes glissent en douceur et sans rebond quand une section se déplie au-dessus.
+const layout = LinearTransition.duration(260);
 
 export default function Mission() {
   const { occ: occId, tid, title, mins, rule: ruleParam } = useLocalSearchParams(); // rule=1 : règle dépliée d'entrée (captures)
