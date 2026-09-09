@@ -6,14 +6,13 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
-import { Card, Micro, PillLabel } from '../src/components/ui';
-import { LiveMochi } from '../src/components/motion';
-import { SheetHandle, Chevron } from '../src/components/social/extra';
-import { partner, fmtMin } from '../src/demo';
+import { Card, Avatar } from '../src/components/ui';
+import { SheetHandle, CheckCircle } from '../src/components/social/extra';
+import { me, partner, fmtMin } from '../src/demo';
 import { missionDone } from '../src/demo-core';
 import { moveOccurrence, toggleOccurrence, takeOver, giveBack, wasPartnersTask } from '../src/occ-actions';
-import { ConfirmBlock, PillChip, Caption } from '../src/components/task/proto';
-import { Animated, FadeIn } from '../src/components/motion';
+import { Row, ConfirmBlock, PillChip, Caption, Arrow } from '../src/components/task/proto';
+import { Animated, FadeIn, useCheckPop } from '../src/components/motion';
 import { useSheetGrow } from '../src/components/sheet-grow';
 import { fmtWeekday } from '../src/demo-task';
 import { sendPing } from '../src/activity-actions';
@@ -23,7 +22,7 @@ import { read } from '../src/store';
 import { requestSwap } from '../src/swap-actions';
 import { localIso, addDaysIso } from '../src/dates';
 import copy from '../src/data/copy.json';
-import { colors, space, radius, font, alpha, motion } from '../src/theme';
+import { colors, space, font, motion } from '../src/theme';
 
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
 const CLOSE_AFTER = 1700; // la confirmation reste lisible avant la fermeture (comme la sheet Tâche)
@@ -72,14 +71,17 @@ export default function Retard() {
     const d = new Date(Date.now() + (i + 1) * 86400000);
     return { iso: localIso(d), label: copy.calendar.dowsLong[(d.getDay() + 6) % 7].toLowerCase(), long: fmtWeekday(d) };
   });
+  const pop = useCheckPop(!!confirm && confirm.kind === 'done');
   const doNow = () => {
+    if (confirm) return;
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
     if (occId) {
       missionDone.set(String(occId), true);
       toggleOccurrence(String(occId), true, Number(mins) || undefined).catch(() => {});
       clearMalusFor(String(occId)).catch(() => {}); // faite, même en retard : le malus s'efface
     }
-    close();
+    setConfirm({ kind: 'done', title: copy.mission.confirmDone, sub: fill(copy.mission.doneSub, { time: fmtMin(Number(mins) || 15) }) });
+    setTimeout(close, 1200);
   };
   const swap = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
@@ -113,12 +115,24 @@ export default function Retard() {
     else Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
   };
 
+  // ─── même langage que la sheet Tâche (Jeanne, 10 sept 2026 : « unifie l'UI ») :
+  // titre + rond, ligne méta, puis des lignes dans des cartes — ni émoji ni Mochi.
+  const who = other ? partner : me;
   const head = (
     <View style={s.head}>
-      <LiveMochi size={54} mood={confirm ? 'happy' : 'sad'} float={false} />
-      <View style={{ flex: 1 }}>
-        <Text style={s.headTitle} numberOfLines={1}>{emoji ? `${emoji} ` : ''}{title || t.fallbackTitle}</Text>
-        <Text style={s.headSub}>{other ? fill(t.lateCaptionOther, { n: daysLate, name: partner.first_name }) : v === 'a' && points != null ? fill(t.lateCaptionMalus, { n: daysLate, pts: fmtPts(points) }) : fill(t.lateCaption, { n: daysLate })}</Text>
+      <View style={s.titleRow}>
+        <Text style={[s.title, { flex: 1 }]} numberOfLines={2}>{title || t.fallbackTitle}</Text>
+        {other ? null : (
+          <Pressable onPress={doNow} hitSlop={12} accessibilityRole="button" accessibilityLabel={copy.mission.doneLabel}>
+            <Animated.View style={pop}><CheckCircle done={!!confirm && confirm.kind === 'done'} size={26} /></Animated.View>
+          </Pressable>
+        )}
+      </View>
+      <View style={s.meta}>
+        <Avatar initial={who.initial} color={who.color} photo={who.avatar_url} size={18} />
+        <Text style={s.metaTxt}>{other ? partner.first_name : copy.mission.metaYou} · </Text>
+        <Text style={[s.metaTxt, s.late]}>{fill(t.lateCaption, { n: daysLate })}</Text>
+        <Text style={s.metaTxt}> · {fill(copy.mission.metaApprox, { time: fmtMin(Number(mins) || 15) })}</Text>
       </View>
     </View>
   );
@@ -131,92 +145,35 @@ export default function Retard() {
       </View>
     );
   }
+  const pAvatar = <Avatar initial={partner.initial} color={partner.color} photo={partner.avatar_url} size={22} />;
   return (
     <View style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 31) }]} onLayout={onGrowLayout}>
       <SheetHandle />
       {head}
 
       {other ? (
-        <>
-          <Micro style={{ marginBottom: 7 }}>{t.recommended}</Micro>
-          <Pressable onPress={ping} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
-            <Card r={radius.row} padding={0} style={{ marginBottom: 12 }} accent={colors.sage}>
-              <View style={s.optRow}>
-                <Text style={{ fontSize: 19 }}>🌷</Text>
-                <View style={{ flex: 1 }}>
-                  <Text style={s.optLabel}>{fill(t.pingOther, { name: partner.first_name })}</Text>
-                  <Text style={s.optSub}>{t.pingOtherSub}</Text>
-                </View>
-                <Chevron />
-              </View>
-            </Card>
-          </Pressable>
-          <Micro style={{ marginBottom: 7 }}>{t.orElse}</Micro>
-          <Pressable onPress={take} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
-            <Card r={radius.row} padding={0}>
-              <View style={s.optRow}>
-                <Text style={{ fontSize: 19 }}>🤝</Text>
-                <View style={{ flex: 1 }}>
-                  <Text style={s.optLabel}>{t.takeOther}</Text>
-                  <Text style={s.optSub}>{fill(t.takeOtherSub, { name: partner.first_name })}</Text>
-                </View>
-                <Chevron />
-              </View>
-            </Card>
-          </Pressable>
-        </>
+        <Card r={16} padding={0}>
+          <Row first strong label={fill(t.pingOther, { name: partner.first_name })} sub={t.pingOtherSub} left={pAvatar} right={<PillChip label={t.pingBtn} selected onPress={ping} />} onPress={ping} />
+          <Row strong label={t.takeOther} sub={fill(t.takeOtherSub, { name: partner.first_name })} left={<Avatar initial={me.initial} color={me.color} photo={me.avatar_url} size={22} />} right={<Arrow />} onPress={take} />
+        </Card>
       ) : (
-      <>
-
-      <Micro style={{ marginBottom: 7 }}>{t.recommended}</Micro>
-      <Pressable onPress={doNow} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
-        <Card r={radius.row} padding={0} style={{ marginBottom: 12 }} accent={colors.sage}>
-          <View style={s.optRow}>
-            <Text style={{ fontSize: 19 }}>✅</Text>
-            <View style={{ flex: 1 }}>
-              <Text style={s.optLabel}>{t.doNow}</Text>
-              <Text style={s.optSub}>{v === 'b' && points != null ? fill(t.doNowSubMalus, { time: fmtMin(Number(mins) || 15), pts: fmtPts(points) }) : fill(t.doNowSub, { time: fmtMin(Number(mins) || 15) })}</Text>
-            </View>
-            <Chevron />
-          </View>
-        </Card>
-      </Pressable>
-
-      <Micro style={{ marginBottom: 7 }}>{t.orElse}</Micro>
-      <Pressable onPress={theirs ? give : swap} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
-        <Card r={radius.row} padding={0} style={{ marginBottom: 6 }}>
-          <View style={s.optRow}>
-            <Text style={{ fontSize: 19 }}>🤝</Text>
-            <View style={{ flex: 1 }}>
-              <Text style={s.optLabel}>{fill(theirs ? t.giveBack : t.swap, { name: partner.first_name })}</Text>
-              <Text style={s.optSub}>{theirs ? t.giveBackSub : fill(t.swapSub, { name: partner.first_name })}</Text>
-            </View>
-            <Chevron />
-          </View>
-        </Card>
-      </Pressable>
-      <Pressable onPress={() => { Haptics.selectionAsync().catch(() => {}); setAsking(a => !a); setMoveMsg(null); }} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
-        <Card r={radius.row} padding={0}>
-          <View style={s.optRow}>
-            <Text style={{ fontSize: 19 }}>⏰</Text>
-            <View style={{ flex: 1 }}>
-              <Text style={s.optLabel}>{t.moveOther}</Text>
-              <Text style={s.optSub}>{t.moveOtherSub}</Text>
-            </View>
-            <Text style={[s.chev, asking && { transform: [{ rotate: '90deg' }] }]}>›</Text>
-          </View>
-          {asking ? (
-            <Animated.View entering={FadeIn.duration(motion.micro)} style={s.moveBox}>
-              <View style={s.days}>
-                {days.map(d => <PillChip key={d.iso} flex label={d.label} dim={busy.includes(d.iso)} onPress={() => moveTo(d)} />)}
-              </View>
-              <Caption style={{ textAlign: 'left' }}>{moveMsg || fill(copy.mission.moveWarn, { name: partner.first_name })}</Caption>
-            </Animated.View>
-          ) : null}
-        </Card>
-      </Pressable>
-      {v === 'c' && points != null ? <Text style={s.footer}>{fill(t.footerMalus, { pts: fmtPts(points) })}</Text> : null}
-      </>
+        <>
+          <Card r={16} padding={0} style={s.block} accent={colors.sage}>
+            <Row first strong label={t.doNow} sub={points != null ? fill(t.doNowSubMalus, { time: fmtMin(Number(mins) || 15), pts: fmtPts(points) }) : fill(t.doNowSub, { time: fmtMin(Number(mins) || 15) })} right={<Arrow />} onPress={doNow} />
+          </Card>
+          <Card r={16} padding={0}>
+            <Row first strong label={fill(theirs ? t.giveBack : t.swap, { name: partner.first_name })} sub={theirs ? t.giveBackSub : fill(t.swapSub, { name: partner.first_name })} left={pAvatar} right={<PillChip label={theirs ? t.giveBtn : copy.mission.swapBtn} selected onPress={theirs ? give : swap} />} onPress={theirs ? give : swap} />
+            <Row strong label={t.moveOther} sub={t.moveOtherSub} right={<Text style={[s.chev, asking && { transform: [{ rotate: '90deg' }] }]}>›</Text>} onPress={() => { Haptics.selectionAsync().catch(() => {}); setAsking(a => !a); setMoveMsg(null); }} />
+            {asking ? (
+              <Animated.View entering={FadeIn.duration(motion.micro)} style={s.moveBox}>
+                <View style={s.days}>
+                  {days.map(d => <PillChip key={d.iso} flex label={d.label} dim={busy.includes(d.iso)} onPress={() => moveTo(d)} />)}
+                </View>
+                <Caption style={{ textAlign: 'left' }}>{moveMsg || fill(copy.mission.moveWarn, { name: partner.first_name })}</Caption>
+              </Animated.View>
+            ) : null}
+          </Card>
+        </>
       )}
     </View>
   );
@@ -224,15 +181,13 @@ export default function Retard() {
 
 const s = StyleSheet.create({
   sheet: { backgroundColor: colors.card, paddingTop: 10, paddingHorizontal: space.screenX },
-  head: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 4, marginBottom: 12 },
-  headTitle: { fontSize: 17, fontWeight: '600', letterSpacing: -0.3, color: colors.ink },
-  headSub: { ...font.caption, color: colors.coralDeep, marginTop: 3 },
-  footer: { ...font.caption, textAlign: 'center', marginTop: 14 },
-  warn: { backgroundColor: alpha(colors.coral, 0.14), borderRadius: 12, paddingVertical: 10, paddingHorizontal: 13, marginBottom: 13 },
-  warnTxt: { fontSize: 13.5, fontWeight: '500', color: colors.coralDeep, lineHeight: 19 },
-  optRow: { flexDirection: 'row', alignItems: 'center', gap: 13, paddingVertical: 13, paddingHorizontal: 14 },
-  optLabel: { fontSize: 15.5, fontWeight: '600', color: colors.ink },
-  optSub: { ...font.caption, marginTop: 3 },
+  head: { marginTop: 2, marginBottom: 12, paddingHorizontal: 2, gap: 4 },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  title: { ...font.cardTitle },
+  meta: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  metaTxt: { fontSize: 13, fontWeight: '400', color: colors.muted },
+  late: { color: colors.coralDeep, fontWeight: '600' },
+  block: { marginBottom: 8 },
   chev: { fontSize: 16, color: colors.muted },
   moveBox: { paddingHorizontal: 14, paddingBottom: 12, gap: 9, borderTopWidth: 1, borderTopColor: colors.line, paddingTop: 10 },
   days: { flexDirection: 'row', gap: 6 },

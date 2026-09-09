@@ -1352,7 +1352,9 @@
     "confirmGiveBack": "Rendu à {name}",
     "confirmGiveBackSub": "{name} recevra une notification",
     "confirmPing": "Rappel envoyé à {name}",
-    "confirmPingSub": "« Quand tu as un moment… »"
+    "confirmPingSub": "« Quand tu as un moment… »",
+    "pingBtn": "Envoyer",
+    "giveBtn": "Rendre"
   },
   "malus": {
     "_labels": {
