@@ -64,7 +64,7 @@ export default function Mission() {
   const grown = ruleOpen || asking || expenseOpen || timing;
   useEffect(() => {
     if (!grown) { navigation.setOptions({ sheetAllowedDetents: 'fitToContents' }); return; }
-    const id = setTimeout(() => { if (contentH) navigation.setOptions({ sheetAllowedDetents: [Math.min(0.92, (contentH + 6) / winH)] }); }, 450);
+    const id = setTimeout(() => { if (contentH) navigation.setOptions({ sheetAllowedDetents: [Math.min(0.92, (contentH + 12) / (winH - insets.top - 10))] }); }, 450);
     return () => clearTimeout(id);
   }, [grown, contentH]);
   const dirty = useRef(false);
