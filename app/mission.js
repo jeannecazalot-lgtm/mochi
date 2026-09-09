@@ -232,7 +232,7 @@ export default function Mission() {
                 <Row first strong label={t.noTimeLabel} sub={(!m.occ?.assignee_id ? t.noTimeSubBoth : fill(t.noTimeSub, { name: partner.first_name }))} right={<Arrow />} onPress={() => { Haptics.selectionAsync().catch(() => {}); setAsking(true); }} />
               ) : (
                 <Animated.View entering={FadeIn.duration(motion.micro)}>
-                  <Row first strong label={t.noTimeLabel} left={<Text style={s.back}>‹</Text>} onPress={() => { Haptics.selectionAsync().catch(() => {}); setAsking(false); setMoveMsg(null); }} />
+                  <Row first strong label={t.noTimeLabel} onPress={() => { Haptics.selectionAsync().catch(() => {}); setAsking(false); setMoveMsg(null); }} />
                   <View style={s.moveBox}>
                     <Micro>{t.moveLabel}</Micro>
                     <View style={s.days}>
