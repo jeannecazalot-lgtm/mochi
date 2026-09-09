@@ -25,7 +25,7 @@ import { colors, space, font, alpha, motion } from '../src/theme';
 
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
 const fmtAmount = cents => `${(cents / 100).toFixed(2).replace('.', ',')} €`;
-const CLOSE_AFTER = 900; // la confirmation reste visible avant la fermeture automatique
+const CLOSE_AFTER = 1200; // la confirmation reste visible avant la fermeture automatique
 const layout = LinearTransition.springify().damping(motion.spring.damping).stiffness(motion.spring.stiffness);
 
 export default function Mission() {
@@ -75,7 +75,7 @@ export default function Mission() {
 
   const patchRule = p => { dirty.current = true; setRule(r => ({ ...r, ...p })); Haptics.selectionAsync().catch(() => {}); };
   const close = () => router.back();
-  const finish = kind => { setConfirm(kind); setTimeout(close, CLOSE_AFTER); };
+  const finish = kind => { setConfirm(kind); if (kind === 'done') setTimeout(close, CLOSE_AFTER); };
 
   const undo = () => {
     if (!m) return;
@@ -86,7 +86,10 @@ export default function Mission() {
   };
   const markDone = async () => {
     if (already) { undo(); return; }
-    if (done || !m) return;
+    if (!m) return;
+    // re-tap sur le rond avant « C'est noté » : on annule la coche (retour Jeanne 9 sept 2026)
+    if (timing) { setTiming(false); setDone(false); setAmount(''); missionDone.set(m.occ.id, false); Haptics.selectionAsync().catch(() => {}); return; }
+    if (done) return;
     setDone(true);
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
     missionDone.set(m.occ.id, true);
@@ -159,12 +162,13 @@ export default function Mission() {
         <SheetHandle />
         {head}
         <Animated.View entering={FadeIn.duration(motion.micro)}><ConfirmBlock {...props} /></Animated.View>
+        {confirm === 'done' ? null : <Card r={16} padding={0} style={{ marginTop: 8 }}><Row first strong label={t.closeLabel} onPress={close} /></Card>}
       </View>
     );
   }
 
   // résumé de la règle (une ligne) : jours · qui · durée
-  const ruleSummary = [rule.window_days.length ? rule.window_days.map(i => copy.calendar.dowsLong[i].toLowerCase()).join(', ') : t.ruleAnyDay, t.who[rule.who] || partner.first_name, fmtMin(rule.duration_min)].join(' · ');
+  const ruleSummary = [rule.window_days.length ? rule.window_days.map(i => copy.calendar.dowsLong[i].toLowerCase()).join(', ') : t.ruleAnyDay, t.who[rule.who] || partner.first_name].join(' · ');
 
   // ─── la tâche de l'AUTRE : lecture seule + « Je m'en occupe » (retour Jeanne 7 sept 2026) ───
   if (!m.mine) {
@@ -184,29 +188,46 @@ export default function Mission() {
     );
   }
 
-  // ─── ma tâche : ce moment-ci → la règle (repliable, en place) → dépense en dernier ───
-  // (ordre décidé par Jeanne le 7 sept 2026 ; la règle ne masque plus le reste : retour Ketlon
-  // « comment je retourne avant ? » — tap sur « La règle » replie)
+  // ─── ma tâche (v3, retours Jeanne 9 sept 2026 : « assez brouillon ») ───
+  // Trois états qui se REMPLACENT sous le titre, jamais empilés :
+  //   · d'abord : « Je n'aurai pas le temps » (→ déplacer / repasser) + « Modifier la tâche »
+  //   · après la coche : temps passé + dépense + « C'est noté »
+  //   · « Modifier la tâche » : sous-page avec retour ‹ en tête (on sait où on est)
+  const expenseRight = expenseOpen
+    ? <View style={s.amountBox}><TextInput value={amount} onChangeText={setAmount} placeholder={t.expensePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)} keyboardType="decimal-pad" style={s.amountInput} /><Text style={s.amountUnit}>€</Text></View>
+    : <PillChip label={cents ? fmtAmount(cents) : t.expenseAdd} selected={!!cents} onPress={() => setExpenseOpen(true)} />;
   return (
     <KeyboardAvoidingView behavior="padding" style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 31) }]}>
       <SheetHandle />
       {head}
 
-      <Animated.View layout={layout}>
-        <Card r={16} padding={0} style={s.block}>
-          {already ? (
-            <Row first strong label={t.doneAlready} sub={t.doneAlreadySub} onPress={undo} />
-          ) : (
-            <>
-              {timing ? (
-                <Animated.View entering={FadeIn.duration(motion.micro)}>
-                  <Row first label={t.timeLabel} sub={t.timeAfterSub} right={<Stepper value={fmtMin(spent)} onMinus={() => setSpent(v => Math.max(5, v - 5))} onPlus={() => setSpent(v => v + 5)} />} />
-                  <Row strong label={t.timeConfirm} right={<Arrow />} onPress={confirmTime} />
-                </Animated.View>
+      {ruleOpen ? (
+        <Animated.View entering={FadeIn.duration(motion.micro)} layout={layout}>
+          <Card r={16} padding={0}>
+            <Row first strong label={t.ruleLabel} left={<Text style={s.back}>‹</Text>} onPress={() => { Haptics.selectionAsync().catch(() => {}); setRuleOpen(false); }} />
+            {/* pas de durée ici : « Temps passé » se règle à la coche (Jeanne, 9 sept 2026) */}
+            <RuleEditor rule={rule} onPatch={patchRule} showMoment showEffort showDuration={false} first={false} />
+          </Card>
+        </Animated.View>
+      ) : timing ? (
+        <Animated.View entering={FadeIn.duration(motion.micro)} layout={layout}>
+          <Card r={16} padding={0}>
+            <Row first label={t.timeLabel} sub={t.timeAfterSub} right={<Stepper value={fmtMin(spent)} onMinus={() => setSpent(v => Math.max(5, v - 5))} onPlus={() => setSpent(v => v + 5)} />} />
+            <Row label={t.expenseLabel} sub={t.expenseAfterSub} right={expenseRight} />
+            <Row strong label={t.timeConfirm} right={<Arrow />} onPress={confirmTime} />
+          </Card>
+        </Animated.View>
+      ) : (
+        <>
+          <Animated.View layout={layout}>
+            <Card r={16} padding={0} style={s.block}>
+              {already ? (
+                <Row first strong label={t.doneAlready} sub={t.doneAlreadySub} onPress={undo} />
               ) : !asking ? (
                 <Row first strong label={t.noTimeLabel} sub={(!m.occ?.assignee_id ? t.noTimeSubBoth : fill(t.noTimeSub, { name: partner.first_name }))} right={<Arrow />} onPress={() => { Haptics.selectionAsync().catch(() => {}); setAsking(true); }} />
               ) : (
                 <Animated.View entering={FadeIn.duration(motion.micro)}>
+                  <Row first strong label={t.noTimeLabel} left={<Text style={s.back}>‹</Text>} onPress={() => { Haptics.selectionAsync().catch(() => {}); setAsking(false); setMoveMsg(null); }} />
                   <View style={s.moveBox}>
                     <Micro>{t.moveLabel}</Micro>
                     <View style={s.days}>
@@ -218,31 +239,14 @@ export default function Mission() {
                   {!m.occ?.assignee_id ? null : <Row strong label={fill(t.swapLabel, { name: partner.first_name })} sub={fill(t.swapSub, { name: partner.first_name })} left={<Avatar initial={partner.initial} color={partner.color} photo={partner.avatar_url} size={22} />} right={<Arrow />} onPress={swap} />}
                 </Animated.View>
               )}
-            </>
-          )}
-        </Card>
-      </Animated.View>
-
-      {timing ? null : <Animated.View layout={layout}>
-        <Card r={16} padding={0} style={s.block}>
-          <Row first label={t.ruleLabel} sub={ruleOpen ? null : ruleSummary} right={<Arrow />} onPress={() => { Haptics.selectionAsync().catch(() => {}); setRuleOpen(o => !o); }} />
-          {ruleOpen ? (
-            <Animated.View entering={FadeIn.duration(motion.micro)}>
-              {/* pas de durée ici : « Temps passé » juste au-dessus suffit (Jeanne, 9 sept 2026) */}
-              <RuleEditor rule={rule} onPatch={patchRule} showMoment showEffort showDuration={false} />
-            </Animated.View>
-          ) : null}
-        </Card>
-      </Animated.View>}
-
-      {already ? null : (
-        <Animated.View layout={layout}>
-          <Card r={16} padding={0}>
-            <Row first label={t.expenseLabel} right={expenseOpen
-              ? <View style={s.amountBox}><TextInput value={amount} onChangeText={setAmount} placeholder={t.expensePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)} keyboardType="decimal-pad" style={s.amountInput} /><Text style={s.amountUnit}>€</Text></View>
-              : <PillChip label={cents ? fmtAmount(cents) : t.expenseAdd} selected={!!cents} onPress={() => setExpenseOpen(true)} />} />
-          </Card>
-        </Animated.View>
+            </Card>
+          </Animated.View>
+          <Animated.View layout={layout}>
+            <Card r={16} padding={0}>
+              <Row first label={t.ruleLabel} sub={ruleSummary} right={<Arrow />} onPress={() => { Haptics.selectionAsync().catch(() => {}); setRuleOpen(true); }} />
+            </Card>
+          </Animated.View>
+        </>
       )}
     </KeyboardAvoidingView>
   );
@@ -256,6 +260,7 @@ const s = StyleSheet.create({
   meta: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   metaTxt: { fontSize: 13, fontWeight: '400', color: colors.muted },
   block: { marginBottom: 8 },
+  back: { fontSize: 24, lineHeight: 26, color: colors.muted, marginRight: 10, marginTop: -2 },
   moveBox: { paddingVertical: 12, paddingHorizontal: 14, gap: 9, borderTopWidth: 1, borderTopColor: colors.line },
   days: { flexDirection: 'row', gap: 6 },
   amountBox: { flexDirection: 'row', alignItems: 'center', gap: 4, borderBottomWidth: 1.5, borderBottomColor: colors.ink, paddingBottom: 2 },

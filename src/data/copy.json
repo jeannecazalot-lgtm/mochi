@@ -345,7 +345,8 @@
   },
   "mission": {
     "_labels": {
-      "_": "Sheet Tâche v2 (6 sept 2026) — Accueil/Planning → tap sur une mission. Deux étages : ce moment-ci / la règle. {name} = prénom du binôme, {time} = durée, {amount} = dépense, {day} = jour"
+      "_": "Sheet Tâche v2 (6 sept 2026) — Accueil/Planning → tap sur une mission. Deux étages : ce moment-ci / la règle. {name} = prénom du binôme, {time} = durée, {amount} = dépense, {day} = jour",
+      "ruleLabel": "Rangée qui ouvre la sous-page jours / moment / qui / effort / note (ex-« La règle », 9 sept 2026)"
     },
     "metaYou": "Toi",
     "metaToday": "aujourd'hui",
@@ -363,7 +364,7 @@
     "moveWarn": "{name} recevra une notification",
     "swapLabel": "Repasser à {name}",
     "swapSub": "{name} devra accepter",
-    "ruleLabel": "La règle",
+    "ruleLabel": "Modifier la tâche",
     "ruleDays": "Quels jours",
     "ruleWho": "Qui s'en occupe",
     "ruleDuration": "Durée estimée",
@@ -393,7 +394,9 @@
     "noTimeSubBoth": "Déplacer à un autre jour",
     "ruleMoment": "Moment",
     "timeConfirm": "C'est noté",
-    "timeAfterSub": "Compté dans la balance"
+    "timeAfterSub": "Compté dans la balance",
+    "closeLabel": "Fermer",
+    "expenseAfterSub": "Si tu as payé quelque chose"
   },
   "pings": {
     "_labels": {
