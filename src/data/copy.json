@@ -1104,7 +1104,8 @@
       "taskCreated": "{name} a ajouté {task}",
       "settled": "{name} a remis le solde à zéro · {amount}",
       "budgetRemind": "{name} te rappelle le solde : {amount}",
-      "reminder": "{name} : petit rappel pour {task} 🙂"
+      "reminder": "{name} : petit rappel pour {task} 🙂",
+      "gaveBack": "{name} t'a rendu {task} · {day}"
     },
     "replies": {
       "thumbs": "👍",
@@ -1343,7 +1344,15 @@
     "pingOther": "Petit rappel à {name}",
     "pingOtherSub": "« Quand tu as un moment… » · notification",
     "takeOther": "Je m'en occupe",
-    "takeOtherSub": "{name} recevra une notification"
+    "takeOtherSub": "{name} recevra une notification",
+    "giveBack": "Rendre à {name}",
+    "giveBackSub": "C'était sa tâche · sans validation",
+    "moveOther": "Décaler à un autre jour",
+    "moveOtherSub": "Choisir le jour · +1 pt",
+    "confirmGiveBack": "Rendu à {name}",
+    "confirmGiveBackSub": "{name} recevra une notification",
+    "confirmPing": "Rappel envoyé à {name}",
+    "confirmPingSub": "« Quand tu as un moment… »"
   },
   "malus": {
     "_labels": {
@@ -1600,7 +1609,8 @@
     "reaction": "{reply} de {name}",
     "settled": "{name} a remis le solde à zéro · {amount}",
     "budgetRemind": "{name} te rappelle : tu lui dois {amount}",
-    "reminder": "{name} : petit rappel pour « {task} » 🙂"
+    "reminder": "{name} : petit rappel pour « {task} » 🙂",
+    "gaveBack": "{name} t'a rendu « {task} » · {day}"
   },
   "mesReglages": {
     "_labels": {

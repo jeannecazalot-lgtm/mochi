@@ -3,8 +3,8 @@
 // (jours, qui, durée, note) repliée en bas. Jamais de push d'écran : tout se déplie en place.
 // Recette : docs/recettes/17c-sheet-tache-v2.md. `?occ=<id>` = occurrence (réelle ou démo).
 import React, { useEffect, useRef, useState } from 'react';
-import { router, useLocalSearchParams, useNavigation } from 'expo-router';
-import { View, Text, Pressable, TextInput, StyleSheet, KeyboardAvoidingView, useWindowDimensions } from 'react-native';
+import { router, useLocalSearchParams } from 'expo-router';
+import { View, Text, Pressable, TextInput, StyleSheet, KeyboardAvoidingView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { LinearTransition } from 'react-native-reanimated';
@@ -13,6 +13,7 @@ import { SheetHandle, CheckCircle } from '../src/components/social/extra';
 import { Animated, FadeIn, useCheckPop } from '../src/components/motion';
 import { Row, Stepper, PillChip, ConfirmBlock, Arrow, Caption } from '../src/components/task/proto';
 import { RuleEditor } from '../src/components/task/rule-editor';
+import { useSheetGrow } from '../src/components/sheet-grow';
 import { loadMission, saveRule, completeMission, parseAmount } from '../src/mission-data';
 import { moveOccurrence, toggleOccurrence, takeOver } from '../src/occ-actions';
 import { requestSwap } from '../src/swap-actions';
@@ -63,15 +64,7 @@ export default function Mission() {
   // On reste en fitToContents (la sheet suit son contenu, animée par iOS) ; en filet, 450 ms après
   // le dépliage, on fixe une détente à la hauteur MESURÉE du contenu — si iOS a déjà suivi, rien ne
   // bouge ; sinon la sheet prend juste la place qu'il faut, jamais plus.
-  const navigation = useNavigation();
-  const { height: winH } = useWindowDimensions();
-  const [contentH, setContentH] = useState(0);
-  const grown = ruleOpen || asking || expenseOpen || timing;
-  useEffect(() => {
-    if (!grown) { navigation.setOptions({ sheetAllowedDetents: 'fitToContents' }); return; }
-    const id = setTimeout(() => { if (contentH) navigation.setOptions({ sheetAllowedDetents: [Math.min(0.92, (contentH + 12) / (winH - insets.top - 10))] }); }, 450);
-    return () => clearTimeout(id);
-  }, [grown, contentH]);
+  const onGrowLayout = useSheetGrow(ruleOpen || asking || expenseOpen || timing);
   const dirty = useRef(false);
   const ruleRef = useRef(null);
 
@@ -245,7 +238,7 @@ export default function Mission() {
     ? <View style={s.amountBox}><TextInput value={amount} onChangeText={setAmount} placeholder={t.expensePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)} keyboardType="decimal-pad" style={s.amountInput} /><Text style={s.amountUnit}>€</Text></View>
     : <PillChip label={cents ? fmtAmount(cents) : t.expenseAdd} selected={!!cents} onPress={() => setExpenseOpen(true)} />;
   return (
-    <KeyboardAvoidingView behavior="padding" style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 31) }]} onLayout={e => setContentH(e.nativeEvent.layout.height)}>
+    <KeyboardAvoidingView behavior="padding" style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 31) }]} onLayout={onGrowLayout}>
       <SheetHandle />
       {head}
 

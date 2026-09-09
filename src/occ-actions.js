@@ -113,3 +113,33 @@ export async function applyRuleToOccurrences(task, rule) {
   rescheduleReminders();
   return true;
 }
+
+// « Rendre à l'autre » (Jeanne, 10 sept 2026) : quand c'était SA tâche de base (règle fixée sur
+// l'autre, ou tâche que j'avais reprise), elle lui revient tout de suite, sans validation.
+export async function giveBack(occId) {
+  const occs = await read('occurrences');
+  const row = occs.find(o => o.id === occId);
+  const puid = getPartnerUid();
+  if (!row || !puid) return false;
+  await mutate('occurrences', { ...row, assignee_id: puid, status: row.status === 'missed' ? 'pending' : row.status });
+  const tasks = await read('tasks');
+  const tk = tasks.find(x => x.id === row.task_id);
+  const vars = { task: (tk?.title || '…').toLowerCase(), day: dayLabelOf(row.due_date) };
+  logActivity({ type: 'ping', preset_key: 'gaveBack', occurrence_id: row.id, payload: vars }).catch(() => {});
+  pushToPartner('gaveBack', vars, '/(tabs)/planning');
+  occStore.bump();
+  rescheduleReminders();
+  return true;
+}
+// C'était la tâche de l'autre « de base » ? règle fixée sur lui, ou occurrence que j'ai reprise (« Je m'en occupe »)
+export async function wasPartnersTask(occId) {
+  const puid = getPartnerUid();
+  const uid = getUid();
+  if (!puid || !uid) return false;
+  const [occs, tasks, acts] = await Promise.all([read('occurrences'), read('tasks'), read('activity')]);
+  const row = occs.find(o => o.id === occId);
+  if (!row) return false;
+  const tk = tasks.find(x => x.id === row.task_id);
+  if (tk?.assign_mode === 'fixed' && tk.fixed_assignee === puid) return true;
+  return acts.some(a => a.preset_key === 'tookOver' && a.occurrence_id === occId && a.actor_id === uid);
+}
