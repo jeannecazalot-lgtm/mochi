@@ -3,8 +3,8 @@
 // (jours, qui, durée, note) repliée en bas. Jamais de push d'écran : tout se déplie en place.
 // Recette : docs/recettes/17c-sheet-tache-v2.md. `?occ=<id>` = occurrence (réelle ou démo).
 import React, { useEffect, useRef, useState } from 'react';
-import { router, useLocalSearchParams } from 'expo-router';
-import { View, Text, Pressable, TextInput, StyleSheet, KeyboardAvoidingView } from 'react-native';
+import { router, useLocalSearchParams, useNavigation } from 'expo-router';
+import { View, Text, Pressable, TextInput, StyleSheet, KeyboardAvoidingView, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { LinearTransition } from 'react-native-reanimated';
@@ -12,7 +12,8 @@ import { Card, Micro, Avatar, LinkText } from '../src/components/ui';
 import { SheetHandle, CheckCircle } from '../src/components/social/extra';
 import { Animated, FadeIn, useCheckPop } from '../src/components/motion';
 import { Row, Stepper, PillChip, ConfirmBlock, Arrow, Caption } from '../src/components/task/proto';
-import { loadMission, completeMission, parseAmount } from '../src/mission-data';
+import { RuleEditor } from '../src/components/task/rule-editor';
+import { loadMission, saveRule, completeMission, parseAmount } from '../src/mission-data';
 import { moveOccurrence, toggleOccurrence, takeOver } from '../src/occ-actions';
 import { requestSwap } from '../src/swap-actions';
 import { missionDone } from '../src/demo-core';
@@ -28,7 +29,7 @@ const CLOSE_AFTER = 1200; // la confirmation reste visible avant la fermeture au
 const layout = LinearTransition.springify().damping(motion.spring.damping).stiffness(motion.spring.stiffness);
 
 export default function Mission() {
-  const { occ: occId, tid, title, mins } = useLocalSearchParams();
+  const { occ: occId, tid, title, mins, rule: ruleParam } = useLocalSearchParams(); // rule=1 : règle dépliée d'entrée (captures)
   const insets = useSafeAreaInsets();
   const t = copy.mission;
   const [m, setM] = useState(null); // { real, occ, task, dueIso, mine }
@@ -36,7 +37,8 @@ export default function Mission() {
   const [amount, setAmount] = useState('');
   const [expenseOpen, setExpenseOpen] = useState(false);
   const [asking, setAsking] = useState(false);
-  const [rule, setRule] = useState(null); // résumé de la règle (jours · qui) — l'édition se fait dans la fiche tâche
+  const [ruleOpen, setRuleOpen] = useState(ruleParam === '1');
+  const [rule, setRule] = useState(null); // { window_days, who, duration_min, note }
   const [confirm, setConfirm] = useState(null); // 'done' | 'moved' | 'swap'
   const [movedTo, setMovedTo] = useState(null);
   const [moveMsg, setMoveMsg] = useState(null); // « Déjà prévue mardi »
@@ -52,8 +54,21 @@ export default function Mission() {
   // La sheet native (formSheet « fitToContents ») ne re-mesure pas quand le contenu GRANDIT : les
   // chips au-delà de la hauteur d'ouverture ne recevaient plus les touches (vu au simulateur le
   // 7 sept 2026). Quand la règle ou le report se déplient, on passe à une détente haute.
-  // Proposition A (Jeanne, 9 sept 2026 : « trop agressif comment le pop-up s'allonge ») : la sheet reste
-  // en fitToContents et ne saute plus à 92 % ; « Modifier la tâche » ouvre la fiche tâche PAR-DESSUS.
+  // Retour Jeanne 9 sept 2026 (« trop agressif comment le pop-up s'allonge ») : plus de saut à 92 %.
+  // On reste en fitToContents (la sheet suit son contenu, animée par iOS) ; en filet, 450 ms après
+  // le dépliage, on fixe une détente à la hauteur MESURÉE du contenu — si iOS a déjà suivi, rien ne
+  // bouge ; sinon la sheet prend juste la place qu'il faut, jamais plus.
+  const navigation = useNavigation();
+  const { height: winH } = useWindowDimensions();
+  const [contentH, setContentH] = useState(0);
+  const grown = ruleOpen || asking || expenseOpen || timing;
+  useEffect(() => {
+    if (!grown) { navigation.setOptions({ sheetAllowedDetents: 'fitToContents' }); return; }
+    const id = setTimeout(() => { if (contentH) navigation.setOptions({ sheetAllowedDetents: [Math.min(0.92, (contentH + 6) / winH)] }); }, 450);
+    return () => clearTimeout(id);
+  }, [grown, contentH]);
+  const dirty = useRef(false);
+  const ruleRef = useRef(null);
 
   useEffect(() => {
     loadMission({ occId, tid, title, mins }).then(r => {
@@ -66,7 +81,10 @@ export default function Mission() {
     });
   }, []);
   // la règle s'enregistre d'elle-même à la fermeture (pas de bouton Enregistrer)
+  useEffect(() => () => { if (dirty.current && ruleRef.current) saveRule(ruleRef.current.id, ruleRef.current); }, []);
+  useEffect(() => { if (m && rule) ruleRef.current = { id: m.task.id, ...rule }; }, [m, rule]);
 
+  const patchRule = p => { dirty.current = true; setRule(r => ({ ...r, ...p })); Haptics.selectionAsync().catch(() => {}); };
   const close = () => router.back();
   const finish = kind => { setConfirm(kind); if (kind === 'done') setTimeout(close, CLOSE_AFTER); };
 
@@ -190,11 +208,19 @@ export default function Mission() {
     ? <View style={s.amountBox}><TextInput value={amount} onChangeText={setAmount} placeholder={t.expensePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)} keyboardType="decimal-pad" style={s.amountInput} /><Text style={s.amountUnit}>€</Text></View>
     : <PillChip label={cents ? fmtAmount(cents) : t.expenseAdd} selected={!!cents} onPress={() => setExpenseOpen(true)} />;
   return (
-    <KeyboardAvoidingView behavior="padding" style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 31) }]}>
+    <KeyboardAvoidingView behavior="padding" style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 31) }]} onLayout={e => setContentH(e.nativeEvent.layout.height)}>
       <SheetHandle />
       {head}
 
-      {timing ? (
+      {ruleOpen ? (
+        <Animated.View entering={FadeIn.duration(motion.micro)} layout={layout}>
+          <Card r={16} padding={0}>
+            <Row first strong label={t.ruleLabel} left={<Text style={s.back}>‹</Text>} onPress={() => { Haptics.selectionAsync().catch(() => {}); setRuleOpen(false); }} />
+            {/* pas de durée ici : « Temps passé » se règle à la coche (Jeanne, 9 sept 2026) */}
+            <RuleEditor rule={rule} onPatch={patchRule} showMoment showEffort showDuration={false} first={false} />
+          </Card>
+        </Animated.View>
+      ) : timing ? (
         <Animated.View entering={FadeIn.duration(motion.micro)} layout={layout}>
           <Card r={16} padding={0}>
             <Row first label={t.timeLabel} sub={t.timeAfterSub} right={<Stepper value={fmtMin(spent)} onMinus={() => setSpent(v => Math.max(5, v - 5))} onPlus={() => setSpent(v => v + 5)} />} />
@@ -228,7 +254,7 @@ export default function Mission() {
           </Animated.View>
           <Animated.View layout={layout}>
             <Card r={16} padding={0}>
-              <Row first label={t.ruleLabel} sub={ruleSummary} right={<Arrow />} onPress={() => { Haptics.selectionAsync().catch(() => {}); if (m.real && task.id) router.push(`/task/edit?id=${task.id}`); }} />
+              <Row first label={t.ruleLabel} sub={ruleSummary} right={<Arrow />} onPress={() => { Haptics.selectionAsync().catch(() => {}); setRuleOpen(true); }} />
             </Card>
           </Animated.View>
         </>
