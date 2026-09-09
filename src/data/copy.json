@@ -1103,7 +1103,8 @@
       "ruleChanged": "{name} a réglé {task} : {rule}",
       "taskCreated": "{name} a ajouté {task}",
       "settled": "{name} a remis le solde à zéro · {amount}",
-      "budgetRemind": "{name} te rappelle le solde : {amount}"
+      "budgetRemind": "{name} te rappelle le solde : {amount}",
+      "reminder": "{name} : petit rappel pour {task} 🙂"
     },
     "replies": {
       "thumbs": "👍",
@@ -1337,7 +1338,12 @@
     "lateCaption": "En retard de {n} j",
     "lateCaptionMalus": "En retard de {n} j · {pts} pt de malus",
     "doNowSubMalus": "≈{time} · efface {pts} pt de malus",
-    "footerMalus": "Malus en cours : {pts} pt — il s'efface si tu la fais"
+    "footerMalus": "Malus en cours : {pts} pt — il s'efface si tu la fais",
+    "lateCaptionOther": "En retard de {n} j · {name}",
+    "pingOther": "Petit rappel à {name}",
+    "pingOtherSub": "« Quand tu as un moment… » · notification",
+    "takeOther": "Je m'en occupe",
+    "takeOtherSub": "{name} recevra une notification"
   },
   "malus": {
     "_labels": {
@@ -1593,7 +1599,8 @@
     "taskCreated": "{name} a ajouté {task}",
     "reaction": "{reply} de {name}",
     "settled": "{name} a remis le solde à zéro · {amount}",
-    "budgetRemind": "{name} te rappelle : tu lui dois {amount}"
+    "budgetRemind": "{name} te rappelle : tu lui dois {amount}",
+    "reminder": "{name} : petit rappel pour « {task} » 🙂"
   },
   "mesReglages": {
     "_labels": {

@@ -11,7 +11,9 @@ import { LiveMochi } from '../src/components/motion';
 import { SheetHandle, Chevron } from '../src/components/social/extra';
 import { partner, fmtMin } from '../src/demo';
 import { missionDone } from '../src/demo-core';
-import { moveOccurrence, toggleOccurrence } from '../src/occ-actions';
+import { moveOccurrence, toggleOccurrence, takeOver } from '../src/occ-actions';
+import { sendPing } from '../src/activity-actions';
+import { getUid } from '../src/identity';
 import { postponeMalus, malusPoints, clearMalusFor } from '../src/malus-actions';
 import { read } from '../src/store';
 import { requestSwap } from '../src/swap-actions';
@@ -25,16 +27,22 @@ export default function Retard() {
   // Décision Jeanne (6 sept 2026) : le malus n'apparaît QUE dans le bouton recommandé
   // (« ≈1h · efface 8 pt de malus ») — variante b des trois proposées ; a (légende sous
   // le titre) et c (note en bas) restent accessibles par ?v= pour comparaison.
-  const { occ: occId, tid, title, emoji, mins, due, v = 'b' } = useLocalSearchParams();
+  const { occ: occId, tid, title, emoji, mins, due, v = 'b', other: otherParam } = useLocalSearchParams(); // other=1 : variante « tâche de l'autre » (captures)
   const insets = useSafeAreaInsets();
   const t = copy.retard;
   const daysLate = due ? Math.max(1, Math.round((new Date(localIso()) - new Date(String(due))) / 86400000)) : 1;
   // le VRAI malus de cette occurrence (SPECS §4) : déjà posé par sweepMissed, sinon
   // celui qui tombera (importance × (1 + retard × 0,5)) — plus de « +1 » de démo
   const [points, setPoints] = useState(null);
+  // la tâche en retard de l'AUTRE (10 sept 2026) : pas « je le fais / repasser / décaler » mais
+  // « petit rappel » ou « je m'en occupe »
+  const [other, setOther] = useState(otherParam === '1');
   useEffect(() => {
     (async () => {
-      const [malus, tasks] = await Promise.all([read('malus'), read('tasks')]);
+      const [malus, tasks, occs] = await Promise.all([read('malus'), read('tasks'), read('occurrences')]);
+      const row = occs.find(o => o.id === String(occId));
+      const uid = getUid();
+      if (row) setOther(!!(row.assignee_id && uid && row.assignee_id !== uid));
       const posed = malus.filter(m => m.occurrence_id === String(occId)).reduce((a, m) => a + Number(m.points || 0), 0);
       const tk = tasks.find(x => x.id === String(tid));
       setPoints(posed || malusPoints(tk?.importance, daysLate));
@@ -58,6 +66,16 @@ export default function Retard() {
     await requestSwap(String(occId || '')).catch(() => {});
     close();
   };
+  const ping = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    await sendPing(String(occId || ''), 'reminder').catch(() => {});
+    close();
+  };
+  const take = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    await takeOver(String(occId || '')).catch(() => {});
+    close();
+  };
   const postpone = async () => {
     const r = await moveOccurrence(String(occId || ''), addDaysIso(1));
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
@@ -72,9 +90,41 @@ export default function Retard() {
         <LiveMochi size={54} mood="sad" float={false} />
         <View style={{ flex: 1 }}>
           <Text style={s.headTitle} numberOfLines={1}>{emoji ? `${emoji} ` : ''}{title || t.fallbackTitle}</Text>
-          <Text style={s.headSub}>{v === 'a' && points != null ? fill(t.lateCaptionMalus, { n: daysLate, pts: fmtPts(points) }) : fill(t.lateCaption, { n: daysLate })}</Text>
+          <Text style={s.headSub}>{other ? fill(t.lateCaptionOther, { n: daysLate, name: partner.first_name }) : v === 'a' && points != null ? fill(t.lateCaptionMalus, { n: daysLate, pts: fmtPts(points) }) : fill(t.lateCaption, { n: daysLate })}</Text>
         </View>
       </View>
+
+      {other ? (
+        <>
+          <Micro style={{ marginBottom: 7 }}>{t.recommended}</Micro>
+          <Pressable onPress={ping} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
+            <Card r={radius.row} padding={0} style={{ marginBottom: 12 }} accent={colors.sage}>
+              <View style={s.optRow}>
+                <Text style={{ fontSize: 19 }}>🌷</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={s.optLabel}>{fill(t.pingOther, { name: partner.first_name })}</Text>
+                  <Text style={s.optSub}>{t.pingOtherSub}</Text>
+                </View>
+                <Chevron />
+              </View>
+            </Card>
+          </Pressable>
+          <Micro style={{ marginBottom: 7 }}>{t.orElse}</Micro>
+          <Pressable onPress={take} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
+            <Card r={radius.row} padding={0}>
+              <View style={s.optRow}>
+                <Text style={{ fontSize: 19 }}>🤝</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={s.optLabel}>{t.takeOther}</Text>
+                  <Text style={s.optSub}>{fill(t.takeOtherSub, { name: partner.first_name })}</Text>
+                </View>
+                <Chevron />
+              </View>
+            </Card>
+          </Pressable>
+        </>
+      ) : (
+      <>
 
       <Micro style={{ marginBottom: 7 }}>{t.recommended}</Micro>
       <Pressable onPress={doNow} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
@@ -116,6 +166,8 @@ export default function Retard() {
         </Card>
       </Pressable>
       {v === 'c' && points != null ? <Text style={s.footer}>{fill(t.footerMalus, { pts: fmtPts(points) })}</Text> : null}
+      </>
+      )}
     </View>
   );
 }

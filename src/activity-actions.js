@@ -6,7 +6,7 @@
 // Décision Jeanne 7 sept 2026 : toute modif de tâche par l'un apparaît chez l'autre ;
 // la notification push viendra avec la passe notifications.
 // ═══════════════════════════════════════════════════════════════════
-import { mutate, uuid } from './store';
+import { read, mutate, uuid } from './store';
 import { occStore } from './demo-core';
 import { getUid, getPartnerUid } from './identity';
 import { loadSetup, setup } from './setup-state';
@@ -31,3 +31,13 @@ export const react = (occId, key) => {
   pushToPartner('reaction', { reply: String(copy.activity.replies[key] || key).replace('{name}', '').trim() });
   return logActivity({ type: 'ping_reply', preset_key: key, occurrence_id: occId });
 };
+
+// Ping réel vers l'autre (10 sept 2026, tâche de l'autre en retard : « je devrais pouvoir le ping ») :
+// une ligne `activity` type ping (preset = clé copy.pings) + une notification push.
+export async function sendPing(occId, key = 'reminder') {
+  const [occs, tasks] = await Promise.all([read('occurrences'), read('tasks')]);
+  const o = occs.find(x => x.id === occId);
+  const task = (tasks.find(x => x.id === o?.task_id)?.title || '…');
+  pushToPartner(key, { task: task.toLowerCase() }, '/(tabs)/planning');
+  return logActivity({ type: 'ping', preset_key: key, occurrence_id: occId || null, payload: { task: task.toLowerCase() } });
+}
