@@ -189,14 +189,11 @@
       "detailPillUnbalanced": "Pastille état déséquilibré sur le détail ({n})",
       "detailTitleMore": "Titre du détail quand quelqu'un porte plus ({name})",
       "detailTitleEven": "Titre du détail quand c'est équilibré",
-      "forecastLead": "Début de la phrase d'alerte (suivi de forecastStrong en gras)",
-      "forecastStrong": "Fin en gras de la phrase d'alerte",
       "weighsTitle": "Micro-titre de la liste « ce qui pèse »",
       "contribDelta": "Écart en minutes d'un contributeur ({n})",
       "contribMental": "Libellé du contributeur charge mentale",
       "contribMentalSub": "Sous-ligne charge mentale ({examples} = exemples de tâches)",
-      "contribCyclesSub": "Sous-ligne cycles ({a} cycles de l'un vs {b} de l'autre)",
-      "rebalanceCta": "Bouton bas du détail : rééquilibrage par Mochi"
+      "contribCyclesSub": "Sous-ligne cycles ({a} cycles de l'un vs {b} de l'autre)"
     },
     "title": "Balance",
     "balanced": "Équilibré",
@@ -224,14 +221,11 @@
     "detailPillUnbalanced": "Déséquilibre · {n}% d'écart",
     "detailTitleMore": "{name} porte plus\ncette semaine.",
     "detailTitleEven": "Vous portez autant\ncette semaine.",
-    "forecastLead": "Si ça dure 2 semaines :",
-    "forecastStrong": "Mochi suggérera un re-dispatch.",
     "weighsTitle": "Ce qui pèse",
     "contribDelta": "+{n} min",
     "contribMental": "Charge mentale",
     "contribMentalSub": "{examples}…",
     "contribCyclesSub": "{a} cycles vs {b} · cette semaine",
-    "rebalanceCta": "Rééquilibrer avec Mochi",
     "contribRealSub": "{a} min contre {b} min",
     "weighsNone": "Rien ne pèse encore — coche des missions et l'écart apparaîtra ici.",
     "heroTasksOne": "{pct}% · 1 tâche",
@@ -397,7 +391,9 @@
     },
     "metaBoth": "À deux",
     "noTimeSubBoth": "Déplacer à un autre jour",
-    "ruleMoment": "Moment"
+    "ruleMoment": "Moment",
+    "timeConfirm": "C'est noté",
+    "timeAfterSub": "Compté dans la balance"
   },
   "pings": {
     "_labels": {
@@ -664,22 +660,12 @@
       "titlePlaceholder": "Champ nom de l’événement (vide)",
       "detailsPlaceholder": "Champ date · heure · lieu (vide)",
       "whoLabel": "Titre de la liste des choses à porter",
-      "budgetLabel": "Titre de la petite card budget",
-      "budgetHint": "Sous-texte : la dépense ira dans Budget",
-      "dressLabel": "Titre de la petite card tenue",
-      "dressPlaceholder": "Champ tenue (vide)",
-      "dressNotePlaceholder": "Champ précision tenue (vide)",
       "cta": "Bouton principal du modal"
     },
     "eyebrow": "● Événement social",
     "titlePlaceholder": "Nom de l’événement",
     "detailsPlaceholder": "Date · heure · lieu",
     "whoLabel": "Qui porte quoi",
-    "budgetLabel": "Budget cadeau",
-    "budgetHint": "→ Budget",
-    "dressLabel": "Tenue",
-    "dressPlaceholder": "Tenue",
-    "dressNotePlaceholder": "« précision »",
     "datePlaceholder": "Date",
     "timePlaceholder": "20h",
     "placePlaceholder": "Lieu",
@@ -691,7 +677,6 @@
     "_labels": {
       "eyebrow": "Étiquette au-dessus du titre",
       "title": "Titre de l’écran",
-      "duoPlus": "Badge du plan qui débloque le pense-bête partagé",
       "searchPlaceholder": "Champ de recherche (vide)",
       "count": "Compteur de notes ({n} = nombre)",
       "newTitlePlaceholder": "Champ titre d’une nouvelle note",
@@ -701,7 +686,6 @@
     },
     "eyebrow": "Le cerveau externe",
     "title": "Pense-bête",
-    "duoPlus": "Duo+",
     "searchPlaceholder": "Rechercher dans le cerveau partagé…",
     "count": "{n} notes",
     "newTitlePlaceholder": "Titre de la note",
@@ -1025,8 +1009,6 @@
       "notSet": "Sous-titre quand rien n est saisi",
       "crossReminder": "Rangée rappel croisé (switch)",
       "crossReminderSub": "Explication du rappel croisé (opt-in)",
-      "export": "Rangée export",
-      "exportSub": "Sous-titre",
       "thresholds": "Rangée seuils",
       "thresholdsSub": "Sous-titre : {warn} et {alert} en %, non modifiables",
       "thresholdsValue": "Valeur affichée à droite ({warn}/{alert})",
@@ -1060,8 +1042,6 @@
     "notSet": "Pas encore renseigné",
     "crossReminder": "Rappel croisé",
     "crossReminderSub": "Recevoir une alerte quand l’autre oublie une tâche",
-    "export": "Exporter mes données",
-    "exportSub": "PDF ou CSV",
     "thresholds": "Seuils d’alerte",
     "thresholdsSub": "Ça penche à {warn} %, alerte à {alert} % — communs au duo",
     "thresholdsValue": "{warn} / {alert} %",
@@ -1117,7 +1097,9 @@
     "presets": {
       "tookOver": "{name} s'occupe de {task} · {day}",
       "ruleChanged": "{name} a réglé {task} : {rule}",
-      "taskCreated": "{name} a ajouté {task}"
+      "taskCreated": "{name} a ajouté {task}",
+      "settled": "{name} a remis le solde à zéro · {amount}",
+      "budgetRemind": "{name} te rappelle le solde : {amount}"
     },
     "replies": {
       "thumbs": "👍",
@@ -1605,7 +1587,9 @@
     "ruleChanged": "{name} a réglé {task} : {rule}",
     "taskDone": "{name} a terminé {task} ✅",
     "taskCreated": "{name} a ajouté {task}",
-    "reaction": "{reply} de {name}"
+    "reaction": "{reply} de {name}",
+    "settled": "{name} a remis le solde à zéro · {amount}",
+    "budgetRemind": "{name} te rappelle : tu lui dois {amount}"
   },
   "mesReglages": {
     "_labels": {

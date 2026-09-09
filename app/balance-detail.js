@@ -75,7 +75,6 @@ export default function BalanceDetail() {
                 })}
               </View>
               <SplitBar height={10} style={s.barRing} parts={parts.map(p => ({ ratio: p.pct / 100, color: p.member.color }))} />
-              {state !== 'balanced' && <NoteBox emoji="⚠️" lead={t.forecastLead} strong={t.forecastStrong} />}
             </Card>
           </View>
 
@@ -125,16 +124,7 @@ export default function BalanceDetail() {
           </View>
         </ScrollView>
 
-        {/* CTA bas : rééquilibrage par Mochi → proposition de dispatch (12) */}
-        <View style={s.ctaWrap}>
-          <Pressable onPress={() => router.push('/(setup)/dispatch')} style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}>
-            <LinearGradient {...gradients.mochi} style={[s.cta, shadows.cta]}>
-              <Text style={{ fontSize: 18 }}>✨</Text>
-              <Text style={s.ctaText}>{t.rebalanceCta}</Text>
-              <Text style={{ fontSize: 18, color: colors.ink }}>›</Text>
-            </LinearGradient>
-          </Pressable>
-        </View>
+        {/* « Rééquilibrer avec Mochi » retiré (Jeanne, 9 sept 2026) : le point hebdo est le bon moment */}
       </SafeAreaView>
     </View>
   );

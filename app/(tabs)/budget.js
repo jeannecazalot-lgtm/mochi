@@ -9,9 +9,12 @@ import { PremiumGate } from '../../src/components/premium/extra';
 import { isPremium } from '../../src/demo-premium';
 import { me, partner, byId, taskById, expenses, budget, fmtMoney, today } from '../../src/demo';
 import { monthLong, daysBetween, fmtDayLower, sortedByDate, occStore } from '../../src/demo-core';
-import { read, pull } from '../../src/store';
+import { read, pull, mutate, uuid } from '../../src/store';
+import { logActivity } from '../../src/activity-actions';
+import { pushToPartner } from '../../src/push';
+import * as Haptics from 'expo-haptics';
 import { loadSetup, setup, inRealMode } from '../../src/setup-state';
-import { getUid, loadIdentity, useIdentity } from '../../src/identity';
+import { getUid, getPartnerUid, loadIdentity, useIdentity } from '../../src/identity';
 import copy from '../../src/data/copy.json';
 import { colors, space, font } from '../../src/theme';
 
@@ -50,7 +53,7 @@ async function loadRealBudget() {
   await loadIdentity();
   const uid = getUid();
   const hid = setup.householdId;
-  const [rows, occs, tasks] = await Promise.all([hid ? pull('expenses', hid) : read('expenses'), read('occurrences'), read('tasks')]);
+  const [rows, occs, tasks, settlements] = await Promise.all([hid ? pull('expenses', hid) : read('expenses'), read('occurrences'), read('tasks'), hid ? pull('settlements', hid).catch(() => read('settlements')) : read('settlements')]);
   const byOcc = Object.fromEntries(occs.map(o => [o.id, o]));
   const byTask = Object.fromEntries(tasks.map(tk => [tk.id, tk]));
   const now = new Date();
@@ -63,9 +66,12 @@ async function loadRealBudget() {
   const month = list.filter(e => e.spent_on.getMonth() === now.getMonth() && e.spent_on.getFullYear() === now.getFullYear());
   const paidMe = month.filter(e => e.paid_by === me.id).reduce((a, e) => a + e.amount_cents, 0);
   const paidP = month.filter(e => e.paid_by === partner.id).reduce((a, e) => a + e.amount_cents, 0);
-  const diff = Math.round((paidMe - paidP) / 2); // parts égales : l'autre me doit la moitié de l'écart
+  // parts égales : l'autre me doit la moitié de l'écart, moins ce qui a déjà été réglé (« On est à zéro »)
+  const sameMonth = iso => { const d = new Date(iso); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); };
+  const settled = settlements.filter(st => sameMonth(st.settled_at)).reduce((a, st) => a + (st.to_user === uid ? -st.amount_cents : st.from_user === uid ? st.amount_cents : 0), 0);
+  const diff = Math.round((paidMe - paidP) / 2) + settled;
   const owes = diff === 0 ? { cents: 0 } : diff > 0 ? { who: partner.id, to: me.id, cents: diff } : { who: me.id, to: partner.id, cents: -diff };
-  return { list, total_cents: month.reduce((a, e) => a + e.amount_cents, 0), owes, now };
+  return { list, total_cents: month.reduce((a, e) => a + e.amount_cents, 0), owes, now, hid, uid };
 }
 
 export default function Budget() {
@@ -79,6 +85,28 @@ export default function Budget() {
   const [real, setReal] = useState(null);
   useEffect(() => { loadRealBudget().then(r => { if (r) setReal(r); }).catch(() => {}); }, [occV]);
   const rows = real ? sortedByDate(real.list) : sortedByDate(expenses);
+  const owes = real ? real.owes : budget.owes;
+  // « On est à zéro » : une ligne settlements du débiteur au créancier, le solde repart de zéro (branché 9 sept 2026)
+  const settle = async () => {
+    if (!real || !owes.cents) return;
+    const puid = getPartnerUid();
+    const from = owes.who === me.id ? real.uid : puid, to = owes.to === me.id ? real.uid : puid;
+    if (!from || !to) return;
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+    await mutate('settlements', { id: uuid(), household_id: real.hid, from_user: from, to_user: to, amount_cents: owes.cents, settled_at: new Date().toISOString() });
+    const vars = { amount: fmtMoney(owes.cents) };
+    logActivity({ type: 'ping', preset_key: 'settled', payload: vars }).catch(() => {});
+    pushToPartner('settled', vars, '/(tabs)/budget');
+    occStore.bump();
+  };
+  // « Rappeler » : un coup de coude à l'autre quand il me doit quelque chose
+  const remind = () => {
+    if (!real || !owes.cents || owes.to !== me.id) return;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    const vars = { amount: fmtMoney(owes.cents) };
+    logActivity({ type: 'ping', preset_key: 'budgetRemind', payload: vars }).catch(() => {});
+    pushToPartner('budgetRemind', vars, '/(tabs)/budget');
+  };
   const now = real ? real.now : today;
   if (!BUDGET_FREE && !isPremium()) {
     return (
@@ -115,10 +143,12 @@ export default function Budget() {
                 <Solde owes={real ? real.owes : budget.owes} />
                 <Secondary style={{ marginTop: 6 }}>{fill(t.spent, { amount: fmtMoney(real ? real.total_cents : budget.total_cents) })}</Secondary>
               </View>
-              <View style={{ flexDirection: 'row', gap: 8, marginTop: 14 }}>
-                <PillButton dark label={t.settleBtn} onPress={() => {}} />
-                <PillButton label={t.remindBtn} onPress={() => {}} />
-              </View>
+              {owes.cents ? (
+                <View style={{ flexDirection: 'row', gap: 8, marginTop: 14 }}>
+                  <PillButton dark label={t.settleBtn} onPress={settle} />
+                  {owes.to === me.id ? <PillButton label={t.remindBtn} onPress={remind} /> : null}
+                </View>
+              ) : null}
             </Card>
           </View>
 

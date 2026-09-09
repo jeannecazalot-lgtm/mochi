@@ -37,7 +37,6 @@ export default function PenseBete() {
           <View style={{ flex: 1 }}>
             <View style={{ flexDirection: 'row', gap: 6, marginBottom: 6 }}>
               <PillLabel color={colors.lavender}>{t.eyebrow}</PillLabel>
-              <PillLabel color={colors.coralDeep} tint={colors.coral}>{t.duoPlus}</PillLabel>
             </View>
             <ScreenTitle style={{ lineHeight: 24 }}>{t.title}</ScreenTitle>
           </View>

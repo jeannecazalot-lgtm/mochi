@@ -43,6 +43,10 @@ export default function Mission() {
   const [movedTo, setMovedTo] = useState(null);
   const [moveMsg, setMoveMsg] = useState(null); // « Déjà prévue mardi »
   const [done, setDone] = useState(false);
+  // « Temps passé » se demande APRÈS la coche (Jeanne, 9 sept 2026) : on ne règle pas un temps pour une chose pas encore faite
+  const [timing, setTiming] = useState(false);
+  const completed = useRef(false);
+  const latest = useRef({});
   // mission déjà cochée à l'ouverture (test du 6 sept 2026) : rond plein, étage « ce moment-ci »
   // remplacé par « Déjà fait · tape pour la remettre à faire », report et repassage masqués
   const [already, setAlready] = useState(false);
@@ -86,9 +90,16 @@ export default function Mission() {
     setDone(true);
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
     missionDone.set(m.occ.id, true);
-    completeMission(m.occ, m.task, spent, parseAmount(amount)).catch(() => {});
-    setTimeout(() => finish('done'), motion.check);
+    setTiming(true);
   };
+  const confirmTime = () => {
+    completed.current = true;
+    completeMission(m.occ, m.task, spent, parseAmount(amount)).catch(() => {});
+    finish('done');
+  };
+  // fermée avant d'avoir validé le temps : on enregistre quand même la coche avec le temps affiché
+  latest.current = { timing, m, spent, amount };
+  useEffect(() => () => { const l = latest.current; if (l.timing && !completed.current && l.m) completeMission(l.m.occ, l.m.task, l.spent, parseAmount(l.amount)).catch(() => {}); }, []);
   const moveTo = async d => {
     if (m.busy.includes(d.iso)) { setMoveMsg(fill(t.moveBusy, { day: d.long })); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {}); return; }
     const r = await moveOccurrence(String(occId || ''), d.iso);
@@ -187,9 +198,13 @@ export default function Mission() {
             <Row first strong label={t.doneAlready} sub={t.doneAlreadySub} onPress={undo} />
           ) : (
             <>
-              <Row first label={t.timeLabel} right={<Stepper value={fmtMin(spent)} onMinus={() => setSpent(v => Math.max(5, v - 5))} onPlus={() => setSpent(v => v + 5)} />} />
-              {!asking ? (
-                <Row strong label={t.noTimeLabel} sub={(!m.occ?.assignee_id ? t.noTimeSubBoth : fill(t.noTimeSub, { name: partner.first_name }))} right={<Arrow />} onPress={() => { Haptics.selectionAsync().catch(() => {}); setAsking(true); }} />
+              {timing ? (
+                <Animated.View entering={FadeIn.duration(motion.micro)}>
+                  <Row first label={t.timeLabel} sub={t.timeAfterSub} right={<Stepper value={fmtMin(spent)} onMinus={() => setSpent(v => Math.max(5, v - 5))} onPlus={() => setSpent(v => v + 5)} />} />
+                  <Row strong label={t.timeConfirm} right={<Arrow />} onPress={confirmTime} />
+                </Animated.View>
+              ) : !asking ? (
+                <Row first strong label={t.noTimeLabel} sub={(!m.occ?.assignee_id ? t.noTimeSubBoth : fill(t.noTimeSub, { name: partner.first_name }))} right={<Arrow />} onPress={() => { Haptics.selectionAsync().catch(() => {}); setAsking(true); }} />
               ) : (
                 <Animated.View entering={FadeIn.duration(motion.micro)}>
                   <View style={s.moveBox}>
@@ -208,7 +223,7 @@ export default function Mission() {
         </Card>
       </Animated.View>
 
-      <Animated.View layout={layout}>
+      {timing ? null : <Animated.View layout={layout}>
         <Card r={16} padding={0} style={s.block}>
           <Row first label={t.ruleLabel} sub={ruleOpen ? null : ruleSummary} right={<Arrow />} onPress={() => { Haptics.selectionAsync().catch(() => {}); setRuleOpen(o => !o); }} />
           {ruleOpen ? (
@@ -218,7 +233,7 @@ export default function Mission() {
             </Animated.View>
           ) : null}
         </Card>
-      </Animated.View>
+      </Animated.View>}
 
       {already ? null : (
         <Animated.View layout={layout}>

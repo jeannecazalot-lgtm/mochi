@@ -71,9 +71,7 @@ export default function Event() {
   const [time, setTime] = useState('');
   const [place, setPlace] = useState('');
   const [items, setItems] = useState([]); // [{ id, label, who: 'me' | 'partner', minutes }]
-  const [budget, setBudget] = useState('');
-  const [dress, setDress] = useState('');
-  const [dressNote, setDressNote] = useState('');
+  // tenue / budget cadeau retirés (Jeanne, 9 sept 2026) : « Qui porte quoi » couvre la tenue, la dépense se saisit quand on la paie
   const [existing, setExisting] = useState(null);
 
   // édition : on recharge l'événement du foyer
@@ -85,7 +83,6 @@ export default function Event() {
       const d = ev.details || {};
       setExisting(ev); setTitle(ev.title); setEmoji(ev.emoji || EMOJIS[0]); setDate(ev.starts_at.slice(0, 10));
       setTime(d.time || ''); setPlace(d.place || ''); setItems(d.items || []);
-      setBudget(d.budget_cents ? String(d.budget_cents / 100).replace('.', ',') : ''); setDress(d.dress || ''); setDressNote(d.dress_note || '');
     });
   }, [id]);
 
@@ -105,7 +102,6 @@ export default function Event() {
     const hid = setup.householdId;
     const uid = getUid();
     if (!hid || !uid) { router.back(); return; } // démo : rien à écrire
-    const cents = Math.round(parseFloat(String(budget).replace(',', '.').replace(/[^\d.]/g, '')) * 100) || 0;
     const puid = getPartnerUid();
     const who = [...new Set(items.map(it => (it.who === 'partner' ? puid : uid)).filter(Boolean))];
     const [h, m] = /^(\d{1,2})\s*[h:]?\s*(\d{0,2})$/.exec(time.trim()) ? [RegExp.$1, RegExp.$2 || '0'] : ['20', '0'];
@@ -113,7 +109,7 @@ export default function Event() {
     await mutate('events', {
       ...(existing || { id: uuid(), household_id: hid, created_by: uid }),
       title: title.trim(), emoji, starts_at: starts.toISOString(), who,
-      details: { time: time.trim(), place: place.trim(), budget_cents: cents, dress: dress.trim(), dress_note: dressNote.trim(), items: items.filter(it => it.label.trim()).map(it => ({ ...it, label: it.label.trim() })) },
+      details: { ...(existing?.details || {}), time: time.trim(), place: place.trim(), items: items.filter(it => it.label.trim()).map(it => ({ ...it, label: it.label.trim() })) },
     });
     occStore.bump();
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
@@ -168,23 +164,6 @@ export default function Event() {
           })}
           {items.length ? <Divider /> : null}
           <Pressable onPress={addItem} style={s.row}><Text style={s.add}>{t.addItem}</Text></Pressable>
-        </View>
-
-        <View style={s.duo}>
-          <EmbossedCard tint={colors.butter} tintOpacity={0.4} offset={[3, 4]} r={radius.row} padding={0} style={{ flex: 1 }}>
-            <View style={s.small}>
-              <Text style={s.smallLabel}>{t.budgetLabel}</Text>
-              <TextInput value={budget} onChangeText={setBudget} placeholder="0 €" placeholderTextColor={ph} keyboardType="decimal-pad" style={s.amount} cursorColor={colors.coral} selectionColor={colors.coral} />
-              <Text style={s.smallHint}>{t.budgetHint}</Text>
-            </View>
-          </EmbossedCard>
-          <EmbossedCard tint={colors.sky} tintOpacity={0.35} offset={[3, 4]} r={radius.row} padding={0} style={{ flex: 1 }}>
-            <View style={s.small}>
-              <Text style={s.smallLabel}>{t.dressLabel}</Text>
-              <TextInput value={dress} onChangeText={setDress} placeholder={t.dressPlaceholder} placeholderTextColor={ph} style={s.dress} cursorColor={colors.coral} selectionColor={colors.coral} />
-              <TextInput value={dressNote} onChangeText={setDressNote} placeholder={t.dressNotePlaceholder} placeholderTextColor={ph} style={[s.smallHint, { fontStyle: 'italic' }]} cursorColor={colors.coral} selectionColor={colors.coral} />
-            </View>
-          </EmbossedCard>
         </View>
 
         <CtaModal label={existing ? copy.common.save : t.cta} disabled={!title.trim() || !date} onPress={save} />

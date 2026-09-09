@@ -111,7 +111,6 @@ export default function Profil() {
               <SettingRow emoji="🗓" title={t.mesReglages}
                 sub={!mine ? '' : [(!mine.slots && !mine.h) ? t.notSet : fill(mine.slots === 1 ? t.disposSubOne : t.disposSubReal, { n: mine.slots }) + (mine.h ? fill(t.disposSubHours, { h: mine.h }) : ''), !mine.hasPrefs ? t.notSet : fill(t.prefsSub, { like: mine.likes, hate: mine.hates, ls: mine.likes > 1 ? 's' : '', hs: mine.hates > 1 ? 's' : '' })].join(' · ')}
                 onPress={() => router.push('/mes-reglages')} />
-              <SettingRow emoji="⬇️" title={t.export} sub={t.exportSub} onPress={() => {}} />
             </View>
 
             <SectionMicro style={{ marginTop: 16 }}>{t.sectionDuo}</SectionMicro>
