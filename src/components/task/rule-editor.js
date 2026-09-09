@@ -1,8 +1,8 @@
 // ═══════════════════════════════════════════════════════════════════
 // rule-editor.js — LA règle d'une tâche, un seul éditeur partout (décision Jeanne
 // 9 sept 2026 : « pourquoi pas le même écran tâche que celui du Planning ? ») :
-// jours (= la fréquence : lun + jeu = 2×/sem), moment, qui s'en occupe, durée,
-// effort (à la création), importance (fiche d'une tâche existante), note.
+// jours (= la fréquence : lun + jeu = 2×/sem), moment, qui s'en occupe, durée, effort, note.
+// Ni importance ni divisible (Jeanne, 9 sept 2026 : « on alterne » suffit, importance abandonnée).
 // Utilisé par la sheet Tâche (Planning/Accueil), la fiche courte du 12 et « Nouvelle tâche ».
 // ═══════════════════════════════════════════════════════════════════
 import React, { useState } from 'react';
@@ -20,7 +20,7 @@ export const MOMENTS = ['morning', 'evening', null]; // Le matin · Le soir · P
 export const momentLabel = dl => (dl == null ? tt.anytime : dl === 'morning' ? tt.morning : tt.evening);
 
 // rule = { window_days: [0-6], deadline, who: 'me'|'partner'|'alt'|'auto', duration_min, note, pain?, importance? }
-export function RuleEditor({ rule, onPatch, showMoment = false, showEffort = false, showImportance = false, showDuration = true, first = true }) {
+export function RuleEditor({ rule, onPatch, showMoment = false, showEffort = false, showDuration = true, first = true }) {
   const [noteOpen, setNoteOpen] = useState(false);
   const days = rule.window_days || [];
   return (
@@ -42,7 +42,6 @@ export function RuleEditor({ rule, onPatch, showMoment = false, showEffort = fal
       </RuleGroup>
       {showDuration ? <Row label={t.ruleDuration} right={<Stepper value={fmtMin(rule.duration_min)} onMinus={() => onPatch({ duration_min: Math.max(5, rule.duration_min - 5) })} onPlus={() => onPatch({ duration_min: rule.duration_min + 5 })} />} /> : null}
       {showEffort ? <Row label={tt.statPain} sub={tt.effortSub} right={<Stars value={rule.pain || 3} onChange={n => onPatch({ pain: n })} />} /> : null}
-      {showImportance ? <Row label={tt.importance} sub={tt.importanceSub} right={<Stars value={rule.importance || 3} onChange={n => onPatch({ importance: n })} color={colors.coralDeep} />} /> : null}
       {noteOpen
         ? <View style={s.noteBox}><TextInput value={rule.note || ''} onChangeText={v => onPatch({ note: v })} placeholder={t.notePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)} multiline autoFocus={false} style={s.noteInput} /></View>
         : <Row label={t.ruleNote} sub={rule.note ? <LinkText>{rule.note}</LinkText> : t.notePlaceholder} right={<Arrow />} onPress={() => setNoteOpen(true)} />}

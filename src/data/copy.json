@@ -1561,8 +1561,6 @@
     "momentLabel": "Moment",
     "daysLabel": "Jours",
     "effortSub": "Pèse dans la balance",
-    "importance": "Importance",
-    "importanceSub": "Pèse dans le malus si elle est ratée",
     "ctaCreate": "Créer la tâche"
   },
   "props": {

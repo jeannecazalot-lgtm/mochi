@@ -288,4 +288,4 @@ Entrée en dev : `/plan` (Plan des écrans). Écarts artboard/README à arbitrer
 - La règle = jours (font la fréquence : plus de stepper n×/sem) · moment · qui · durée (hors occurrence) · effort (« pourquoi il n'y a pas l'effort aussi ? ») · note. Composant unique `src/components/task/rule-editor.js`, effort = ma pénibilité (`task_pains`) enregistrée avec la règle.
 - Fiche depuis le 12 : jours pré-cochés avec le placement de Mochi ; tout s'enregistre à la fermeture comme la sheet ; « Créer la tâche » seulement pour une nouvelle.
 - Corrigé : « sam » sur deux lignes dans la rangée des 7 jours (numberOfLines 1).
-- Reste : divisible retiré de la fiche (à confirmer), importance visible nulle part (à trancher), `?rule=1` sur la sheet sert aux captures.
+- Tranché : divisible abandonné (« on alterne » suffit), importance abandonnée (reste à 3 en base, sans UI). `?rule=1` sur la sheet sert aux captures.
