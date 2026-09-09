@@ -48,6 +48,7 @@ const todayDow = () => (new Date().getDay() + 6) % 7;
 const dayLabels = (it, index) => {
   const td = todayDow();
   const offs = daysForTask({ perWeek: it.freq, windowDays: it.window_days, availability: setup.availability, todayDow: td, seed: index });
+  if (offs.length >= 7) return t.everyDay; // quotidien : inutile de lister les 7 jours
   return offs.map(o => copy.calendar.dowsLong[(td + o) % 7].toLowerCase()).join(' · ');
 };
 

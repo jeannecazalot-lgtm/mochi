@@ -649,7 +649,8 @@
     "duoTitleJoiner": "Tu as rejoint le foyer de {name} !",
     "duoSubJoiner": "{name} choisit et répartit vos tâches, tu pourras tout ajuster depuis le Planning. Encore trois petites étapes : ton prénom, tes dispos, tes préférences.",
     "duoSubJoinerReady": "{name} choisit et répartit vos tâches, tu pourras tout ajuster depuis le Planning. Tes dispos et tes préférences partent dans le foyer.",
-    "continueMeanwhile": "Choisir nos tâches en attendant"
+    "continueMeanwhile": "Choisir nos tâches en attendant",
+    "everyDay": "tous les jours"
   },
   "event": {
     "_labels": {
