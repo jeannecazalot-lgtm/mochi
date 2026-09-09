@@ -56,7 +56,18 @@ export function RuleGroup({ label, children, first, row }) {
   );
 }
 
-// ─── bloc de confirmation (remplace le contenu de la sheet) ─────────
+// ─── ligne de confirmation (variante B, choisie par Jeanne le 10 sept 2026) : la sheet garde
+// sa forme, la première carte devient une ligne d'état — avatar de l'autre ou coche à gauche,
+// pastille à droite. Sert à toutes les confirmations (proposé, rendu, déplacé, rappel, fait).
+export function ConfirmRow({ kind, title, sub, pill, who }) {
+  return (
+    <Row first strong label={title} sub={sub}
+      left={kind === 'swap' && who ? <Avatar initial={who.initial} color={who.color} photo={who.avatar_url} size={22} /> : <CheckCircle done size={22} />}
+      right={pill ? <PillLabel color={colors.lavenderDeep}>{pill}</PillLabel> : null} />
+  );
+}
+
+// ─── bloc de confirmation (variante A, gardée pour le proto) ─────────
 export function ConfirmBlock({ kind, title, sub, pill, who }) {
   const pop = useCheckPop(true);
   return (

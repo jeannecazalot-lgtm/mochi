@@ -8,10 +8,10 @@ import { View, Text, Pressable, TextInput, StyleSheet, KeyboardAvoidingView } fr
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { LinearTransition } from 'react-native-reanimated';
-import { Card, Micro, Avatar, LinkText, PillLabel } from '../src/components/ui';
+import { Card, Micro, Avatar, LinkText } from '../src/components/ui';
 import { SheetHandle, CheckCircle } from '../src/components/social/extra';
 import { Animated, FadeIn, useCheckPop } from '../src/components/motion';
-import { Row, Stepper, PillChip, ConfirmBlock, Arrow, Caption } from '../src/components/task/proto';
+import { Row, Stepper, PillChip, ConfirmRow, Arrow, Caption } from '../src/components/task/proto';
 import { RuleEditor } from '../src/components/task/rule-editor';
 import { useSheetGrow } from '../src/components/sheet-grow';
 import { loadMission, saveRule, completeMission, parseAmount } from '../src/mission-data';
@@ -33,9 +33,8 @@ const CLOSE_AFTER_SLOW = 1700; // proposé / déplacé : le temps de lire (« be
 const layout = LinearTransition.duration(260);
 
 export default function Mission() {
-  // rule=1 : règle dépliée d'entrée ; conf=swap|moved + cv=a|b|c : confirmation figée dans la variante (captures)
-  const { occ: occId, tid, title, mins, rule: ruleParam, conf: confParam, cv } = useLocalSearchParams();
-  const variant = cv || 'a';
+  // rule=1 : règle dépliée d'entrée ; conf=swap|moved : confirmation figée (captures)
+  const { occ: occId, tid, title, mins, rule: ruleParam, conf: confParam } = useLocalSearchParams();
   const insets = useSafeAreaInsets();
   const t = copy.mission;
   const [m, setM] = useState(null); // { real, occ, task, dueIso, mine }
@@ -169,42 +168,16 @@ export default function Mission() {
         : confirm === 'take'
           ? { kind: 'done', title: t.confirmTake, sub: fill(t.confirmTakeSub, { name: partner.first_name }) }
           : { kind: 'swap', who: partner, title: fill(t.confirmSwap, { name: partner.first_name }), sub: t.confirmSwapSub, pill: t.confirmSwapPill };
-    // Variantes de confirmation proposées à Jeanne (9 sept 2026, « j'aime pas l'écran Proposé à Kima ») :
-    //   a · bloc centré (avatar / coche, titre, sous-titre, pastille)
-    //   b · la sheet garde sa forme : la carte du moment devient une ligne d'état
-    //   c · tout s'efface sauf le titre ; la ligne méta dit l'état
-    if (confirm !== 'done' && variant === 'b') {
-      return (
-        <View style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 31) }]}>
-          <SheetHandle />
-          {head}
-          <Animated.View entering={FadeIn.duration(motion.micro)}>
-            <Card r={16} padding={0} style={s.block}>
-              <Row first strong label={props.title} sub={props.sub} left={props.kind === 'swap' ? <Avatar initial={partner.initial} color={partner.color} photo={partner.avatar_url} size={22} /> : <CheckCircle done size={22} />} right={props.pill ? <PillLabel color={colors.lavenderDeep}>{props.pill}</PillLabel> : null} />
-            </Card>
-            <Card r={16} padding={0}>
-              <Row first label={t.ruleLabel} sub={ruleSummary} right={<Arrow />} />
-            </Card>
-          </Animated.View>
-        </View>
-      );
-    }
-    if (confirm !== 'done' && variant === 'c') {
-      return (
-        <View style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 31) }]}>
-          <SheetHandle />
-          <View style={s.head}>
-            <View style={s.titleRow}><Text style={[s.title, { flex: 1 }]} numberOfLines={2}>{task.title}</Text>{props.kind === 'swap' ? <Avatar initial={partner.initial} color={partner.color} photo={partner.avatar_url} size={26} /> : <CheckCircle done size={26} />}</View>
-            <Animated.View entering={FadeIn.duration(motion.micro)} style={s.meta}><Text style={s.metaTxt}>{props.title} · {props.sub}</Text></Animated.View>
-          </View>
-        </View>
-      );
-    }
+    // Confirmation « B » (Jeanne, 10 sept 2026) : la sheet garde sa forme, la première carte
+    // devient une ligne d'état, « Modifier la tâche » reste dessous ; fermeture automatique.
     return (
       <View style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 31) }]}>
         <SheetHandle />
         {head}
-        <Animated.View entering={FadeIn.duration(motion.micro)}><ConfirmBlock {...props} /></Animated.View>
+        <Animated.View entering={FadeIn.duration(motion.micro)}>
+          <Card r={16} padding={0} style={s.block}><ConfirmRow {...props} /></Card>
+          <Card r={16} padding={0}><Row first label={t.ruleLabel} sub={ruleSummary} right={<Arrow />} /></Card>
+        </Animated.View>
       </View>
     );
   }

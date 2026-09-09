@@ -11,7 +11,7 @@ import { SheetHandle, CheckCircle } from '../src/components/social/extra';
 import { me, partner, fmtMin } from '../src/demo';
 import { missionDone } from '../src/demo-core';
 import { moveOccurrence, toggleOccurrence, takeOver, giveBack, wasPartnersTask } from '../src/occ-actions';
-import { Row, ConfirmBlock, PillChip, Caption, Arrow } from '../src/components/task/proto';
+import { Row, ConfirmRow, PillChip, Caption, Arrow } from '../src/components/task/proto';
 import { Animated, FadeIn, useCheckPop } from '../src/components/motion';
 import { useSheetGrow } from '../src/components/sheet-grow';
 import { fmtWeekday } from '../src/demo-task';
@@ -141,7 +141,7 @@ export default function Retard() {
       <View style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 31) }]}>
         <SheetHandle />
         {head}
-        <Animated.View entering={FadeIn.duration(motion.micro)}><ConfirmBlock {...confirm} /></Animated.View>
+        <Animated.View entering={FadeIn.duration(motion.micro)}><Card r={16} padding={0}><ConfirmRow {...confirm} /></Card></Animated.View>
       </View>
     );
   }
