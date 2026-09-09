@@ -13,6 +13,7 @@ import { Animated, FadeInDown, prefersReducedMotion, LiveMochi } from '../../src
 import { me, partner, byId, fmtMin } from '../../src/demo';
 import { dispatch, dispatchEmoji, balanceState } from '../../src/demo-setup';
 import { loadSetup, setup, saveResult, saveTasks } from '../../src/setup-state';
+import { daysForTask } from '../../src/dispatch';
 import { syncSetup } from '../../src/sync-setup';
 import { rescheduleReminders } from '../../src/reminders';
 import { useIdentity } from '../../src/identity';
