@@ -163,6 +163,7 @@ export default function Planning() {
   const base = realGroups ? new Date() : today; // démo : « aujourd'hui » de la démo
   const rolling = Array.from({ length: 7 }, (_, i) => addDays(base, i));
   const [realDots, setRealDots] = useState({}); // iso → couleurs des porteurs (semaine + mois)
+  const [dbg, setDbg] = useState(''); // dev : diagnostic de la liste réelle
   const occV = occStore.useVersion();
   missionDone.useVersion();
   const ident = useIdentity(); // la liste se reconstruit quand l'uid/photo arrivent
@@ -171,6 +172,7 @@ export default function Planning() {
       await loadSetup();
       // Réel dès qu'on a un foyer, même vide (retour test à deux, 3 sept 2026)
       if (!inRealMode()) return;
+      try {
       const [occs, tasks, events] = await Promise.all([read('occurrences'), read('tasks'), read('events')]);
       const byTask = Object.fromEntries(tasks.map(tk => [tk.id, tk]));
       const uid = getUid();
@@ -211,6 +213,8 @@ export default function Planning() {
       if (lateItems.length) groups.unshift({ iso: '__late', late: true, items: lateItems });
       setRealGroups(groups); // [] = foyer réel encore vide (état vide, pas la démo)
       setRealDots(Object.fromEntries(Object.entries(dotMap).map(([k, v]) => [k, [...v]])));
+      if (__DEV__) setDbg(`occ ${occs.length} · retards ${lateItems.length} · v${occV}`);
+      } catch (e) { if (__DEV__) setDbg(`erreur liste : ${e?.message || e}`); }
     })();
   }, [occV, ident]);
   const toggleOcc = id => {
@@ -229,6 +233,9 @@ export default function Planning() {
   const openedOnToday = useRef(false);
   useEffect(() => {
     if (!realGroups || openedOnToday.current) return;
+    // des retards en tête : on reste en haut pour les voir (10 sept 2026 : la section « En retard »
+    // était cachée au-dessus d'aujourd'hui par le défilement automatique)
+    if (realGroups.some(g => g.late)) { openedOnToday.current = true; return; }
     const id = setTimeout(() => { const y = groupY.current[todayIso]; if (y != null) { scrollRef.current?.scrollTo({ y: Math.max(0, y - 8), animated: false }); openedOnToday.current = true; } }, 80);
     return () => clearTimeout(id);
   }, [realGroups]);
@@ -293,6 +300,7 @@ export default function Planning() {
               {realGroups && realGroups.length === 0
                 ? <Text style={[font.secondary, { textAlign: 'center', paddingVertical: 24 }]}>{t.emptyReal}</Text> : null}
               <Hint>{realGroups ? (realGroups.length ? t.realHint : '') : grabbed ? t.grabbed : t.dragHint}</Hint>
+              {__DEV__ && dbg ? <Text style={[font.caption, { textAlign: 'center', opacity: 0.5 }]}>{dbg}</Text> : null}
             </ScrollView>
           </Animated.View>
 
