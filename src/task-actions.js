@@ -25,7 +25,10 @@ const hourToDeadline = end => {
   const h = parseInt(String(end).slice(0, 2), 10);
   return h <= 12 ? 'morning' : `${String(h).padStart(2, '0')}:00`;
 };
-const deadlineToHour = dl => (dl == null ? null : dl === 'morning' ? '12:00' : `${dl}`.slice(0, 5) + (String(dl).length === 5 ? '' : ':00'));
+const deadlineToHour = dl => (dl == null || dl === 'evening' ? null : dl === 'morning' ? '12:00' : `${dl}`.slice(0, 5) + (String(dl).length === 5 ? '' : ':00'));
+// « Soir » = fenêtre qui commence à 17 h (window_start), « Matin » = avant midi (window_end)
+const startToHour = dl => (dl === 'evening' ? '17:00' : null);
+const windowToDeadline = row => (row.window_start && parseInt(String(row.window_start).slice(0, 2), 10) >= 17 ? 'evening' : hourToDeadline(row.window_end));
 
 // charge une vraie tâche du store au format de la fiche ; null si inconnue (→ démo)
 export async function loadRealTask(id) {
@@ -39,7 +42,7 @@ export async function loadRealTask(id) {
     real: true, id: row.id, household_id: row.household_id,
     title: row.title || '', frequency: DB_TO_FICHE[row.frequency] || 'weekly',
     window_days: (row.window_days || []).map(i => dayKeys[i]).filter(Boolean),
-    deadline: hourToDeadline(row.window_end),
+    deadline: windowToDeadline(row),
     duration_min: row.duration_min || 15, importance: row.importance || 3,
     pains: { [me.id]: mine?.pain ?? 3, [partner.id]: 3 }, // binôme simulé : pénibilité neutre
     assign_mode: row.assign_mode || 'auto', fixed_assignee: row.fixed_assignee || null,
@@ -63,7 +66,7 @@ export async function createRealTask(fiche) {
     id, household_id: householdId, title: fiche.title.trim(), emoji: fiche.emoji || '📝', catalog_key: null,
     frequency: FICHE_TO_DB[fiche.frequency] || 'weekly',
     window_days: (fiche.window_days || []).map(k => dayKeys.indexOf(k)).filter(i => i >= 0),
-    window_end: deadlineToHour(fiche.deadline),
+    window_end: deadlineToHour(fiche.deadline), window_start: startToHour(fiche.deadline),
     duration_min: fiche.duration_min || 15, importance: fiche.importance || 3,
     assign_mode: fiche.assign_mode || 'auto', divisible: !!fiche.divisible,
     mental_load: !!fiche.mental_load, has_expense: !!fiche.has_expense,
@@ -103,7 +106,7 @@ export async function saveRealTask(fiche) {
     ...row,
     title: fiche.title.trim(), frequency: FICHE_TO_DB[fiche.frequency] || 'weekly',
     window_days: fiche.window_days.map(k => dayKeys.indexOf(k)).filter(i => i >= 0),
-    window_end: deadlineToHour(fiche.deadline),
+    window_end: deadlineToHour(fiche.deadline), window_start: startToHour(fiche.deadline),
     duration_min: fiche.duration_min, importance: fiche.importance,
     assign_mode: fiche.assign_mode, divisible: !!fiche.divisible,
     mental_load: !!fiche.mental_load, has_expense: !!fiche.has_expense,

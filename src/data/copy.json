@@ -1498,7 +1498,7 @@
     "windowHint": "Rappels et malus s'alignent dessus",
     "windowNone": "Aucune",
     "before": "avant {h}",
-    "morning": "le matin",
+    "morning": "Le matin",
     "noDeadline": "aucune",
     "days": [
       "L",
@@ -1552,7 +1552,11 @@
     "markDone": "Marquer fait",
     "markedDone": "Fait ✓",
     "swipeHint": "Repasser ou reporter : glisse la tâche depuis la liste",
-    "you": "toi"
+    "you": "toi",
+    "evening": "Le soir",
+    "anytime": "Peu importe",
+    "momentLabel": "Moment",
+    "daysLabel": "Jours"
   },
   "props": {
     "_labels": {

@@ -8,7 +8,7 @@ import { me, partner, byId, taskById, today, fmtMin } from './demo';
 export const frequencies = ['daily', 'twiceWeek', 'weekly', 'monthly', 'once'];
 export const durations = [5, 10, 15, 20, 30, 45, 60, 90];
 export const dayKeys = ['lun', 'mar', 'mer', 'jeu', 'ven', 'sam', 'dim'];
-export const deadlines = [null, 'morning', '14:00', '20:00'];
+export const deadlines = ['morning', 'evening', null]; // Matin · Soir · Peu importe (décision Jeanne 9 sept 2026)
 export const assignModes = ['auto', 'fixed', 'alternate'];
 export const categories = { domestic: 'domestic', mental: 'mental' };
 

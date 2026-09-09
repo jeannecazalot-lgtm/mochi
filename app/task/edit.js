@@ -34,7 +34,8 @@ export default function TaskEdit() {
   const { id, setup: setupId } = useLocalSearchParams();
   const t = copy.task;
   const [task, setTask] = useState(() => (setupId ? fromSetupTask(setupId) : loadTask(id)));
-  const [open, setOpen] = useState(null); // 'window' | 'pain' | 'note'
+  const [open, setOpen] = useState(null); // 'pain' | 'note'
+  const isNew = !id && !setupId; // « Nouvelle tâche » : le strict nécessaire (décisions Jeanne 9 sept 2026)
   // vraie tâche du foyer ? on remplace la démo dès que le store a répondu
   useEffect(() => { if (!setupId) loadRealTask(id).then(rt => { if (rt) setTask(rt); }); }, [id]);
   const set = patch => setTask(x => ({ ...x, ...patch }));
@@ -45,7 +46,7 @@ export default function TaskEdit() {
 
   const mental = !!task.mental_load;
   const accent = mental ? colors.lavender : colors.sage;
-  const deadlineLabel = dl => (dl == null ? t.noDeadline : dl === 'morning' ? t.morning : f(t.before, { h: fmtHour(dl) }));
+  const deadlineLabel = dl => (dl == null ? t.anytime : dl === 'morning' ? t.morning : dl === 'evening' ? t.evening : f(t.before, { h: fmtHour(dl) }));
   const windowLabel = () => {
     const parts = [];
     if (task.window_days.length) parts.push(task.window_days.join(' + '));
@@ -65,17 +66,8 @@ export default function TaskEdit() {
         <ScrollView ref={scrollRef} contentContainerStyle={s.content} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets showsVerticalScrollIndicator={false}>
           {/* Héro */}
           <Card r={18} padding={0} accent={accent} style={s.hero}>
-            {/* Type au tap (retour Jeanne 7 sept 2026) : les deux pills côte à côte, l'active pleine, l'autre en fantôme */}
-            <View style={s.typeRow}>
-              {[{ m: false, l: t.catDomestic, c: colors.sageDeep }, { m: true, l: t.catMental, c: colors.lavenderDeep }].map(o => {
-                const on = mental === o.m;
-                return (
-                  <Pressable key={String(o.m)} onPress={() => set({ mental_load: o.m })} hitSlop={6} style={[s.typePill, { backgroundColor: alpha(o.c, on ? 0.16 : 0.05) }]}>
-                    <Text style={[font.pill, { color: on ? o.c : alpha(colors.ink, 0.35) }]}>{o.l}</Text>
-                  </Pressable>
-                );
-              })}
-            </View>
+            {/* Domestique / Charge mentale retiré de la fiche (décision Jeanne 9 sept 2026) :
+                le ×1,5 reste dans le calcul pour les tâches du catalogue déjà marquées */}
             <TextInput
               value={task.title} onChangeText={v => set({ title: v })} placeholder={t.titlePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)}
               autoCorrect={false} returnKeyType="done" cursorColor={colors.coral} selectionColor={colors.coral} style={s.heroTitle}
@@ -122,27 +114,21 @@ export default function TaskEdit() {
                 <Text style={s.rowTitle}>{t.frequency}</Text>
                 <Chip onPress={() => set({ frequency: next(frequencies, task.frequency) })}>{t[FREQ_KEY[task.frequency]]}</Chip>
               </View>
-              <Pressable onPress={() => toggleOpen('window')} style={s.windowRow}>
-                <View style={{ flex: 1 }}>
-                  <Text style={s.rowTitle}>{t.window}</Text>
-                  <Text style={s.rowSub}>{t.windowHint}</Text>
+              {/* Fenêtre toujours visible (décision Jeanne 9 sept 2026) : les jours + un moment simple */}
+              <View style={s.picker}>
+                <Text style={[s.rowSub, { marginBottom: 6 }]}>{t.daysLabel}</Text>
+                <View style={{ flexDirection: 'row', gap: 5 }}>
+                  {dayKeys.map((k, i) => (
+                    <Pressable key={k} onPress={() => toggleDay(k)} style={[s.dayChip, task.window_days.includes(k) && { backgroundColor: colors.ink }]}>
+                      <Text style={[s.dayText, task.window_days.includes(k) && { color: colors.card }]}>{k}</Text>
+                    </Pressable>
+                  ))}
                 </View>
-                <Chip tone="coral">{windowLabel()}</Chip>
-              </Pressable>
-              {open === 'window' ? (
-                <View style={s.picker}>
-                  <View style={{ flexDirection: 'row', gap: 5 }}>
-                    {dayKeys.map((k, i) => (
-                      <Pressable key={k} onPress={() => toggleDay(k)} style={[s.dayChip, task.window_days.includes(k) && { backgroundColor: colors.ink }]}>
-                        <Text style={[s.dayText, task.window_days.includes(k) && { color: colors.card }]}>{t.days[i]}</Text>
-                      </Pressable>
-                    ))}
-                  </View>
-                  <View style={{ flexDirection: 'row', gap: 5, marginTop: 8, flexWrap: 'wrap' }}>
-                    {deadlines.map(dl => <Chip key={String(dl)} small selected={task.deadline === dl} onPress={() => set({ deadline: dl })}>{deadlineLabel(dl)}</Chip>)}
-                  </View>
+                <Text style={[s.rowSub, { marginTop: 10, marginBottom: 6 }]}>{t.momentLabel}</Text>
+                <View style={{ flexDirection: 'row', gap: 5, flexWrap: 'wrap' }}>
+                  {deadlines.map(dl => <Chip key={String(dl)} small selected={task.deadline === dl} onPress={() => set({ deadline: dl })}>{deadlineLabel(dl)}</Chip>)}
                 </View>
-              ) : null}
+              </View>
             </Card>
           </Section>}
 
@@ -151,7 +137,8 @@ export default function TaskEdit() {
             <View style={s.grid}>
               <StatTile label={t.statDuration} value={fmtMinShort(task.duration_min)} onPress={() => set({ duration_min: next(durations, task.duration_min) })} />
               <StatTile label={t.statPain} value={fmtStars(task.pains[me.id])} hint={f(t.painOf, { name: partner.first_name, stars: fmtStars(task.pains[partner.id]) })} active={open === 'pain'} onPress={() => toggleOpen('pain')} />
-              <StatTile label={t.statImport} value={f(t.importOf, { n: task.importance })} onPress={() => set({ importance: (task.importance % 5) + 1 })} />
+              {/* importance (poids du malus) : pas à la création — 3 par défaut, réglable ensuite (décision Jeanne 9 sept) */}
+              {isNew ? null : <StatTile label={t.statImport} value={f(t.importOf, { n: task.importance })} onPress={() => set({ importance: (task.importance % 5) + 1 })} />}
             </View>
             {open === 'pain' ? (
               <Card r={14} padding={0} style={s.painCard}>
@@ -186,7 +173,7 @@ export default function TaskEdit() {
           {task.short ? null : <Section label={t.secOptions}>
             <Card r={14} padding={0} style={s.optCard}>
               <OptionRow first title={t.optDivisible} sub={t.optDivisibleSub} control={<Toggle on={!!task.divisible} onChange={v => set({ divisible: v })} />} />
-              <OptionRow title={t.optExpense} sub={t.optExpenseSub} control={<Toggle on={!!task.has_expense} onChange={v => set({ has_expense: v })} />} />
+              {/* « Dépense associée » retirée (décision Jeanne 9 sept 2026) : la dépense se saisit au moment de cocher, dans la sheet */}
               <OptionRow title={t.optNote} sub={task.note ? <LinkText>{f(t.optNoteSub, { note: task.note })}</LinkText> : t.optNoteEmpty} control={<ChevronRight />} onPress={() => toggleOpen('note')} />
               {open === 'note' ? (
                 <TextInput
