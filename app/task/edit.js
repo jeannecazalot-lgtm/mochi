@@ -10,6 +10,7 @@ import { View, TextInput, StyleSheet, KeyboardAvoidingView } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Card } from '../../src/components/ui';
 import { SheetHandle } from '../../src/components/social/extra';
+import { TaskHeader } from '../../src/components/task/extra';
 import { Row, Arrow } from '../../src/components/task/proto';
 import { RuleEditor } from '../../src/components/task/rule-editor';
 import { dayKeys, me, partner } from '../../src/demo-task';
@@ -55,7 +56,8 @@ const saveSetupTask = (sid, f) => {
 const fromReal = rt => ({ ...EMPTY, ...rt, window_days: (rt.window_days || []).map(k => dayKeys.indexOf(k)).filter(i => i >= 0), who: toWho(rt), pain: rt.pains?.[me.id] ?? 3 });
 const toReal = (f, base = {}) => ({ ...base, ...f, frequency: freqOf(f.window_days), window_days: f.window_days.map(i => dayKeys[i]), ...fromWho(f.who), pains: { ...(base.pains || {}), [me.id]: f.pain }, divisible: false, has_expense: false });
 
-export default function TaskEdit() {
+// `page` : même fiche, présentée en écran plein (proposition C, 9 sept 2026) au lieu d'une sheet
+export function TaskEditBody({ page = false }) {
   const { id, setup: setupId } = useLocalSearchParams();
   const insets = useSafeAreaInsets();
   const isNew = !id && !setupId;
@@ -77,8 +79,8 @@ export default function TaskEdit() {
   const create = async () => { await createRealTask(toReal(f)); dirty.current = false; router.back(); };
 
   return (
-    <KeyboardAvoidingView behavior="padding" style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 31) }]}>
-      <SheetHandle />
+    <KeyboardAvoidingView behavior="padding" style={[s.sheet, page && s.page, { paddingBottom: Math.max(insets.bottom, 31) }]}>
+      {page ? <TaskHeader title={isNew ? t.headerNew : t.headerEdit} backLabel={t.back} /> : <SheetHandle />}
         <View style={s.head}>
           <TextInput
             value={f.title} onChangeText={v => patch({ title: v })} placeholder={t.titlePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)}
@@ -96,9 +98,11 @@ export default function TaskEdit() {
     </KeyboardAvoidingView>
   );
 }
+export default function TaskEdit() { return <TaskEditBody />; }
 
 const s = StyleSheet.create({
   sheet: { backgroundColor: colors.card, paddingTop: 10, paddingHorizontal: space.screenX },
+  page: { flex: 1, paddingTop: 0, backgroundColor: 'transparent' },
   head: { marginTop: 2, marginBottom: 12, paddingHorizontal: 2 },
   title: { ...font.cardTitle, padding: 0 },
   block: { marginBottom: 8 },
