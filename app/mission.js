@@ -241,7 +241,7 @@ export default function Mission() {
                     <Caption style={{ textAlign: 'left' }}>{moveMsg || fill(t.moveWarn, { name: partner.first_name })}</Caption>
                   </View>
                   {/* tâche commune : rien à repasser, l'autre est déjà dessus (audit 8 sept) */}
-                  {!m.occ?.assignee_id ? null : <Row strong label={fill(t.swapLabel, { name: partner.first_name })} sub={fill(t.swapSub, { name: partner.first_name })} left={<Avatar initial={partner.initial} color={partner.color} photo={partner.avatar_url} size={22} />} right={<Arrow />} onPress={swap} />}
+                  {!m.occ?.assignee_id ? null : <Row strong label={fill(t.swapLabel, { name: partner.first_name })} sub={fill(t.swapSub, { name: partner.first_name })} left={<Avatar initial={partner.initial} color={partner.color} photo={partner.avatar_url} size={22} />} right={<PillChip label={t.swapBtn} selected onPress={swap} />} onPress={swap} />}
                 </Animated.View>
               )}
             </Card>
