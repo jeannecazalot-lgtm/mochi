@@ -212,15 +212,7 @@ export default function Mission() {
       <SheetHandle />
       {head}
 
-      {ruleOpen ? (
-        <Animated.View entering={FadeIn.duration(motion.micro)} layout={layout}>
-          <Card r={16} padding={0}>
-            <Row first strong label={t.ruleLabel} left={<Text style={s.back}>‹</Text>} onPress={() => { Haptics.selectionAsync().catch(() => {}); setRuleOpen(false); }} />
-            {/* pas de durée ici : « Temps passé » se règle à la coche (Jeanne, 9 sept 2026) */}
-            <RuleEditor rule={rule} onPatch={patchRule} showMoment showEffort showDuration={false} first={false} />
-          </Card>
-        </Animated.View>
-      ) : timing ? (
+      {timing ? (
         <Animated.View entering={FadeIn.duration(motion.micro)} layout={layout}>
           <Card r={16} padding={0}>
             <Row first label={t.timeLabel} sub={t.timeAfterSub} right={<Stepper value={fmtMin(spent)} onMinus={() => setSpent(v => Math.max(5, v - 5))} onPlus={() => setSpent(v => v + 5)} />} />
@@ -252,9 +244,16 @@ export default function Mission() {
               )}
             </Card>
           </Animated.View>
+          {/* « Modifier la tâche » se déplie SOUS « Je n'aurai pas le temps », qui reste visible (Jeanne, 9 sept 2026) */}
           <Animated.View layout={layout}>
             <Card r={16} padding={0}>
-              <Row first label={t.ruleLabel} sub={ruleSummary} right={<Arrow />} onPress={() => { Haptics.selectionAsync().catch(() => {}); setRuleOpen(true); }} />
+              <Row first label={t.ruleLabel} sub={ruleOpen ? null : ruleSummary} right={ruleOpen ? <Text style={s.chevDown}>›</Text> : <Arrow />} onPress={() => { Haptics.selectionAsync().catch(() => {}); setRuleOpen(o => !o); }} />
+              {ruleOpen ? (
+                <Animated.View entering={FadeIn.duration(motion.micro)}>
+                  {/* pas de durée ici : « Temps passé » se règle à la coche (Jeanne, 9 sept 2026) */}
+                  <RuleEditor rule={rule} onPatch={patchRule} showMoment showEffort showDuration={false} first={false} />
+                </Animated.View>
+              ) : null}
             </Card>
           </Animated.View>
         </>
@@ -272,6 +271,7 @@ const s = StyleSheet.create({
   metaTxt: { fontSize: 13, fontWeight: '400', color: colors.muted },
   block: { marginBottom: 8 },
   back: { fontSize: 24, lineHeight: 26, color: colors.muted, marginRight: 10, marginTop: -2 },
+  chevDown: { fontSize: 16, color: colors.muted, transform: [{ rotate: '90deg' }] },
   moveBox: { paddingVertical: 12, paddingHorizontal: 14, gap: 9, borderTopWidth: 1, borderTopColor: colors.line },
   days: { flexDirection: 'row', gap: 6 },
   amountBox: { flexDirection: 'row', alignItems: 'center', gap: 4, borderBottomWidth: 1.5, borderBottomColor: colors.ink, paddingBottom: 2 },
