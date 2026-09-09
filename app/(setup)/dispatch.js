@@ -42,6 +42,14 @@ function usePopOnChange(dep) {
   return useAnimatedStyle(() => ({ transform: [{ scale: sc.value }] }));
 }
 
+// jours de la tâche cette semaine : choisis à la main (fiche courte) ou placés par Mochi
+const todayDow = () => (new Date().getDay() + 6) % 7;
+const dayLabels = (it, index) => {
+  const td = todayDow();
+  const offs = daysForTask({ perWeek: it.freq, windowDays: it.window_days, availability: setup.availability, todayDow: td, seed: index });
+  return offs.map(o => copy.calendar.dowsLong[(td + o) % 7].toLowerCase()).join(' · ');
+};
+
 function Row({ it, index, onToggle, onFreq, onOpen }) {
   const both = it.assignee_id === 'both';
   const alt = it.assignee_id === 'alt';
@@ -65,6 +73,8 @@ function Row({ it, index, onToggle, onFreq, onOpen }) {
                 <Text style={s.freqTxt}>{fill(t.timesPerWeek, { n: it.freq })}</Text>
                 <Pressable onPress={() => onFreq(1)} hitSlop={8} style={s.stepBtn}><Text style={s.stepTxt}>+</Text></Pressable>
               </View>
+              {/* les jours que la tâche occupera cette semaine (tap sur la rangée pour les changer) */}
+              <Text style={[s.daysTxt, it.window_days?.length && { color: colors.ink }]}>{dayLabels(it, index)}</Text>
             </View>
           </Pressable>
           {/* porteur explicite : avatar + prénom, tap = bascule
@@ -93,7 +103,7 @@ const itemsFromSetup = () => {
   return setup.result.items.map(it => {
     const tk = byTask[it.task_id] || {};
     const mins = tk.duration_min || 15, freq = tk.per_week || 1;
-    return { task_id: it.task_id, label: tk.label || it.task_id, emoji: tk.emoji, mins, freq, weekly_min: freq * mins, assignee_id: it.assignee_id };
+    return { task_id: it.task_id, label: tk.label || it.task_id, emoji: tk.emoji, mins, freq, weekly_min: freq * mins, assignee_id: it.assignee_id, window_days: tk.window_days || null };
   });
 };
 
@@ -205,6 +215,7 @@ const s = StyleSheet.create({
   freqRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6 },
   stepBtn: { width: 24, height: 24, borderRadius: 12, backgroundColor: alpha(colors.ink, 0.06), alignItems: 'center', justifyContent: 'center' },
   stepTxt: { fontSize: 15, fontWeight: '600', color: colors.ink, lineHeight: 17 },
+  daysTxt: { fontSize: 12, fontWeight: '500', color: colors.muted, marginTop: 4 },
   freqTxt: { fontSize: 13, fontWeight: '500', color: colors.muted, fontVariant: ['tabular-nums'], minWidth: 52, textAlign: 'center' },
   whoChip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 4, paddingLeft: 4, paddingRight: 10, borderRadius: 999, borderWidth: 1.5, backgroundColor: colors.card },
   whoTxt: { fontSize: 13, fontWeight: '600', color: colors.ink },

@@ -17,7 +17,7 @@ import { ensureSession } from './profile';
 import { uuid, mutate, drain, resetLocal, read, pull } from './store';
 import { localIso as todayIso } from './dates';
 import { setup, saveRealTaskIds, saveHouseholdId } from './setup-state';
-import { placeDays } from './dispatch';
+import { placeDays, daysForTask } from './dispatch';
 import { localIso, addDaysIso } from './dates';
 import { me, partner } from './demo';
 import { getPartnerUid } from './identity';
@@ -111,6 +111,10 @@ export async function syncSetup(result) {
       frequency: t.per_week >= 5 ? 'daily' : 'weekly',
       duration_min: t.duration_min || 15, mental_load: !!t.mental_load,
       divisible: !!t.divisible, created_by: uid,
+      // jours + moment choisis sur le 12 (fiche courte) — 9 sept 2026
+      window_days: t.window_days?.length ? t.window_days : null,
+      window_end: t.deadline === 'morning' ? '12:00' : null,
+      window_start: t.deadline === 'evening' ? '17:00' : null,
     });
     const pref = setup.prefs?.[t.id];
     if (pref) {
@@ -147,7 +151,7 @@ export async function syncSetup(result) {
     const avail = it.assignee_id === partner.id ? (pAvail || setup.availability)
       : it.assignee_id === me.id ? setup.availability
       : mergeAvail(setup.availability, pAvail);
-    const offsets = placeDays(perWeek, avail, todayDow, seed++);
+    const offsets = daysForTask({ perWeek, windowDays: t.window_days, availability: avail, todayDow, seed: seed++ });
     for (let k = 0; k < offsets.length; k++) {
       // moi → uid réel ; binôme → son uid RÉEL s'il a rejoint (bot couple, 4 sept
       // 2026 : ses tâches partaient en « commun ») sinon null ; 'both' → null ;

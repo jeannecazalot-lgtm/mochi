@@ -23,10 +23,12 @@ const next = (list, v) => list[(list.indexOf(v) + 1) % list.length];
 const fromSetupTask = sid => {
   const c = catalogue.find(x => x.id === sid); // entrée directe /plan (démo) : le catalogue fait foi
   const tk = (setup.tasks || []).find(x => x.id === sid) || (c ? { label: c.label, emoji: c.emoji, duration_min: c.mins, per_week: freqPerWeek(c.freq), mental_load: !!c.mental } : null);
-  return { ...loadTask(null), short: true, setupId: sid, title: tk?.label || '', emoji: tk?.emoji || '', duration_min: tk?.duration_min || 15, per_week: tk?.per_week || 1, mental_load: !!tk?.mental_load, note: tk?.note || '' };
+  return { ...loadTask(null), short: true, setupId: sid, title: tk?.label || '', emoji: tk?.emoji || '', duration_min: tk?.duration_min || 15, per_week: tk?.per_week || 1, mental_load: !!tk?.mental_load, note: tk?.note || '',
+    window_days: (tk?.window_days || []).map(i => dayKeys[i]).filter(Boolean), deadline: tk?.deadline ?? null };
 };
 const saveSetupTask = fiche => {
-  saveTasks((setup.tasks || []).map(tk => (tk.id === fiche.setupId ? { ...tk, label: fiche.title.trim(), duration_min: fiche.duration_min, per_week: fiche.per_week, mental_load: !!fiche.mental_load, note: fiche.note || '' } : tk)));
+  saveTasks((setup.tasks || []).map(tk => (tk.id === fiche.setupId ? { ...tk, label: fiche.title.trim(), duration_min: fiche.duration_min, per_week: fiche.per_week, mental_load: !!fiche.mental_load, note: fiche.note || '',
+    window_days: (fiche.window_days || []).map(k => dayKeys.indexOf(k)).filter(i => i >= 0), deadline: fiche.deadline ?? null } : tk)));
   if (setup.result?.items) saveResult({ ...setup.result, items: setup.result.items.map(it => (it.task_id === fiche.setupId ? { ...it, weekly_min: fiche.per_week * fiche.duration_min } : it)) });
 };
 
@@ -84,6 +86,21 @@ export default function TaskEdit() {
                       <Chip small onPress={() => set({ per_week: Math.max(1, task.per_week - 1) })}>−</Chip>
                       <Text style={[s.rowTitle, { minWidth: 56, textAlign: 'center' }]}>{copy.setup.timesPerWeek.replace('{n}', String(task.per_week))}</Text>
                       <Chip small onPress={() => set({ per_week: Math.min(14, task.per_week + 1) })}>+</Chip>
+                    </View>
+                  </View>
+                  {/* jours + moment, aussi depuis le 12 (décision Jeanne 9 sept 2026) */}
+                  <View style={s.picker}>
+                    <Text style={[s.rowSub, { marginBottom: 6 }]}>{t.daysLabel}</Text>
+                    <View style={{ flexDirection: 'row', gap: 5 }}>
+                      {dayKeys.map(k => (
+                        <Pressable key={k} onPress={() => toggleDay(k)} style={[s.dayChip, task.window_days.includes(k) && { backgroundColor: colors.ink }]}>
+                          <Text style={[s.dayText, task.window_days.includes(k) && { color: colors.card }]}>{k}</Text>
+                        </Pressable>
+                      ))}
+                    </View>
+                    <Text style={[s.rowSub, { marginTop: 10, marginBottom: 6 }]}>{t.momentLabel}</Text>
+                    <View style={{ flexDirection: 'row', gap: 5, flexWrap: 'wrap' }}>
+                      {deadlines.map(dl => <Chip key={String(dl)} small selected={task.deadline === dl} onPress={() => set({ deadline: dl })}>{deadlineLabel(dl)}</Chip>)}
                     </View>
                   </View>
                 </Card>

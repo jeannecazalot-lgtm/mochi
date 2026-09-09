@@ -100,4 +100,14 @@ const T = (id, duration_min, per_week, pain = 2, extra = {}) => ({ id, duration_
   const r7 = placeDays(7, {}, 2, 5);
   check('8g. quotidien + seed → toujours les 7 jours', r7.length === 7 && new Set(r7).size === 7, JSON.stringify(r7));
 }
+// 9 · daysForTask : les jours choisis à la main priment sur le placement
+{
+  const { daysForTask } = mod.exports;
+  const r1 = daysForTask({ perWeek: 1, windowDays: [3], availability: null, todayDow: 0 }); // jeudi, on est lundi
+  check('9. jours choisis (jeu) → offset 3', r1.length === 1 && r1[0] === 3, JSON.stringify(r1));
+  const r2 = daysForTask({ perWeek: 2, windowDays: [0, 5], availability: null, todayDow: 2 }); // lun + sam, on est mercredi
+  check('9b. lun + sam depuis mercredi → offsets 3 et 5', JSON.stringify(r2) === '[3,5]', JSON.stringify(r2));
+  const r3 = daysForTask({ perWeek: 2, windowDays: [], availability: null, todayDow: 0, seed: 1 });
+  check('9c. sans jours choisis → placement Mochi (2 jours)', r3.length === 2, JSON.stringify(r3));
+}
 process.exit(failed ? 1 : 0);

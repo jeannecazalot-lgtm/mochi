@@ -26,7 +26,7 @@ const full = { presentation: 'fullScreenModal', animation: 'fade' };
 const SCREEN_NO = {
   '/': '17', '/planning': '19', '/balance': '21', '/budget': '23',
   '/identite': '06', '/dispos': '07', '/prefs': '08', '/invite': '09', '/duo-forme': '09b',
-  '/taches': '10', '/calcul': '11', '/dispatch': '12', '/reattribuer': '13',
+  '/taches': '10', '/calcul': '11', '/dispatch': '12',
   '/afaire': '20-21', '/retard': '21', '/activite': '22', '/balance-detail': '22', '/point-hebdo': '23',
   '/onboarding': '01-05', '/wrapped': '24-25', '/bilan': '26', '/celebration': '28',
   '/event': '30', '/pense-bete': '32', '/mood': '33', '/notifs': '34',

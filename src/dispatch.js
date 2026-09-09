@@ -123,3 +123,13 @@ export const placeDays = (perWeek, availability, todayDow, seed = 0) => {
   for (let off = 0; chosen.length < n && off < 7; off++) if (!chosen.includes(off)) chosen.push(off);
   return chosen.sort((a, b) => a - b);
 };
+
+// Jours d'une tâche pour la semaine à venir (décalages 0-6 depuis aujourd'hui) :
+// les jours choisis à la main (fiche courte du 12, indices 0-6 = L-D) priment ;
+// sinon Mochi place selon la grille de dispos (retour Jeanne, 9 sept 2026 :
+// « ça me dérange qu'on ne choisisse pas quels jours »).
+export const daysForTask = ({ perWeek, windowDays, availability, todayDow, seed = 0 }) => {
+  const chosen = (windowDays || []).filter(i => i >= 0 && i <= 6);
+  if (chosen.length) return [...new Set(chosen.map(i => (i - todayDow + 7) % 7))].sort((a, b) => a - b);
+  return placeDays(perWeek, availability, todayDow, seed);
+};
