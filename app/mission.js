@@ -11,7 +11,8 @@ import { LinearTransition } from 'react-native-reanimated';
 import { Card, Micro, Avatar, LinkText } from '../src/components/ui';
 import { SheetHandle, CheckCircle } from '../src/components/social/extra';
 import { Animated, FadeIn, useCheckPop } from '../src/components/motion';
-import { Row, Stepper, PillChip, RuleGroup, ConfirmBlock, Arrow, Caption } from '../src/components/task/proto';
+import { Row, Stepper, PillChip, ConfirmBlock, Arrow, Caption } from '../src/components/task/proto';
+import { RuleEditor } from '../src/components/task/rule-editor';
 import { loadMission, saveRule, completeMission, parseAmount } from '../src/mission-data';
 import { moveOccurrence, toggleOccurrence, takeOver } from '../src/occ-actions';
 import { requestSwap } from '../src/swap-actions';
@@ -28,7 +29,7 @@ const CLOSE_AFTER = 900; // la confirmation reste visible avant la fermeture aut
 const layout = LinearTransition.springify().damping(motion.spring.damping).stiffness(motion.spring.stiffness);
 
 export default function Mission() {
-  const { occ: occId, tid, title, mins } = useLocalSearchParams();
+  const { occ: occId, tid, title, mins, rule: ruleParam } = useLocalSearchParams(); // rule=1 : règle dépliée d'entrée (captures)
   const insets = useSafeAreaInsets();
   const t = copy.mission;
   const [m, setM] = useState(null); // { real, occ, task, dueIso, mine }
@@ -36,9 +37,8 @@ export default function Mission() {
   const [amount, setAmount] = useState('');
   const [expenseOpen, setExpenseOpen] = useState(false);
   const [asking, setAsking] = useState(false);
-  const [ruleOpen, setRuleOpen] = useState(false);
+  const [ruleOpen, setRuleOpen] = useState(ruleParam === '1');
   const [rule, setRule] = useState(null); // { window_days, who, duration_min, note }
-  const [noteOpen, setNoteOpen] = useState(false);
   const [confirm, setConfirm] = useState(null); // 'done' | 'moved' | 'swap'
   const [movedTo, setMovedTo] = useState(null);
   const [moveMsg, setMoveMsg] = useState(null); // « Déjà prévue mardi »
@@ -51,7 +51,7 @@ export default function Mission() {
   // chips au-delà de la hauteur d'ouverture ne recevaient plus les touches (vu au simulateur le
   // 7 sept 2026). Quand la règle ou le report se déplient, on passe à une détente haute.
   const navigation = useNavigation();
-  useEffect(() => { navigation.setOptions({ sheetAllowedDetents: (ruleOpen || asking || expenseOpen || noteOpen) ? [0.92] : 'fitToContents' }); }, [ruleOpen, asking, expenseOpen, noteOpen]);
+  useEffect(() => { navigation.setOptions({ sheetAllowedDetents: (ruleOpen || asking || expenseOpen) ? [0.92] : 'fitToContents' }); }, [ruleOpen, asking, expenseOpen]);
   const dirty = useRef(false);
   const ruleRef = useRef(null);
 
@@ -62,7 +62,7 @@ export default function Mission() {
       const wasDone = r.occ?.status === 'done' || missionDone.has(r.occ?.id);
       if (wasDone) { setDone(true); setAlready(true); }
       setSpent(wasDone && r.occ?.duration_min ? r.occ.duration_min : r.task.duration_min);
-      setRule({ window_days: r.task.window_days, who: r.task.who, duration_min: r.task.duration_min, note: r.task.note });
+      setRule({ window_days: r.task.window_days, deadline: r.task.deadline ?? null, who: r.task.who, duration_min: r.task.duration_min, note: r.task.note, pain: r.task.pain ?? 3 });
     });
   }, []);
   // la règle s'enregistre d'elle-même à la fermeture (pas de bouton Enregistrer)
@@ -213,21 +213,8 @@ export default function Mission() {
           <Row first label={t.ruleLabel} sub={ruleOpen ? null : ruleSummary} right={<Arrow />} onPress={() => { Haptics.selectionAsync().catch(() => {}); setRuleOpen(o => !o); }} />
           {ruleOpen ? (
             <Animated.View entering={FadeIn.duration(motion.micro)}>
-              <RuleGroup label={t.ruleDays} row>
-                {/* « lun mar mer… » comme dans « Déplacer à » — une seule convention de jours (audit 8 sept) */}
-                {copy.calendar.dowsLong.map((d, i) => <PillChip key={i} flex label={d.toLowerCase()} selected={rule.window_days.includes(i)}
-                  onPress={() => patchRule({ window_days: rule.window_days.includes(i) ? rule.window_days.filter(x => x !== i) : [...rule.window_days, i].sort() })} />)}
-              </RuleGroup>
-              <RuleGroup label={t.ruleWho}>
-                <PillChip label={t.who.me} avatar={me} selected={rule.who === 'me'} onPress={() => patchRule({ who: 'me' })} />
-                <PillChip label={partner.first_name} avatar={partner} selected={rule.who === 'partner'} onPress={() => patchRule({ who: 'partner' })} />
-                <PillChip label={t.who.alt} selected={rule.who === 'alt'} onPress={() => patchRule({ who: 'alt' })} />
-                <PillChip label={t.who.auto} selected={rule.who === 'auto'} onPress={() => patchRule({ who: 'auto' })} />
-              </RuleGroup>
-              <Row label={t.ruleDuration} right={<Stepper value={fmtMin(rule.duration_min)} onMinus={() => patchRule({ duration_min: Math.max(5, rule.duration_min - 5) })} onPlus={() => patchRule({ duration_min: rule.duration_min + 5 })} />} />
-              {noteOpen
-                ? <View style={s.noteBox}><TextInput value={rule.note} onChangeText={v => patchRule({ note: v })} placeholder={t.notePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)} multiline style={s.noteInput} /></View>
-                : <Row label={t.ruleNote} sub={rule.note ? <LinkText>{rule.note}</LinkText> : t.notePlaceholder} right={<Arrow />} onPress={() => setNoteOpen(true)} />}
+              {/* pas de durée ici : « Temps passé » juste au-dessus suffit (Jeanne, 9 sept 2026) */}
+              <RuleEditor rule={rule} onPatch={patchRule} showMoment showEffort showDuration={false} />
             </Animated.View>
           ) : null}
         </Card>

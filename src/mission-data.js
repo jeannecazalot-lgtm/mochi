@@ -24,6 +24,9 @@ export const whoToCols = (who, uid) => who === 'alt' ? { assign_mode: 'alternate
       : { assign_mode: 'auto', fixed_assignee: null };
 
 // occurrence + tâche au format de la sheet ; `real` = vit dans le store local
+// moment de la règle depuis les colonnes de fenêtre
+const deadlineOf = tk => (tk?.window_start && parseInt(String(tk.window_start).slice(0, 2), 10) >= 17 ? 'evening' : tk?.window_end && parseInt(String(tk.window_end).slice(0, 2), 10) <= 12 ? 'morning' : null);
+
 export async function loadMission({ occId, tid, title, mins }) {
   const occs = await read('occurrences');
   const row = occs.find(o => o.id === occId);
@@ -31,6 +34,7 @@ export async function loadMission({ occId, tid, title, mins }) {
     const tasks = await read('tasks');
     const tk = tasks.find(x => x.id === row.task_id) || {};
     const uid = getUid();
+    const myPain = (await read('task_pains')).find(p => p.task_id === row.task_id && p.user_id === uid)?.pain ?? 3;
     return {
       real: true, occ: row, dueIso: row.due_date,
       mine: !row.assignee_id || !uid || row.assignee_id === uid,
@@ -38,7 +42,7 @@ export async function loadMission({ occId, tid, title, mins }) {
       // (retour Ketlon 7 sept 2026 : « je peux pas appuyer sur une autre date »)
       busy: occs.filter(o => o.id !== occId && o.task_id === row.task_id && o.kind === row.kind && o.status !== 'skipped').map(o => o.due_date),
       task: { id: tk.id || row.task_id, title: tk.title || String(title || '…'), duration_min: tk.duration_min || Number(mins) || 15,
-        window_days: tk.window_days || [], who: whoOf(tk, uid), note: tk.note || '' },
+        window_days: tk.window_days || [], deadline: deadlineOf(tk), who: whoOf(tk, uid), note: tk.note || '', pain: myPain },
     };
   }
   const demo = demoOccs.find(o => o.id === occId) || (title ? null : demoOccs.find(o => o.assignee_id === me.id && o.status !== 'done'));
@@ -48,7 +52,7 @@ export async function loadMission({ occId, tid, title, mins }) {
     real: false, occ: demo || { id: occId }, dueIso: demo ? localIso(demo.due_date) : localIso(),
     mine: !demo || demo.assignee_id === me.id, busy: [],
     task: { id: tid ? String(tid) : tk?.id || null, title: tk?.title || String(title), duration_min: tk?.duration_min || Number(mins) || 15,
-      window_days: [], who: tk ? whoOf(tk) : 'auto', note: '' },
+      window_days: [], who: tk ? whoOf(tk) : 'auto', note: '', pain: 3 },
   };
 }
 
@@ -57,8 +61,11 @@ export async function saveRule(taskId, rule) {
   const rows = await read('tasks');
   const row = rows.find(r => r.id === taskId);
   if (!row) return false;
-  const next = { ...row, window_days: rule.window_days, duration_min: rule.duration_min, note: rule.note || null, ...whoToCols(rule.who, getUid()) };
+  const next = { ...row, window_days: rule.window_days, duration_min: rule.duration_min, note: rule.note || null, ...whoToCols(rule.who, getUid()),
+    window_end: rule.deadline === 'morning' ? '12:00' : null, window_start: rule.deadline === 'evening' ? '17:00' : null };
   await mutate('tasks', next);
+  // l'effort = MA pénibilité (décision Jeanne 9 sept 2026 : l'effort fait partie de la règle)
+  if (rule.pain && getUid()) await mutate('task_pains', { task_id: taskId, user_id: getUid(), pain: rule.pain });
   await applyRuleToOccurrences(next, rule); // les prochaines occurrences suivent (7 sept 2026)
   // l'autre voit la modif dans son fil (décision Jeanne 7 sept 2026)
   const t = copy.mission;

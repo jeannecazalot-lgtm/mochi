@@ -1,243 +1,105 @@
-// Écran 14 · Fiche tâche (création / édition). Recette : docs/recettes/14-fiche-tache.md
-// `?id=` : vraie tâche du foyer (store local, Enregistrer persiste — 1er sept 2026)
-// ou tâche de démo ; sinon fiche vierge.
+// Fiche tâche = LA sheet du Planning, sans ce qui ne sert pas hors occurrence (décision Jeanne
+// 9 sept 2026 : « garder le A partout mais enlever temps passé / pas le temps / dépense »).
+// Trois entrées : `?setup=` depuis le 12 (tâche encore locale), `?id=` tâche réelle du foyer,
+// rien = « Nouvelle tâche ». Le titre s'édite en tête ; la règle (jours = fréquence, moment,
+// qui, durée, effort, note) est dépliée d'entrée. Comme la sheet, tout s'enregistre à la
+// fermeture — sauf une nouvelle tâche, qui a besoin d'un « Créer ».
 import React, { useState, useEffect, useRef } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
-import { View, Text, TextInput, Pressable, ScrollView, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { GlowBg, Card, Avatar, LinkText } from '../../src/components/ui';
-import { TaskHeader, Section, Toggle, Chip, StatTile, Stars, Segmented, OptionRow, ChevronRight, TaskCTA, TaskFooter, taskTokens } from '../../src/components/task/extra';
-import { loadTask, frequencies, durations, dayKeys, deadlines, me, partner, fmtMinShort, fmtStars, fmtHour } from '../../src/demo-task';
+import { View, TextInput, StyleSheet, KeyboardAvoidingView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Card } from '../../src/components/ui';
+import { SheetHandle } from '../../src/components/social/extra';
+import { Row, Arrow } from '../../src/components/task/proto';
+import { RuleEditor } from '../../src/components/task/rule-editor';
+import { dayKeys, me, partner } from '../../src/demo-task';
 import { loadRealTask, saveRealTask, createRealTask } from '../../src/task-actions';
 import { setup, saveTasks, saveResult, freqPerWeek } from '../../src/setup-state';
+import { daysForTask } from '../../src/dispatch';
 import { catalogue } from '../../src/demo-setup';
 import copy from '../../src/data/copy.json';
-import { colors, alpha, font } from '../../src/theme';
+import { colors, alpha, font, space } from '../../src/theme';
 
-const f = (s, vars) => s.replace(/\{(\w+)\}/g, (_, k) => (vars[k] ?? ''));
-const FREQ_KEY = { daily: 'freqDaily', twiceWeek: 'freqTwiceWeek', weekly: 'freqWeekly', monthly: 'freqMonthly', once: 'freqOnce' };
-const next = (list, v) => list[(list.indexOf(v) + 1) % list.length];
+const t = copy.task;
+const todayDow = () => (new Date().getDay() + 6) % 7;
 
-// Fiche COURTE depuis l'écran 12 (retour Jeanne 7 sept 2026 : « trop d'infos », titre vide) :
-// la tâche vit encore dans setup.tasks (pas d'uuid) → nom, type, fréquence, durée, note.
+// who de la règle ↔ colonnes assign_mode / fixed_assignee de la fiche réelle
+const toWho = f => (f.assign_mode === 'alternate' ? 'alt' : f.assign_mode === 'fixed' ? (f.fixed_assignee === partner.id ? 'partner' : 'me') : 'auto');
+const fromWho = who => (who === 'alt' ? { assign_mode: 'alternate', fixed_assignee: null } : who === 'auto' ? { assign_mode: 'auto', fixed_assignee: null } : { assign_mode: 'fixed', fixed_assignee: who === 'partner' ? partner.id : me.id });
+// les jours cochés font la fréquence
+const freqOf = days => (days.length >= 7 ? 'daily' : days.length >= 2 ? 'twiceWeek' : 'weekly');
+const EMPTY = { title: '', emoji: '', window_days: [], deadline: null, who: 'auto', duration_min: 15, note: '', pain: 3, importance: 3, mental_load: false };
+
+// fiche depuis le 12 : la tâche vit dans setup.tasks ; les jours arrivent PRÉ-COCHÉS avec le
+// placement de Mochi (retour Jeanne 9 sept 2026)
 const fromSetupTask = sid => {
-  const c = catalogue.find(x => x.id === sid); // entrée directe /plan (démo) : le catalogue fait foi
-  const tk = (setup.tasks || []).find(x => x.id === sid) || (c ? { label: c.label, emoji: c.emoji, duration_min: c.mins, per_week: freqPerWeek(c.freq), mental_load: !!c.mental } : null);
-  return { ...loadTask(null), short: true, setupId: sid, title: tk?.label || '', emoji: tk?.emoji || '', duration_min: tk?.duration_min || 15, per_week: tk?.per_week || 1, mental_load: !!tk?.mental_load, note: tk?.note || '',
-    window_days: (tk?.window_days || []).map(i => dayKeys[i]).filter(Boolean), deadline: tk?.deadline ?? null };
+  const c = catalogue.find(x => x.id === sid);
+  const tk = (setup.tasks || []).find(x => x.id === sid) || (c ? { label: c.label, emoji: c.emoji, duration_min: c.mins, per_week: freqPerWeek(c.freq), pain: c.pain } : null);
+  const items = setup.result?.items || [];
+  const index = Math.max(0, items.findIndex(it => it.task_id === sid));
+  const item = items[index];
+  const td = todayDow();
+  const offs = daysForTask({ perWeek: tk?.per_week || 1, windowDays: tk?.window_days, availability: setup.availability, todayDow: td, seed: index });
+  const who = item ? (item.assignee_id === me.id ? 'me' : item.assignee_id === partner.id ? 'partner' : item.assignee_id === 'alt' ? 'alt' : 'auto') : 'auto';
+  return { ...EMPTY, title: tk?.label || '', emoji: tk?.emoji || '', window_days: offs.map(o => (td + o) % 7).sort((a, b) => a - b), deadline: tk?.deadline ?? null,
+    who, duration_min: tk?.duration_min || 15, note: tk?.note || '', pain: tk?.pain ?? 3, mental_load: !!tk?.mental_load };
 };
-const saveSetupTask = fiche => {
-  saveTasks((setup.tasks || []).map(tk => (tk.id === fiche.setupId ? { ...tk, label: fiche.title.trim(), duration_min: fiche.duration_min, per_week: fiche.per_week, mental_load: !!fiche.mental_load, note: fiche.note || '',
-    window_days: (fiche.window_days || []).map(k => dayKeys.indexOf(k)).filter(i => i >= 0), deadline: fiche.deadline ?? null } : tk)));
-  if (setup.result?.items) saveResult({ ...setup.result, items: setup.result.items.map(it => (it.task_id === fiche.setupId ? { ...it, weekly_min: fiche.per_week * fiche.duration_min } : it)) });
+const saveSetupTask = (sid, f) => {
+  const per_week = f.window_days.length || 1;
+  saveTasks((setup.tasks || []).map(tk => (tk.id === sid ? { ...tk, label: f.title.trim() || tk.label, duration_min: f.duration_min, per_week, pain: f.pain, note: f.note || '', window_days: f.window_days, deadline: f.deadline ?? null } : tk)));
+  if (setup.result?.items) {
+    const assignee = f.who === 'me' ? me.id : f.who === 'partner' ? partner.id : f.who === 'alt' ? 'alt' : null;
+    saveResult({ ...setup.result, items: setup.result.items.map(it => (it.task_id === sid ? { ...it, weekly_min: per_week * f.duration_min, ...(assignee ? { assignee_id: assignee } : {}) } : it)) });
+  }
 };
+const fromReal = rt => ({ ...EMPTY, ...rt, window_days: (rt.window_days || []).map(k => dayKeys.indexOf(k)).filter(i => i >= 0), who: toWho(rt), pain: rt.pains?.[me.id] ?? 3 });
+const toReal = (f, base = {}) => ({ ...base, ...f, frequency: freqOf(f.window_days), window_days: f.window_days.map(i => dayKeys[i]), ...fromWho(f.who), pains: { ...(base.pains || {}), [me.id]: f.pain }, divisible: false, has_expense: false });
 
 export default function TaskEdit() {
   const { id, setup: setupId } = useLocalSearchParams();
-  const t = copy.task;
-  const [task, setTask] = useState(() => (setupId ? fromSetupTask(setupId) : loadTask(id)));
-  const [open, setOpen] = useState(null); // 'pain' | 'note'
-  const isNew = !id && !setupId; // « Nouvelle tâche » : le strict nécessaire (décisions Jeanne 9 sept 2026)
-  // vraie tâche du foyer ? on remplace la démo dès que le store a répondu
-  useEffect(() => { if (!setupId) loadRealTask(id).then(rt => { if (rt) setTask(rt); }); }, [id]);
-  const set = patch => setTask(x => ({ ...x, ...patch }));
-  const scrollRef = useRef(null);
-  // la note est le dernier champ : on déroule jusqu'en bas quand elle s'ouvre, et le ScrollView
-  // suit le clavier (retour Jeanne 7 sept 2026 : « le champ n'apparaît pas, juste le clavier »)
-  const toggleOpen = k => setOpen(o => { const n = o === k ? null : k; if (n === 'note') setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 120); return n; });
+  const insets = useSafeAreaInsets();
+  const isNew = !id && !setupId;
+  const [f, setF] = useState(() => (setupId ? fromSetupTask(setupId) : EMPTY));
+  const [base, setBase] = useState(null); // fiche réelle d'origine (rien n'est perdu à l'enregistrement)
+  useEffect(() => { if (id) loadRealTask(id).then(rt => { if (rt) { setBase(rt); setF(fromReal(rt)); } }); }, [id]);
+  const patch = p => { dirty.current = true; setF(x => ({ ...x, ...p })); };
 
-  const mental = !!task.mental_load;
-  const accent = mental ? colors.lavender : colors.sage;
-  const deadlineLabel = dl => (dl == null ? t.anytime : dl === 'morning' ? t.morning : dl === 'evening' ? t.evening : f(t.before, { h: fmtHour(dl) }));
-  const windowLabel = () => {
-    const parts = [];
-    if (task.window_days.length) parts.push(task.window_days.join(' + '));
-    if (task.deadline) parts.push(deadlineLabel(task.deadline));
-    return parts.length ? parts.join(' · ') : t.windowNone;
-  };
-  const toggleDay = k => set({ window_days: task.window_days.includes(k) ? task.window_days.filter(x => x !== k) : dayKeys.filter(x => x === k || task.window_days.includes(x)) });
-  const setPain = (uid, n) => set({ pains: { ...task.pains, [uid]: n } });
-  const fixedName = task.fixed_assignee === partner.id ? partner.first_name : me.first_name;
+  // comme la sheet du Planning : la fiche s'enregistre d'elle-même à la fermeture
+  const dirty = useRef(false);
+  const latest = useRef({ f, base });
+  latest.current = { f, base };
+  useEffect(() => () => {
+    if (isNew || !dirty.current) return;
+    const { f: cur, base: b } = latest.current;
+    if (setupId) saveSetupTask(setupId, cur);
+    else if (b) saveRealTask(toReal(cur, b));
+  }, []);
+  const create = async () => { await createRealTask(toReal(f)); dirty.current = false; router.back(); };
 
   return (
-    <View style={{ flex: 1 }}>
-      <GlowBg intensity="strong" />
-      <SafeAreaView style={{ flex: 1 }} edges={['top']}>
-        <TaskHeader title={!id && !setupId ? t.headerNew : t.headerEdit} backLabel={t.back} />
-
-        <ScrollView ref={scrollRef} contentContainerStyle={s.content} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets showsVerticalScrollIndicator={false}>
-          {/* Héro */}
-          <Card r={18} padding={0} accent={accent} style={s.hero}>
-            {/* Domestique / Charge mentale retiré de la fiche (décision Jeanne 9 sept 2026) :
-                le ×1,5 reste dans le calcul pour les tâches du catalogue déjà marquées */}
-            <TextInput
-              value={task.title} onChangeText={v => set({ title: v })} placeholder={t.titlePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)}
-              autoCorrect={false} returnKeyType="done" cursorColor={colors.coral} selectionColor={colors.coral} style={s.heroTitle}
-            />
+    <KeyboardAvoidingView behavior="padding" style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 31) }]}>
+      <SheetHandle />
+        <View style={s.head}>
+          <TextInput
+            value={f.title} onChangeText={v => patch({ title: v })} placeholder={t.titlePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)}
+            autoCorrect={false} returnKeyType="done" cursorColor={colors.coral} selectionColor={colors.coral} style={s.title}
+          />
+        </View>
+        <Card r={16} padding={0} style={s.block}>
+          <RuleEditor rule={f} onPatch={patch} showMoment showEffort />
+        </Card>
+        {isNew ? (
+          <Card r={16} padding={0}>
+            <Row first strong label={t.ctaCreate} sub={f.title.trim() ? null : t.titlePlaceholder} right={<Arrow />} onPress={f.title.trim() ? create : undefined} />
           </Card>
-
-          {task.short ? (
-            <>
-              <Section label={t.secWhen}>
-                <Card r={14} padding={0} style={s.whenCard}>
-                  <View style={[s.freqRow, { borderBottomWidth: 0, paddingBottom: 2 }]}>
-                    <Text style={s.rowTitle}>{t.frequency}</Text>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                      <Chip small onPress={() => set({ per_week: Math.max(1, task.per_week - 1) })}>−</Chip>
-                      <Text style={[s.rowTitle, { minWidth: 56, textAlign: 'center' }]}>{copy.setup.timesPerWeek.replace('{n}', String(task.per_week))}</Text>
-                      <Chip small onPress={() => set({ per_week: Math.min(14, task.per_week + 1) })}>+</Chip>
-                    </View>
-                  </View>
-                  {/* jours + moment, aussi depuis le 12 (décision Jeanne 9 sept 2026) */}
-                  <View style={s.picker}>
-                    <Text style={[s.rowSub, { marginBottom: 6 }]}>{t.daysLabel}</Text>
-                    <View style={{ flexDirection: 'row', gap: 5 }}>
-                      {dayKeys.map(k => (
-                        <Pressable key={k} onPress={() => toggleDay(k)} style={[s.dayChip, task.window_days.includes(k) && { backgroundColor: colors.ink }]}>
-                          <Text style={[s.dayText, task.window_days.includes(k) && { color: colors.card }]}>{k}</Text>
-                        </Pressable>
-                      ))}
-                    </View>
-                    <Text style={[s.rowSub, { marginTop: 10, marginBottom: 6 }]}>{t.momentLabel}</Text>
-                    <View style={{ flexDirection: 'row', gap: 5, flexWrap: 'wrap' }}>
-                      {deadlines.map(dl => <Chip key={String(dl)} small selected={task.deadline === dl} onPress={() => set({ deadline: dl })}>{deadlineLabel(dl)}</Chip>)}
-                    </View>
-                  </View>
-                </Card>
-              </Section>
-              <Section label={t.secDetails}>
-                <View style={s.grid}>
-                  <StatTile label={t.statDuration} value={fmtMinShort(task.duration_min)} onPress={() => set({ duration_min: next(durations, task.duration_min) })} />
-                </View>
-              </Section>
-              <Section label={t.secOptions}>
-                <Card r={14} padding={0} style={s.optCard}>
-                  <OptionRow first title={t.optNote} sub={task.note ? <LinkText>{f(t.optNoteSub, { note: task.note })}</LinkText> : t.optNoteEmpty} control={<ChevronRight />} onPress={() => toggleOpen('note')} />
-                  {open === 'note' ? (
-                    <TextInput
-                      value={task.note} onChangeText={v => set({ note: v })} placeholder={t.notePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)}
-                      multiline cursorColor={colors.coral} selectionColor={colors.coral} style={s.noteInput}
-                    />
-                  ) : null}
-                </Card>
-              </Section>
-            </>
-          ) : null}
-
-          {/* Quand */}
-          {task.short ? null : <Section label={t.secWhen}>
-            <Card r={14} padding={0} style={s.whenCard}>
-              <View style={s.freqRow}>
-                <Text style={s.rowTitle}>{t.frequency}</Text>
-                <Chip onPress={() => set({ frequency: next(frequencies, task.frequency) })}>{t[FREQ_KEY[task.frequency]]}</Chip>
-              </View>
-              {/* Fenêtre toujours visible (décision Jeanne 9 sept 2026) : les jours + un moment simple */}
-              <View style={s.picker}>
-                <Text style={[s.rowSub, { marginBottom: 6 }]}>{t.daysLabel}</Text>
-                <View style={{ flexDirection: 'row', gap: 5 }}>
-                  {dayKeys.map((k, i) => (
-                    <Pressable key={k} onPress={() => toggleDay(k)} style={[s.dayChip, task.window_days.includes(k) && { backgroundColor: colors.ink }]}>
-                      <Text style={[s.dayText, task.window_days.includes(k) && { color: colors.card }]}>{k}</Text>
-                    </Pressable>
-                  ))}
-                </View>
-                <Text style={[s.rowSub, { marginTop: 10, marginBottom: 6 }]}>{t.momentLabel}</Text>
-                <View style={{ flexDirection: 'row', gap: 5, flexWrap: 'wrap' }}>
-                  {deadlines.map(dl => <Chip key={String(dl)} small selected={task.deadline === dl} onPress={() => set({ deadline: dl })}>{deadlineLabel(dl)}</Chip>)}
-                </View>
-              </View>
-            </Card>
-          </Section>}
-
-          {/* Détails */}
-          {task.short ? null : <Section label={t.secDetails}>
-            <View style={s.grid}>
-              <StatTile label={t.statDuration} value={fmtMinShort(task.duration_min)} onPress={() => set({ duration_min: next(durations, task.duration_min) })} />
-              <StatTile label={t.statPain} value={fmtStars(task.pains[me.id])} hint={f(t.painOf, { name: partner.first_name, stars: fmtStars(task.pains[partner.id]) })} active={open === 'pain'} onPress={() => toggleOpen('pain')} />
-              {/* importance (poids du malus) : pas à la création — 3 par défaut, réglable ensuite (décision Jeanne 9 sept) */}
-              {isNew ? null : <StatTile label={t.statImport} value={f(t.importOf, { n: task.importance })} onPress={() => set({ importance: (task.importance % 5) + 1 })} />}
-            </View>
-            {open === 'pain' ? (
-              <Card r={14} padding={0} style={s.painCard}>
-                {[me, partner].map((m, i) => (
-                  <View key={m.id} style={[s.painRow, i > 0 && s.painRowLine]}>
-                    <Avatar initial={m.initial} color={m.color} size={26} />
-                    <Text style={[s.rowTitle, { flex: 1 }]}>{i === 0 ? t.painMe : m.first_name}</Text>
-                    <Stars value={task.pains[m.id]} onChange={n => setPain(m.id, n)} color={i === 0 ? colors.ink : colors.lavenderDeep} />
-                  </View>
-                ))}
-              </Card>
-            ) : null}
-          </Section>}
-
-          {/* Assignation */}
-          {task.short ? null : <Section label={t.secAssign}>
-            <Card r={14} padding={0} style={s.assignCard}>
-              <Segmented
-                value={task.assign_mode} onChange={k => set({ assign_mode: k })}
-                options={[{ k: 'auto', l: t.assignAuto, s: t.assignAutoSub }, { k: 'fixed', l: t.assignFixed, s: t.assignFixedSub }, { k: 'alternate', l: t.assignAlt, s: t.assignAltSub }]}
-              />
-              {task.assign_mode === 'fixed' ? (
-                <Pressable onPress={() => set({ fixed_assignee: task.fixed_assignee === me.id ? partner.id : me.id })} style={s.fixedRow}>
-                  <Avatar initial={task.fixed_assignee === partner.id ? partner.initial : me.initial} color={task.fixed_assignee === partner.id ? partner.color : me.color} size={22} />
-                  <Text style={s.rowSub}>{f(t.fixedWho, { name: fixedName })}</Text>
-                </Pressable>
-              ) : null}
-            </Card>
-          </Section>}
-
-          {/* Options */}
-          {task.short ? null : <Section label={t.secOptions}>
-            <Card r={14} padding={0} style={s.optCard}>
-              <OptionRow first title={t.optDivisible} sub={t.optDivisibleSub} control={<Toggle on={!!task.divisible} onChange={v => set({ divisible: v })} />} />
-              {/* « Dépense associée » retirée (décision Jeanne 9 sept 2026) : la dépense se saisit au moment de cocher, dans la sheet */}
-              <OptionRow title={t.optNote} sub={task.note ? <LinkText>{f(t.optNoteSub, { note: task.note })}</LinkText> : t.optNoteEmpty} control={<ChevronRight />} onPress={() => toggleOpen('note')} />
-              {open === 'note' ? (
-                <TextInput
-                  value={task.note} onChangeText={v => set({ note: v })} placeholder={t.notePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)}
-                  multiline cursorColor={colors.coral} selectionColor={colors.coral} style={s.noteInput}
-                />
-              ) : null}
-            </Card>
-          </Section>}
-        </ScrollView>
-
-        <TaskFooter>
-          <TaskCTA label={copy.common.save} disabled={!task.title.trim()} onPress={() => {
-            // fiche courte du 12 : la tâche du setup est mise à jour (le 12 se relit au retour)
-            if (task.short) saveSetupTask(task);
-            // vraie tâche → persistance (store + Supabase) ; démo → simple fermeture
-            else if (task.real) saveRealTask(task).catch(e => console.warn('[14] sauvegarde échouée :', e?.message || e));
-            // nouvelle tâche (FAB) : créée dans le foyer avec ses occurrences (6 sept 2026)
-            else if (!id) createRealTask(task).catch(e => console.warn('[14] création échouée :', e?.message || e));
-            router.back();
-          }} />
-        </TaskFooter>
-      </SafeAreaView>
-    </View>
+        ) : null}
+    </KeyboardAvoidingView>
   );
 }
 
 const s = StyleSheet.create({
-  content: { paddingHorizontal: taskTokens.contentX, paddingBottom: 16 },
-  hero: { paddingVertical: 10, paddingHorizontal: 12, marginBottom: 6, gap: 6 },
-  typeRow: { flexDirection: 'row', gap: 6 },
-  typePill: { paddingHorizontal: 9, paddingVertical: 4, borderRadius: 999 },
-  heroTitle: { fontSize: 20, fontWeight: '600', letterSpacing: -0.8, color: colors.ink, padding: 0, lineHeight: 22 },
-  whenCard: { paddingVertical: 9, paddingHorizontal: 11, marginBottom: 8 },
-  freqRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 2, paddingBottom: 6, borderBottomWidth: 1, borderBottomColor: colors.line },
-  windowRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 6, gap: 8 },
-  rowTitle: { fontSize: 15, fontWeight: '500', color: colors.ink },
-  rowSub: { fontSize: 12, color: colors.muted, fontWeight: '400', marginTop: 2 },
-  picker: { marginTop: 8, paddingTop: 8, borderTopWidth: 1, borderTopColor: colors.line },
-  dayChip: { flex: 1, height: 30, borderRadius: 999, backgroundColor: taskTokens.chipBg, alignItems: 'center', justifyContent: 'center' },
-  dayText: { fontSize: 12, fontWeight: '600', color: colors.ink },
-  grid: { flexDirection: 'row', gap: 5, marginBottom: 8 },
-  painCard: { paddingVertical: 4, paddingHorizontal: 11, marginBottom: 8 },
-  painRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 7 },
-  painRowLine: { borderTopWidth: 1, borderTopColor: colors.line },
-  assignCard: { paddingVertical: 8, paddingHorizontal: 10, marginBottom: 8 },
-  fixedRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8, paddingTop: 8, borderTopWidth: 1, borderTopColor: colors.line },
-  optCard: { paddingVertical: 8, paddingHorizontal: 11, marginBottom: 10 },
-  noteInput: { ...font.secondary, color: colors.ink, fontSize: 14, lineHeight: 19, minHeight: 48, marginTop: 4, paddingTop: 8, borderTopWidth: 1, borderTopColor: colors.line, padding: 0 },
+  sheet: { backgroundColor: colors.card, paddingTop: 10, paddingHorizontal: space.screenX },
+  head: { marginTop: 2, marginBottom: 12, paddingHorizontal: 2 },
+  title: { ...font.cardTitle, padding: 0 },
+  block: { marginBottom: 8 },
 });

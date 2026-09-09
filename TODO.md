@@ -282,3 +282,10 @@ Entrée en dev : `/plan` (Plan des écrans). Écarts artboard/README à arbitrer
 - `react-dom` pinné à 19.2.3 (expo-router tirait 19.2.8, incompatible avec react 19.2.3 du SDK 57).
 - `src/store.js` = squelette offline-first ; la gestion de conflits se précisera avec les premiers écrans.
 - Apple Sign-In : `expo-apple-authentication` installé, pas encore branché à Supabase.
+
+### 9 sept 2026 (soir) — une seule fiche tâche, celle du Planning
+- Décision Jeanne : « garder le A partout » = la sheet du Planning sert aussi de fiche tâche (12, « Nouvelle tâche », tâche existante). Hors occurrence on retire temps passé / je n'aurai pas le temps / dépense ; sur l'occurrence on retire « Durée estimée » (temps passé suffit).
+- La règle = jours (font la fréquence : plus de stepper n×/sem) · moment · qui · durée (hors occurrence) · effort (« pourquoi il n'y a pas l'effort aussi ? ») · note. Composant unique `src/components/task/rule-editor.js`, effort = ma pénibilité (`task_pains`) enregistrée avec la règle.
+- Fiche depuis le 12 : jours pré-cochés avec le placement de Mochi ; tout s'enregistre à la fermeture comme la sheet ; « Créer la tâche » seulement pour une nouvelle.
+- Corrigé : « sam » sur deux lignes dans la rangée des 7 jours (numberOfLines 1).
+- Reste : divisible retiré de la fiche (à confirmer), importance visible nulle part (à trancher), `?rule=1` sur la sheet sert aux captures.

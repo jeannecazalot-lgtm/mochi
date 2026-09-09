@@ -396,7 +396,8 @@
       "auto": "Mochi décide"
     },
     "metaBoth": "À deux",
-    "noTimeSubBoth": "Déplacer à un autre jour"
+    "noTimeSubBoth": "Déplacer à un autre jour",
+    "ruleMoment": "Moment"
   },
   "pings": {
     "_labels": {
@@ -1558,7 +1559,11 @@
     "evening": "Le soir",
     "anytime": "Peu importe",
     "momentLabel": "Moment",
-    "daysLabel": "Jours"
+    "daysLabel": "Jours",
+    "effortSub": "Pèse dans la balance",
+    "importance": "Importance",
+    "importanceSub": "Pèse dans le malus si elle est ratée",
+    "ctaCreate": "Créer la tâche"
   },
   "props": {
     "_labels": {
