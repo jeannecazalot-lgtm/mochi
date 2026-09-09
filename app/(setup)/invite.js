@@ -8,7 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSharedValue, useAnimatedStyle, withRepeat, withSequence, withTiming, Easing } from 'react-native-reanimated';
 import { GlowBg, Card, Avatar, CTAPrimary, SetupHeader } from '../../src/components/ui';
 import { LiveMochi, Animated, prefersReducedMotion } from '../../src/components/motion';
-import { SkipLink, ActionPill, ShareIcon, QRIcon, AvatarPlaceholder, fill } from '../../src/components/setup/extra';
+import { ActionPill, ShareIcon, QRIcon, AvatarPlaceholder, fill } from '../../src/components/setup/extra';
 import { me } from '../../src/demo';
 import { inviteLink } from '../../src/demo-setup';
 import { createInvitation, inviteUrl } from '../../src/invite-actions';
@@ -73,7 +73,7 @@ export default function Invite() {
       <SafeAreaView style={{ flex: 1 }}>
         <View>
           <SetupHeader hero={<LiveMochi size={96} />} step={4} total={4} title={fill(t.inviteTitle, { partner: copy.common.partner })} sub={t.inviteSub} />
-          <SkipLink onPress={next} />
+          {/* « Passer » retiré (9 sept 2026) : même porte de sortie qu'« Inviter plus tard » */}
         </View>
 
         {/* Retour Jeanne (1er sept 2026) : la carte était centrée dans l'espace restant
