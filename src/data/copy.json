@@ -648,7 +648,8 @@
     "shareMsgNoLink": "{name} t'invite sur mochi 🍡 Installe l'app, choisis « J'ai reçu un code » et tape : {code}",
     "duoTitleJoiner": "Tu as rejoint le foyer de {name} !",
     "duoSubJoiner": "{name} choisit et répartit vos tâches, tu pourras tout ajuster depuis le Planning. Encore trois petites étapes : ton prénom, tes dispos, tes préférences.",
-    "duoSubJoinerReady": "{name} choisit et répartit vos tâches, tu pourras tout ajuster depuis le Planning. Tes dispos et tes préférences partent dans le foyer."
+    "duoSubJoinerReady": "{name} choisit et répartit vos tâches, tu pourras tout ajuster depuis le Planning. Tes dispos et tes préférences partent dans le foyer.",
+    "continueMeanwhile": "Choisir nos tâches en attendant"
   },
   "event": {
     "_labels": {

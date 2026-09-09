@@ -19,19 +19,16 @@ const t = copy.mesReglages;
 
 export default function MesReglages() {
   const [grid, setGrid] = useState(disposEmpty);
-  const [hours, setHours] = useState(2);
-  const [hoursTouched, setHoursTouched] = useState(false);
   const [prefs, setPrefs] = useState({});
   useEffect(() => {
     loadSetup().then(() => {
       if (setup.availability?.morning && setup.availability?.evening) setGrid({ morning: [...setup.availability.morning], evening: [...setup.availability.evening] });
-      if (setup.weekly_minutes) { setHours(Math.min(8, Math.max(2, setup.weekly_minutes / 60))); setHoursTouched(true); }
       if (setup.prefs) setPrefs({ ...setup.prefs });
     });
   }, []);
   const tap = (row, i) => setGrid(g => ({ ...g, [row]: g[row].map((v, j) => (j === i ? cycleSlot(v) : v)) }));
   const save = () => {
-    saveDispos({ availability: grid, weekly_minutes: hoursTouched ? hours * 60 : null });
+    saveDispos({ availability: grid, weekly_minutes: null });
     savePrefs({ prefs, reminder: setup.reminder }); // l'heure du récap se règle dans Notifications
     syncMyAvailability().catch(() => {});
     syncMyPains().catch(() => {});
@@ -44,7 +41,7 @@ export default function MesReglages() {
         <ScreenHeader title={t.title} onBack={() => router.back()} />
         <ScrollView contentContainerStyle={{ paddingHorizontal: space.headerX, paddingTop: 6, paddingBottom: 110 }} showsVerticalScrollIndicator={false}>
           <SectionLabel style={{ marginBottom: 8 }}>{t.disposSection}</SectionLabel>
-          <DisposEditor grid={grid} onTap={tap} hours={hours} onHours={v => { setHours(v); setHoursTouched(true); }} />
+          <DisposEditor grid={grid} onTap={tap} />
           <SectionLabel style={{ marginTop: 26, marginBottom: 12 }}>{t.prefsSection}</SectionLabel>
           <PrefsEditor prefs={prefs} onChange={setPrefs} />
         </ScrollView>

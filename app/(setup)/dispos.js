@@ -29,16 +29,11 @@ export default function Dispos() {
   // Retour Jeanne (22 août 2026) : la grille démarre VIDE et aucun temps n'est
   // pré-sélectionné ; le CTA reste actif quoi qu'il arrive.
   const [grid, setGrid] = useState(disposEmpty);
-  const [hours, setHours] = useState(2); // slider 2→8 h — démarre au minimum : rien de pré-rempli (règle Jeanne, 23 août 2026)
-  // slider jamais touché = « pas de contrainte de temps » (null), PAS « 2 h » —
-  // sinon l'algo croit qu'on n'a presque pas de temps (retour Jeanne, 1er sept 2026)
-  const [hoursTouched, setHoursTouched] = useState(false);
   const [demoV, setDemoV] = useState(null);  // valeur jouée sur la case d'exemple (démo seulement)
   // déjà saisi (rejoignante revenue ici, ou réglage) : on repart de ce qui existe (6 sept 2026)
   useEffect(() => {
     loadSetup().then(() => {
       if (setup.availability?.morning && setup.availability?.evening) setGrid({ morning: [...setup.availability.morning], evening: [...setup.availability.evening] });
-      if (setup.weekly_minutes) { setHours(Math.min(8, Math.max(2, setup.weekly_minutes / 60))); setHoursTouched(true); }
     });
   }, []);
   const hintO = useSharedValue(1);
@@ -48,9 +43,8 @@ export default function Dispos() {
 
   // Démo pédagogique — spec Jeanne (23 août 2026) :
   // 0-350 ms entrée douce · 500-1200 ms la case LUN/MATIN cycle 0→○→●→0 avec
-  // pulse de la phrase d'aide · 1400-2200 ms le slider glisse 2→5→2 h.
+  // pulse de la phrase d'aide.
   // Première visite seulement (drapeau local) ; tout toucher annule la démo.
-  const raf = useRef(null);
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -63,22 +57,12 @@ export default function Dispos() {
       at(733, () => setDemoV(2));
       at(966, () => setDemoV(0));
       at(1200, () => setDemoV(null));
-      at(1400, () => {
-        const start = Date.now(), D = 800;
-        const tick = () => {
-          const p = Math.min(1, (Date.now() - start) / D);
-          const v = p < 0.5 ? 2 + 3 * (p / 0.5) : 5 - 3 * ((p - 0.5) / 0.5);
-          setHours(Math.round(v * 2) / 2);
-          if (p < 1) raf.current = requestAnimationFrame(tick); else setHours(2);
-        };
-        raf.current = requestAnimationFrame(tick);
-      });
     })();
-    return () => { cancelled = true; timers.current.forEach(clearTimeout); if (raf.current) cancelAnimationFrame(raf.current); };
+    return () => { cancelled = true; timers.current.forEach(clearTimeout); };
   }, []);
 
   // dès que Jeanne touche la grille, la démo s'arrête (l'état réel reste intact)
-  const stopDemo = () => { timers.current.forEach(clearTimeout); if (raf.current) cancelAnimationFrame(raf.current); setDemoV(null); };
+  const stopDemo = () => { timers.current.forEach(clearTimeout); setDemoV(null); };
   const tap = (row, i) => { stopDemo(); setGrid(g => ({ ...g, [row]: g[row].map((v, j) => (j === i ? cycleSlot(v) : v)) })); };
 
   return (
@@ -89,7 +73,7 @@ export default function Dispos() {
 
         <Animated.View entering={prefersReducedMotion() ? undefined : FadeInDown.duration(350).withInitialValues({ opacity: 0, transform: [{ translateY: 10 }] })} onTouchStart={stopDemo} style={{ paddingHorizontal: space.headerX, paddingTop: 18 }}>
           <DisposEditor
-            grid={grid} onTap={tap} hours={hours} onHours={v => { stopDemo(); setHours(v); setHoursTouched(true); }}
+            grid={grid} onTap={tap}
             demoV={demoV} demoCell={DEMO_CELL} legendOn={demoV}
             hint={<Animated.Text style={[s.tapHint, hintStyle]}>{t.tapHint}</Animated.Text>}
           />
@@ -98,7 +82,7 @@ export default function Dispos() {
         <View style={s.ctaWrap}>
           {/* branchement réel (1er sept 2026) : la grille et le temps/sem sont enregistrés */}
           <CTAPrimary label={settings ? copy.common.save : copy.common.continue} onPress={() => {
-            saveDispos({ availability: grid, weekly_minutes: hoursTouched ? hours * 60 : null });
+            saveDispos({ availability: grid, weekly_minutes: null }); // plus de budget d'heures (9 sept 2026)
             if (settings) { syncMyAvailability().catch(() => {}); router.back(); }
             else router.push('/(setup)/prefs');
           }} big />

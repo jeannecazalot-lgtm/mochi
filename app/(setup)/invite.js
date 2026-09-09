@@ -109,9 +109,13 @@ export default function Invite() {
             <Pressable onPress={() => router.push('/rejoindre')} hitSlop={8}>
               <Text style={s.later}>{t.enterCode}</Text>
             </Pressable>
-            <Pressable onPress={next} hitSlop={8}>
-              <Text style={s.later}>{t.inviteLater}</Text>
-            </Pressable>
+            {/* « Inviter plus tard » retiré (décision Jeanne 9 sept 2026 : l'app ne sert à rien seul) ;
+                une fois le lien envoyé, on peut préparer les tâches en attendant l'autre */}
+            {waiting ? (
+              <Pressable onPress={next} hitSlop={8}>
+                <Text style={s.later}>{t.continueMeanwhile}</Text>
+              </Pressable>
+            ) : null}
           </View>
           <CTAPrimary label={waiting ? t.resendLink : t.sendLink} onPress={send} big />
         </View>

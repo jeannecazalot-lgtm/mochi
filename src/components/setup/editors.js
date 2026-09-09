@@ -9,7 +9,7 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { Card } from '../ui';
 import { Animated } from '../motion';
-import { SectionLabel, useTogglePop, HourSlider, LegendChip, setupTokens } from './extra';
+import { useTogglePop, LegendChip, setupTokens } from './extra';
 import { prefsPool, prefsMax } from '../../demo-setup';
 import copy from '../../data/copy.json';
 import { colors, alpha } from '../../theme';
@@ -29,7 +29,7 @@ function Cell({ v, onPress }) {
 
 // grille matin/soir × 7 jours + temps dispo par semaine
 // demoV / demoCell : la démo pédagogique du 07 joue une case ; hint : phrase d'aide (nœud)
-export function DisposEditor({ grid, onTap, hours, onHours, demoV = null, demoCell = null, hint = null, legendOn = null, sliderLabel = true }) {
+export function DisposEditor({ grid, onTap, demoV = null, demoCell = null, hint = null, legendOn = null }) {
   return (
     <View>
       <Card padding={0} r={18} style={{ marginBottom: 10 }}>
@@ -54,13 +54,7 @@ export function DisposEditor({ grid, onTap, hours, onHours, demoV = null, demoCe
           ))}
         </View>
       </Card>
-      {sliderLabel ? <SectionLabel style={{ marginTop: 8, marginBottom: 8 }}>{t.weeklyTimeLabel}</SectionLabel> : null}
-      <Card padding={0} r={16}>
-        <View style={{ paddingVertical: 12, paddingHorizontal: 16 }}>
-          <Text style={s.sliderValue}>{hours >= 8 ? '8+' : String(hours).replace('.', ',')} <Text style={s.sliderUnit}>{t.perWeek}</Text></Text>
-          <HourSlider value={hours} onChange={onHours} />
-        </View>
-      </Card>
+      {/* slider « Temps dispo par semaine » retiré (décision Jeanne 9 sept 2026) : la grille suffit */}
     </View>
   );
 }
