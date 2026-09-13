@@ -397,7 +397,8 @@
     "timeAfterSub": "Compté dans la balance",
     "closeLabel": "Fermer",
     "expenseAfterSub": "Si tu as payé quelque chose",
-    "swapBtn": "Proposer"
+    "swapBtn": "Proposer",
+    "noteDone": "OK"
   },
   "pings": {
     "_labels": {

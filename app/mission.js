@@ -4,7 +4,7 @@
 // Recette : docs/recettes/17c-sheet-tache-v2.md. `?occ=<id>` = occurrence (réelle ou démo).
 import React, { useEffect, useRef, useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
-import { View, Text, Pressable, TextInput, StyleSheet, KeyboardAvoidingView } from 'react-native';
+import { View, Text, Pressable, TextInput, StyleSheet, KeyboardAvoidingView, Keyboard } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { LinearTransition } from 'react-native-reanimated';
@@ -63,7 +63,8 @@ export default function Mission() {
   // On reste en fitToContents (la sheet suit son contenu, animée par iOS) ; en filet, 450 ms après
   // le dépliage, on fixe une détente à la hauteur MESURÉE du contenu — si iOS a déjà suivi, rien ne
   // bouge ; sinon la sheet prend juste la place qu'il faut, jamais plus.
-  const onGrowLayout = useSheetGrow(ruleOpen || asking || expenseOpen || timing);
+  const [noteOpen, setNoteOpen] = useState(false);
+  const onGrowLayout = useSheetGrow(ruleOpen || asking || expenseOpen || timing, noteOpen || expenseOpen);
   const dirty = useRef(false);
   const ruleRef = useRef(null);
 
@@ -212,6 +213,7 @@ export default function Mission() {
     : <PillChip label={cents ? fmtAmount(cents) : t.expenseAdd} selected={!!cents} onPress={() => setExpenseOpen(true)} />;
   return (
     <KeyboardAvoidingView behavior="padding" style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 31) }]} onLayout={onGrowLayout}>
+      <Pressable onPress={Keyboard.dismiss} accessible={false}>
       <SheetHandle />
       {head}
 
@@ -254,13 +256,14 @@ export default function Mission() {
               {ruleOpen ? (
                 <Animated.View entering={FadeIn.duration(motion.micro)}>
                   {/* pas de durée ici : « Temps passé » se règle à la coche (Jeanne, 9 sept 2026) */}
-                  <RuleEditor rule={rule} onPatch={patchRule} showMoment showEffort showDuration={false} first={false} />
+                  <RuleEditor rule={rule} onPatch={patchRule} showMoment showEffort showDuration={false} first={false} onNoteOpen={setNoteOpen} />
                 </Animated.View>
               ) : null}
             </Card>
           </Animated.View>
         </>
       )}
+      </Pressable>
     </KeyboardAvoidingView>
   );
 }

@@ -6,8 +6,9 @@
 // fermeture — sauf une nouvelle tâche, qui a besoin d'un « Créer ».
 import React, { useState, useEffect, useRef } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
-import { View, TextInput, StyleSheet, KeyboardAvoidingView } from 'react-native';
+import { View, TextInput, StyleSheet, KeyboardAvoidingView, Keyboard, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSheetGrow } from '../../src/components/sheet-grow';
 import { Card } from '../../src/components/ui';
 import { SheetHandle } from '../../src/components/social/extra';
 import { TaskHeader } from '../../src/components/task/extra';
@@ -63,6 +64,8 @@ export function TaskEditBody({ page = false }) {
   const { id, setup: setupId } = useLocalSearchParams();
   const insets = useSafeAreaInsets();
   const isNew = !id && !setupId;
+  const [noteOpen, setNoteOpen] = useState(false);
+  const onGrowLayout = useSheetGrow(false, noteOpen);
   const [f, setF] = useState(() => (setupId ? fromSetupTask(setupId) : EMPTY));
   const [base, setBase] = useState(null); // fiche réelle d'origine (rien n'est perdu à l'enregistrement)
   useEffect(() => { if (id) loadRealTask(id).then(rt => { if (rt) { setBase(rt); setF(fromReal(rt)); } }); }, [id]);
@@ -81,7 +84,8 @@ export function TaskEditBody({ page = false }) {
   const create = async () => { await createRealTask(toReal(f)); dirty.current = false; router.back(); };
 
   return (
-    <KeyboardAvoidingView behavior="padding" style={[s.sheet, page && s.page, { paddingBottom: Math.max(insets.bottom, 31) }]}>
+    <KeyboardAvoidingView behavior="padding" style={[s.sheet, page && s.page, { paddingBottom: Math.max(insets.bottom, 31) }]} onLayout={page ? undefined : onGrowLayout}>
+      <Pressable onPress={Keyboard.dismiss} accessible={false}>
       {page ? <TaskHeader title={isNew ? t.headerNew : t.headerEdit} backLabel={t.back} /> : <SheetHandle />}
         <View style={s.head}>
           <TextInput
@@ -90,13 +94,14 @@ export function TaskEditBody({ page = false }) {
           />
         </View>
         <Card r={16} padding={0} style={s.block}>
-          <RuleEditor rule={f} onPatch={patch} showMoment showEffort mochiDays={f.mochiDays || null} />
+          <RuleEditor rule={f} onPatch={patch} showMoment showEffort mochiDays={f.mochiDays || null} onNoteOpen={setNoteOpen} />
         </Card>
         {isNew ? (
           <Card r={16} padding={0}>
             <Row first strong label={t.ctaCreate} sub={f.title.trim() ? null : t.titlePlaceholder} right={<Arrow />} onPress={f.title.trim() ? create : undefined} />
           </Card>
         ) : null}
+      </Pressable>
     </KeyboardAvoidingView>
   );
 }
