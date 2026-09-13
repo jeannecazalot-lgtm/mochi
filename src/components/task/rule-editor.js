@@ -12,7 +12,7 @@ import { Row, Stepper, PillChip, RuleGroup, Arrow } from './proto';
 import { Stars } from './extra';
 import { me, partner, fmtMin } from '../../demo';
 import copy from '../../data/copy.json';
-import { colors, alpha } from '../../theme';
+import { colors, alpha, font } from '../../theme';
 
 const t = copy.mission;
 const tt = copy.task;
@@ -20,7 +20,7 @@ export const MOMENTS = ['morning', 'evening', null]; // Le matin · Le soir · P
 export const momentLabel = dl => (dl == null ? tt.anytime : dl === 'morning' ? tt.morning : tt.evening);
 
 // rule = { window_days: [0-6], deadline, who: 'me'|'partner'|'alt'|'auto', duration_min, note, pain?, importance? }
-export function RuleEditor({ rule, onPatch, showMoment = false, showEffort = false, showDuration = true, first = true }) {
+export function RuleEditor({ rule, onPatch, showMoment = false, showEffort = false, showDuration = true, first = true, mochiDays = null }) {
   const [noteOpen, setNoteOpen] = useState(false);
   const days = rule.window_days || [];
   return (
@@ -29,16 +29,18 @@ export function RuleEditor({ rule, onPatch, showMoment = false, showEffort = fal
         {copy.calendar.dowsLong.map((d, i) => <PillChip key={i} flex label={d.toLowerCase()} selected={days.includes(i)}
           onPress={() => onPatch({ window_days: days.includes(i) ? days.filter(x => x !== i) : [...days, i].sort((a, b) => a - b) })} />)}
       </RuleGroup>
+      {!days.length && mochiDays ? <Text style={s.hint}>{t.ruleMochiDays.replace('{days}', mochiDays)}</Text> : null}
       {showMoment ? (
         <RuleGroup label={t.ruleMoment}>
           {MOMENTS.map(dl => <PillChip key={String(dl)} label={momentLabel(dl)} selected={(rule.deadline ?? null) === dl} onPress={() => onPatch({ deadline: dl })} />)}
         </RuleGroup>
       ) : null}
-      <RuleGroup label={t.ruleWho}>
-        <PillChip label={t.who.me} avatar={me} selected={rule.who === 'me'} onPress={() => onPatch({ who: 'me' })} />
-        <PillChip label={partner.first_name} avatar={partner} selected={rule.who === 'partner'} onPress={() => onPatch({ who: 'partner' })} />
-        <PillChip label={t.who.alt} selected={rule.who === 'alt'} onPress={() => onPatch({ who: 'alt' })} />
-        <PillChip label={t.who.auto} selected={rule.who === 'auto'} onPress={() => onPatch({ who: 'auto' })} />
+      {/* une seule ligne, « Mochi décide » compris (Jeanne, 10 sept 2026) */}
+      <RuleGroup label={t.ruleWho} row>
+        <PillChip flex label={t.who.me} avatar={me} selected={rule.who === 'me'} onPress={() => onPatch({ who: 'me' })} />
+        <PillChip flex label={partner.first_name} avatar={partner} selected={rule.who === 'partner'} onPress={() => onPatch({ who: 'partner' })} />
+        <PillChip flex label={t.who.alt} selected={rule.who === 'alt'} onPress={() => onPatch({ who: 'alt' })} />
+        <PillChip flex label={t.who.auto} selected={rule.who === 'auto'} onPress={() => onPatch({ who: 'auto' })} />
       </RuleGroup>
       {showDuration ? <Row label={t.ruleDuration} right={<Stepper value={fmtMin(rule.duration_min)} onMinus={() => onPatch({ duration_min: Math.max(5, rule.duration_min - 5) })} onPlus={() => onPatch({ duration_min: rule.duration_min + 5 })} />} /> : null}
       {showEffort ? <Row label={tt.statPain} sub={tt.effortSub} right={<Stars value={rule.pain || 3} onChange={n => onPatch({ pain: n })} />} /> : null}
@@ -50,6 +52,7 @@ export function RuleEditor({ rule, onPatch, showMoment = false, showEffort = fal
 }
 
 const s = StyleSheet.create({
+  hint: { ...font.caption, paddingHorizontal: 14, paddingBottom: 10, marginTop: -4 },
   noteBox: { paddingHorizontal: 14, paddingVertical: 10, borderTopWidth: 1, borderTopColor: colors.line },
   noteInput: { fontSize: 15, color: colors.ink, minHeight: 60, textAlignVertical: 'top' },
 });

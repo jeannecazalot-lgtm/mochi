@@ -42,11 +42,13 @@ const fromSetupTask = sid => {
   const td = todayDow();
   const offs = daysForTask({ perWeek: tk?.per_week || 1, windowDays: tk?.window_days, availability: setup.availability, todayDow: td, seed: index });
   const who = item ? (item.assignee_id === me.id ? 'me' : item.assignee_id === partner.id ? 'partner' : item.assignee_id === 'alt' ? 'alt' : 'auto') : 'auto';
-  return { ...EMPTY, title: tk?.label || '', emoji: tk?.emoji || '', window_days: offs.map(o => (td + o) % 7).sort((a, b) => a - b), deadline: tk?.deadline ?? null,
+  // rien de pré-coché (Jeanne, 10 sept 2026 : « ne rien pré-remplir ») : les jours de Mochi sont montrés en légende
+  const placed = tk?.window_days?.length ? [] : offs.map(o => (td + o) % 7).sort((a, b) => a - b);
+  return { ...EMPTY, title: tk?.label || '', emoji: tk?.emoji || '', window_days: tk?.window_days || [], mochiDays: placed.length >= 7 ? copy.setup.everyDay : placed.map(i => copy.calendar.dowsLong[i].toLowerCase()).join(' · '), deadline: tk?.deadline ?? null,
     who, duration_min: tk?.duration_min || 15, note: tk?.note || '', pain: tk?.pain ?? 3, mental_load: !!tk?.mental_load };
 };
 const saveSetupTask = (sid, f) => {
-  const per_week = f.window_days.length || 1;
+  const per_week = f.window_days.length || (setup.tasks || []).find(tk => tk.id === sid)?.per_week || 1;
   saveTasks((setup.tasks || []).map(tk => (tk.id === sid ? { ...tk, label: f.title.trim() || tk.label, duration_min: f.duration_min, per_week, pain: f.pain, note: f.note || '', window_days: f.window_days, deadline: f.deadline ?? null } : tk)));
   if (setup.result?.items) {
     const assignee = f.who === 'me' ? me.id : f.who === 'partner' ? partner.id : f.who === 'alt' ? 'alt' : null;
@@ -88,7 +90,7 @@ export function TaskEditBody({ page = false }) {
           />
         </View>
         <Card r={16} padding={0} style={s.block}>
-          <RuleEditor rule={f} onPatch={patch} showMoment showEffort />
+          <RuleEditor rule={f} onPatch={patch} showMoment showEffort mochiDays={f.mochiDays || null} />
         </Card>
         {isNew ? (
           <Card r={16} padding={0}>

@@ -139,7 +139,7 @@ function RealRow({ vm, onToggle }) {
           : (
             <View style={{ flexDirection: 'row' }}>
               <Avatar initial={me.initial} color={me.color} photo={me.avatar_url} size={24} ring />
-              <View style={{ marginLeft: -8 }}><Avatar initial={partner.initial} color={partner.color} size={24} ring /></View>
+              <View style={{ marginLeft: -8 }}><Avatar initial={partner.initial} color={partner.color} photo={partner.avatar_url} size={24} ring /></View>
             </View>
           )}
       </Pressable>

@@ -230,10 +230,10 @@ export default function Mission() {
               {already ? (
                 <Row first strong label={t.doneAlready} sub={t.doneAlreadySub} onPress={undo} />
               ) : !asking ? (
-                <Row first strong label={t.noTimeLabel} sub={(!m.occ?.assignee_id ? t.noTimeSubBoth : fill(t.noTimeSub, { name: partner.first_name }))} right={<Arrow />} onPress={() => { Haptics.selectionAsync().catch(() => {}); setAsking(true); }} />
+                <Row first label={t.noTimeLabel} sub={(!m.occ?.assignee_id ? t.noTimeSubBoth : fill(t.noTimeSub, { name: partner.first_name }))} right={<Arrow />} onPress={() => { Haptics.selectionAsync().catch(() => {}); setAsking(true); }} />
               ) : (
                 <Animated.View entering={FadeIn.duration(motion.micro)}>
-                  <Row first strong label={t.noTimeLabel} right={<Text style={s.chevDown}>›</Text>} onPress={() => { Haptics.selectionAsync().catch(() => {}); setAsking(false); setMoveMsg(null); }} />
+                  <Row first label={t.noTimeLabel} right={<Text style={s.chevDown}>›</Text>} onPress={() => { Haptics.selectionAsync().catch(() => {}); setAsking(false); setMoveMsg(null); }} />
                   <View style={s.moveBox}>
                     <Micro>{t.moveLabel}</Micro>
                     <View style={s.days}>
