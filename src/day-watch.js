@@ -7,6 +7,7 @@
 import { AppState } from 'react-native';
 import { localIso } from './dates';
 import { occStore } from './demo-core';
+import { extendHorizon } from './horizon';
 
 let lastDay = localIso();
 let timer = null;
@@ -20,6 +21,7 @@ function schedule() {
 export function check() {
   const today = localIso();
   if (today !== lastDay) { lastDay = today; occStore.bump(); }
+  extendHorizon({ force: today !== lastDay }).catch(() => {}); // la semaine suivante se remplit toute seule
   schedule();
 }
 export function startDayWatch() {

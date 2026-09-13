@@ -12,6 +12,7 @@ import { me, partner } from './demo';
 import { loadSetup, setup } from './setup-state';
 import { getUid, getPartnerUid } from './identity';
 import { placeDays } from './dispatch';
+import { lighterMember } from './horizon';
 import { addDaysIso } from './dates';
 import { logActivity } from './activity-actions';
 import { pushToPartner } from './push';
@@ -83,9 +84,10 @@ export async function createRealTask(fiche) {
   const partnerUid = getPartnerUid() || null;
   const fixedUid = fiche.fixed_assignee === partner.id ? partnerUid : uid;
   for (let k = 0; k < offsets.length; k++) {
+    // « Mochi décide » : une personne, la moins chargée (retour Ketley 12 sept 2026 : « il nous met à deux »)
     const assignee = fiche.assign_mode === 'fixed' ? fixedUid
       : fiche.assign_mode === 'alternate' ? (k % 2 === 0 ? uid : partnerUid)
-      : null;
+      : lighterMember(await read('occurrences'), await read('tasks'), uid, partnerUid);
     await mutate('occurrences', {
       id: uuid(), household_id: householdId, task_id: id,
       kind: fiche.mental_load ? 'plan' : 'exec', due_date: addDaysIso(offsets[k]), assignee_id: assignee,

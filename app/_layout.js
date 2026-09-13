@@ -13,6 +13,7 @@ import { loadIdentity, loadPartner } from '../src/identity';
 import { loadSetup, setup } from '../src/setup-state';
 import { listenNotificationTaps } from '../src/push';
 import { startDayWatch } from '../src/day-watch';
+import { extendHorizon } from '../src/horizon';
 
 const base = { headerShown: false, contentStyle: { backgroundColor: colors.bg }, animationDuration: motion.screen };
 // sheets natives iOS (formSheet) : fond assombri, coins 26, montée native, touches garanties
@@ -58,7 +59,7 @@ export default function RootLayout() {
   // identité réelle (prénom + photo du profil Supabase) chargée dès la racine
   // le binôme (prénom/photo) se charge aussi à la racine : une arrivée directe (notification,
   // lien) sans passer par l'Accueil affichait encore le prénom de démo (audit 8 sept 2026)
-  React.useEffect(() => { loadIdentity().then(() => loadSetup()).then(() => { if (setup.householdId) loadPartner(setup.householdId); }); const stopDay = startDayWatch(); const stopTaps = listenNotificationTaps(url => router.push(url)); return () => { stopDay(); stopTaps && stopTaps(); }; }, []);
+  React.useEffect(() => { loadIdentity().then(() => loadSetup()).then(() => { if (setup.householdId) return loadPartner(setup.householdId); }).then(() => extendHorizon({ force: true })).catch(() => {}); const stopDay = startDayWatch(); const stopTaps = listenNotificationTaps(url => router.push(url)); return () => { stopDay(); stopTaps && stopTaps(); }; }, []);
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.bg }}>
       <StatusBar style="dark" />

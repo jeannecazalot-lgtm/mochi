@@ -11,6 +11,7 @@ import { uuid } from './store';
 import { addDaysIso, localIso } from './dates';
 import { logActivity } from './activity-actions';
 import { pushToPartner } from './push';
+import { lighterMember } from './horizon';
 import copy from './data/copy.json';
 
 const dayLabelOf = iso => (iso === localIso() ? copy.mission.metaToday : copy.calendar.dowsLong[(new Date(iso + 'T12:00:00').getDay() + 6) % 7].toLowerCase());
@@ -106,7 +107,7 @@ export async function applyRuleToOccurrences(task, rule) {
   kept.sort((a, b) => a.due_date.localeCompare(b.due_date));
   for (let k = 0; k < kept.length; k++) {
     const o = kept[k];
-    const assignee = rule.who === 'me' ? uid : rule.who === 'partner' ? partnerUid : rule.who === 'alt' ? (k % 2 === 0 ? uid : partnerUid) : null;
+    const assignee = rule.who === 'me' ? uid : rule.who === 'partner' ? partnerUid : rule.who === 'alt' ? (k % 2 === 0 ? uid : partnerUid) : lighterMember(occs, await read('tasks'), uid, partnerUid);
     if (o.assignee_id !== assignee || !occs.some(x => x.id === o.id)) await mutate('occurrences', { ...o, assignee_id: assignee });
   }
   occStore.bump();
