@@ -85,9 +85,10 @@ export default function Profil() {
         <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
           <View style={s.header}>
             <BackButton label={copy.common.back} />
-            <Avatar initial={me.initial} color={me.color} photo={me.avatar_url} size={58} />
+            {/* tap → nom et photo en pop-up (Jeanne 13 sept 2026) */}
+            <Pressable onPress={() => router.push('/moi')} hitSlop={6}><Avatar initial={me.initial} color={me.color} photo={me.avatar_url} size={58} /></Pressable>
             <View style={{ flex: 1 }}>
-              <Text style={font.cardTitle}>{me.first_name}</Text>
+              <Pressable onPress={() => router.push('/moi')} hitSlop={6}><Text style={font.cardTitle}>{me.first_name}</Text></Pressable>
               <Text style={[font.secondary, { marginTop: 3 }]}>
                 {duoParts[0]}<Text style={{ color: slotColors[partner.slot].deep, fontWeight: '600' }}>{partner.first_name}</Text>{duoParts[1]}
               </Text>
@@ -108,6 +109,7 @@ export default function Profil() {
             <SectionMicro>{t.sectionMine}</SectionMicro>
             <View style={{ gap: 6 }}>
               <SettingRow emoji="🔔" title={t.notifs} sub={real && setup.reminder ? fill(t.notifsSubReal, { time: String(setup.reminder).replace(':', ' h ') }) : fill(t.notifsSub, { n: duoRules.reminder_before_min })} onPress={() => router.push('/notifs')} />
+              <SettingRow emoji="📌" title={t.penseBete} sub={t.penseBeteSub} onPress={() => router.push('/pense-bete')} />
               <SettingRow emoji="🗓" title={t.mesReglages}
                 sub={!mine ? '' : [(!mine.slots && !mine.h) ? t.notSet : fill(mine.slots === 1 ? t.disposSubOne : t.disposSubReal, { n: mine.slots }) + (mine.h ? fill(t.disposSubHours, { h: mine.h }) : ''), !mine.hasPrefs ? t.notSet : fill(t.prefsSub, { like: mine.likes, hate: mine.hates, ls: mine.likes > 1 ? 's' : '', hs: mine.hates > 1 ? 's' : '' })].join(' · ')}
                 onPress={() => router.push('/mes-reglages')} />

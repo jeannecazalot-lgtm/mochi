@@ -35,8 +35,12 @@ export async function loadMission({ occId, tid, title, mins }) {
     const tk = tasks.find(x => x.id === row.task_id) || {};
     const uid = getUid();
     const myPain = (await read('task_pains')).find(p => p.task_id === row.task_id && p.user_id === uid)?.pain ?? 3;
+    // le prix saisi à la coche revient avec la tâche (Jeanne 13 sept 2026 : « il n'apparaît pas quand je reclique »)
+    const expense = (await read('expenses')).find(e => e.occurrence_id === row.id && !e.deleted_at) || null;
+    // proposition de repassage déjà envoyée par moi : la ligne se grise en attendant la réponse
+    const pendingSwap = (await read('swap_requests')).find(sw => sw.occurrence_id === row.id && sw.status === 'pending' && sw.from_user === uid) || null;
     return {
-      real: true, occ: row, dueIso: row.due_date,
+      real: true, occ: row, dueIso: row.due_date, expenseCents: expense?.amount_cents || 0, pendingSwap: !!pendingSwap,
       mine: !row.assignee_id || !uid || row.assignee_id === uid,
       // jours où la même tâche est déjà prévue : « Déplacer à » les grise au lieu de refuser en silence
       // (retour Ketlon 7 sept 2026 : « je peux pas appuyer sur une autre date »)
@@ -90,7 +94,7 @@ export async function completeMission(occ, task, minutes, amountCents) {
   const currency = households.find(h => h.id === hid)?.currency || 'EUR';
   await mutate('expenses', {
     id: uuid(), household_id: hid, title: task.title, emoji: null, amount_cents: amountCents, currency,
-    paid_by: uid, split_mode: 'equal', category: 'autre', spent_on: localIso(), created_by: uid,
+    paid_by: uid, split_mode: 'equal', category: 'autre', spent_on: localIso(), created_by: uid, occurrence_id: occ.id,
   });
   occStore.bump();
 }

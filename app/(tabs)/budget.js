@@ -1,5 +1,6 @@
 // Écran 23 · Budget. Recette : docs/recettes/23-budget.md
 import React, { useEffect, useState } from 'react';
+import { router } from 'expo-router';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GlowBg, ScreenTitle, Secondary, Card, PillLabel, Micro, GlassRow, Avatar } from '../../src/components/ui';
@@ -158,7 +159,7 @@ export default function Budget() {
             {rows.map(e => {
               const payer = byId(e.paid_by);
               return (
-                <GlassRow key={e.id} style={{ marginBottom: 6 }}>
+                <GlassRow key={e.id} style={{ marginBottom: 6 }} onPress={real ? () => router.push(`/depense?id=${e.id}`) : undefined}>
                   <Text style={{ fontSize: 19 }}>{e.emoji}</Text>
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>

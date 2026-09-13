@@ -107,7 +107,7 @@ export default function Home() {
       setNoTask(tasks.length === 0);
       setBal(uid && occs.some(o => o.status === 'done') ? computeRealBalance(occs, uid) : null);
       // hydrate la coche depuis le statut serveur (relance de l'app)
-      todays.forEach(o => { if (o.status === 'done' && !missionDone.has(o.id)) missionDone.set(o.id, true); });
+      occs.forEach(o => { if (o.status === 'done' && !missionDone.has(o.id)) missionDone.set(o.id, true); });
       const toVm = o => {
         const tk = byId[o.task_id] || {};
         const q = `occ=${o.id}&tid=${o.task_id}&title=${encodeURIComponent(tk.title || '')}&emoji=${encodeURIComponent(tk.emoji || '•')}&mins=${tk.duration_min || 15}`;
@@ -115,7 +115,8 @@ export default function Home() {
       };
       setUpcoming([1, 2].map(k => {
         const iso = addDaysIso(k);
-        const items = occs.filter(o => isLive(o) && o.due_date === iso && o.status !== 'done' && (!uid || !o.assignee_id || o.assignee_id === uid));
+        // cochée par erreur : elle reste, barrée, pour pouvoir la décocher (Jeanne 13 sept 2026)
+        const items = occs.filter(o => isLive(o) && o.due_date === iso && (!uid || !o.assignee_id || o.assignee_id === uid));
         return { iso, label: fmtDayLabel(new Date(iso + 'T12:00:00')), items: items.map(toVm) };
       }).filter(g => g.items.length));
       setVms(todays.map(o => {

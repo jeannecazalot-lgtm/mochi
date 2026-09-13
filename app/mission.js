@@ -15,8 +15,9 @@ import { Row, Stepper, PillChip, ConfirmRow, Arrow, Caption } from '../src/compo
 import { RuleEditor } from '../src/components/task/rule-editor';
 import { useSheetGrow } from '../src/components/sheet-grow';
 import { loadMission, saveRule, completeMission, parseAmount } from '../src/mission-data';
-import { moveOccurrence, toggleOccurrence, takeOver, skipOccurrence } from '../src/occ-actions';
+import { moveOccurrence, toggleOccurrence, takeOver, skipOccurrence, giveBack, wasPartnersTask } from '../src/occ-actions';
 import { deleteRealTask } from '../src/task-actions';
+import { sendPing } from '../src/activity-actions';
 import { requestSwap } from '../src/swap-actions';
 import { missionDone } from '../src/demo-core';
 import { me, partner, fmtMin } from '../src/demo';
@@ -27,7 +28,7 @@ import { colors, space, font, alpha, motion } from '../src/theme';
 
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
 const fmtAmount = cents => `${(cents / 100).toFixed(2).replace('.', ',')} €`;
-const CLOSE_AFTER = 1200; // « C'est fait »
+const CLOSE_AFTER = 1800; // « C'est fait » (Jeanne 13 sept : « il ne faut pas que le pop-up parte directement »)
 const CLOSE_AFTER_SLOW = 1700; // proposé / déplacé : le temps de lire (« beaucoup trop rapide » à 900 ms) // la confirmation reste visible avant la fermeture automatique
 // Retour Jeanne 9 sept 2026 (« j'aime pas comment bouge Modifier la tâche ») : plus de ressort,
 // les cartes glissent en douceur et sans rebond quand une section se déplie au-dessus.
@@ -35,7 +36,7 @@ const layout = LinearTransition.duration(260);
 
 export default function Mission() {
   // rule=1 : règle dépliée d'entrée ; conf=swap|moved : confirmation figée (captures)
-  const { occ: occId, tid, title, mins, rule: ruleParam, conf: confParam } = useLocalSearchParams();
+  const { occ: occId, tid, title, mins, rule: ruleParam, conf: confParam, other: otherParam } = useLocalSearchParams(); // other=1 : sheet « tâche de l'autre » (captures)
   const insets = useSafeAreaInsets();
   const t = copy.mission;
   const [m, setM] = useState(null); // { real, occ, task, dueIso, mine }
@@ -56,6 +57,9 @@ export default function Mission() {
   // mission déjà cochée à l'ouverture (test du 6 sept 2026) : rond plein, étage « ce moment-ci »
   // remplacé par « Déjà fait · tape pour la remettre à faire », report et repassage masqués
   const [already, setAlready] = useState(false);
+  // c'était la tâche de l'autre (règle fixée sur lui, ou reprise par moi) : on la lui REND sans validation
+  // (Jeanne 13 sept 2026 : « quand j'ai pris une tâche de l'autre mais que je veux lui repasser, automatiquement »)
+  const [theirs, setTheirs] = useState(false);
   const pop = useCheckPop(done);
   // La sheet native (formSheet « fitToContents ») ne re-mesure pas quand le contenu GRANDIT : les
   // chips au-delà de la hauteur d'ouverture ne recevaient plus les touches (vu au simulateur le
@@ -72,10 +76,12 @@ export default function Mission() {
   useEffect(() => {
     loadMission({ occId, tid, title, mins }).then(r => {
       if (!r) { router.back(); return; }
-      setM(r);
+      setM(otherParam === '1' ? { ...r, mine: false } : r);
       const wasDone = r.occ?.status === 'done' || missionDone.has(r.occ?.id);
       if (wasDone) { setDone(true); setAlready(true); }
       setSpent(wasDone && r.occ?.duration_min ? r.occ.duration_min : r.task.duration_min);
+      if (r.expenseCents) setAmount((r.expenseCents / 100).toFixed(2).replace('.', ','));
+      if (r.real) wasPartnersTask(String(occId)).then(setTheirs).catch(() => {});
       const rl = { window_days: r.task.window_days, deadline: r.task.deadline ?? null, who: r.task.who, duration_min: r.task.duration_min, note: r.task.note, pain: r.task.pain ?? 3 };
       setRule(rl); initialRule.current = JSON.stringify({ ...rl, id: null });
     });
@@ -130,6 +136,7 @@ export default function Mission() {
   };
   const swap = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    if (theirs) { await giveBack(String(occId || '')).catch(() => {}); finish({ kind: 'swap', who: partner, title: fill(copy.retard.confirmGiveBack, { name: partner.first_name }), sub: fill(copy.retard.confirmGiveBackSub, { name: partner.first_name }) }); return; }
     await requestSwap(String(occId || '')).catch(() => {});
     finish('swap');
   };
@@ -157,7 +164,7 @@ export default function Mission() {
       </View>
       <View style={s.meta}>
         <Avatar initial={who.initial} color={who.color} photo={who.avatar_url} size={18} />
-        <Text style={s.metaTxt}>{!m.occ?.assignee_id ? t.metaBoth : m.mine ? t.metaYou : who.first_name} · {dayLabel} · {done ? fmtMin(spent) : fill(t.metaApprox, { time: fmtMin(rule.duration_min) })}</Text>
+        <Text style={s.metaTxt}>{!m.occ?.assignee_id ? t.metaBoth : m.mine ? t.metaYou : who.first_name} · {dayLabel} · {done ? [fmtMin(spent), cents ? fmtAmount(cents) : null].filter(Boolean).join(' · ') : fill(t.metaApprox, { time: fmtMin(rule.duration_min) })}</Text>
       </View>
     </View>
   );
@@ -190,19 +197,35 @@ export default function Mission() {
   // résumé de la règle (une ligne) : jours · qui · durée
 
   // ─── la tâche de l'AUTRE : lecture seule + « Je m'en occupe » (retour Jeanne 7 sept 2026) ───
+  // ─── la tâche de l'AUTRE (13 sept 2026) : ping en un tap (« j'aimerais pouvoir pinger en appuyant
+  // sur la tâche de l'autre »), « Je m'en occupe », et la tâche reste MODIFIABLE par les deux — dans
+  // un foyer à deux chacun peut ajuster, l'autre est prévenu (« a modifié la tâche … »).
   if (!m.mine) {
+    const ping = async key => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+      await sendPing(String(occId || ''), key).catch(() => {});
+      finish({ kind: 'swap', who: partner, title: fill(t.confirmPing, { name: partner.first_name }), sub: fill(copy.pings[key] || '', { task: task.title }) });
+    };
     return (
-      <View style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 31) }]}>
+      <View style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 31) }]} onLayout={onGrowLayout}>
         <SheetHandle />
         {head}
         <Card r={16} padding={0} style={s.block}>
-          <Row first strong label={t.takeLabel} sub={fill(t.takeSub, { name: who.first_name })} left={<Avatar initial={me.initial} color={me.color} photo={me.avatar_url} size={22} />} right={<Arrow />} onPress={take} />
+          <Row first strong label={fill(t.pingLabel, { name: who.first_name })} sub={t.pingSub} left={<Text style={{ fontSize: 18 }}>🌷</Text>} right={<PillChip label={t.pingBtn} selected onPress={() => ping('reminder')} />} onPress={() => ping('reminder')} />
+          <Row label={copy.pings.options.turn.label} sub={copy.pings.options.turn.sub} left={<Text style={{ fontSize: 18 }}>👉</Text>} right={<PillChip label={t.pingBtn} selected onPress={() => ping('turn')} />} onPress={() => ping('turn')} />
+          <Row label={t.takeLabel} sub={fill(t.takeSub, { name: who.first_name })} left={<Avatar initial={me.initial} color={me.color} photo={me.avatar_url} size={22} />} right={<Arrow />} onPress={take} />
         </Card>
-        <Card r={16} padding={0}>
-          <Row first label={t.ruleLabel} sub={ruleSummary} />
-          {rule.note ? <Row label={t.ruleNote} sub={<LinkText>{rule.note}</LinkText>} /> : null}
-        </Card>
-        <Caption style={{ marginTop: 10 }}>{t.ruleReadOnly}</Caption>
+        <Animated.View layout={layout}>
+          <Card r={16} padding={0}>
+            <Row first label={t.ruleLabel} sub={ruleOpen ? null : ruleSummary} right={ruleOpen ? <Text style={s.chevDown}>›</Text> : <Arrow />} onPress={() => { Haptics.selectionAsync().catch(() => {}); setRuleOpen(o => !o); }} />
+            {ruleOpen ? (
+              <Animated.View entering={FadeIn.duration(motion.micro)}>
+                <RuleEditor rule={rule} onPatch={patchRule} showMoment showEffort showDuration={false} first={false} onNoteOpen={setNoteOpen}
+                  onDeleteTask={m.real && task.id ? async () => { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {}); await deleteRealTask(task.id).catch(() => {}); dirty.current = false; finish({ kind: 'moved', title: fill(t.confirmDeleted, { task: task.title }), sub: fill(t.confirmDeletedSub, { name: partner.first_name }) }); } : undefined} />
+              </Animated.View>
+            ) : null}
+          </Card>
+        </Animated.View>
       </View>
     );
   }
@@ -234,7 +257,7 @@ export default function Mission() {
           <Animated.View layout={layout}>
             <Card r={16} padding={0} style={s.block}>
               {already ? (
-                <Row first strong label={t.doneAlready} sub={t.doneAlreadySub} onPress={undo} />
+                <Row first strong label={t.doneAlready} sub={[fmtMin(spent), cents ? fmtAmount(cents) : null].filter(Boolean).join(' · ') + ' · ' + t.doneAlreadySub} onPress={undo} />
               ) : !asking ? (
                 <Row first label={t.noTimeLabel} sub={(!m.occ?.assignee_id ? t.noTimeSubBoth : fill(t.noTimeSub, { name: partner.first_name }))} right={<Arrow />} onPress={() => { Haptics.selectionAsync().catch(() => {}); setAsking(true); }} />
               ) : (
@@ -248,7 +271,9 @@ export default function Mission() {
                     <Caption style={{ textAlign: 'left' }}>{moveMsg || fill(t.moveWarn, { name: partner.first_name })}</Caption>
                   </View>
                   {/* tâche commune : rien à repasser, l'autre est déjà dessus (audit 8 sept) */}
-                  {!m.occ?.assignee_id ? null : <Row strong label={fill(t.swapLabel, { name: partner.first_name })} sub={fill(t.swapSub, { name: partner.first_name })} left={<Avatar initial={partner.initial} color={partner.color} photo={partner.avatar_url} size={22} />} right={<PillChip label={t.swapBtn} selected onPress={swap} />} onPress={swap} />}
+                  {!m.occ?.assignee_id ? null : m.pendingSwap
+                    ? <View style={{ opacity: 0.5 }}><Row label={fill(t.swapPending, { name: partner.first_name })} sub={fill(t.swapPendingSub, { name: partner.first_name })} left={<Avatar initial={partner.initial} color={partner.color} photo={partner.avatar_url} size={22} />} /></View>
+                    : <Row strong label={fill(theirs ? copy.retard.giveBack : t.swapLabel, { name: partner.first_name })} sub={theirs ? copy.retard.giveBackSub : fill(t.swapSub, { name: partner.first_name })} left={<Avatar initial={partner.initial} color={partner.color} photo={partner.avatar_url} size={22} />} right={<PillChip label={theirs ? copy.retard.giveBtn : t.swapBtn} selected onPress={swap} />} onPress={swap} />}
                 </Animated.View>
               )}
             </Card>

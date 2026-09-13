@@ -1,7 +1,7 @@
 // Formulaire dépense (pas d'artboard, DNA 30) — présenté en transparentModal par app/_layout.js :
 // scrim + sheet qui monte, fermeture router.back(). Recette : docs/recettes/30b-depense.md
-import React, { useState } from 'react';
-import { router } from 'expo-router';
+import React, { useState, useEffect } from 'react';
+import { router, useLocalSearchParams } from 'expo-router';
 import { View, Text, TextInput, Pressable, ScrollView, Platform, StyleSheet, KeyboardAvoidingView, Keyboard } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ScreenTitle, Micro, Card, Avatar, CTAPrimary, Footer } from '../src/components/ui';
@@ -24,6 +24,8 @@ const parseAmount = s => Math.round(parseFloat(String(s).replace(',', '.')) * 10
 const fmtDate = iso => new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }).format(new Date(iso + 'T12:00:00'));
 
 export default function Depense() {
+  const { id } = useLocalSearchParams(); // édition d'une dépense existante (Jeanne 13 sept 2026 : « je ne peux pas modifier »)
+  const [existing, setExisting] = useState(null);
   const insets = useSafeAreaInsets();
   useIdentity(); // vrais prénoms/photos des payeurs
   const [title, setTitle] = useState('');
@@ -33,6 +35,8 @@ export default function Depense() {
   const [dateIso, setDateIso] = useState(localIso());
   const [dateOpen, setDateOpen] = useState(false);
   const todayIso = localIso(), yesterdayIso = addDaysIso(-1);
+  useEffect(() => { if (!id) return; read('expenses').then(rows => { const e = rows.find(x => x.id === id); if (!e) return; setExisting(e); setTitle(e.title || ''); setAmount((e.amount_cents / 100).toFixed(2).replace('.', ',')); setPaidBy(e.paid_by === getUid() ? me.id : members[1]?.id || me.id); setDateIso(e.spent_on); }); }, [id]);
+  const remove = async () => { if (!existing) return; await mutate('expenses', { ...existing, deleted_at: new Date().toISOString() }); occStore.bump(); router.back(); };
   const valid = title.trim().length > 0 && parseAmount(amount) > 0;
 
   // Dépense RÉELLE (décision Jeanne 6 sept 2026 : table expenses synchronisée à deux) —
@@ -50,12 +54,12 @@ export default function Depense() {
         const households = await read('households');
         const currency = households.find(h => h.id === hid)?.currency || 'EUR';
         await mutate('expenses', {
-          id: uuid(), household_id: hid, title: title.trim(), emoji: null,
-          amount_cents: parseAmount(amount), currency,
-          paid_by: paidBy === me.id ? uid : (getPartnerUid() || uid),
-          split_mode: 'equal', category: 'autre', spent_on: dateIso, created_by: uid,
+          ...(existing || { id: uuid(), household_id: hid, emoji: null, split_mode: 'equal', category: 'autre', created_by: uid, currency }),
+          title: title.trim(), amount_cents: parseAmount(amount),
+          paid_by: paidBy === me.id ? uid : (getPartnerUid() || uid), spent_on: dateIso,
         });
         occStore.bump();
+        if (existing) { router.back(); return; }
         const vars = { title: title.trim(), amount: `${(parseAmount(amount) / 100).toFixed(2).replace('.', ',')} €` };
         logActivity({ type: 'ping', preset_key: 'expenseAdded', payload: vars }).catch(() => {});
         pushToPartner('expenseAdded', vars, '/(tabs)/budget');
@@ -70,7 +74,7 @@ export default function Depense() {
           <SheetHandle />
           <ScrollView contentInsetAdjustmentBehavior="never" automaticallyAdjustKeyboardInsets contentContainerStyle={{ paddingHorizontal: space.headerX, paddingBottom: 24 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
             <View style={s.header}>
-              <ScreenTitle style={{ letterSpacing: -1.1 }}>{t.title}</ScreenTitle>
+              <ScreenTitle style={{ letterSpacing: -1.1 }}>{existing ? t.editTitle : t.title}</ScreenTitle>
               <RoundButton size={32} onPress={() => router.back()} accessibilityLabel={copy.common.cancel}><Icon d={ICON.close} size={15} sw={2} /></RoundButton>
             </View>
             <Micro style={s.label}>{t.titleLabel}</Micro>
@@ -110,9 +114,10 @@ export default function Depense() {
               <Chip label={dateOpen || (dateIso !== todayIso && dateIso !== yesterdayIso) ? fmtDate(dateIso) : t.dateOther} on={dateOpen || (dateIso !== todayIso && dateIso !== yesterdayIso)} onPress={() => setDateOpen(o => !o)} />
             </View>
             {dateOpen ? <Card padding={0} style={{ marginTop: 10 }}><DateGrid value={dateIso} onChange={iso => { setDateIso(iso); setDateOpen(false); }} allowPast /></Card> : null}
+            {existing ? <Pressable onPress={remove} style={{ alignSelf: 'center', marginTop: 22 }}><Text style={{ fontSize: 14.5, fontWeight: '600', color: colors.coralDeep }}>{t.delete}</Text></Pressable> : null}
           </ScrollView>
 
-          <Footer bottom={Math.max(insets.bottom, space.footerBottom)}><CTAPrimary label={t.cta} disabled={!valid || busy} onPress={submit} /></Footer>
+          <Footer bottom={Math.max(insets.bottom, space.footerBottom)}><CTAPrimary label={existing ? copy.common.save : t.cta} disabled={!valid || busy} onPress={submit} /></Footer>
         </View>
     </KeyboardAvoidingView>
   );

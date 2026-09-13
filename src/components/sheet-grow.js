@@ -21,8 +21,8 @@ export function useSheetGrow(grown, tall = false) {
   useEffect(() => {
     if (tall) { navigation.setOptions({ sheetAllowedDetents: [0.92] }); return; }
     if (!grown) { navigation.setOptions({ sheetAllowedDetents: 'fitToContents' }); return; }
-    const id = setTimeout(() => { if (contentH) navigation.setOptions({ sheetAllowedDetents: [Math.min(0.92, (contentH + 12) / (winH - insets.top - 10))] }); }, 450);
-    return () => clearTimeout(id);
+    // tout de suite (13 sept 2026 : avec 450 ms d'attente, les jours du report ne recevaient pas les touches)
+    if (contentH) navigation.setOptions({ sheetAllowedDetents: [Math.min(0.92, (contentH + 12) / (winH - insets.top - 10))] });
   }, [grown, tall, contentH]);
   return e => { if (!tall) setContentH(e.nativeEvent.layout.height); };
 }

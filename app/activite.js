@@ -230,11 +230,11 @@ export default function Activite() {
         <ScrollView contentContainerStyle={s.list} showsVerticalScrollIndicator={false}>
           {real && groups.length === 0
             ? <Text style={[font.secondary, { textAlign: 'center', paddingVertical: 24 }]}>{t.emptyReal}</Text>
-            : groups.map(g => (
+            : groups.map((g, gi) => (
               <React.Fragment key={g.label}>
                 <Text style={s.day}>{g.label}</Text>
                 {g.items.map(it => (
-                  <View key={it.id} style={it.type === 'mochi_moment' || variant === 'c' ? null : [s.bubble, it.actor_id === me.id ? s.bubbleMine : s.bubbleTheirs]}>
+                  <View key={it.id} style={[it.type === 'mochi_moment' || variant === 'c' ? null : [s.bubble, it.actor_id === me.id ? s.bubbleMine : s.bubbleTheirs], (chosen[it.id] || gi > 0) && { opacity: chosen[it.id] ? 0.45 : 0.7 }]}>
                     <Item item={it} chosen={chosen[it.id]} onChoose={choose} variant={variant} />
                   </View>
                 ))}
