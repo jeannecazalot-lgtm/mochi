@@ -1,6 +1,6 @@
 // Écran 22 · Activité — fil du duo (pings, événements, moments Mochi). Recette : docs/recettes/22-activite.md
 import React, { useState, useEffect } from 'react';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
@@ -52,33 +52,51 @@ function Replies({ item, keys, chosen, onChoose, name }) {
 // Suivi façon messagerie (décision Jeanne 13 sept 2026) : mes actions d'un côté, celles de l'autre
 // de l'autre, « tu as … » quand c'est moi ; rappels, reprises et rendus soulignés (filet corail).
 const HIGHLIGHT = new Set(['reminder', 'budgetRemind', 'tookOver', 'gaveBack', 'swap_proposed']);
-function Item({ item, chosen, onChoose }) {
+// Variantes de présentation proposées à Jeanne (13 sept 2026, « j'aime pas la présentation ») :
+//   a · cartes alignées (moi à droite, l'autre à gauche)   b · bulles façon messagerie, sans carte
+//   c · une colonne pleine largeur, filet corail à gauche pour rappels / reprises
+function Wrap({ variant, mine, highlight, children, style }) {
+  if (variant === 'b') return <View style={[s.bub, mine ? s.bubMine : s.bubTheirs, highlight && s.bubHi, style]}>{children}</View>;
+  if (variant === 'c') return <Card r={radius.card} padding={0} style={[s.card, style]} accent={highlight ? colors.coral : undefined}>{children}</Card>;
+  return <Card r={radius.card} padding={0} style={[s.card, highlight && s.highlight, style]}>{children}</Card>;
+}
+function Item({ item, chosen, onChoose, variant = 'a' }) {
   const actor = item.actor_id ? byId(item.actor_id) : null;
   const mine = actor?.id === me.id;
+  const hi = item.type === 'info' ? HIGHLIGHT.has(item.preset) : item.type === 'swap_proposed';
   const task = item.task_title ? { title: item.task_title } : item.task_id ? taskById(item.task_id) : null;
-  const head = (content) => (
+  const head = (content) => (variant === 'b' ? (
+    <View>
+      {hi ? <Text style={s.bubTag}>{item.type === 'swap_proposed' ? t.tagSwap : item.preset === 'tookOver' || item.preset === 'gaveBack' ? t.tagTake : t.tagReminder}</Text> : null}
+      <View style={s.head}>
+        {actor && !mine ? <Avatar initial={actor.initial} color={actor.color} photo={actor.avatar_url} size={24} /> : null}
+        <View style={{ flex: 1 }}>{content}</View>
+      </View>
+      <Text style={[s.time, { alignSelf: 'flex-end', marginTop: 4 }]}>{item.time}</Text>
+    </View>
+  ) : (
     <View style={s.head}>
-      {actor ? <Avatar initial={actor.initial} color={actor.color} size={28} /> : null}
+      {actor ? <Avatar initial={actor.initial} color={actor.color} photo={actor.avatar_url} size={28} /> : null}
       <View style={{ flex: 1 }}>{content}</View>
       <Text style={s.time}>{item.time}</Text>
     </View>
-  );
+  ));
 
   if (item.type === 'task_done') {
     return (
-      <Card r={radius.card} padding={0} style={s.card}>
+      <Wrap variant={variant} mine={mine} highlight={hi}>
         {head(<RichText template={mine ? t.taskDoneMe : t.taskDone} vars={{ name: actor.first_name, task: task.title.toLowerCase() }} style={s.body} />)}
         {actor.id !== me.id ? <Replies item={item} keys={replyPresets.task_done} chosen={chosen} onChoose={onChoose} name={actor.first_name} /> : null}
         {/* la réaction de l'autre sous MA mission terminée (fil réel) */}
         {item.reaction ? <Text style={s.debt}>{fill(t.reactionFrom, { name: item.reaction.name, reply: fill(t.replies[item.reaction.key] || item.reaction.key, { name: me.first_name }) })}</Text> : null}
-      </Card>
+      </Wrap>
     );
   }
   if (item.type === 'ping') {
     const occ = occurrences.find(o => o.task_id === item.task_id && o.assignee_id === item.target_id);
     const when = occ?.time || occ?.badge || null;
     return (
-      <Card r={radius.card} padding={0} style={s.card}>
+      <Wrap variant={variant} mine={mine} highlight={hi}>
         {head(<Text style={s.bodyQuote}>« {fill(copy.pings[item.preset_key] || '', { task: task.title })} »</Text>)}
         <View style={s.attach}>
           <Text style={{ fontSize: 16 }}>{task.emoji}</Text>
@@ -86,13 +104,13 @@ function Item({ item, chosen, onChoose }) {
           <Pressable onPress={() => router.push(`/task/${task.id}`)} hitSlop={8}><Text style={s.view}>{t.view}</Text></Pressable>
         </View>
         {item.target_id === me.id ? <Replies item={item} keys={replyPresets.ping} chosen={chosen} onChoose={onChoose} /> : null}
-      </Card>
+      </Wrap>
     );
   }
   if (item.type === 'swap_proposed' || item.type === 'swap_accepted') {
     const proposed = item.type === 'swap_proposed';
     return (
-      <Card r={radius.card} padding={0} style={s.card} accent={proposed ? colors.lavender : undefined}>
+      <Wrap variant={variant} mine={mine} highlight={hi} style={proposed && variant === 'a' ? { borderColor: colors.lavender, borderWidth: 1.5 } : null}>
         {head(<RichText template={proposed ? t.swapProposed : mine ? t.swapAcceptedMe : t.swapAccepted} vars={{ name: actor.first_name, task: task.title.toLowerCase() }} style={s.body} />)}
         {proposed ? (
           <>
@@ -103,15 +121,15 @@ function Item({ item, chosen, onChoose }) {
             </View>
           </>
         ) : null}
-      </Card>
+      </Wrap>
     );
   }
   // info préformatée (je m'en occupe, règle changée, tâche ajoutée — 7 sept 2026)
   if (item.type === 'info') {
     return (
-      <Card r={radius.card} padding={0} style={[s.card, HIGHLIGHT.has(item.preset) && s.highlight]}>
+      <Wrap variant={variant} mine={mine} highlight={hi}>
         {head(<Text style={s.body}>{item.text}</Text>)}
-      </Card>
+      </Wrap>
     );
   }
   // mochi_moment
@@ -125,6 +143,7 @@ function Item({ item, chosen, onChoose }) {
 }
 
 export default function Activite() {
+  const { v: variant = 'a', demo: demoParam } = useLocalSearchParams();
   const [chosen, setChosen] = useState({});
   const choose = (id, key) => {
     Haptics.selectionAsync().catch(() => {});
@@ -193,7 +212,7 @@ export default function Activite() {
     })();
   }, [occV]);
 
-  const real = realItems != null;
+  const real = realItems != null && demoParam !== '1';
   const now = real ? new Date() : today;
   const groups = [];
   (real ? realItems : activityFeed).forEach(it => {
@@ -215,8 +234,8 @@ export default function Activite() {
               <React.Fragment key={g.label}>
                 <Text style={s.day}>{g.label}</Text>
                 {g.items.map(it => (
-                  <View key={it.id} style={it.type === 'mochi_moment' ? null : [s.bubble, it.actor_id === me.id ? s.bubbleMine : s.bubbleTheirs]}>
-                    <Item item={it} chosen={chosen[it.id]} onChoose={choose} />
+                  <View key={it.id} style={it.type === 'mochi_moment' || variant === 'c' ? null : [s.bubble, it.actor_id === me.id ? s.bubbleMine : s.bubbleTheirs]}>
+                    <Item item={it} chosen={chosen[it.id]} onChoose={choose} variant={variant} />
                   </View>
                 ))}
               </React.Fragment>
@@ -232,7 +251,12 @@ const s = StyleSheet.create({
   day: { alignSelf: 'center', fontSize: 10.5, fontWeight: '500', letterSpacing: 1.4, textTransform: 'uppercase', color: colors.muted },
   card: { paddingVertical: 13, paddingHorizontal: 14 },
   highlight: { borderColor: colors.coral, borderWidth: 1.5 },
-  bubble: { width: '90%' },
+  bubble: { width: '86%' },
+  bub: { paddingVertical: 10, paddingHorizontal: 13, borderRadius: 18 },
+  bubMine: { backgroundColor: alpha(colors.sage, 0.35), borderBottomRightRadius: 6 },
+  bubTheirs: { backgroundColor: colors.card, borderBottomLeftRadius: 6, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
+  bubHi: { backgroundColor: alpha(colors.coral, 0.16) },
+  bubTag: { fontSize: 10.5, fontWeight: '700', letterSpacing: 1, textTransform: 'uppercase', color: colors.coralDeep, marginBottom: 4 },
   bubbleMine: { alignSelf: 'flex-end' },
   bubbleTheirs: { alignSelf: 'flex-start' },
   head: { flexDirection: 'row', alignItems: 'center', gap: 10 },

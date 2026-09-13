@@ -1158,7 +1158,10 @@
       "reminder": "Tu as envoyé un petit rappel pour {task} 🙂",
       "gaveBack": "Tu as rendu {task} · {day}",
       "noteCreated": "Tu as ajouté un pense-bête : {title}"
-    }
+    },
+    "tagReminder": "Rappel",
+    "tagTake": "Reprise",
+    "tagSwap": "Proposition"
   },
   "afaire": {
     "_labels": {
