@@ -86,7 +86,7 @@ export default function Home() {
   const [anyOcc, setAnyOcc] = useState(false); // le foyer a-t-il déjà des missions (pas forcément à moi) ?
   const [noTask, setNoTask] = useState(false); // foyer sans aucune tâche (on vient de le former) → bouton vers l'écran 10
   const [bal, setBal] = useState(null);
-  const [upcoming, setUpcoming] = useState([]); // « À venir » : mes missions des 6 jours suivants (2 jours le 7 sept, 6 jours le 13 sept 2026) // balance réelle de la semaine → la phrase de Mochi dit la même chose que l'onglet Balance (6 sept 2026)
+  const [upcoming, setUpcoming] = useState([]); // « À venir » : mes missions des 2 jours suivants (décision Jeanne 7 sept 2026, confirmée le 13 sept : une page fixe) // balance réelle de la semaine → la phrase de Mochi dit la même chose que l'onglet Balance (6 sept 2026)
   const occV = occStore.useVersion(); // « Déplacer » depuis la sheet → on relit le store
   useEffect(() => {
     (async () => {
@@ -113,8 +113,8 @@ export default function Home() {
         const q = `occ=${o.id}&tid=${o.task_id}&title=${encodeURIComponent(tk.title || '')}&emoji=${encodeURIComponent(tk.emoji || '•')}&mins=${tk.duration_min || 15}`;
         return { id: o.id, emoji: tk.emoji || '•', title: tk.title || '…', mental: !!tk.mental_load, badge: null, together: !o.assignee_id, mins: tk.duration_min || 15, href: `/mission?${q}`, ping: null };
       };
-      // « À venir » : les 6 jours suivants (Jeanne 13 sept 2026 : « la section montre plus de jours »)
-      setUpcoming([1, 2, 3, 4, 5, 6].map(k => {
+      // « À venir » : les 2 jours suivants, l'Accueil tient sur une page (Jeanne 13 sept 2026 : « max 2 jours après »)
+      setUpcoming([1, 2].map(k => {
         const iso = addDaysIso(k);
         // cochée par erreur : elle reste, barrée, pour pouvoir la décocher (Jeanne 13 sept 2026)
         const items = occs.filter(o => isLive(o) && o.due_date === iso && (!uid || !o.assignee_id || o.assignee_id === uid));
