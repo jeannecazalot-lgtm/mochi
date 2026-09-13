@@ -15,7 +15,8 @@ import { Row, Stepper, PillChip, ConfirmRow, Arrow, Caption } from '../src/compo
 import { RuleEditor } from '../src/components/task/rule-editor';
 import { useSheetGrow } from '../src/components/sheet-grow';
 import { loadMission, saveRule, completeMission, parseAmount } from '../src/mission-data';
-import { moveOccurrence, toggleOccurrence, takeOver } from '../src/occ-actions';
+import { moveOccurrence, toggleOccurrence, takeOver, skipOccurrence } from '../src/occ-actions';
+import { deleteRealTask } from '../src/task-actions';
 import { requestSwap } from '../src/swap-actions';
 import { missionDone } from '../src/demo-core';
 import { me, partner, fmtMin } from '../src/demo';
@@ -87,6 +88,7 @@ export default function Mission() {
   const patchRule = p => { dirty.current = true; setRule(r => ({ ...r, ...p })); Haptics.selectionAsync().catch(() => {}); };
   const close = () => router.back();
   const finish = kind => { setConfirm(kind); setTimeout(close, kind === 'done' ? CLOSE_AFTER : CLOSE_AFTER_SLOW); };
+  // objet { kind, title, sub } = confirmation libre (passer cette fois-ci, supprimer)
 
   const undo = () => {
     if (!m) return;
@@ -164,7 +166,7 @@ export default function Mission() {
   const ruleSummary = [rule.window_days.length ? rule.window_days.map(i => copy.calendar.dowsLong[i].toLowerCase()).join(', ') : t.ruleAnyDay, t.who[rule.who] || partner.first_name].join(' · ');
 
   if (confirm) {
-    const props = confirm === 'done'
+    const props = typeof confirm === 'object' ? confirm : confirm === 'done'
       ? { kind: 'done', title: t.confirmDone, sub: cents ? fill(t.confirmDoneSub, { time: fmtMin(spent), amount: fmtAmount(cents) }) : fill(t.doneSub, { time: fmtMin(spent) }) }
       : confirm === 'moved'
         ? { kind: 'moved', title: fill(t.confirmMoved, { day: movedTo?.long }), sub: fill(t.confirmMovedSub, { name: partner.first_name }) }
@@ -258,7 +260,9 @@ export default function Mission() {
               {ruleOpen ? (
                 <Animated.View entering={FadeIn.duration(motion.micro)}>
                   {/* pas de durée ici : « Temps passé » se règle à la coche (Jeanne, 9 sept 2026) */}
-                  <RuleEditor rule={rule} onPatch={patchRule} showMoment showEffort showDuration={false} first={false} onNoteOpen={setNoteOpen} />
+                  <RuleEditor rule={rule} onPatch={patchRule} showMoment showEffort showDuration={false} first={false} onNoteOpen={setNoteOpen}
+                    onSkipOnce={m.real ? async () => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {}); await skipOccurrence(String(occId || '')).catch(() => {}); dirty.current = false; finish({ kind: 'moved', title: t.confirmSkipped, sub: t.confirmSkippedSub }); } : undefined}
+                    onDeleteTask={m.real && task.id ? async () => { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {}); await deleteRealTask(task.id).catch(() => {}); dirty.current = false; finish({ kind: 'moved', title: fill(t.confirmDeleted, { task: task.title }), sub: fill(t.confirmDeletedSub, { name: partner.first_name }) }); } : undefined} />
                 </Animated.View>
               ) : null}
             </Card>

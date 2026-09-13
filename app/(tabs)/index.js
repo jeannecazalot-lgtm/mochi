@@ -125,8 +125,9 @@ export default function Home() {
       }));
     })();
   }, [occV, ident]);
-  const toggle = id => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+  const toggle = (id, upcomingRow = false) => {
+    // une tâche « à venir » cochée : vibration plus nette pour qu'on s'en rende compte (Ketley 12 sept 2026)
+    (upcomingRow ? Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning) : Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)).catch(() => {});
     const nowDone = !missionDone.has(id);
     missionDone.toggle(id);
     if (real) toggleOccurrence(String(id), nowDone, (vms || []).find(v => v.id === id)?.mins).catch(() => {});
@@ -219,7 +220,7 @@ export default function Home() {
                 {upcoming.map(g => (
                   <Card key={g.iso} padding={0} style={{ paddingVertical: 8, paddingHorizontal: 14 }}>
                     <Text style={[font.micro, { paddingTop: 4, paddingBottom: 2 }]}>{g.label}</Text>
-                    {g.items.map((v, i) => <MissionRow key={v.id} vm={v} first={i === 0} done={missionDone.has(v.id)} onToggle={() => toggle(v.id)} />)}
+                    {g.items.map((v, i) => <MissionRow key={v.id} vm={v} first={i === 0} done={missionDone.has(v.id)} onToggle={() => toggle(v.id, true)} />)}
                   </Card>
                 ))}
               </View>

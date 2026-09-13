@@ -398,7 +398,15 @@
     "closeLabel": "Fermer",
     "expenseAfterSub": "Si tu as payé quelque chose",
     "swapBtn": "Proposer",
-    "noteDone": "OK"
+    "noteDone": "OK",
+    "skipOnce": "Pas cette fois-ci",
+    "skipOnceSub": "Cette fois-là disparaît, sans peser",
+    "deleteTask": "Supprimer la tâche",
+    "deleteTaskSub": "Elle ne reviendra plus",
+    "confirmSkipped": "Passée cette fois-ci",
+    "confirmSkippedSub": "Elle revient la prochaine fois",
+    "confirmDeleted": "{task} supprimée",
+    "confirmDeletedSub": "{name} recevra une notification"
   },
   "pings": {
     "_labels": {
@@ -652,7 +660,10 @@
     "duoSubJoiner": "{name} choisit et répartit vos tâches, tu pourras tout ajuster depuis le Planning. Encore trois petites étapes : ton prénom, tes dispos, tes préférences.",
     "duoSubJoinerReady": "{name} choisit et répartit vos tâches, tu pourras tout ajuster depuis le Planning. Tes dispos et tes préférences partent dans le foyer.",
     "continueMeanwhile": "Choisir nos tâches en attendant",
-    "everyDay": "tous les jours"
+    "everyDay": "tous les jours",
+    "beforeTasksTitle": "Les missions se choisissent ici.",
+    "beforeTasksSub": "Comme tu as créé le duo, la liste se fait sur ton téléphone. {name} recevra le récap et pourra tout modifier à son tour.",
+    "beforeTasksCta": "Choisir nos tâches"
   },
   "event": {
     "_labels": {
@@ -1111,7 +1122,8 @@
       "reminder": "{name} : petit rappel pour {task} 🙂",
       "gaveBack": "{name} t'a rendu {task} · {day}",
       "eventCreated": "{name} a ajouté l'événement {event} · {day}",
-      "expenseAdded": "{name} a ajouté une dépense : {title} · {amount}"
+      "expenseAdded": "{name} a ajouté une dépense : {title} · {amount}",
+      "taskDeleted": "{name} a supprimé {task}"
     },
     "replies": {
       "thumbs": "👍",
@@ -1620,7 +1632,8 @@
     "reminder": "{name} : petit rappel pour « {task} » 🙂",
     "gaveBack": "{name} t'a rendu « {task} » · {day}",
     "eventCreated": "{name} a ajouté l'événement « {event} » · {day}",
-    "expenseAdded": "{name} a ajouté une dépense : {title} · {amount}"
+    "expenseAdded": "{name} a ajouté une dépense : {title} · {amount}",
+    "taskDeleted": "{name} a supprimé « {task} »"
   },
   "mesReglages": {
     "_labels": {

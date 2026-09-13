@@ -20,7 +20,7 @@ export const MOMENTS = ['morning', 'evening', null]; // Le matin · Le soir · P
 export const momentLabel = dl => (dl == null ? tt.anytime : dl === 'morning' ? tt.morning : tt.evening);
 
 // rule = { window_days: [0-6], deadline, who: 'me'|'partner'|'alt'|'auto', duration_min, note, pain?, importance? }
-export function RuleEditor({ rule, onPatch, showMoment = false, showEffort = false, showDuration = true, first = true, mochiDays = null, onNoteOpen }) {
+export function RuleEditor({ rule, onPatch, showMoment = false, showEffort = false, showDuration = true, first = true, mochiDays = null, onNoteOpen, onSkipOnce, onDeleteTask }) {
   const [noteOpen, setNoteOpenRaw] = useState(false);
   const setNoteOpen = v => { setNoteOpenRaw(v); onNoteOpen?.(v); if (!v) Keyboard.dismiss(); };
   const days = rule.window_days || [];
@@ -53,11 +53,14 @@ export function RuleEditor({ rule, onPatch, showMoment = false, showEffort = fal
           </View>
         )
         : <Row label={t.ruleNote} sub={rule.note ? <LinkText>{rule.note}</LinkText> : t.notePlaceholder} right={<Arrow />} onPress={() => setNoteOpen(true)} />}
+      {onSkipOnce ? <Row label={t.skipOnce} sub={t.skipOnceSub} right={<Arrow />} onPress={onSkipOnce} /> : null}
+      {onDeleteTask ? <Row label={<Text style={s.danger}>{t.deleteTask}</Text>} sub={t.deleteTaskSub} onPress={onDeleteTask} /> : null}
     </View>
   );
 }
 
 const s = StyleSheet.create({
+  danger: { color: colors.coralDeep },
   hint: { ...font.caption, paddingHorizontal: 14, paddingBottom: 10, marginTop: -4 },
   noteBox: { paddingHorizontal: 14, paddingVertical: 10, borderTopWidth: 1, borderTopColor: colors.line },
   noteInput: { fontSize: 15, color: colors.ink, minHeight: 60, textAlignVertical: 'top' },

@@ -15,7 +15,8 @@ import { TaskHeader } from '../../src/components/task/extra';
 import { Row, Arrow } from '../../src/components/task/proto';
 import { RuleEditor } from '../../src/components/task/rule-editor';
 import { dayKeys, me, partner } from '../../src/demo-task';
-import { loadRealTask, saveRealTask, createRealTask } from '../../src/task-actions';
+import { loadRealTask, saveRealTask, createRealTask, deleteRealTask } from '../../src/task-actions';
+import { EmojiPicker } from '../../src/components/emoji-picker';
 import { setup, saveTasks, saveResult, freqPerWeek } from '../../src/setup-state';
 import { daysForTask } from '../../src/dispatch';
 import { catalogue } from '../../src/demo-setup';
@@ -88,14 +89,15 @@ export function TaskEditBody({ page = false }) {
     <KeyboardAvoidingView behavior="padding" style={[s.sheet, page && s.page, { paddingBottom: Math.max(insets.bottom, 31) }]} onLayout={page ? undefined : onGrowLayout}>
       <Pressable onPress={Keyboard.dismiss} accessible={false}>
       {page ? <TaskHeader title={isNew ? t.headerNew : t.headerEdit} backLabel={t.back} /> : <SheetHandle />}
-        <View style={s.head}>
+        <View style={[s.head, { flexDirection: 'row', alignItems: 'center', gap: 12 }]}>
+          <EmojiPicker value={f.emoji} onChange={e => patch({ emoji: e })} />
           <TextInput
             value={f.title} onChangeText={v => patch({ title: v })} placeholder={t.titlePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)}
-            autoCorrect={false} returnKeyType="done" cursorColor={colors.coral} selectionColor={colors.coral} style={s.title}
+            autoCorrect={false} returnKeyType="done" cursorColor={colors.coral} selectionColor={colors.coral} style={[s.title, { flex: 1 }]}
           />
         </View>
         <Card r={16} padding={0} style={s.block}>
-          <RuleEditor rule={f} onPatch={patch} showMoment showEffort mochiDays={f.mochiDays || null} onNoteOpen={setNoteOpen} />
+          <RuleEditor rule={f} onPatch={patch} showMoment showEffort mochiDays={f.mochiDays || null} onNoteOpen={setNoteOpen} onDeleteTask={id ? async () => { await deleteRealTask(String(id)).catch(() => {}); dirty.current = false; router.back(); } : undefined} />
         </Card>
         {isNew ? (
           <Card r={16} padding={0}>

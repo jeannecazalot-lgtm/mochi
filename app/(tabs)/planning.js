@@ -241,6 +241,13 @@ export default function Planning() {
     const id = setTimeout(() => { const y = groupY.current[todayIso]; if (y != null) { scrollRef.current?.scrollTo({ y: Math.max(0, y - 8), animated: false }); openedOnToday.current = true; } }, 80);
     return () => clearTimeout(id);
   }, [realGroups]);
+  // la bande des jours suit la liste (retour Ketley 12 sept 2026 : « quand je scroll, mardi devrait passer en noir »)
+  const onScroll = e => {
+    const y = e.nativeEvent.contentOffset.y + 24;
+    let cur = null;
+    for (const [iso, gy] of Object.entries(groupY.current).filter(([k]) => k !== '__late').sort((a, b) => a[1] - b[1])) if (gy <= y) cur = iso;
+    if (cur) setSelectedIso(prev => (prev === cur ? prev : cur));
+  };
   const jumpTo = date => {
     const iso = localIso(date);
     setSelectedIso(iso);
@@ -285,7 +292,7 @@ export default function Planning() {
                 />
               ))}
             </View>
-            <ScrollView ref={scrollRef} contentContainerStyle={{ paddingHorizontal: space.screenX, paddingBottom: 16 }} showsVerticalScrollIndicator={false}>
+            <ScrollView ref={scrollRef} onScroll={onScroll} scrollEventThrottle={48} contentContainerStyle={{ paddingHorizontal: space.screenX, paddingBottom: 16 }} showsVerticalScrollIndicator={false}>
               {realGroups
                 ? shownGroups.map(g => (
                   <View key={g.iso} style={{ marginBottom: 11 }} onLayout={e => { groupY.current[g.iso] = e.nativeEvent.layout.y; }}>

@@ -31,7 +31,7 @@ export default function Invite() {
   // Retours test à deux (2 sept) : en réel, « Envoyer » ne simule PLUS l'acceptation.
   // On reste ici en mode attente, et on guette l'arrivée du binôme (toutes les 4 s) ;
   // le 09b ne s'affiche que quand il a VRAIMENT rejoint. « Plus tard » → écran 10.
-  const next = () => router.push(realCode ? '/(setup)/taches' : '/(setup)/duo-forme');
+  const next = () => router.push(realCode ? '/(setup)/avant-taches' : '/(setup)/duo-forme');
   useEffect(() => {
     if (!realCode) return;
     const id = setInterval(async () => {

@@ -144,3 +144,15 @@ export async function wasPartnersTask(occId) {
   if (tk?.assign_mode === 'fixed' && tk.fixed_assignee === puid) return true;
   return acts.some(a => a.preset_key === 'tookOver' && a.occurrence_id === occId && a.actor_id === uid);
 }
+
+// « Pas cette fois-ci » (Ketley 12 sept 2026 : « deux fois cuisiner samedi, imagine qu'on sort dîner ») :
+// cette occurrence seule disparaît, sans peser sur la balance ni le malus.
+export async function skipOccurrence(occId) {
+  const occs = await read('occurrences');
+  const row = occs.find(o => o.id === occId);
+  if (!row) return false;
+  await mutate('occurrences', { ...row, status: 'skipped' });
+  occStore.bump();
+  rescheduleReminders();
+  return true;
+}

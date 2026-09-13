@@ -68,7 +68,7 @@ export default function DuoForme() {
           <CTAPrimary
             label={joiner ? copy.common.continue : t.chooseTasks}
             onPress={() => {
-              if (!joiner) { router.push('/(setup)/taches'); return; }
+              if (!joiner) { router.push('/(setup)/avant-taches'); return; }
               // décision Jeanne (6 sept 2026) : on saute ce qui est déjà rempli — prénom, dispos,
               // préférences faits avant de saisir le code → Accueil direct, réglages envoyés au foyer
               if (filled) { syncJoinerPrefs().catch(() => {}); router.replace('/(tabs)'); }

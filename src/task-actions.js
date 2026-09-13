@@ -13,7 +13,7 @@ import { loadSetup, setup } from './setup-state';
 import { getUid, getPartnerUid } from './identity';
 import { placeDays } from './dispatch';
 import { lighterMember } from './horizon';
-import { addDaysIso } from './dates';
+import { addDaysIso, localIso } from './dates';
 import { logActivity } from './activity-actions';
 import { pushToPartner } from './push';
 
@@ -120,6 +120,22 @@ export async function saveRealTask(fiche) {
     const pain = fiche.pains?.[me.id];
     if (uid && pain) await mutate('task_pains', { task_id: fiche.id, user_id: uid, pain });
   } catch (e) { /* hors ligne : la file rejouera le reste */ }
+  occStore.bump();
+  return true;
+}
+
+// Supprimer une tâche (Ketley 12 sept 2026 : « une icône pour supprimer dans modifier ») : la tâche
+// s'éteint (active = false) et ses occurrences à venir sont retirées ; l'historique reste.
+export async function deleteRealTask(taskId) {
+  const [tasks, occs] = await Promise.all([read('tasks'), read('occurrences')]);
+  const row = tasks.find(t => t.id === taskId);
+  if (!row) return false;
+  await mutate('tasks', { ...row, active: false });
+  const today = localIso();
+  for (const o of occs) if (o.task_id === taskId && o.due_date >= today && o.status !== 'done') await mutate('occurrences', { ...o, status: 'skipped' });
+  const vars = { task: (row.title || '…').toLowerCase() };
+  logActivity({ type: 'ping', preset_key: 'taskDeleted', payload: vars }).catch(() => {});
+  pushToPartner('taskDeleted', vars, '/(tabs)/planning');
   occStore.bump();
   return true;
 }

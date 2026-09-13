@@ -45,7 +45,7 @@ export async function extendHorizon({ force = false } = {}) {
   const today = localIso();
   let created = 0;
   for (const task of tasks) {
-    if (task.deleted_at || task.archived_at || !task.household_id) continue;
+    if (task.deleted_at || task.archived_at || task.active === false || !task.household_id) continue;
     const mine = occs.filter(o => o.task_id === task.id && o.status !== 'skipped').sort((a, b) => a.due_date.localeCompare(b.due_date));
     const kind = task.mental_load ? 'plan' : 'exec';
     const has = iso => mine.some(o => o.due_date === iso && o.kind === kind);
