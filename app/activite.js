@@ -49,8 +49,12 @@ function Replies({ item, keys, chosen, onChoose, name }) {
   );
 }
 
+// Suivi façon messagerie (décision Jeanne 13 sept 2026) : mes actions d'un côté, celles de l'autre
+// de l'autre, « tu as … » quand c'est moi ; rappels, reprises et rendus soulignés (filet corail).
+const HIGHLIGHT = new Set(['reminder', 'budgetRemind', 'tookOver', 'gaveBack', 'swap_proposed']);
 function Item({ item, chosen, onChoose }) {
   const actor = item.actor_id ? byId(item.actor_id) : null;
+  const mine = actor?.id === me.id;
   const task = item.task_title ? { title: item.task_title } : item.task_id ? taskById(item.task_id) : null;
   const head = (content) => (
     <View style={s.head}>
@@ -63,7 +67,7 @@ function Item({ item, chosen, onChoose }) {
   if (item.type === 'task_done') {
     return (
       <Card r={radius.card} padding={0} style={s.card}>
-        {head(<RichText template={t.taskDone} vars={{ name: actor.first_name, task: task.title.toLowerCase() }} style={s.body} />)}
+        {head(<RichText template={mine ? t.taskDoneMe : t.taskDone} vars={{ name: actor.first_name, task: task.title.toLowerCase() }} style={s.body} />)}
         {actor.id !== me.id ? <Replies item={item} keys={replyPresets.task_done} chosen={chosen} onChoose={onChoose} name={actor.first_name} /> : null}
         {/* la réaction de l'autre sous MA mission terminée (fil réel) */}
         {item.reaction ? <Text style={s.debt}>{fill(t.reactionFrom, { name: item.reaction.name, reply: fill(t.replies[item.reaction.key] || item.reaction.key, { name: me.first_name }) })}</Text> : null}
@@ -89,7 +93,7 @@ function Item({ item, chosen, onChoose }) {
     const proposed = item.type === 'swap_proposed';
     return (
       <Card r={radius.card} padding={0} style={s.card} accent={proposed ? colors.lavender : undefined}>
-        {head(<RichText template={proposed ? t.swapProposed : t.swapAccepted} vars={{ name: actor.first_name, task: task.title.toLowerCase() }} style={s.body} />)}
+        {head(<RichText template={proposed ? t.swapProposed : mine ? t.swapAcceptedMe : t.swapAccepted} vars={{ name: actor.first_name, task: task.title.toLowerCase() }} style={s.body} />)}
         {proposed ? (
           <>
             <Text style={s.debt}>{t.swapDebt}</Text>
@@ -105,7 +109,7 @@ function Item({ item, chosen, onChoose }) {
   // info préformatée (je m'en occupe, règle changée, tâche ajoutée — 7 sept 2026)
   if (item.type === 'info') {
     return (
-      <Card r={radius.card} padding={0} style={s.card}>
+      <Card r={radius.card} padding={0} style={[s.card, HIGHLIGHT.has(item.preset) && s.highlight]}>
         {head(<Text style={s.body}>{item.text}</Text>)}
       </Card>
     );
@@ -177,8 +181,8 @@ export default function Activite() {
       }
       if (Object.keys(mineReact).length) setChosen(c => ({ ...mineReact, ...c }));
       const infos = acts.filter(a => a.type === 'ping' && t.presets[a.preset_key]).map(a => ({
-        id: a.id, type: 'info', actor_id: a.actor_id === uid ? me.id : partner.id,
-        text: fill(t.presets[a.preset_key], { name: a.actor_id === uid ? me.first_name : partner.first_name, ...(a.payload || {}) }),
+        id: a.id, type: 'info', preset: a.preset_key, actor_id: a.actor_id === uid ? me.id : partner.id,
+        text: fill((a.actor_id === uid && t.presetsMe[a.preset_key]) || t.presets[a.preset_key], { name: a.actor_id === uid ? me.first_name : partner.first_name, ...(a.payload || {}) }),
         at: new Date(a.created_at), time: hhmm(a.created_at),
       }));
       // carte « Soirée équilibrée » : hier tout était fait → streak réel (proto du 2 sept, validé le 7 sept)
@@ -210,7 +214,11 @@ export default function Activite() {
             : groups.map(g => (
               <React.Fragment key={g.label}>
                 <Text style={s.day}>{g.label}</Text>
-                {g.items.map(it => <Item key={it.id} item={it} chosen={chosen[it.id]} onChoose={choose} />)}
+                {g.items.map(it => (
+                  <View key={it.id} style={it.type === 'mochi_moment' ? null : [s.bubble, it.actor_id === me.id ? s.bubbleMine : s.bubbleTheirs]}>
+                    <Item item={it} chosen={chosen[it.id]} onChoose={choose} />
+                  </View>
+                ))}
               </React.Fragment>
             ))}
         </ScrollView>
@@ -223,6 +231,10 @@ const s = StyleSheet.create({
   list: { paddingTop: 10, paddingHorizontal: space.screenX, paddingBottom: 40, gap: 8 },
   day: { alignSelf: 'center', fontSize: 10.5, fontWeight: '500', letterSpacing: 1.4, textTransform: 'uppercase', color: colors.muted },
   card: { paddingVertical: 13, paddingHorizontal: 14 },
+  highlight: { borderColor: colors.coral, borderWidth: 1.5 },
+  bubble: { width: '90%' },
+  bubbleMine: { alignSelf: 'flex-end' },
+  bubbleTheirs: { alignSelf: 'flex-start' },
   head: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   body: { fontSize: 15, fontWeight: '500', color: colors.ink },
   bodyQuote: { fontSize: 15.5, fontWeight: '500', color: colors.ink },

@@ -118,7 +118,7 @@
     "mochiUnbalancedOther": "Ça penche nettement chez {name}.",
     "mochiUnbalancedMe": "Ça penche nettement de ton côté.",
     "mochiUnbalancedSub": "Mochi propose un rééquilibrage — regarde la Balance.",
-    "activityA11y": "Fil d’activité",
+    "activityA11y": "Suivi",
     "profileA11y": "Profil et réglages",
     "mochiNew": "Votre foyer démarre tout juste.",
     "mochiNewSub": "Choisissez vos tâches ensemble pour lancer la répartition.",
@@ -229,7 +229,8 @@
     "contribRealSub": "{a} min contre {b} min",
     "weighsNone": "Rien ne pèse encore — coche des missions et l'écart apparaîtra ici.",
     "heroTasksOne": "{pct}% · 1 tâche",
-    "streakDaysOne": "1 jour"
+    "streakDaysOne": "1 jour",
+    "plannedWeek": "Prévu cette semaine : {total} · toi {me} · {name} {partner}"
   },
   "budget": {
     "_labels": {
@@ -1099,7 +1100,7 @@
       "mochiStreak": "Sous-titre du moment Mochi ({n} = streak jours)",
       "replies": "Réponses préformatées (zéro texte libre)"
     },
-    "title": "Activité",
+    "title": "Suivi",
     "emptyReal": "Rien encore — coche des missions et le fil s'animera.",
     "today": "Aujourd'hui",
     "yesterday": "Hier",
@@ -1131,6 +1132,20 @@
       "best": "Bravo {name}",
       "okTonight": "👍 Ok ce soir",
       "alreadyDone": "Déjà fait ✓"
+    },
+    "taskDoneMe": "Tu as terminé {task} ✅",
+    "swapAcceptedMe": "Tu as accepté de reprendre {task}",
+    "presetsMe": {
+      "tookOver": "Tu t'occupes de {task} · {day}",
+      "ruleChanged": "Tu as réglé {task} : {rule}",
+      "taskCreated": "Tu as ajouté {task}",
+      "eventCreated": "Tu as ajouté l'événement {event} · {day}",
+      "expenseAdded": "Tu as ajouté une dépense : {title} · {amount}",
+      "taskDeleted": "Tu as supprimé {task}",
+      "settled": "Tu as remis le solde à zéro · {amount}",
+      "budgetRemind": "Tu as rappelé le solde : {amount}",
+      "reminder": "Tu as envoyé un petit rappel pour {task} 🙂",
+      "gaveBack": "Tu as rendu {task} · {day}"
     }
   },
   "afaire": {

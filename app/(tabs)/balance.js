@@ -29,6 +29,7 @@ export default function Balance() {
   const occV = occStore.useVersion();
   missionDone.useVersion();
   const [real, setReal] = useState(null);
+  const [planned, setPlanned] = useState(null); // { me, partner, both } minutes prévues cette semaine
   const [realMalusItems, setRealMalusItems] = useState([]);
   useEffect(() => {
     (async () => {
@@ -36,8 +37,19 @@ export default function Balance() {
       // Réel dès qu'on a un foyer, même vide (retour test à deux, 3 sept 2026)
       if (!inRealMode()) return;
       await sweepMissed().catch(() => {}); // les échues deviennent missed + malus
-      const occs = await read('occurrences');
+      const [occs, tasks] = await Promise.all([read('occurrences'), read('tasks')]);
       setReal(computeRealBalance(occs, getUid())); // gère aussi zéro occurrence
+      // prévu cette semaine (lun → dim), par personne : toutes les occurrences à faire ou faites
+      const byTask = Object.fromEntries(tasks.map(tk => [tk.id, tk]));
+      const d0 = new Date(); const mon = new Date(d0); mon.setDate(d0.getDate() - ((d0.getDay() + 6) % 7)); const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+      const from = localIso(mon), to = localIso(sun); const uid = getUid();
+      const pl = { me: 0, partner: 0, both: 0 };
+      for (const o of occs) {
+        if (o.status === 'skipped' || o.due_date < from || o.due_date > to) continue;
+        const min = o.duration_min || byTask[o.task_id]?.duration_min || 15;
+        if (!o.assignee_id) pl.both += min; else if (o.assignee_id === uid) pl.me += min; else pl.partner += min;
+      }
+      setPlanned(pl);
       setRealMalusItems(await weekMalus().catch(() => []));
     })();
   }, [occV]);
@@ -95,6 +107,7 @@ export default function Balance() {
                 })}
               </View>
               <SplitBar height={8} parts={parts.map(p => ({ ratio: p.pct / 100, color: p.member.color }))} />
+              {real && planned ? <Text style={s.plannedTxt}>{fill(t.plannedWeek, { total: fmtMin(planned.me + planned.partner + planned.both), me: fmtMin(planned.me + Math.round(planned.both / 2)), partner: fmtMin(planned.partner + Math.round(planned.both / 2)), name: partner.first_name })}</Text> : null}
               <Text style={s.seeDetail}>{t.seeDetail}</Text>
             </Card>
           </Pressable>
@@ -172,6 +185,7 @@ const s = StyleSheet.create({
   block: { paddingHorizontal: space.screenX, marginBottom: 12 },
   heroRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 13, marginBottom: 11 },
   heroName: { fontSize: 13, fontWeight: '600', marginBottom: 6 },
+  plannedTxt: { ...font.caption, textAlign: 'center', marginTop: 10 },
   heroNum: { fontSize: 32, fontWeight: '600', letterSpacing: -1.4, lineHeight: 32, color: colors.ink, fontVariant: ['tabular-nums'] },
   heroSub: { fontSize: 13, fontWeight: '400', color: colors.muted, marginTop: 4, fontVariant: ['tabular-nums'] },
   seeDetail: { marginTop: 10, fontSize: 12.5, fontWeight: '500', color: colors.muted, textAlign: 'right' },

@@ -41,7 +41,7 @@ export function PillChip({ label, selected, onPress, avatar, flex, dim }) {
     <Pressable onPress={onPress} style={({ pressed }) => [s.chip, flex && { flex: 1, paddingHorizontal: 4 }, selected && s.chipOn, dim && { opacity: 0.35 }, pressed && { opacity: 0.7 }]}>
       {avatar ? <Avatar initial={avatar.initial} color={avatar.color} photo={avatar.avatar_url} size={18} /> : null}
       {/* 7 chips jours en ligne : « sam » passait sur deux lignes et sortait du rond (retour Jeanne 9 sept 2026) */}
-      <Text numberOfLines={1} style={[s.chipTxt, selected && { color: colors.card }]}>{label}</Text>
+      <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.78} style={[s.chipTxt, flex && { fontSize: 12.5 }, selected && { color: colors.card }]}>{label}</Text>
     </Pressable>
   );
 }
