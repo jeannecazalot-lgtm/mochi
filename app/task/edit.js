@@ -81,7 +81,8 @@ export function TaskEditBody({ page = false }) {
     if (setupId) saveSetupTask(setupId, cur);
     else if (b) saveRealTask(toReal(cur, b));
   }, []);
-  const create = async () => { await createRealTask(toReal(f)); dirty.current = false; router.back(); };
+  const busy = useRef(false); // deux taps rapides = deux tâches (Ketley 12 sept 2026)
+  const create = async () => { if (busy.current) return; busy.current = true; await createRealTask(toReal(f)); dirty.current = false; router.back(); };
 
   return (
     <KeyboardAvoidingView behavior="padding" style={[s.sheet, page && s.page, { paddingBottom: Math.max(insets.bottom, 31) }]} onLayout={page ? undefined : onGrowLayout}>

@@ -8,6 +8,7 @@ import { askNotificationPermission, scheduleAt, cancelAll } from './notification
 import { read } from './store';
 import { setup } from './setup-state';
 import copy from './data/copy.json';
+import { localIso } from './dates';
 
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
 
@@ -16,21 +17,28 @@ export async function rescheduleReminders() {
     const ok = await askNotificationPermission();
     if (!ok) return false;
     await cancelAll();
-    const [occs, tasks] = await Promise.all([read('occurrences'), read('tasks')]);
-    if (!occs.length) return true;
+    const [occs, tasks, events] = await Promise.all([read('occurrences'), read('tasks'), read('events').catch(() => [])]);
+    // événements du jour (+ leur note) dans le récap — retour Ketley 12 sept 2026
+    const evByDay = {};
+    for (const ev of events || []) { if (ev.deleted_at || !ev.starts_at) continue; (evByDay[localIso(new Date(ev.starts_at))] ||= []).push(ev); }
+    if (!occs.length && !Object.keys(evByDay).length) return true;
     const byTask = Object.fromEntries(tasks.map(tk => [tk.id, tk]));
     const [h, m] = String(setup.reminder || '19:30').split(':').map(Number);
     const t = copy.reminders;
-    const days = [...new Set(occs.map(o => o.due_date))].sort();
+    const days = [...new Set([...occs.map(o => o.due_date), ...Object.keys(evByDay)])].sort();
     for (const dIso of days) {
       const when = new Date(`${dIso}T00:00:00`);
       when.setHours(Number.isFinite(h) ? h : 19, Number.isFinite(m) ? m : 30, 0, 0);
       if (when <= new Date()) continue;
       const dayOccs = occs.filter(o => o.status !== 'skipped' && o.due_date === dIso);
       const titles = dayOccs.map(o => byTask[o.task_id]?.title).filter(Boolean);
+      const evs = evByDay[dIso] || [];
+      const evLine = evs.map(ev => `${ev.emoji || '📅'} ${ev.title}${ev.details?.note ? ` — ${ev.details.note}` : ''}`).join(' · ');
+      const base = dayOccs.length ? fill(dayOccs.length === 1 ? t.bodyOne : t.body, { n: dayOccs.length, list: titles.slice(0, 3).join(' · ') }) : '';
+      if (!dayOccs.length && !evs.length) continue;
       await scheduleAt(when, {
         title: t.title,
-        body: fill(dayOccs.length === 1 ? t.bodyOne : t.body, { n: dayOccs.length, list: titles.slice(0, 3).join(' · ') }),
+        body: [base, evLine].filter(Boolean).join('\n'),
         data: { due_date: dIso },
       });
     }

@@ -676,7 +676,9 @@
     "placePlaceholder": "Lieu",
     "itemPlaceholder": "Quoi ?",
     "addItem": "+ Ajouter une chose à porter",
-    "cta": "Créer l'événement"
+    "cta": "Créer l'événement",
+    "noteLabel": "Note",
+    "notePlaceholder": "Envoyée dans le récap du jour"
   },
   "notes": {
     "_labels": {
@@ -814,7 +816,8 @@
     "dateLabel": "Date",
     "dateToday": "Aujourd’hui",
     "dateYesterday": "Hier",
-    "cta": "Ajouter la dépense"
+    "cta": "Ajouter la dépense",
+    "dateOther": "Autre date"
   },
   "wrapped": {
     "_labels": {
@@ -1106,7 +1109,9 @@
       "settled": "{name} a remis le solde à zéro · {amount}",
       "budgetRemind": "{name} te rappelle le solde : {amount}",
       "reminder": "{name} : petit rappel pour {task} 🙂",
-      "gaveBack": "{name} t'a rendu {task} · {day}"
+      "gaveBack": "{name} t'a rendu {task} · {day}",
+      "eventCreated": "{name} a ajouté l'événement {event} · {day}",
+      "expenseAdded": "{name} a ajouté une dépense : {title} · {amount}"
     },
     "replies": {
       "thumbs": "👍",
@@ -1613,7 +1618,9 @@
     "settled": "{name} a remis le solde à zéro · {amount}",
     "budgetRemind": "{name} te rappelle : tu lui dois {amount}",
     "reminder": "{name} : petit rappel pour « {task} » 🙂",
-    "gaveBack": "{name} t'a rendu « {task} » · {day}"
+    "gaveBack": "{name} t'a rendu « {task} » · {day}",
+    "eventCreated": "{name} a ajouté l'événement « {event} » · {day}",
+    "expenseAdded": "{name} a ajouté une dépense : {title} · {amount}"
   },
   "mesReglages": {
     "_labels": {

@@ -2,7 +2,7 @@
 // scrim + sheet qui monte, fermeture router.back(). Recette : docs/recettes/30b-depense.md
 import React, { useState } from 'react';
 import { router } from 'expo-router';
-import { View, Text, TextInput, Pressable, ScrollView, Platform, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Pressable, ScrollView, Platform, StyleSheet, KeyboardAvoidingView, Keyboard } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ScreenTitle, Micro, Card, Avatar, CTAPrimary, Footer } from '../src/components/ui';
 
@@ -12,12 +12,16 @@ import { occStore } from '../src/demo-core';
 import { mutate, read, uuid } from '../src/store';
 import { loadSetup, setup } from '../src/setup-state';
 import { getUid, getPartnerUid, useIdentity } from '../src/identity';
-import { localIso } from '../src/dates';
+import { localIso, addDaysIso } from '../src/dates';
+import { DateGrid } from '../src/components/date-grid';
+import { logActivity } from '../src/activity-actions';
+import { pushToPartner } from '../src/push';
 import copy from '../src/data/copy.json';
 import { colors, space, font, alpha, radius, motion } from '../src/theme';
 
 const t = copy.depense;
 const parseAmount = s => Math.round(parseFloat(String(s).replace(',', '.')) * 100) || 0;
+const fmtDate = iso => new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }).format(new Date(iso + 'T12:00:00'));
 
 export default function Depense() {
   const insets = useSafeAreaInsets();
@@ -25,7 +29,10 @@ export default function Depense() {
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
   const [paidBy, setPaidBy] = useState(me.id);
-  const [dayOffset, setDayOffset] = useState(0);
+  // date : hier · aujourd'hui · autre (calendrier) — ordre chronologique (retour Ketley 12 sept 2026)
+  const [dateIso, setDateIso] = useState(localIso());
+  const [dateOpen, setDateOpen] = useState(false);
+  const todayIso = localIso(), yesterdayIso = addDaysIso(-1);
   const valid = title.trim().length > 0 && parseAmount(amount) > 0;
 
   // Dépense RÉELLE (décision Jeanne 6 sept 2026 : table expenses synchronisée à deux) —
@@ -42,22 +49,24 @@ export default function Depense() {
       if (hid && uid) {
         const households = await read('households');
         const currency = households.find(h => h.id === hid)?.currency || 'EUR';
-        const d = new Date(); d.setDate(d.getDate() - dayOffset);
         await mutate('expenses', {
           id: uuid(), household_id: hid, title: title.trim(), emoji: null,
           amount_cents: parseAmount(amount), currency,
           paid_by: paidBy === me.id ? uid : (getPartnerUid() || uid),
-          split_mode: 'equal', category: 'autre', spent_on: localIso(d), created_by: uid,
+          split_mode: 'equal', category: 'autre', spent_on: dateIso, created_by: uid,
         });
         occStore.bump();
+        const vars = { title: title.trim(), amount: `${(parseAmount(amount) / 100).toFixed(2).replace('.', ',')} €` };
+        logActivity({ type: 'ping', preset_key: 'expenseAdded', payload: vars }).catch(() => {});
+        pushToPartner('expenseAdded', vars, '/(tabs)/budget');
       }
     } catch (e) { /* hors ligne : la file rejouera */ }
     router.back();
   };
 
   return (
-    <View style={{ flex: 1 }}>
-        <View style={[s.sheet, { flex: 1 }]}>
+    <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
+        <View style={[s.sheet, { flex: 1 }]} onStartShouldSetResponder={() => false} onTouchEnd={() => {}}>
           <SheetHandle />
           <ScrollView contentInsetAdjustmentBehavior="never" automaticallyAdjustKeyboardInsets contentContainerStyle={{ paddingHorizontal: space.headerX, paddingBottom: 24 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
             <View style={s.header}>
@@ -67,7 +76,7 @@ export default function Depense() {
             <Micro style={s.label}>{t.titleLabel}</Micro>
             <Card padding={0}>
               <TextInput value={title} onChangeText={setTitle} placeholder={t.titlePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)}
-                autoCapitalize="sentences" returnKeyType="next" cursorColor={colors.coral} selectionColor={colors.coral} style={s.input} />
+                autoCapitalize="sentences" returnKeyType="done" onSubmitEditing={Keyboard.dismiss} cursorColor={colors.coral} selectionColor={colors.coral} style={s.input} />
             </Card>
 
             <Micro style={s.label}>{t.amountLabel}</Micro>
@@ -96,14 +105,16 @@ export default function Depense() {
 
             <Micro style={s.label}>{t.dateLabel}</Micro>
             <View style={s.chips}>
-              <Chip label={t.dateToday} on={dayOffset === 0} onPress={() => setDayOffset(0)} />
-              <Chip label={t.dateYesterday} on={dayOffset === 1} onPress={() => setDayOffset(1)} />
+              <Chip label={t.dateYesterday} on={dateIso === yesterdayIso && !dateOpen} onPress={() => { setDateIso(yesterdayIso); setDateOpen(false); }} />
+              <Chip label={t.dateToday} on={dateIso === todayIso && !dateOpen} onPress={() => { setDateIso(todayIso); setDateOpen(false); }} />
+              <Chip label={dateOpen || (dateIso !== todayIso && dateIso !== yesterdayIso) ? fmtDate(dateIso) : t.dateOther} on={dateOpen || (dateIso !== todayIso && dateIso !== yesterdayIso)} onPress={() => setDateOpen(o => !o)} />
             </View>
+            {dateOpen ? <Card padding={0} style={{ marginTop: 10 }}><DateGrid value={dateIso} onChange={iso => { setDateIso(iso); setDateOpen(false); }} allowPast /></Card> : null}
           </ScrollView>
 
           <Footer bottom={Math.max(insets.bottom, space.footerBottom)}><CTAPrimary label={t.cta} disabled={!valid || busy} onPress={submit} /></Footer>
         </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

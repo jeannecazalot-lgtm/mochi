@@ -134,7 +134,7 @@ function RealRow({ vm, onToggle }) {
           <Text style={{ fontSize: 15.5, fontWeight: '500', color: colors.ink, textDecorationLine: vm.done ? 'line-through' : 'none', opacity: vm.done ? 0.5 : 1 }} numberOfLines={1}>{vm.title}</Text>
           <Text style={[font.caption, { marginTop: 3 }, vm.late && { color: colors.coralDeep, fontWeight: '600' }]}>{vm.sub}</Text>
         </View>
-        {vm.event ? null : vm.who
+        {vm.event ? (vm.whoList?.length > 1 ? <AvatarPair members={vm.whoList} size={24} /> : vm.whoList?.length === 1 ? <Avatar initial={vm.whoList[0].initial} color={vm.whoList[0].color} photo={vm.whoList[0].avatar_url} size={24} /> : null) : vm.who
           ? <Avatar initial={vm.who.initial} color={vm.who.color} photo={vm.who.avatar_url} size={24} />
           : (
             <View style={{ flexDirection: 'row' }}>
@@ -205,7 +205,9 @@ export default function Planning() {
         const iso = localIso(new Date(ev.starts_at));
         if (iso < todayIso) continue;
         const d = ev.details || {};
-        (byDate[iso] ||= []).push({ id: ev.id, emoji: ev.emoji || '📅', title: ev.title, sub: [d.time, d.place].filter(Boolean).join(' · ') || t2.eventSub, who: null, event: true, checkable: false, done: false, late: false, href: `/event?id=${ev.id}` });
+        // porteurs (retour Ketley 12 sept 2026 : « dans le planning on ne voit pas à qui il est attribué »)
+        const evWho = (ev.who || []).map(id => (id === uid ? me : partner));
+        (byDate[iso] ||= []).push({ id: ev.id, emoji: ev.emoji || '📅', title: ev.title, sub: [d.time, d.place].filter(Boolean).join(' · ') || t2.eventSub, who: null, whoList: evWho, event: true, checkable: false, done: false, late: false, href: `/event?id=${ev.id}` });
         (dotMap[iso] ||= new Set()).add(colors.lavenderDeep);
       }
       const groups = Object.keys(byDate).sort().map(d => ({ iso: d, date: new Date(d + 'T12:00:00'), items: byDate[d] }));

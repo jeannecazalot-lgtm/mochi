@@ -75,11 +75,13 @@ export default function Mission() {
       const wasDone = r.occ?.status === 'done' || missionDone.has(r.occ?.id);
       if (wasDone) { setDone(true); setAlready(true); }
       setSpent(wasDone && r.occ?.duration_min ? r.occ.duration_min : r.task.duration_min);
-      setRule({ window_days: r.task.window_days, deadline: r.task.deadline ?? null, who: r.task.who, duration_min: r.task.duration_min, note: r.task.note, pain: r.task.pain ?? 3 });
+      const rl = { window_days: r.task.window_days, deadline: r.task.deadline ?? null, who: r.task.who, duration_min: r.task.duration_min, note: r.task.note, pain: r.task.pain ?? 3 };
+      setRule(rl); initialRule.current = JSON.stringify({ ...rl, id: null });
     });
   }, []);
   // la règle s'enregistre d'elle-même à la fermeture (pas de bouton Enregistrer)
-  useEffect(() => () => { if (dirty.current && ruleRef.current) saveRule(ruleRef.current.id, ruleRef.current); }, []);
+  const initialRule = useRef(null);
+  useEffect(() => () => { const r = ruleRef.current; if (dirty.current && r && JSON.stringify({ ...r, id: null }) !== initialRule.current) saveRule(r.id, r); }, []);
   useEffect(() => { if (m && rule) ruleRef.current = { id: m.task.id, ...rule }; }, [m, rule]);
 
   const patchRule = p => { dirty.current = true; setRule(r => ({ ...r, ...p })); Haptics.selectionAsync().catch(() => {}); };

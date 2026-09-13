@@ -15,6 +15,10 @@ import { getUid, getPartnerUid } from '../src/identity';
 import { isPremium } from '../src/demo-premium';
 import { localIso, addDaysIso } from '../src/dates';
 import { occStore } from '../src/demo-core';
+import { DateGrid } from '../src/components/date-grid';
+import { AvatarPair } from '../src/components/core/extra';
+import { logActivity } from '../src/activity-actions';
+import { pushToPartner } from '../src/push';
 import copy from '../src/data/copy.json';
 import { colors, font, radius, alpha } from '../src/theme';
 
@@ -22,43 +26,6 @@ const ph = alpha(colors.ink, 0.3);
 const EMOJIS = ['🎂', '🍽️', '🎉', '🎁', '✈️', '🏡', '🩺', '🎓', '💍', '🎭', '⚽', '📅'];
 const fmtDate = iso => new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }).format(new Date(iso + 'T12:00:00'));
 const sameMonth = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth();
-
-// calendrier compact (même recette que la vue Mois du Planning) : tap = date choisie
-function DateGrid({ value, onChange }) {
-  const tc = copy.calendar;
-  const [offset, setOffset] = useState(0);
-  const base = new Date();
-  const first = new Date(base.getFullYear(), base.getMonth() + offset, 1);
-  const year = first.getFullYear(), month = first.getMonth();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const firstDow = (first.getDay() + 6) % 7;
-  const cells = Array.from({ length: Math.ceil((firstDow + daysInMonth) / 7) * 7 }, (_, i) => { const d = i - firstDow + 1; return d >= 1 && d <= daysInMonth ? d : null; });
-  const todayIso = localIso();
-  return (
-    <View style={s.grid}>
-      <View style={s.monthHead}>
-        <Pressable onPress={() => setOffset(o => o - 1)} hitSlop={10}><Text style={s.monthArrow}>‹</Text></Pressable>
-        <Micro>{tc.months[month].toUpperCase()}{year !== base.getFullYear() ? ` ${year}` : ''}</Micro>
-        <Pressable onPress={() => setOffset(o => o + 1)} hitSlop={10}><Text style={s.monthArrow}>›</Text></Pressable>
-      </View>
-      <View style={s.gridRow}>{tc.dows.map((d, i) => <Text key={i} style={s.dow}>{d}</Text>)}</View>
-      <View style={s.gridRow}>
-        {cells.map((d, i) => {
-          if (!d) return <View key={i} style={s.cell} />;
-          const iso = localIso(new Date(year, month, d));
-          const on = iso === value, past = iso < todayIso;
-          return (
-            <View key={i} style={s.cell}>
-              <Pressable disabled={past} onPress={() => onChange(iso)} style={[s.day, on && s.dayOn, past && { opacity: 0.3 }]}>
-                <Text style={[s.dayNum, on && { color: colors.card }]}>{d}</Text>
-              </Pressable>
-            </View>
-          );
-        })}
-      </View>
-    </View>
-  );
-}
 
 export default function Event() {
   const t = copy.event;
@@ -72,6 +39,7 @@ export default function Event() {
   const [place, setPlace] = useState('');
   const [items, setItems] = useState([]); // [{ id, label, who: 'me' | 'partner', minutes }]
   // tenue / budget cadeau retirés (Jeanne, 9 sept 2026) : « Qui porte quoi » couvre la tenue, la dépense se saisit quand on la paie
+  const [note, setNote] = useState(''); // note libre → récap du jour (Ketley 12 sept 2026)
   const [existing, setExisting] = useState(null);
 
   // édition : on recharge l'événement du foyer
@@ -82,7 +50,7 @@ export default function Event() {
       if (!ev) return;
       const d = ev.details || {};
       setExisting(ev); setTitle(ev.title); setEmoji(ev.emoji || EMOJIS[0]); setDate(ev.starts_at.slice(0, 10));
-      setTime(d.time || ''); setPlace(d.place || ''); setItems(d.items || []);
+      setTime(d.time || ''); setPlace(d.place || ''); setItems(d.items || []); setNote(d.note || '');
     });
   }, [id]);
 
@@ -95,7 +63,9 @@ export default function Event() {
   const patchItem = (iid, p) => setItems(l => l.map(it => (it.id === iid ? { ...it, ...p } : it)));
   const addItem = () => setItems(l => [...l, { id: uuid(), label: '', who: 'me', minutes: 15 }]);
   const removeItem = iid => setItems(l => l.filter(it => it.id !== iid));
+  // porteur d'une ligne : moi → l'autre → à deux (retour Ketley 12 sept 2026 : « on devrait pouvoir mettre les deux »)
   const whoOf = it => (it.who === 'partner' ? partner : me);
+  const nextWho = w => (w === 'me' ? 'partner' : w === 'partner' ? 'both' : 'me');
 
   const save = async () => {
     await loadSetup();
@@ -103,15 +73,21 @@ export default function Event() {
     const uid = getUid();
     if (!hid || !uid) { router.back(); return; } // démo : rien à écrire
     const puid = getPartnerUid();
-    const who = [...new Set(items.map(it => (it.who === 'partner' ? puid : uid)).filter(Boolean))];
+    const who = [...new Set(items.flatMap(it => (it.who === 'both' ? [uid, puid] : it.who === 'partner' ? [puid] : [uid])).filter(Boolean))];
     const [h, m] = /^(\d{1,2})\s*[h:]?\s*(\d{0,2})$/.exec(time.trim()) ? [RegExp.$1, RegExp.$2 || '0'] : ['20', '0'];
     const starts = new Date(`${date}T${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:00`);
     await mutate('events', {
       ...(existing || { id: uuid(), household_id: hid, created_by: uid }),
       title: title.trim(), emoji, starts_at: starts.toISOString(), who,
-      details: { ...(existing?.details || {}), time: time.trim(), place: place.trim(), items: items.filter(it => it.label.trim()).map(it => ({ ...it, label: it.label.trim() })) },
+      details: { ...(existing?.details || {}), note: note.trim(), time: time.trim(), place: place.trim(), items: items.filter(it => it.label.trim()).map(it => ({ ...it, label: it.label.trim() })) },
     });
     occStore.bump();
+    // le fil et l'autre téléphone en sont informés (retour Ketley 12 sept : « ça n'apparaît pas dans activité »)
+    if (!existing) {
+      const vars = { event: title.trim(), day: fmtDate(date) };
+      logActivity({ type: 'ping', preset_key: 'eventCreated', payload: vars }).catch(() => {});
+      pushToPartner('eventCreated', vars, '/(tabs)/planning');
+    }
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
     router.back();
   };
@@ -154,7 +130,7 @@ export default function Event() {
               <View key={it.id}>
                 {i > 0 && <Divider />}
                 <View style={s.row}>
-                  <Pressable onPress={() => patchItem(it.id, { who: it.who === 'partner' ? 'me' : 'partner' })} hitSlop={8}><Avatar initial={who.initial} color={who.color} photo={who.avatar_url} size={24} /></Pressable>
+                  <Pressable onPress={() => patchItem(it.id, { who: nextWho(it.who) })} hitSlop={8}>{it.who === 'both' ? <AvatarPair members={[me, partner]} size={20} /> : <Avatar initial={who.initial} color={who.color} photo={who.avatar_url} size={24} />}</Pressable>
                   <TextInput value={it.label} onChangeText={v => patchItem(it.id, { label: v })} placeholder={t.itemPlaceholder} placeholderTextColor={ph} style={[font.row, { flex: 1, padding: 0 }]} cursorColor={colors.coral} selectionColor={colors.coral} />
                   <Pressable onPress={() => patchItem(it.id, { minutes: it.minutes >= 60 ? 5 : it.minutes + (it.minutes < 30 ? 5 : 15) })} hitSlop={6}><Text style={s.minutes}>{fmtMin(it.minutes)}</Text></Pressable>
                   <Pressable onPress={() => removeItem(it.id)} hitSlop={8}><Text style={s.remove}>×</Text></Pressable>
@@ -164,6 +140,11 @@ export default function Event() {
           })}
           {items.length ? <Divider /> : null}
           <Pressable onPress={addItem} style={s.row}><Text style={s.add}>{t.addItem}</Text></Pressable>
+        </View>
+
+        <SectionLabel>{t.noteLabel}</SectionLabel>
+        <View style={[s.card, { marginBottom: 14 }]}>
+          <TextInput value={note} onChangeText={setNote} placeholder={t.notePlaceholder} placeholderTextColor={ph} multiline style={[font.row, { padding: 14, minHeight: 56 }]} cursorColor={colors.coral} selectionColor={colors.coral} />
         </View>
 
         <CtaModal label={existing ? copy.common.save : t.cta} disabled={!title.trim() || !date} onPress={save} />
@@ -186,15 +167,6 @@ const s = StyleSheet.create({
   metaInput: { fontSize: 13.5, fontWeight: '400', color: colors.muted, padding: 0 },
   emojiRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 4, paddingHorizontal: 14, paddingBottom: 12 },
   emojiBtn: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  grid: { paddingHorizontal: 12, paddingBottom: 12 },
-  monthHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 4, paddingBottom: 6 },
-  monthArrow: { fontSize: 22, lineHeight: 24, color: colors.ink, paddingHorizontal: 8 },
-  gridRow: { flexDirection: 'row', flexWrap: 'wrap' },
-  dow: { width: '14.2857%', textAlign: 'center', fontSize: 10.5, letterSpacing: 1, fontWeight: '600', color: colors.muted, marginBottom: 4 },
-  cell: { width: '14.2857%', height: 36, padding: 2 },
-  day: { flex: 1, borderRadius: 9, alignItems: 'center', justifyContent: 'center' },
-  dayOn: { backgroundColor: colors.ink },
-  dayNum: { fontSize: 13.5, fontWeight: '600', color: colors.ink, fontVariant: ['tabular-nums'] },
   card: { backgroundColor: colors.card, borderRadius: radius.card, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline, paddingVertical: 6 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 13, paddingVertical: 11, paddingHorizontal: 16 },
   minutes: { fontSize: 13, fontWeight: '500', color: colors.muted, fontVariant: ['tabular-nums'] },
