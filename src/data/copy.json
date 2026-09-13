@@ -161,7 +161,8 @@
     "realHint": "Tape une tâche pour la valider ou la déplacer",
     "emptyReal": "Rien de planifié pour l'instant — la répartition arrive après le choix des tâches.",
     "lateGroup": "En retard",
-    "eventSub": "Événement"
+    "eventSub": "Événement",
+    "noteSub": "Pense-bête"
   },
   "balance": {
     "_labels": {
@@ -710,7 +711,16 @@
     "newTitlePlaceholder": "Titre de la note",
     "newDetailPlaceholder": "Détail (optionnel)",
     "add": "Ajouter",
-    "empty": "Rien à retenir pour l’instant."
+    "empty": "Rien à retenir pour l’instant.",
+    "detailLabel": "Détail",
+    "dateLabel": "Date",
+    "noDate": "Sans date",
+    "pickDate": "Choisir",
+    "clearDate": "Enlever la date",
+    "remindLabel": "Rappel",
+    "remindSub": "Dans le récap de ce jour-là",
+    "delete": "Supprimer",
+    "seeAll": "Voir tous les pense-bêtes"
   },
   "mood": {
     "_labels": {
@@ -1124,7 +1134,8 @@
       "gaveBack": "{name} t'a rendu {task} · {day}",
       "eventCreated": "{name} a ajouté l'événement {event} · {day}",
       "expenseAdded": "{name} a ajouté une dépense : {title} · {amount}",
-      "taskDeleted": "{name} a supprimé {task}"
+      "taskDeleted": "{name} a supprimé {task}",
+      "noteCreated": "{name} a ajouté un pense-bête : {title}"
     },
     "replies": {
       "thumbs": "👍",
@@ -1145,7 +1156,8 @@
       "settled": "Tu as remis le solde à zéro · {amount}",
       "budgetRemind": "Tu as rappelé le solde : {amount}",
       "reminder": "Tu as envoyé un petit rappel pour {task} 🙂",
-      "gaveBack": "Tu as rendu {task} · {day}"
+      "gaveBack": "Tu as rendu {task} · {day}",
+      "noteCreated": "Tu as ajouté un pense-bête : {title}"
     }
   },
   "afaire": {
@@ -1648,7 +1660,8 @@
     "gaveBack": "{name} t'a rendu « {task} » · {day}",
     "eventCreated": "{name} a ajouté l'événement « {event} » · {day}",
     "expenseAdded": "{name} a ajouté une dépense : {title} · {amount}",
-    "taskDeleted": "{name} a supprimé « {task} »"
+    "taskDeleted": "{name} a supprimé « {task} »",
+    "noteCreated": "{name} a ajouté un pense-bête : {title}"
   },
   "mesReglages": {
     "_labels": {

@@ -1,5 +1,5 @@
 // Écran 32 · Pense-bête partagé (Duo+). Recette : docs/recettes/32-pense-bete.md
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { router } from 'expo-router';
 import { View, Text, TextInput, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -8,12 +8,21 @@ import { GlowBg, PillLabel, ScreenTitle } from '../src/components/ui';
 import { Animated, FadeIn, useCheckPop } from '../src/components/motion';
 import { RoundButton, CtaModal, extraColors } from '../src/components/modaux/extra';
 import { demoNotes } from '../src/demo-modaux';
+import { loadNotes, toggleNote } from '../src/notes-actions';
+import { occStore } from '../src/demo-core';
+import { inRealMode, loadSetup } from '../src/setup-state';
 import copy from '../src/data/copy.json';
 import { colors, radius, space, alpha } from '../src/theme';
 
+const fmtDate = iso => new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }).format(new Date(iso + 'T12:00:00'));
+
 export default function PenseBete() {
   const t = copy.notes;
+  // réel (13 sept 2026) : les notes du foyer ; démo seulement sans foyer
   const [notes, setNotes] = useState(demoNotes);
+  const [real, setReal] = useState(false);
+  const occV = occStore.useVersion();
+  useEffect(() => { (async () => { await loadSetup(); if (!inRealMode()) return; setReal(true); setNotes((await loadNotes()).map(n => ({ id: n.id, title: n.title || n.body, detail: n.title ? [n.due_date ? fmtDate(n.due_date) : null, n.body].filter(Boolean).join(' · ') : '', tone: n.tone || 0, done: !!n.done }))); })(); }, [occV]);
   const [query, setQuery] = useState('');
   const [adding, setAdding] = useState(false);
   const [newTitle, setNewTitle] = useState('');
@@ -21,7 +30,8 @@ export default function PenseBete() {
 
   const shown = useMemo(() => { const q = query.trim().toLowerCase(); return q ? notes.filter(n => (n.title + ' ' + n.detail).toLowerCase().includes(q)) : notes; }, [notes, query]);
 
-  const toggle = id => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {}); setNotes(l => l.map(n => n.id === id ? { ...n, done: !n.done } : n)); };
+  const toggle = id => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {}); if (real) { toggleNote(id).catch(() => {}); return; } setNotes(l => l.map(n => n.id === id ? { ...n, done: !n.done } : n)); };
+  const open = id => (real ? router.push(`/note?id=${id}`) : toggle(id));
   const add = () => {
     if (!newTitle.trim()) return;
     setNotes(l => [{ id: `n-${Date.now()}`, title: newTitle.trim(), detail: newDetail.trim(), tone: l.length % extraColors.notes.length, done: false }, ...l]);
@@ -40,7 +50,7 @@ export default function PenseBete() {
             </View>
             <ScreenTitle style={{ lineHeight: 24 }}>{t.title}</ScreenTitle>
           </View>
-          <RoundButton kind="plus" onPress={() => setAdding(a => !a)} />
+          <RoundButton kind="plus" onPress={() => (real ? router.push('/note') : setAdding(a => !a))} />
         </View>
 
         <View style={s.searchWrap}>
@@ -60,7 +70,7 @@ export default function PenseBete() {
             </Animated.View>
           )}
           <View style={s.grid}>
-            {shown.map((n, i) => <Note key={n.id} note={n} index={i} onPress={() => toggle(n.id)} />)}
+            {shown.map((n, i) => <Note key={n.id} note={n} index={i} onPress={() => open(n.id)} onLongPress={() => toggle(n.id)} />)}
           </View>
           {shown.length === 0 && <Text style={s.empty}>{t.empty}</Text>}
         </ScrollView>
@@ -69,10 +79,10 @@ export default function PenseBete() {
   );
 }
 
-function Note({ note, index, onPress }) {
+function Note({ note, index, onPress, onLongPress }) {
   const pop = useCheckPop(note.done);
   return (
-    <Pressable onPress={onPress} style={s.cell}>
+    <Pressable onPress={onPress} onLongPress={onLongPress} delayLongPress={350} style={s.cell}>
       <Animated.View style={[s.note, { backgroundColor: extraColors.notes[note.tone % extraColors.notes.length], transform: [{ rotate: index % 2 === 0 ? '-0.8deg' : '0.6deg' }], opacity: note.done ? 0.45 : 1 }, pop]}>
         <View style={s.tape} />
         <Text style={[s.noteTitle, note.done && { textDecorationLine: 'line-through' }]}>{note.title}</Text>

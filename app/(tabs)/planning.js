@@ -173,7 +173,7 @@ export default function Planning() {
       // Réel dès qu'on a un foyer, même vide (retour test à deux, 3 sept 2026)
       if (!inRealMode()) return;
       try {
-      const [occs, tasks, events] = await Promise.all([read('occurrences'), read('tasks'), read('events')]);
+      const [occs, tasks, events, notes] = await Promise.all([read('occurrences'), read('tasks'), read('events'), read('notes').catch(() => [])]);
       const byTask = Object.fromEntries(tasks.map(tk => [tk.id, tk]));
       const uid = getUid();
       const todayIso = localIso();
@@ -209,6 +209,12 @@ export default function Planning() {
         const evWho = (ev.who || []).map(id => (id === uid ? me : partner));
         (byDate[iso] ||= []).push({ id: ev.id, emoji: ev.emoji || '📅', title: ev.title, sub: [d.time, d.place].filter(Boolean).join(' · ') || t2.eventSub, who: null, whoList: evWho, event: true, checkable: false, done: false, late: false, href: `/event?id=${ev.id}` });
         (dotMap[iso] ||= new Set()).add(colors.lavenderDeep);
+      }
+      // pense-bêtes datés (13 sept 2026) : une rangée 📌 le jour dit, tap → la note
+      for (const n of notes || []) {
+        if (n.deleted_at || n.done || !n.due_date || n.due_date < todayIso) continue;
+        (byDate[n.due_date] ||= []).push({ id: n.id, emoji: '📌', title: n.title || n.body, sub: n.title && n.body ? n.body : t2.noteSub, who: null, event: true, checkable: false, done: false, late: false, href: `/note?id=${n.id}` });
+        (dotMap[n.due_date] ||= new Set()).add(colors.lavenderDeep);
       }
       const groups = Object.keys(byDate).sort().map(d => ({ iso: d, date: new Date(d + 'T12:00:00'), items: byDate[d] }));
       // retour Jeanne 6 sept : les retards forment UNE section en tête, la semaine commence à aujourd'hui

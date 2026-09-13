@@ -29,6 +29,7 @@ export function startRealtime(householdId) {
     .on('postgres_changes', { event: '*', schema: 'public', table: 'malus', filter: `household_id=eq.${householdId}` }, refresh('malus'))
     .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses', filter: `household_id=eq.${householdId}` }, refresh('expenses'))
     .on('postgres_changes', { event: '*', schema: 'public', table: 'activity', filter: `household_id=eq.${householdId}` }, refresh('activity'))
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'notes', filter: `household_id=eq.${householdId}` }, refresh('notes'))
     .on('postgres_changes', { event: '*', schema: 'public', table: 'events', filter: `household_id=eq.${householdId}` }, refresh('events'))
     .on('postgres_changes', { event: '*', schema: 'public', table: 'household_members', filter: `household_id=eq.${householdId}` }, () => { occStore.bump(); loadPartner(householdId); })
     .subscribe();

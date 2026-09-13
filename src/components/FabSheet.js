@@ -20,7 +20,7 @@ const ENTRIES = [
   { k: 'task', icon: ICON.task, tint: colors.sage, deep: colors.sageDeep, route: '/task/edit' },
   { k: 'event', icon: ICON.event, tint: colors.sky, deep: colors.skyDeep, route: '/event' },
   { k: 'expense', icon: ICON.expense, tint: colors.butter, deep: colors.coralDeep, route: '/depense' },
-  { k: 'note', icon: ICON.note, tint: colors.lavender, deep: colors.lavenderDeep, route: '/pense-bete' },
+  { k: 'note', icon: ICON.note, tint: colors.lavender, deep: colors.lavenderDeep, route: '/note' },
 ];
 
 export function useFabSheet() {
