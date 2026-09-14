@@ -32,17 +32,37 @@ export async function currentAccount() {
   return { email: u.email || null, provider: apple ? 'apple' : 'email' };
 }
 
-// ─── e-mail : envoi du code ───
+// ─── e-mail : envoi du lien (ou du code quand un SMTP perso permettra d'éditer le modèle) ───
+// Sans SMTP perso, Supabase n'envoie que le lien « Sign in » : le lien ouvre l'app sur mochi://auth
+// avec la session dans le fragment (#access_token…), voir app/auth.js.
+export const AUTH_REDIRECT = 'mochi://auth';
 export async function sendEmailCode(email) {
   const { data } = await supabase.auth.getSession();
   const anon = data.session?.user?.is_anonymous;
   if (anon) {
     // lier l'e-mail à la session anonyme : même utilisateur, mêmes données
-    const { error } = await supabase.auth.updateUser({ email });
+    const { error } = await supabase.auth.updateUser({ email }, { emailRedirectTo: AUTH_REDIRECT });
     return { ok: !error, linking: true, error: error?.message };
   }
-  const { error } = await supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
+  const { error } = await supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: true, emailRedirectTo: AUTH_REDIRECT } });
   return { ok: !error, linking: false, error: error?.message };
+}
+// le lien reçu par e-mail ramène ici : on installe la session portée par l'URL
+export async function sessionFromUrl(url) {
+  try {
+    const frag = String(url || '').split('#')[1] || String(url || '').split('?')[1] || '';
+    const p = Object.fromEntries(frag.split('&').filter(Boolean).map(kv => kv.split('=').map(decodeURIComponent)));
+    if (p.access_token && p.refresh_token) {
+      const { error } = await supabase.auth.setSession({ access_token: p.access_token, refresh_token: p.refresh_token });
+      return { ok: !error, error: error?.message };
+    }
+    if (p.token_hash && p.type) {
+      const { error } = await supabase.auth.verifyOtp({ token_hash: p.token_hash, type: p.type });
+      return { ok: !error, error: error?.message };
+    }
+    if (p.error_description || p.error) return { ok: false, error: p.error_description || p.error };
+    return { ok: false, error: 'no_token' };
+  } catch (e) { return { ok: false, error: e?.message || 'url' }; }
 }
 // ─── e-mail : vérification du code ───
 export async function verifyEmailCode(email, token, linking) {

@@ -36,8 +36,8 @@
     "or": "ou",
     "emailTitle": "Ton e-mail",
     "sub": "Un compte pour retrouver ton foyer, même en changeant de téléphone.",
-    "emailSub": "Tu recevras un code à six chiffres, rien à installer.",
-    "sendCode": "Recevoir un code",
+    "emailSub": "Tu recevras un lien de connexion, à ouvrir sur ce téléphone.",
+    "sendCode": "Recevoir le lien",
     "codeTitle": "Le code reçu",
     "codeSub": "Envoyé à {email}. Regarde aussi les indésirables.",
     "codePlaceholder": "123456",
@@ -46,7 +46,13 @@
     "errSend": "Impossible d'envoyer le code. Vérifie l'adresse et réessaie.",
     "errCode": "Code incorrect ou expiré.",
     "errApple": "Connexion Apple impossible pour l'instant. Passe par l'e-mail.",
-    "legal": "En continuant, tu acceptes les conditions d'utilisation et la politique de confidentialité."
+    "legal": "En continuant, tu acceptes les conditions d'utilisation et la politique de confidentialité.",
+    "sentTitle": "Regarde tes e-mails",
+    "sentSub": "Envoyé à {email}. Regarde aussi les indésirables.",
+    "sentHint": "Ouvre le lien « Sign in » depuis ce téléphone : l'app se rouvre connectée.",
+    "resendLink": "Renvoyer le lien",
+    "linkOpening": "Connexion en cours…",
+    "linkFailed": "Ce lien ne fonctionne plus. On t'en renvoie un."
   },
   "tabs": {
     "_labels": {

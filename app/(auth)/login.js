@@ -53,7 +53,7 @@ export default function Login() {
     setBusy(true); setNote(null);
     const r = await sendEmailCode(email.trim().toLowerCase());
     setBusy(false);
-    if (r.ok) { setLinking(!!r.linking); setMode('code'); } else setNote(t.errSend);
+    if (r.ok) { setLinking(!!r.linking); setMode('sent'); } else setNote(t.errSend);
   };
   const onVerify = async () => {
     setBusy(true); setNote(null);
@@ -71,8 +71,8 @@ export default function Login() {
         <KeyboardAvoidingView behavior="padding" style={{ flex: 1, paddingHorizontal: 24 }}>
           <Pressable onPress={Keyboard.dismiss} accessible={false} style={{ flex: 1 }}>
             <View style={{ alignItems: 'center', paddingTop: 36 }}><LiveMochi size={110} /></View>
-            <Text style={s.title}>{mode === 'choice' ? t.title2 : mode === 'email' ? t.emailTitle : t.codeTitle}</Text>
-            <Secondary style={{ textAlign: 'center', marginTop: 8, lineHeight: 21 }}>{mode === 'choice' ? t.sub : mode === 'email' ? t.emailSub : t.codeSub.replace('{email}', email.trim())}</Secondary>
+            <Text style={s.title}>{mode === 'choice' ? t.title2 : mode === 'email' ? t.emailTitle : mode === 'sent' ? t.sentTitle : t.codeTitle}</Text>
+            <Secondary style={{ textAlign: 'center', marginTop: 8, lineHeight: 21 }}>{mode === 'choice' ? t.sub : mode === 'email' ? t.emailSub : (mode === 'sent' ? t.sentSub : t.codeSub).replace('{email}', email.trim())}</Secondary>
 
             {mode === 'choice' ? (
               <View style={{ marginTop: 34, gap: 12 }}>
@@ -98,6 +98,18 @@ export default function Login() {
                 {note ? <Secondary style={{ marginBottom: 12, textAlign: 'center' }}>{note}</Secondary> : null}
                 <CTAPrimary label={t.sendCode} disabled={!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim()) || busy} big onPress={onSend} />
                 <Pressable onPress={() => { setNote(null); setMode('choice'); }} hitSlop={8} style={{ alignSelf: 'center', marginTop: 16 }}><Text style={s.back}>{copy.common.back}</Text></Pressable>
+              </View>
+            ) : mode === 'sent' ? (
+              <View style={{ marginTop: 28 }}>
+                <Card padding={0} style={{ paddingVertical: 18, paddingHorizontal: 18, alignItems: 'center', marginBottom: 12 }}>
+                  <Text style={{ fontSize: 34 }}>📬</Text>
+                  <Text style={[font.secondary, { textAlign: 'center', marginTop: 8, lineHeight: 20 }]}>{t.sentHint}</Text>
+                </Card>
+                {note ? <Secondary style={{ marginBottom: 12, textAlign: 'center' }}>{note}</Secondary> : null}
+                <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 22, marginTop: 8 }}>
+                  <Pressable onPress={onSend} hitSlop={8}><Text style={s.back}>{t.resendLink}</Text></Pressable>
+                  <Pressable onPress={() => { setNote(null); setMode('email'); }} hitSlop={8}><Text style={s.back}>{t.changeEmail}</Text></Pressable>
+                </View>
               </View>
             ) : (
               <View style={{ marginTop: 28 }}>
