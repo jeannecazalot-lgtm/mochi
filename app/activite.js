@@ -98,12 +98,7 @@ function Item({ item, chosen, onChoose, variant = 'a' }) {
     const when = occ?.time || occ?.badge || null;
     return (
       <Wrap variant={variant} mine={mine} highlight={hi}>
-        {head(<Text style={s.bodyQuote}>« {fill(copy.pings[item.preset_key] || '', { task: task.title })} »</Text>)}
-        <View style={s.attach}>
-          <Text style={{ fontSize: 16 }}>{task.emoji}</Text>
-          <Text style={s.attachText}>{task.title}{when ? ` · ${when}` : ''}</Text>
-          <Pressable onPress={() => router.push(`/task/${task.id}`)} hitSlop={8}><Text style={s.view}>{t.view}</Text></Pressable>
-        </View>
+        {head(<RichText template={copy.pings[item.preset_key] || ''} vars={{ task: task.title.toLowerCase() + (when ? ` · ${when}` : '') }} style={s.body} />)}
         {item.target_id === me.id ? <Replies item={item} keys={replyPresets.ping} chosen={chosen} onChoose={onChoose} /> : null}
       </Wrap>
     );
@@ -115,7 +110,6 @@ function Item({ item, chosen, onChoose, variant = 'a' }) {
         {head(<RichText template={proposed ? t.swapProposed : mine ? t.swapAcceptedMe : t.swapAccepted} vars={{ name: actor.first_name, task: task.title.toLowerCase() }} style={s.body} />)}
         {proposed ? (
           <>
-            <Text style={s.debt}>{t.swapDebt}</Text>
             <View style={s.actions}>
               <Pressable onPress={() => onChoose(item.id, 'accept')} style={[s.btn, s.btnDark, chosen === 'decline' && { opacity: 0.4 }]}><Text style={s.btnDarkText}>{t.accept}</Text></Pressable>
               <Pressable onPress={() => onChoose(item.id, 'decline')} style={[s.btn, s.btnLight, chosen === 'accept' && { opacity: 0.4 }]}><Text style={s.btnLightText}>{t.decline}</Text></Pressable>

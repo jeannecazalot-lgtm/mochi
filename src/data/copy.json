@@ -422,9 +422,9 @@
       "attached": "Chip « tâche attachée » dans la sheet ({emoji} = emoji de la tâche)",
       "options": "Les 4 pings préformatés de la sheet (label + sous-texte). deadline : {time} = heure/fenêtre de la tâche"
     },
-    "reminder": "Petit rappel pour « {task} » 🙂",
-    "thanks": "Merci pour « {task} » 🙏",
-    "swap": "Tu peux reprendre « {task} » ?",
+    "reminder": "Petit rappel pour {task} 🙂",
+    "thanks": "Merci pour {task} 🙏",
+    "swap": "Tu peux reprendre {task} ?",
     "ok": "OK !",
     "later": "Plus tard",
     "done": "C'est fait ✓",
@@ -448,7 +448,7 @@
         "sub": "Proposition de repassage inversé"
       }
     },
-    "turn": "C'est ton tour pour « {task} » 👉"
+    "turn": "C'est ton tour pour {task} 👉"
   },
   "setup": {
     "_labels": {
@@ -1124,9 +1124,9 @@
     "emptyReal": "Rien encore — coche des missions et le fil s'animera.",
     "today": "Aujourd'hui",
     "yesterday": "Hier",
-    "taskDone": "{name} a terminé {task} ✅",
-    "swapProposed": "{name} propose de te repasser {task}",
-    "swapAccepted": "{name} a accepté de reprendre {task}",
+    "taskDone": "{name} a fait {task} ✅",
+    "swapProposed": "{name} te propose {task}",
+    "swapAccepted": "{name} reprend {task}",
     "swapDebt": "Si tu acceptes, la mission passe chez toi",
     "accept": "Accepter",
     "decline": "Refuser",
@@ -1136,17 +1136,17 @@
     "reactionFrom": "{name} : {reply}",
     "presets": {
       "tookOver": "{name} s'occupe de {task} · {day}",
-      "ruleChanged": "{name} a modifié la tâche {task} : {rule}",
+      "ruleChanged": "{name} a modifié {task}",
       "taskCreated": "{name} a ajouté {task}",
-      "settled": "{name} a remis le solde à zéro · {amount}",
-      "budgetRemind": "{name} te rappelle le solde : {amount}",
-      "reminder": "{name} : petit rappel pour {task} 🙂",
-      "gaveBack": "{name} t'a rendu {task} · {day}",
-      "eventCreated": "{name} a ajouté l'événement {event} · {day}",
-      "expenseAdded": "{name} a ajouté une dépense : {title} · {amount}",
+      "settled": "{name} a remis le solde à zéro",
+      "budgetRemind": "{name} rappelle le solde : {amount}",
+      "reminder": "{name} : petit rappel pour {task}",
+      "gaveBack": "{name} t'a rendu {task}",
+      "eventCreated": "{name} a ajouté {event} · {day}",
+      "expenseAdded": "{name} : {title} · {amount}",
       "taskDeleted": "{name} a supprimé {task}",
-      "noteCreated": "{name} a ajouté un pense-bête : {title}",
-      "turn": "{name} : c'est ton tour pour {task} 👉"
+      "noteCreated": "{name} a noté : {title}",
+      "turn": "{name} : c'est ton tour pour {task}"
     },
     "replies": {
       "thumbs": "👍",
@@ -1155,21 +1155,21 @@
       "okTonight": "👍 Ok ce soir",
       "alreadyDone": "Déjà fait ✓"
     },
-    "taskDoneMe": "Tu as terminé {task} ✅",
-    "swapAcceptedMe": "Tu as accepté de reprendre {task}",
+    "taskDoneMe": "Tu as fait {task} ✅",
+    "swapAcceptedMe": "Tu reprends {task}",
     "presetsMe": {
       "tookOver": "Tu t'occupes de {task} · {day}",
-      "ruleChanged": "Tu as modifié la tâche {task} : {rule}",
+      "ruleChanged": "Tu as modifié {task}",
       "taskCreated": "Tu as ajouté {task}",
-      "eventCreated": "Tu as ajouté l'événement {event} · {day}",
-      "expenseAdded": "Tu as ajouté une dépense : {title} · {amount}",
+      "eventCreated": "Tu as ajouté {event} · {day}",
+      "expenseAdded": "Toi : {title} · {amount}",
       "taskDeleted": "Tu as supprimé {task}",
-      "settled": "Tu as remis le solde à zéro · {amount}",
+      "settled": "Tu as remis le solde à zéro",
       "budgetRemind": "Tu as rappelé le solde : {amount}",
-      "reminder": "Tu as envoyé un petit rappel pour {task} 🙂",
-      "gaveBack": "Tu as rendu {task} · {day}",
-      "noteCreated": "Tu as ajouté un pense-bête : {title}",
-      "turn": "Tu as envoyé « c'est ton tour » pour {task}"
+      "reminder": "Petit rappel envoyé pour {task}",
+      "gaveBack": "Tu as rendu {task}",
+      "noteCreated": "Tu as noté : {title}",
+      "turn": "« C'est ton tour » envoyé pour {task}"
     },
     "tagReminder": "Rappel",
     "tagTake": "Reprise",
