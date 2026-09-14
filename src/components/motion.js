@@ -5,7 +5,7 @@
 import React, { useEffect, useState } from 'react';
 import { AccessibilityInfo, Text, View } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, withSpring, withSequence, withDelay, Easing, FadeIn, FadeInDown, FadeInUp, SlideInDown, SlideOutDown, ZoomIn } from 'react-native-reanimated';
-import { LiveMochiGalet } from './mochi-v2';
+import { Mochi } from './ui';
 import { motion } from '../theme';
 
 export { FadeIn, FadeInDown, FadeInUp, SlideInDown, SlideOutDown, ZoomIn, Animated };
@@ -14,9 +14,22 @@ let reduceMotion = false;
 AccessibilityInfo.isReduceMotionEnabled().then(v => { reduceMotion = v; }).catch(() => {});
 export const prefersReducedMotion = () => reduceMotion;
 
-// 1+2 · Mochi vivant (14 sept 2026) : respiration depuis la base, inclinaison en ressort (−1…1), secousse au toucher, blink.
+// 1+2 · Mochi vivant : float ±5px 3,2 s + blink 4-6 s + lean (−1…1 → ±12°) en spring damping 14
 export function LiveMochi({ size = 140, mood = 'happy', lean = 0, float = true }) {
-  return <LiveMochiGalet size={size} mood={mood} lean={lean} breathe={float && !reduceMotion} />;
+  const y = useSharedValue(0);
+  const rot = useSharedValue(lean * 12);
+  const [blink, setBlink] = useState(false);
+  useEffect(() => {
+    if (float && !reduceMotion) y.value = withRepeat(withTiming(-5, { duration: motion.mochiFloat / 2, easing: Easing.inOut(Easing.ease) }), -1, true);
+  }, [float]);
+  useEffect(() => { rot.value = withSpring(lean * 12, motion.spring); }, [lean]);
+  useEffect(() => {
+    if (reduceMotion) return;
+    let t; const loop = () => { t = setTimeout(() => { setBlink(true); setTimeout(() => setBlink(false), 120); loop(); }, 4000 + Math.random() * 2000); };
+    loop(); return () => clearTimeout(t);
+  }, []);
+  const style = useAnimatedStyle(() => ({ transform: [{ translateY: y.value }, { rotate: `${rot.value}deg` }] }));
+  return <Animated.View style={style}><Mochi size={size} mood={blink ? 'wink' : mood} /></Animated.View>;
 }
 
 // 5 · gros chiffre héros en count-up 500 ms
