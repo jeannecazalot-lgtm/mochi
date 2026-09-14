@@ -14,9 +14,9 @@ const GROUPS = [
   ['Tâches', [['14 · Fiche tâche', '/task/edit?id=t-courses'], ['15 · Tâche mentale', '/task/mentale'], ['16 · Détail tâche', '/task/t-pediatre'], ['20-21 · À faire', '/afaire'], ['Mission (sheet, tap Accueil)', '/mission'], ['21 · Tâche en retard (sheet)', '/retard?title=Courses&emoji=🛒&mins=45']]],
   ['Social', [['18 · Ping (sheet)', '/ping?occ=o2'], ['22 · Fil Activité', '/activite']]],
   ['Balance', [['22 · Balance détail', '/balance-detail'], ['23 · Point hebdo · malus', '/point-hebdo']]],
-  ['Ajout', [['Dépense', '/depense'], ['30 · Événement social', '/event'], ['32 · Pense-bête', '/pense-bete'], ['33 · Mood check-in', '/mood'], ['34 · Notifs lockscreen', '/notifs']]],
-  ['Moments', [['24-25 · Wrapped', '/wrapped'], ['26 · Bilan mensuel', '/bilan'], ['28 · Streak célébration', '/celebration']]],
-  ['Premium', [['35 · Calendrier mois', '/calendrier'], ['36 · Analyse charge mentale', '/analyse'], ['37 · Paywall Duo+', '/paywall'], ['38 · Profil & réglages', '/profil']]],
+  ['Ajout', [['Dépense', '/depense'], ['30 · Événement social', '/event'], ['32 · Pense-bête', '/pense-bete'], ['33 · Mood check-in (coupé)', '/mood'], ['34 · Notifs lockscreen', '/notifs']]],
+  ['Moments', [['24-25 · Wrapped', '/wrapped'], ['26 · Bilan mensuel (V2)', '/bilan'], ['28 · Streak célébration', '/celebration']]],
+  ['Premium', [['35 · Calendrier mois', '/calendrier'], ['36 · Analyse (V2, avec le bilan)', '/analyse'], ['37 · Paywall Duo+', '/paywall'], ['38 · Profil & réglages', '/profil']]],
   ['Propositions (à choisir)', [['06 · Profil — A/B/C', '/props/profil06'], ['07 · Explication des créneaux — A/B/C', '/props/creneaux'], ['08 · Préférences — A/B/C + wording', '/props/prefs'], ['09 · Invitation — A/B/C', '/props/invite']]],
   ['Compte', [['Connexion (lien e-mail)', '/(auth)/login']]],
 ];
