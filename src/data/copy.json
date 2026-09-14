@@ -1804,5 +1804,112 @@
       "_": "Sheet « mon profil » : prénom + photo (13 sept 2026)"
     },
     "changePhoto": "Changer la photo"
+  },
+  "onb2": {
+    "_labels": {
+      "_": "Onboarding v2 (14 sept 2026) : 5 slides, titres courts sur une ligne, trois itérations a/b/c"
+    },
+    "s1Title": "Une seule tête porte tout.",
+    "s1Body": "{daily} par jour de plus pour l'un des deux. Sur l'année, un mi-temps invisible.",
+    "s1Pill": "+{daily} par jour",
+    "s2Title": "Faire, et y penser.",
+    "s2Body": "Rendez-vous, cadeaux, factures : la liste tourne dans une seule tête.",
+    "s2Pill": "La charge mentale",
+    "s3Title": "Mochi répartit.",
+    "s3Body": "Vous choisissez vos tâches, Mochi les place selon vos dispos et vos préférences. Chacun voit sa journée.",
+    "s3Pill": "Selon vos dispos",
+    "s4Title": "Quand ça penche, il le dit.",
+    "s4Body": "Une balance de la semaine, des seuils que vous choisissez, un point le dimanche.",
+    "s4Pill": "Un point le dimanche",
+    "s5Title": "Vous êtes deux.",
+    "s5Body": "mochi aide les couples à répartir la charge du foyer, sans se prendre la tête.",
+    "b1Row1": "Chaque jour",
+    "b1Row1Sub": "de tâches en plus pour cette personne",
+    "b1Row2": "Chaque semaine",
+    "b1Row2Sub": "l'équivalent d'une soirée",
+    "b1Row3": "Sur l'année",
+    "b1Row3Sub": "tâches et organisation",
+    "b1Row3Value": "un mi-temps",
+    "thoughts": [
+      {
+        "c": "🩺",
+        "t": "RDV pédiatre",
+        "s": "mardi 14h"
+      },
+      {
+        "c": "☕",
+        "t": "Racheter du café",
+        "s": "avant demain"
+      },
+      {
+        "c": "🎁",
+        "t": "Cadeau anniv. Marie",
+        "s": "30 ans"
+      },
+      {
+        "c": "🚗",
+        "t": "Assurance auto",
+        "s": "avant le 12"
+      },
+      {
+        "c": "🔧",
+        "t": "Appeler le plombier",
+        "s": "pour la fuite"
+      }
+    ],
+    "steps": [
+      {
+        "t": "Vous choisissez vos tâches",
+        "s": "une liste prête, à ajuster"
+      },
+      {
+        "t": "Mochi les répartit",
+        "s": "selon vos dispos et vos préférences"
+      },
+      {
+        "t": "Chacun voit sa journée",
+        "s": "et coche en un tap"
+      }
+    ],
+    "one": "L'un",
+    "other": "L'autre",
+    "balancedPill": "Équilibré",
+    "b5Row1": "Toi",
+    "b5Row1Sub": "tes tâches, tes dispos, tes préférences",
+    "b5Row2": "L'autre",
+    "b5Row2Sub": "les siennes, sur son téléphone",
+    "b5Row3": "Mochi",
+    "b5Row3Sub": "répartit, rappelle, et le dit quand ça penche",
+    "today": "Aujourd'hui",
+    "c1Meta": "+{daily} · tous les jours",
+    "c1Items": [
+      {
+        "c": "🍽️",
+        "t": "Vaisselle"
+      },
+      {
+        "c": "🛒",
+        "t": "Courses"
+      },
+      {
+        "c": "🩺",
+        "t": "RDV pédiatre"
+      },
+      {
+        "c": "🎁",
+        "t": "Cadeau anniv. Marie"
+      },
+      {
+        "c": "🧺",
+        "t": "Lessive"
+      }
+    ],
+    "c3Label": "Aujourd'hui pour vous",
+    "c3Items": [
+      "Vaisselle",
+      "Courses",
+      "Poubelles",
+      "Lessive"
+    ]
   }
 }

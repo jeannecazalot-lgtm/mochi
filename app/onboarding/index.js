@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { OnbHeader, SourceLine, CtaOnb, onb } from '../../src/components/onboarding/extra';
 import { Slide01, Slide02, Slide03, Slide04, Slide05 } from '../../src/components/onboarding/slides';
 import { Slide01A, Slide01B, Slide01C } from '../../src/components/onboarding/slide01-variants';
+import { ITERATIONS } from '../../src/components/onboarding/iterations';
 import { useLocalSearchParams } from 'expo-router';
 import copy from '../../src/data/copy.json';
 import { colors, space } from '../../src/theme';
@@ -20,12 +21,12 @@ const VARIANTS = { a: Slide01A, b: Slide01B, c: Slide01C };
 const SOURCES = { 0: t.s1Source, 2: t.s3Source.replace('{daily}', dailyGapLabel()) };
 
 export default function Onboarding() {
-  const { v } = useLocalSearchParams();
-  const slides = VARIANTS[v] ? [VARIANTS[v], ...SLIDES.slice(1)] : SLIDES;
+  const { v, it, s: startAt } = useLocalSearchParams(); // it=a|b|c : itération complète ; s=n : slide de départ (captures)
+  const slides = ITERATIONS[it] ? ITERATIONS[it] : VARIANTS[v] ? [VARIANTS[v], ...SLIDES.slice(1)] : SLIDES;
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const list = useRef(null);
-  const [index, setIndex] = useState(0);
+  const [index, setIndex] = useState(Math.max(0, Math.min(4, Number(startAt) || 0)));
   const last = index === slides.length - 1;
 
   const finish = useCallback(() => router.replace('/(auth)/login'), []); // compte avant le prénom (13 sept 2026)
@@ -55,6 +56,7 @@ export default function Onboarding() {
         pagingEnabled
         bounces={false}
         showsHorizontalScrollIndicator={false}
+        initialScrollIndex={Math.max(0, Math.min(4, Number(startAt) || 0))}
         getItemLayout={(_, i) => ({ length: width, offset: width * i, index: i })}
         onMomentumScrollEnd={onMomentumScrollEnd}
         style={{ flex: 1 }}
@@ -66,7 +68,7 @@ export default function Onboarding() {
       </View>
 
       {/* pied fixe : source (01, 03) + CTA */}
-      {SOURCES[index] ? (
+      {!ITERATIONS[it] && SOURCES[index] ? (
         <View pointerEvents="none" style={{ position: 'absolute', bottom: bottom + 54, left: 22, right: 22 }}>
           <SourceLine>{SOURCES[index]}</SourceLine>
         </View>
