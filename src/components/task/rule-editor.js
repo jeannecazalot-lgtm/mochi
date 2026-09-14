@@ -23,8 +23,10 @@ export const momentLabel = dl => (dl == null ? tt.anytime : dl === 'morning' ? t
 export function RuleEditor({ rule, onPatch, showMoment = false, showEffort = false, showDuration = true, first = true, mochiDays = null, onNoteOpen, onSkipOnce, onDeleteTask }) {
   const [noteOpen, setNoteOpenRaw] = useState(false);
   const setNoteOpen = v => { setNoteOpenRaw(v); onNoteOpen?.(v); if (!v) Keyboard.dismiss(); };
-  const allDays = (rule.window_days || []).length >= 7;
-  const days = allDays ? [] : (rule.window_days || []);
+  // un choix fait avant reste visible (Jeanne 15 sept) : 7 jours cochés = 7 jours noirs ; seule une tâche
+  // quotidienne SANS jours choisis affiche « Sans choix : tous les jours »
+  const days = rule.window_days || [];
+  const allDays = !days.length && !!rule.daily;
   return (
     <View>
       <RuleGroup first={first} label={t.ruleDays} row>

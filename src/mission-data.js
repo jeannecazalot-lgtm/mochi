@@ -46,7 +46,7 @@ export async function loadMission({ occId, tid, title, mins }) {
       // (retour Ketlon 7 sept 2026 : « je peux pas appuyer sur une autre date »)
       busy: occs.filter(o => o.id !== occId && o.task_id === row.task_id && o.kind === row.kind && o.status !== 'skipped').map(o => o.due_date),
       task: { id: tk.id || row.task_id, title: tk.title || String(title || '…'), duration_min: tk.duration_min || Number(mins) || 15,
-        window_days: tk.window_days || [], deadline: deadlineOf(tk), who: whoOf(tk, uid), note: tk.note || '', pain: myPain },
+        window_days: tk.window_days || [], daily: tk.frequency === 'daily', deadline: deadlineOf(tk), who: whoOf(tk, uid), note: tk.note || '', pain: myPain },
     };
   }
   const demo = demoOccs.find(o => o.id === occId) || (title ? null : demoOccs.find(o => o.assignee_id === me.id && o.status !== 'done'));

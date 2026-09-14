@@ -82,7 +82,7 @@ export default function Mission() {
       setSpent(wasDone && r.occ?.duration_min ? r.occ.duration_min : r.task.duration_min);
       if (r.expenseCents) setAmount((r.expenseCents / 100).toFixed(2).replace('.', ','));
       if (r.real) wasPartnersTask(String(occId)).then(setTheirs).catch(() => {});
-      const rl = { window_days: r.task.window_days, deadline: r.task.deadline ?? null, who: r.task.who, duration_min: r.task.duration_min, note: r.task.note, pain: r.task.pain ?? 3 };
+      const rl = { window_days: r.task.window_days, daily: !!r.task.daily, deadline: r.task.deadline ?? null, who: r.task.who, duration_min: r.task.duration_min, note: r.task.note, pain: r.task.pain ?? 3 };
       setRule(rl); initialRule.current = JSON.stringify({ ...rl, id: null });
     });
   }, []);
