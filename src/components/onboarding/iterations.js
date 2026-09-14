@@ -205,7 +205,8 @@ const B9 = p => (
     </Card>
   </Frame>
 );
-export const ITERATIONS = { a: [A1, A2, A3, A4, A5], b: [B1, B2, B3, B4b, B4, B6, B5, B8, B9], c: [C1, C2, C3, C4, C5] };
+// 5 slides maximum (Jeanne 14 sept) : ses trois, puis « Mochi répartit » (avec chacun sa journée) et la balance
+export const ITERATIONS = { a: [A1, A2, A3, A4, A5], b: [B1, B2, B3, B4, B5], b9: [B1, B2, B3, B4b, B4, B6, B5, B8, B9], c: [C1, C2, C3, C4, C5] };
 
 const s = StyleSheet.create({
   title: { fontSize: 25, fontWeight: '700', letterSpacing: -0.9, lineHeight: 30, color: colors.ink, height: 62 },
