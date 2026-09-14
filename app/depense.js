@@ -9,6 +9,7 @@ import { Card } from '../src/components/ui';
 import { SheetHandle } from '../src/components/social/extra';
 import { Row, PillChip, Arrow } from '../src/components/task/proto';
 import { DateGrid } from '../src/components/date-grid';
+import { EmojiPicker } from '../src/components/emoji-picker';
 import { useSheetGrow } from '../src/components/sheet-grow';
 import { me, partner } from '../src/demo';
 import { occStore } from '../src/demo-core';
@@ -24,6 +25,7 @@ import { colors, space, font, alpha } from '../src/theme';
 const t = copy.depense;
 const ph = alpha(colors.ink, 0.3);
 const parseAmount = s => Math.round(parseFloat(String(s).replace(',', '.')) * 100) || 0;
+const EXPENSE_EMOJIS = ['💶', '🛒', '🍽️', '🏠', '🧸', '💊', '🚗', '🎁', '☕', '🎟️', '🐶', '👕'];
 const fmtDate = iso => new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }).format(new Date(iso + 'T12:00:00'));
 
 export default function Depense() {
@@ -32,6 +34,7 @@ export default function Depense() {
   useIdentity();
   const [existing, setExisting] = useState(null);
   const [title, setTitle] = useState('');
+  const [emoji, setEmoji] = useState(EXPENSE_EMOJIS[0]);
   const [amount, setAmount] = useState('');
   const [paidBy, setPaidBy] = useState('me');
   const [dateIso, setDateIso] = useState(localIso());
@@ -39,7 +42,7 @@ export default function Depense() {
   const [busy, setBusy] = useState(false);
   const todayIso = localIso(), yesterdayIso = addDaysIso(-1);
   const onGrowLayout = useSheetGrow(dateOpen);
-  useEffect(() => { if (!id) return; read('expenses').then(rows => { const e = rows.find(x => x.id === id); if (!e) return; setExisting(e); setTitle(e.title || ''); setAmount((e.amount_cents / 100).toFixed(2).replace('.', ',')); setPaidBy(e.paid_by === getUid() ? 'me' : 'partner'); setDateIso(e.spent_on); }); }, [id]);
+  useEffect(() => { if (!id) return; read('expenses').then(rows => { const e = rows.find(x => x.id === id); if (!e) return; setExisting(e); setTitle(e.title || ''); setEmoji(e.emoji || EXPENSE_EMOJIS[0]); setAmount((e.amount_cents / 100).toFixed(2).replace('.', ',')); setPaidBy(e.paid_by === getUid() ? 'me' : 'partner'); setDateIso(e.spent_on); }); }, [id]);
   const valid = title.trim().length > 0 && parseAmount(amount) > 0;
 
   const submit = async () => {
@@ -53,8 +56,8 @@ export default function Depense() {
         const households = await read('households');
         const currency = households.find(h => h.id === hid)?.currency || 'EUR';
         await mutate('expenses', {
-          ...(existing || { id: uuid(), household_id: hid, emoji: null, split_mode: 'equal', category: 'autre', created_by: uid, currency }),
-          title: title.trim(), amount_cents: parseAmount(amount),
+          ...(existing || { id: uuid(), household_id: hid, split_mode: 'equal', category: 'autre', created_by: uid, currency }),
+          title: title.trim(), emoji, amount_cents: parseAmount(amount),
           paid_by: paidBy === 'me' ? uid : (getPartnerUid() || uid), spent_on: dateIso,
         });
         occStore.bump();
@@ -75,8 +78,9 @@ export default function Depense() {
     <KeyboardAvoidingView behavior="padding" style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 31) }]} onLayout={onGrowLayout}>
       <Pressable onPress={Keyboard.dismiss} accessible={false}>
         <SheetHandle />
-        <View style={s.head}>
-          <TextInput value={title} onChangeText={setTitle} placeholder={t.titlePlaceholder} placeholderTextColor={ph} autoCapitalize="sentences" returnKeyType="done" onSubmitEditing={Keyboard.dismiss} cursorColor={colors.coral} selectionColor={colors.coral} style={s.title} />
+        <View style={[s.head, { flexDirection: 'row', alignItems: 'center', gap: 12 }]}>
+          <EmojiPicker value={emoji} onChange={setEmoji} choices={EXPENSE_EMOJIS} />
+          <TextInput value={title} onChangeText={setTitle} placeholder={t.titlePlaceholder} placeholderTextColor={ph} autoCapitalize="sentences" returnKeyType="done" onSubmitEditing={Keyboard.dismiss} cursorColor={colors.coral} selectionColor={colors.coral} style={[s.title, { flex: 1 }]} />
         </View>
         <Card r={16} padding={0} style={s.block}>
           <Row first label={t.amountLabel} right={<View style={s.amountBox}><TextInput value={amount} onChangeText={setAmount} placeholder={t.amountPlaceholder} placeholderTextColor={ph} keyboardType="decimal-pad" style={s.amountInput} cursorColor={colors.coral} selectionColor={colors.coral} /><Text style={s.amountUnit}>€</Text></View>} />

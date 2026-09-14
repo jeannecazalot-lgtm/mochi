@@ -101,7 +101,7 @@ export default function Evenement() {
         </View>
 
         <Card r={16} padding={0} style={s.block}>
-          <Row first label={t.dateLabel} right={<PillChip label={date ? fmtDate(date) : t.datePlaceholder} selected={!!date} onPress={() => setDateOpen(o => !o)} />} onPress={() => setDateOpen(o => !o)} />
+          <Row first label={t.dateLabel} right={<PillChip label={date ? fmtDate(date) : copy.notes.pickDate} selected={!!date} onPress={() => setDateOpen(o => !o)} />} onPress={() => setDateOpen(o => !o)} />
           {dateOpen ? <DateGrid value={date} onChange={iso => { setDate(iso); setDateOpen(false); Haptics.selectionAsync().catch(() => {}); }} /> : null}
           <Row label={t.timeLabel} right={<TextInput value={time} onChangeText={setTime} placeholder={t.timePlaceholder} placeholderTextColor={ph} keyboardType="numbers-and-punctuation" returnKeyType="done" style={s.inline} cursorColor={colors.coral} selectionColor={colors.coral} />} />
           <Row label={t.placeLabel} right={<TextInput value={place} onChangeText={setPlace} placeholder={t.placePlaceholder} placeholderTextColor={ph} returnKeyType="done" style={[s.inline, { minWidth: 140 }]} cursorColor={colors.coral} selectionColor={colors.coral} />} />
