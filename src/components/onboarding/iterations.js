@@ -40,7 +40,7 @@ const Pill = ({ children, color = colors.coral }) => <View style={{ marginTop: 1
 const o = copy.onboarding;
 const T1 = `${o.s1Title1} ${o.s1Title2} ${o.s1TitleAccent}`;
 const T2 = `${o.s2TitleA1} ${o.s2Title1} ${o.s2TitleA2} ${o.s2Title2}`;
-const T3 = `${o.s3Kicker} : ${fill(o.s3SubAccent, { n: pitch.yearlyFullDays })}`;
+const T3 = `${o.s3Kicker} : ${fill(o.s3SubAccent, { n: pitch.yearlyFullDays }).replace(/,$/, '')}.`;
 const B1txt = `${fill(o.s1Body, { daily })} ${o.s1BodyEm}`;
 const B2txt = `${o.s2Kicker} ${o.s2Outro} ${o.s2OutroStrong}`;
 const B3txt = `${o.s3Sub1} ${fill(o.s3SubAccent, { n: pitch.yearlyFullDays })} ${o.s3Sub2}`;
