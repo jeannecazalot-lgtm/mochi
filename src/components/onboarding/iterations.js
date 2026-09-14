@@ -5,7 +5,7 @@
 //   a · Mochi raconte (Mochi + une pastille)   b · cartes (la DA des sheets)   c · mini-écrans de l'app
 // ═══════════════════════════════════════════════════════════════════
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
 import { GlowBg, Card, PillLabel, Avatar } from '../ui';
 import { LiveMochi } from '../motion';
 import { Row, PillChip } from '../task/proto';
@@ -20,13 +20,16 @@ const fill = (str, vars) => String(str).replace(/\{(\w+)\}/g, (_, k) => String(v
 const A = { initial: 'L', color: slotColors[1].main, deep: slotColors[1].deep };
 const B = { initial: 'K', color: slotColors[2].main, deep: slotColors[2].deep };
 
-// cadre commun : titre à la même hauteur partout, visuel centré dans une zone fixe, phrase en dessous
+// cadre commun (retour Jeanne 14 sept : « trop petit, tout est stacké en haut, ça respire pas ») :
+// titre gros en haut, visuel centré dans l'espace libre, phrase grande posée en bas au-dessus du bouton.
 function Frame({ width, headerH, title, body, children, intensity = 'strong' }) {
+  const { height } = useWindowDimensions();
+  const zone = height - headerH - 26 - 118; // sous l'en-tête, au-dessus du bouton
   return (
     <View style={{ width, alignSelf: 'stretch' }}>
       <GlowBg intensity={intensity} />
-      <View style={{ paddingTop: headerH + 26, paddingHorizontal: 24 }}>
-        <Text style={s.title} numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.85}>{title}</Text>
+      <View style={{ paddingTop: headerH + 26, paddingHorizontal: 24, height: headerH + 26 + zone }}>
+        <Text style={s.title} numberOfLines={3} adjustsFontSizeToFit minimumFontScale={0.85}>{title}</Text>
         <View style={s.visual}>{children}</View>
         <Text style={s.body}>{body}</Text>
       </View>
@@ -251,11 +254,14 @@ const J4 = p => (
 );
 const J5 = p => (
   <Frame {...p} title={j.s5Title} body={j.s5Body}>
-    <Card r={16} padding={0} style={s.card}>
-      <Row first label={t.b5Row1} sub={t.b5Row1Sub} left={<Avatar initial={A.initial} color={A.color} size={24} />} />
-      <Row label={t.b5Row2} sub={t.b5Row2Sub} left={<Avatar initial={B.initial} color={B.color} size={24} />} />
-      <Row label={t.b5Row3} sub={j.s5Mochi} left={<LiveMochi size={26} float={false} />} />
-    </Card>
+    <View style={{ alignItems: 'center' }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+        <View style={{ marginTop: 40 }}><Avatar initial={A.initial} color={A.color} size={56} ring /></View>
+        <LiveMochi size={168} mood="happy" />
+        <View style={{ marginTop: 40 }}><Avatar initial={B.initial} color={B.color} size={56} ring /></View>
+      </View>
+      <View style={{ marginTop: 22 }}><PillLabel color={colors.sage}>{j.s5Pill}</PillLabel></View>
+    </View>
   </Frame>
 );
 export const FINAL = [J1, J2, J3, J4, J5];
@@ -264,9 +270,9 @@ export const FINAL = [J1, J2, J3, J4, J5];
 export const ITERATIONS = { a: [A1, A2, A3, A4, A5], b: [B1, B2, B3, B4, B6, B5], b5: [B1, B2, B3, B4, B5], b9: [B1, B2, B3, B4b, B4, B6, B5, B8, B9], c: [C1, C2, C3, C4, C5] };
 
 const s = StyleSheet.create({
-  title: { fontSize: 25, fontWeight: '700', letterSpacing: -0.9, lineHeight: 30, color: colors.ink, height: 62 },
-  visual: { height: 320, justifyContent: 'center', alignItems: 'center', marginTop: 10 },
-  body: { ...font.secondary, fontSize: 15.5, lineHeight: 23, marginTop: 6, textAlign: 'center' },
+  title: { fontSize: 32, fontWeight: '700', letterSpacing: -1.3, lineHeight: 37, color: colors.ink },
+  visual: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingVertical: 18 },
+  body: { fontSize: 18, lineHeight: 26, fontWeight: '500', color: colors.ink, textAlign: 'center', marginBottom: 10 },
   card: { alignSelf: 'stretch' },
   num: { fontSize: 17, fontWeight: '700', color: colors.ink, fontVariant: ['tabular-nums'] },
   stepNum: { width: 26, height: 26, borderRadius: 13, backgroundColor: colors.ink, alignItems: 'center', justifyContent: 'center' },
