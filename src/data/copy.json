@@ -1,5 +1,5 @@
 {
-  "_readme": "Tous les textes UI de mochi. Clés _labels = explication de chaque texte pour Jeanne. Les chiffres publics ne sont JAMAIS écrits ici, ils viennent de la base.",
+  "_readme": "Tous les textes UI de Mindpair. Clés _labels = explication de chaque texte pour Jeanne. Les chiffres publics ne sont JAMAIS écrits ici, ils viennent de la base.",
   "common": {
     "_labels": {
       "continue": "Bouton continuer",
@@ -32,7 +32,7 @@
     "apple": "Continuer avec Apple",
     "email": "Continuer par e-mail",
     "emailPlaceholder": "ton@email.fr",
-    "title2": "Bienvenue sur mochi",
+    "title2": "Bienvenue sur Mindpair",
     "or": "ou",
     "emailTitle": "Ton e-mail",
     "sub": "Un compte pour retrouver ton foyer, même en changeant de téléphone.",
@@ -595,12 +595,12 @@
     "copy": "Copier",
     "copied": "Copié",
     "sendLink": "Envoyer le lien",
-    "shareMsg": "{name} t'invite sur mochi 🍡 Rejoins ton foyer ici : {link}",
+    "shareMsg": "{name} t'invite sur Mindpair Rejoins ton foyer ici : {link}",
     "waitingTitle": "Invitation envoyée !",
     "waitingSub": "Dès que l'autre entre ton code, on passe à la suite — reste ici ou reviens plus tard.",
     "resendLink": "Renvoyer le lien",
     "qrTitle": "Scanne-moi",
-    "qrHint": "Fais scanner ce code avec l'appareil photo de l'autre iPhone (mochi doit y être installée).",
+    "qrHint": "Fais scanner ce code avec l'appareil photo de l'autre iPhone (Mindpair doit y être installée).",
     "qrClose": "Toucher pour fermer",
     "qr": "QR code",
     "enterCode": "J'ai reçu un code",
@@ -667,7 +667,7 @@
     "both": "Ensemble",
     "alternate": "Alterné",
     "perWeekSlash": "/ semaine",
-    "shareMsgNoLink": "{name} t'invite sur mochi 🍡 Installe l'app, choisis « J'ai reçu un code » et tape : {code}",
+    "shareMsgNoLink": "{name} t'invite sur Mindpair Installe l'app, choisis « J'ai reçu un code » et tape : {code}",
     "duoTitleJoiner": "Tu as rejoint le foyer de {name} !",
     "duoSubJoiner": "{name} choisit et répartit vos tâches, tu pourras tout ajuster depuis le Planning. Encore trois petites étapes : ton prénom, tes dispos, tes préférences.",
     "duoSubJoinerReady": "{name} choisit et répartit vos tâches, tu pourras tout ajuster depuis le Planning. Tes dispos et tes préférences partent dans le foyer.",
@@ -807,7 +807,7 @@
     "streakTitle": "🔥 {n} jours d’équilibre",
     "streakRecord": "Nouveau record perso !",
     "streakProgress": "Plus que {n} jours avant ton record",
-    "demoHint": "Aperçu des notifications mochi"
+    "demoHint": "Aperçu des notifications Mindpair"
   },
   "fab": {
     "_labels": {
@@ -1377,7 +1377,7 @@
     "s4Note": "* Chiffres officieux. Bien-être : confirmé.",
     "s5Pill": "Bienvenue",
     "s5Title": "Vous êtes deux à porter le foyer.",
-    "s5Body": "mochi aide les couples à répartir équitablement la charge mentale, sans se prendre la tête.",
+    "s5Body": "Mindpair aide les couples à répartir équitablement la charge mentale, sans se prendre la tête.",
     "v1aTitle": "Une seule tête porte le foyer.",
     "v1aBody": "Dans la plupart des couples, l'un des deux fait et pense plus que l'autre. Ça se compte.",
     "v1aRow1": "Chaque jour",
@@ -1436,7 +1436,7 @@
     "errAlready": "Tu es déjà dans un foyer (un seul foyer par personne).",
     "errNetwork": "Impossible de rejoindre — vérifie ta connexion.",
     "linkJoining": "On te fait entrer dans le foyer…",
-    "errFull": "Ce foyer est déjà complet — mochi, c'est à deux.",
+    "errFull": "Ce foyer est déjà complet — Mindpair, c'est à deux.",
     "errNotEmpty": "Vous êtes déjà deux dans ton foyer — quitte-le d'abord depuis le profil."
   },
   "reminders": {
@@ -1771,7 +1771,7 @@
     "pushAsk": "Autoriser",
     "crossTitle": "Rappel croisé",
     "crossSub": "Une alerte quand {name} oublie une tâche",
-    "note": "Tu peux tout couper à tout moment dans Réglages › Notifications › mochi."
+    "note": "Tu peux tout couper à tout moment dans Réglages › Notifications › Mindpair."
   },
   "seuils": {
     "_labels": {
@@ -1822,7 +1822,7 @@
     "s4Body": "Une balance de la semaine, des seuils que vous choisissez, un point le dimanche.",
     "s4Pill": "Un point le dimanche",
     "s5Title": "Vous êtes deux.",
-    "s5Body": "mochi aide les couples à répartir la charge du foyer, sans se prendre la tête.",
+    "s5Body": "Mindpair aide les couples à répartir la charge du foyer, sans se prendre la tête.",
     "b1Row1": "Chaque jour",
     "b1Row1Sub": "de tâches en plus pour cette personne",
     "b1Row2": "Chaque semaine",

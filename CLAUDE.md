@@ -1,4 +1,4 @@
-# mochi — règles de travail
+# Mindpair (ex-mochi) — règles de travail
 
 ## Qui
 Jeanne, cheffe de produit, ne code pas. Elle valide dans le simulateur et sur iPhone.

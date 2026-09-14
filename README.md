@@ -1,4 +1,4 @@
-# mochi
+# Mindpair (ex-mochi)
 
 App utilitaire de charge mentale (couple / foyer). Expo SDK 57 · dev build iOS · Supabase · RevenueCat.
 
