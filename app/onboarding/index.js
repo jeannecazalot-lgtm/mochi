@@ -26,7 +26,7 @@ export default function Onboarding() {
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const list = useRef(null);
-  const [index, setIndex] = useState(Math.max(0, Math.min(4, Number(startAt) || 0)));
+  const [index, setIndex] = useState(Math.max(0, Math.min(8, Number(startAt) || 0)));
   const last = index === slides.length - 1;
 
   const finish = useCallback(() => router.replace('/(auth)/login'), []); // compte avant le prénom (13 sept 2026)
@@ -56,7 +56,7 @@ export default function Onboarding() {
         pagingEnabled
         bounces={false}
         showsHorizontalScrollIndicator={false}
-        initialScrollIndex={Math.max(0, Math.min(4, Number(startAt) || 0))}
+        initialScrollIndex={Math.max(0, Math.min(slides.length - 1, Number(startAt) || 0))}
         getItemLayout={(_, i) => ({ length: width, offset: width * i, index: i })}
         onMomentumScrollEnd={onMomentumScrollEnd}
         style={{ flex: 1 }}
@@ -64,7 +64,7 @@ export default function Onboarding() {
 
       {/* en-tête fixe : pagination (5 barres) + « Passer » sur 1-4 */}
       <View pointerEvents="box-none" style={{ position: 'absolute', top: insets.top, left: 0, right: 0 }}>
-        <OnbHeader step={index + 1} total={onb.total} skipLabel={t.skip} onSkip={finish} showSkip={!last} />
+        <OnbHeader step={index + 1} total={slides.length} skipLabel={t.skip} onSkip={finish} showSkip={!last} />
       </View>
 
       {/* pied fixe : source (01, 03) + CTA */}

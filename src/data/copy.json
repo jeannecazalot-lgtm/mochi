@@ -1910,6 +1910,35 @@
       "Courses",
       "Poubelles",
       "Lessive"
+    ],
+    "s6Title": "Chacun voit sa journée.",
+    "s6Body": "Ce qui est à toi, ce qui est à l'autre, ce que vous faites à deux. Un tap pour cocher.",
+    "s6Sub1": "ce soir · toi",
+    "s6Sub2": "demain · l'autre",
+    "s6Sub3": "jeudi · à deux",
+    "s8Title": "Et tout le reste du foyer.",
+    "s8Body": "Les dépenses partagées, ce qu'il ne faut pas oublier, les événements à préparer : au même endroit.",
+    "s8Rows": [
+      {
+        "c": "💶",
+        "t": "Budget",
+        "s": "qui a payé quoi, qui doit combien"
+      },
+      {
+        "c": "📌",
+        "t": "Pense-bête",
+        "s": "le cerveau externe du duo, avec des dates"
+      },
+      {
+        "c": "🎂",
+        "t": "Événements",
+        "s": "qui apporte quoi, qui s'occupe de quoi"
+      },
+      {
+        "c": "🔔",
+        "t": "Rappels",
+        "s": "un récap chaque soir, jamais de spam"
+      }
     ]
   }
 }

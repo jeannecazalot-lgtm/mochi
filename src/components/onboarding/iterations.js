@@ -170,7 +170,42 @@ const C5 = p => (
   </Frame>
 );
 
-export const ITERATIONS = { a: [A1, A2, A3, A4, A5], b: [B1, B2, B3, B4, B5], c: [C1, C2, C3, C4, C5] };
+// ── B, version complète : les 5 slides de Jeanne (04 « ce qu'on s'épargne » et 05 « vous êtes deux » comprises)
+// + ce que propose mochi : répartir, chacun sa journée, la balance, et le reste (budget, pense-bête, événements)
+const B4b = p => (
+  <Frame {...p} title={`${o.s4Title1}${o.s4TitleAccent} ${o.s4Title2}`} body={o.s4Note} intensity="soft">
+    <Card r={16} padding={0} style={s.card}>
+      {o.s4Rows.map((label, i) => <Row key={i} first={i === 0} label={label} right={<Text style={[s.num, pitch.avoidedPerYear[i].accent && { color: colors.coralDeep }]}>{pitch.avoidedPerYear[i].value ? `×${pitch.avoidedPerYear[i].value}` : '0'}</Text>} />)}
+      <Row strong label={o.s4Total} right={<Text style={[s.num, { color: colors.sageDeep }]}>{fill(o.s4TotalValue, { n: pitch.coupleBreathing })}</Text>} />
+    </Card>
+  </Frame>
+);
+const B6 = p => (
+  <Frame {...p} title={t.s6Title} body={t.s6Body} intensity="soft">
+    <Card r={16} padding={0} style={s.card}>
+      <Row first label={t.c3Items[0]} sub={t.s6Sub1} left={<Text style={{ fontSize: 18 }}>🍽️</Text>} right={<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Avatar initial={A.initial} color={A.color} size={22} /><CheckCircle done /></View>} />
+      <Row label={t.c3Items[1]} sub={t.s6Sub2} left={<Text style={{ fontSize: 18 }}>🛒</Text>} right={<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Avatar initial={B.initial} color={B.color} size={22} /><CheckCircle done={false} /></View>} />
+      <Row label={t.c3Items[2]} sub={t.s6Sub3} left={<Text style={{ fontSize: 18 }}>🗑️</Text>} right={<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><View style={{ flexDirection: 'row' }}><Avatar initial={A.initial} color={A.color} size={22} ring /><View style={{ marginLeft: -7 }}><Avatar initial={B.initial} color={B.color} size={22} ring /></View></View><CheckCircle done={false} /></View>} />
+    </Card>
+  </Frame>
+);
+const B8 = p => (
+  <Frame {...p} title={t.s8Title} body={t.s8Body} intensity="soft">
+    <Card r={16} padding={0} style={s.card}>
+      {t.s8Rows.map((r, i) => <Row key={i} first={i === 0} label={r.t} sub={r.s} left={<Text style={{ fontSize: 18 }}>{r.c}</Text>} />)}
+    </Card>
+  </Frame>
+);
+const B9 = p => (
+  <Frame {...p} title={o.s5Title} body={o.s5Body}>
+    <Card r={16} padding={0} style={s.card}>
+      <Row first label={t.b5Row1} sub={t.b5Row1Sub} left={<Avatar initial={A.initial} color={A.color} size={24} />} />
+      <Row label={t.b5Row2} sub={t.b5Row2Sub} left={<Avatar initial={B.initial} color={B.color} size={24} />} />
+      <Row label={t.b5Row3} sub={t.b5Row3Sub} left={<LiveMochi size={26} float={false} />} />
+    </Card>
+  </Frame>
+);
+export const ITERATIONS = { a: [A1, A2, A3, A4, A5], b: [B1, B2, B3, B4b, B4, B6, B5, B8, B9], c: [C1, C2, C3, C4, C5] };
 
 const s = StyleSheet.create({
   title: { fontSize: 25, fontWeight: '700', letterSpacing: -0.9, lineHeight: 30, color: colors.ink, height: 62 },
