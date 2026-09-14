@@ -1419,7 +1419,9 @@
         "t": "Lessive"
       }
     ],
-    "v1cBody": "{daily} par jour de plus pour la personne qui porte le foyer. Sur l'année, un mi-temps invisible."
+    "v1cBody": "{daily} par jour de plus pour la personne qui porte le foyer. Sur l'année, un mi-temps invisible.",
+    "v1bOneValue": "2h40",
+    "v1bOtherValue": "1h14"
   },
   "join": {
     "_labels": {

@@ -51,8 +51,8 @@ export function Slide01B({ width, headerH }) {
       <Text style={s.title}>{t.v1bTitle}</Text>
       <Card r={18} padding={18} style={{ marginTop: 16 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-          <View><Text style={[s.heroName, { color: slotColors[1].deep }]}>{a.first_name}</Text><Text style={s.heroNum}>{pitch.fmtHours(Math.round(left * 4 * 4) / 4)}</Text><Text style={s.heroSub}>{t.v1bPerDay}</Text></View>
-          <View style={{ alignItems: 'flex-end' }}><Text style={[s.heroName, { color: slotColors[2].deep }]}>{b.first_name}</Text><Text style={s.heroNum}>{pitch.fmtHours(Math.round(right * 4 * 4) / 4)}</Text><Text style={s.heroSub}>{t.v1bPerDay}</Text></View>
+          <View><Text style={[s.heroName, { color: slotColors[1].deep }]}>{a.first_name}</Text><Text style={s.heroNum}>{t.v1bOneValue}</Text><Text style={s.heroSub}>{t.v1bPerDay}</Text></View>
+          <View style={{ alignItems: 'flex-end' }}><Text style={[s.heroName, { color: slotColors[2].deep }]}>{b.first_name}</Text><Text style={s.heroNum}>{t.v1bOtherValue}</Text><Text style={s.heroSub}>{t.v1bPerDay}</Text></View>
         </View>
         <View style={s.bar}><View style={{ flex: left, backgroundColor: a.color }} /><View style={{ flex: right, backgroundColor: b.color }} /></View>
         <Text style={s.barTxt}>{t.v1bGap.replace('{daily}', daily)}</Text>
