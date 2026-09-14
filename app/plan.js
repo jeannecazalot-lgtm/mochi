@@ -17,7 +17,7 @@ const GROUPS = [
   ['Ajout', [['Dépense', '/depense'], ['30 · Événement social', '/event'], ['32 · Pense-bête', '/pense-bete'], ['33 · Mood check-in (coupé)', '/mood'], ['34 · Notifs lockscreen', '/notifs']]],
   ['Moments', [['24-25 · Wrapped', '/wrapped'], ['26 · Bilan mensuel (V2)', '/bilan'], ['28 · Streak célébration', '/celebration']]],
   ['Premium', [['35 · Calendrier mois', '/calendrier'], ['36 · Analyse (V2, avec le bilan)', '/analyse'], ['37 · Paywall Duo+', '/paywall'], ['38 · Profil & réglages', '/profil']]],
-  ['Propositions (à choisir)', [['Proto · Mochi v2 (variantes A/B/C)', '/proto-mochi'], ['06 · Profil — A/B/C', '/props/profil06'], ['07 · Explication des créneaux — A/B/C', '/props/creneaux'], ['08 · Préférences — A/B/C + wording', '/props/prefs'], ['09 · Invitation — A/B/C', '/props/invite']]],
+  ['Propositions (à choisir)', [['Proto · Mochi v2 (variantes A/B/C)', '/proto-mochi'], ['Proto · 10 animations à valider', '/proto-anim'], ['06 · Profil — A/B/C', '/props/profil06'], ['07 · Explication des créneaux — A/B/C', '/props/creneaux'], ['08 · Préférences — A/B/C + wording', '/props/prefs'], ['09 · Invitation — A/B/C', '/props/invite']]],
   ['Compte', [['Connexion (Apple / code e-mail)', '/(auth)/login']]],
 ];
 
