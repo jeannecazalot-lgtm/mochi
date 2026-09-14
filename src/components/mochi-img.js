@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react';
 import { Image, Pressable } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, withSpring, withSequence, Easing } from 'react-native-reanimated';
 
-export const MOCHI_RATIO = 163 / 227; // hauteur / largeur du canevas
+export const MOCHI_RATIO = 160 / 230; // hauteur / largeur du canevas
 const FRAMES = { // pas de « + » ni de « - » dans les noms : Metro ne résout pas ces fichiers
   '-3': require('../../assets/mochi/leanm3.png'), '-2': require('../../assets/mochi/leanm2.png'), '-1': require('../../assets/mochi/leanm1.png'),
   '0': require('../../assets/mochi/leanp0.png'),
