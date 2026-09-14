@@ -4,7 +4,7 @@
 // titre à hauteur FIXE et sur une ligne, un seul visuel, une phrase. Sélection : ?it=a|b|c.
 //   a · Mochi raconte (Mochi + une pastille)   b · cartes (la DA des sheets)   c · mini-écrans de l'app
 // ═══════════════════════════════════════════════════════════════════
-import React from 'react';
+import React, { createContext, useContext } from 'react';
 import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
 import { GlowBg, Card, PillLabel, Avatar } from '../ui';
 import { LiveMochi } from '../motion';
@@ -20,18 +20,47 @@ const fill = (str, vars) => String(str).replace(/\{(\w+)\}/g, (_, k) => String(v
 const A = { initial: 'L', color: slotColors[1].main, deep: slotColors[1].deep };
 const B = { initial: 'K', color: slotColors[2].main, deep: slotColors[2].deep };
 
-// cadre commun (retour Jeanne 14 sept : « trop petit, tout est stacké en haut, ça respire pas ») :
-// titre gros en haut, visuel centré dans l'espace libre, phrase grande posée en bas au-dessus du bouton.
+// Trois mises en page (Jeanne 14 sept : « fais-moi 3 itérations, là j'aime pas ») — mêmes textes, mêmes cartes :
+//   1 · carte pleine : titre, puis UNE grande carte qui contient le visuel et la phrase
+//   2 · texte d'abord : titre et phrase groupés en haut, visuel en bas
+//   3 · visuel roi : visuel en haut au centre, titre et phrase dessous
+export const LayoutCtx = createContext('1');
 function Frame({ width, headerH, title, body, children, intensity = 'strong' }) {
+  const lay = useContext(LayoutCtx);
   const { height } = useWindowDimensions();
   const zone = height - headerH - 26 - 118; // sous l'en-tête, au-dessus du bouton
+  const box = { paddingTop: headerH + 26, paddingHorizontal: 24, height: headerH + 26 + zone };
+  if (lay === '2') return (
+    <View style={{ width, alignSelf: 'stretch' }}>
+      <GlowBg intensity={intensity} />
+      <View style={box}>
+        <Text style={s.title} numberOfLines={3} adjustsFontSizeToFit minimumFontScale={0.85}>{title}</Text>
+        <Text style={[s.body, { textAlign: 'left', marginTop: 14, marginBottom: 0 }]}>{body}</Text>
+        <View style={[s.visual, { justifyContent: 'flex-end', paddingBottom: 6 }]}>{children}</View>
+      </View>
+    </View>
+  );
+  if (lay === '3') return (
+    <View style={{ width, alignSelf: 'stretch' }}>
+      <GlowBg intensity={intensity} />
+      <View style={box}>
+        <View style={[s.visual, { paddingTop: 6 }]}>{children}</View>
+        <Text style={[s.title, { textAlign: 'center' }]} numberOfLines={3} adjustsFontSizeToFit minimumFontScale={0.85}>{title}</Text>
+        <Text style={[s.body, { marginTop: 12, marginBottom: 6 }]}>{body}</Text>
+      </View>
+    </View>
+  );
   return (
     <View style={{ width, alignSelf: 'stretch' }}>
       <GlowBg intensity={intensity} />
-      <View style={{ paddingTop: headerH + 26, paddingHorizontal: 24, height: headerH + 26 + zone }}>
+      <View style={box}>
         <Text style={s.title} numberOfLines={3} adjustsFontSizeToFit minimumFontScale={0.85}>{title}</Text>
-        <View style={s.visual}>{children}</View>
-        <Text style={s.body}>{body}</Text>
+        <View style={[s.visual, { paddingVertical: 8 }]}>
+          <Card r={22} padding={0} style={[s.card, { paddingVertical: 18, paddingHorizontal: 14, alignItems: 'stretch' }]}>
+            <View style={{ alignItems: 'center' }}>{children}</View>
+            <Text style={[s.body, { marginTop: 18, marginBottom: 2, fontSize: 16.5, lineHeight: 24 }]}>{body}</Text>
+          </Card>
+        </View>
       </View>
     </View>
   );

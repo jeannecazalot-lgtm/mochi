@@ -207,7 +207,7 @@
     "heroTasks": "{pct}% · {n} tâches",
     "chartTitle": "7 derniers jours",
     "chartUnit": "en min/jour",
-    "seeDetail": "Voir le détail ›",
+    "seeDetail": "Voir le détail",
     "streakTitle": "Streak",
     "streakDays": "{n} jours",
     "streakNextOne": "encore 1 jour pour « {badge} »",
@@ -218,7 +218,7 @@
     "malusPts": "+{n}",
     "malusReal": "{n} pt · tâche ratée",
     "malusPostponed": "Tâche décalée",
-    "weeklyLink": "Point hebdo · {day} ›",
+    "weeklyLink": "Point hebdo · {day}",
     "detailHeader": "Détail",
     "detailPillBalanced": "Équilibré · {n}% d'écart",
     "detailPillLeaning": "Légèrement penché · {n}% d'écart",
@@ -235,7 +235,7 @@
     "heroTasksOne": "{pct}% · 1 tâche",
     "streakDaysOne": "1 jour",
     "plannedWeek": "Prévu cette semaine : {total} · toi {me} · {name} {partner}",
-    "analyseLink": "Analyse de la charge mentale ›"
+    "analyseLink": "Analyse de la charge mentale"
   },
   "budget": {
     "_labels": {
@@ -620,7 +620,7 @@
     "calcSub": "Croisement des dispos, fréquences, charge ressentie…",
     "calcTasks": "✓ {n} tâches identifiées",
     "calcSlots": "✓ {n} plages horaires",
-    "calcOptim": "→ Optimisation en cours…",
+    "calcOptim": "Optimisation en cours…",
     "dispatchTitle": "Mochi a réparti vos tâches.",
     "dispatchSub": "Tout est ajustable. Promis.",
     "balanced": "Équilibré",
@@ -630,7 +630,7 @@
     "go": "C’est parti",
     "reassignTitle": "Réattribuer.",
     "reassignSub": "Glisse une tâche d’une colonne à l’autre.",
-    "validate": "Valider →",
+    "validate": "Valider",
     "tagEvening": "soir",
     "tagMorningEvening": "matin/soir",
     "tagSaturday": "samedi",
@@ -890,7 +890,7 @@
     "tasksDone": "Tâches faites",
     "mentalAbsorbed": "Charges mentales absorbées",
     "swapsAccepted": "Repassages acceptés",
-    "next": "Suite : votre semaine à deux →",
+    "next": "Suite : votre semaine à deux",
     "pillCouple": "Votre semaine à deux",
     "leaningSub": "Légèrement chez {name} — {n} min d'écart.",
     "streakTitle": "{n} jours équilibrés",
@@ -927,7 +927,7 @@
     "malusLabel": "Malus du mois",
     "malusSettled": "Tout est réglé.",
     "malusSettledSub": "{n} points hebdo soldés aux points du dimanche — rien à reporter.",
-    "cta": "Clore {month} → démarrer {next}",
+    "cta": "Clore {month}, démarrer {next}",
     "verdictEmpty": "Rien de coché ce mois-ci, pour l'instant.",
     "verdictLeaning": "Ça penche chez {name}.",
     "malusRealTitle": "{n} pt de malus ce mois-ci",
@@ -1296,8 +1296,8 @@
       "s5Body": "Corps slide 05 (nom « Duo » hérité de l’artboard, à arbitrer)"
     },
     "skip": "Passer",
-    "next": "Continuer →",
-    "start": "Commencer →",
+    "next": "Continuer",
+    "start": "Commencer",
     "s1Pill": "01 · Le constat",
     "s1Kicker": "Portées par une seule tête",
     "s1Unit": "/sem.",
@@ -1972,7 +1972,7 @@
     "s5Title": "À deux, c'est plus léger.",
     "s5Body": "Chacun sait ce qu'il a à faire. Mochi garde un œil sur l'équilibre et sur ce qu'il ne faut pas oublier.",
     "s5Mochi": "répartit, rappelle et le dit quand ça penche",
-    "start": "Configurer Mochi →",
+    "start": "Configurer Mochi",
     "s5Pill": "Toi · l'autre · Mochi"
   }
 }

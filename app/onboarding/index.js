@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { OnbHeader, SourceLine, CtaOnb, onb } from '../../src/components/onboarding/extra';
 import { Slide01, Slide02, Slide03, Slide04, Slide05 } from '../../src/components/onboarding/slides';
 import { Slide01A, Slide01B, Slide01C } from '../../src/components/onboarding/slide01-variants';
-import { ITERATIONS, FINAL } from '../../src/components/onboarding/iterations';
+import { ITERATIONS, FINAL, LayoutCtx } from '../../src/components/onboarding/iterations';
 import { useLocalSearchParams } from 'expo-router';
 import copy from '../../src/data/copy.json';
 import { colors, space } from '../../src/theme';
@@ -21,7 +21,7 @@ const VARIANTS = { a: Slide01A, b: Slide01B, c: Slide01C };
 const SOURCES = { 0: t.s1Source, 2: t.s3Source.replace('{daily}', dailyGapLabel()) };
 
 export default function Onboarding() {
-  const { v, it, s: startAt } = useLocalSearchParams(); // it=a|b|c : itération complète ; s=n : slide de départ (captures)
+  const { v, it, s: startAt, lay = '1' } = useLocalSearchParams(); // lay=1|2|3 : mise en page (captures) // it=a|b|c : itération complète ; s=n : slide de départ (captures)
   // par défaut : la version finale de Jeanne (14 sept 2026) ; ?it=old pour l'ancien onboarding
   const slides = it === 'old' ? SLIDES : ITERATIONS[it] ? ITERATIONS[it] : VARIANTS[v] ? [VARIANTS[v], ...SLIDES.slice(1)] : FINAL;
   const { width } = useWindowDimensions();
@@ -46,6 +46,7 @@ export default function Onboarding() {
   const renderItem = useCallback(({ item: Slide, index: i }) => <Slide width={width} headerH={headerH} active={i === index} />, [width, headerH, index]);
 
   return (
+    <LayoutCtx.Provider value={String(lay)}>
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <FlatList
         ref={list}
@@ -78,5 +79,6 @@ export default function Onboarding() {
         <CtaOnb label={last ? (it === 'old' ? t.start : copy.onbFinal.start) : t.next} onPress={next} />
       </View>
     </View>
+    </LayoutCtx.Provider>
   );
 }
