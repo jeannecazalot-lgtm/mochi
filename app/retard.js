@@ -181,7 +181,7 @@ export default function Retard() {
 
       {other ? (
         <Card r={16} padding={0}>
-          <Row first strong label={fill(t.pingOther, { name: partner.first_name })} sub={t.pingOtherSub} left={pAvatar} right={<PillChip label={t.pingBtn} selected onPress={ping} />} onPress={ping} />
+          <Row first strong label={fill(copy.mission.pingRow, { name: partner.first_name })} right={<View style={{ flexDirection: 'row', gap: 6 }}><PillChip label={copy.mission.pingReminder} selected onPress={ping} /><PillChip label={copy.mission.pingTurn} selected onPress={async () => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {}); await sendPing(String(occId || ''), 'turn').catch(() => {}); finish({ kind: 'swap', who: partner, title: fill(t.confirmPing, { name: partner.first_name }), sub: fill(copy.pings.turn, { task: title }) }); }} /></View>} />
           <Row strong label={t.takeOther} sub={fill(t.takeOtherSub, { name: partner.first_name })} left={<Avatar initial={me.initial} color={me.color} photo={me.avatar_url} size={22} />} right={<Arrow />} onPress={take} />
         </Card>
       ) : (

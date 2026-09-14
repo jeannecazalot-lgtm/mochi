@@ -211,8 +211,8 @@ export default function Mission() {
         <SheetHandle />
         {head}
         <Card r={16} padding={0} style={s.block}>
-          <Row first strong label={fill(t.pingLabel, { name: who.first_name })} sub={t.pingSub} left={<Text style={{ fontSize: 18 }}>🌷</Text>} right={<PillChip label={t.pingBtn} selected onPress={() => ping('reminder')} />} onPress={() => ping('reminder')} />
-          <Row label={copy.pings.options.turn.label} sub={copy.pings.options.turn.sub} left={<Text style={{ fontSize: 18 }}>👉</Text>} right={<PillChip label={t.pingBtn} selected onPress={() => ping('turn')} />} onPress={() => ping('turn')} />
+          {/* les deux pings sur une même ligne (Jeanne 15 sept 2026) */}
+          <Row first strong label={fill(t.pingRow, { name: who.first_name })} right={<View style={{ flexDirection: 'row', gap: 6 }}><PillChip label={t.pingReminder} selected onPress={() => ping('reminder')} /><PillChip label={t.pingTurn} selected onPress={() => ping('turn')} /></View>} />
           <Row label={t.takeLabel} sub={fill(t.takeSub, { name: who.first_name })} left={<Avatar initial={me.initial} color={me.color} photo={me.avatar_url} size={22} />} right={<Arrow />} onPress={take} />
         </Card>
         <Animated.View layout={layout}>

@@ -431,7 +431,10 @@
     "pingBtn": "Envoyer",
     "confirmPing": "Envoyé à {name}",
     "moveDaily": "Elle est déjà prévue tous les jours : rien à déplacer, mais tu peux la repasser.",
-    "ruleMochiDays": "Sans choix : {days}"
+    "ruleMochiDays": "Sans choix : {days}",
+    "pingRow": "Pinger {name}",
+    "pingReminder": "🌷 Petit rappel",
+    "pingTurn": "👉 C'est ton tour"
   },
   "pings": {
     "_labels": {
