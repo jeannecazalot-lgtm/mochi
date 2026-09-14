@@ -430,7 +430,8 @@
     "pingSub": "« Quand tu as un moment… »",
     "pingBtn": "Envoyer",
     "confirmPing": "Envoyé à {name}",
-    "moveDaily": "Elle est déjà prévue tous les jours : rien à déplacer, mais tu peux la repasser."
+    "moveDaily": "Elle est déjà prévue tous les jours : rien à déplacer, mais tu peux la repasser.",
+    "ruleMochiDays": "Sans choix : {days}"
   },
   "pings": {
     "_labels": {
