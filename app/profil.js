@@ -120,6 +120,7 @@ export default function Profil() {
               <SettingRow emoji="⚖️" title={t.thresholds} sub={fill(t.thresholdsSub, { warn: th.warn, alert: th.alert })}
                 right={<Text style={s.value}>{fill(t.thresholdsValue, { warn: th.warn, alert: th.alert })}</Text>} onPress={() => router.push('/seuils')} />
               <SettingRow emoji="🎯" title={t.malus} sub={t.malusSub} onPress={() => router.push('/point-hebdo')} />
+              <SettingRow emoji="📆" title={t.bilan} sub={t.bilanSub} onPress={() => router.push('/bilan')} />
               <SettingRow emoji="💳" title={t.subscription} sub={ALL_FREE ? t.subscriptionFree : premium ? fill(t.subscriptionOn, { date: fmtDate(household.premium_until) }) : t.subscriptionOff} onPress={() => router.push('/paywall')} />
               <SettingRow emoji="🗺" title={t.plan} sub={t.planSub} onPress={() => router.push('/plan')} />
             </View>

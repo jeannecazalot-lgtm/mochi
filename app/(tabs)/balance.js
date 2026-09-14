@@ -165,6 +165,9 @@ export default function Balance() {
                   </View>
                 );
               })}
+              <Pressable onPress={() => router.push('/analyse')} hitSlop={6}>
+                <Text style={[s.weeklyLink, { color: colors.lavenderDeep }]}>{t.analyseLink}</Text>
+              </Pressable>
               <Pressable onPress={() => router.push('/point-hebdo')} hitSlop={6}>
                 <Text style={s.weeklyLink}>{fill(t.weeklyLink, { day: review.label })}</Text>
               </Pressable>

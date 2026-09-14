@@ -1,18 +1,28 @@
 // Écran 26 · Bilan mensuel. Recette : docs/recettes/26-bilan.md
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { router } from 'expo-router';
 import { View, Text, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GlowBg, Card, PillLabel, CTAPrimary, Micro, ScreenTitle } from '../src/components/ui';
 import { SplitBar, BackButton, moments, fill } from '../src/components/moments/extra';
-import { bilan, badgeById, fmtMonth, fmtDay } from '../src/demo-moments';
+import { bilan as demoBilan, badgeById, fmtMonth, fmtDay } from '../src/demo-moments';
+import { computeMonthReview } from '../src/moments-real';
+import { read } from '../src/store';
+import { loadSetup, inRealMode } from '../src/setup-state';
+import { getUid, loadIdentity } from '../src/identity';
+import { me, partner } from '../src/demo';
 import copy from '../src/data/copy.json';
 import { colors, space } from '../src/theme';
 
 const t = copy.bilan;
 
 export default function Bilan() {
+  // réel (14 sept 2026) : le mois en cours sur les vraies occurrences ; démo sans foyer
+  const [real, setReal] = useState(null);
+  useEffect(() => { (async () => { await loadSetup(); if (!inRealMode()) return; await loadIdentity(); const [occs, malus] = await Promise.all([read('occurrences'), read('malus').catch(() => [])]); setReal(computeMonthReview(occs, malus, getUid())); })(); }, []);
+  const bilan = real || demoBilan;
   const month = fmtMonth(bilan.month), next = fmtMonth(bilan.next_month);
+  const verdict = !real ? t.verdict : bilan.state === 'empty' ? t.verdictEmpty : bilan.state === 'balanced' ? t.verdict : fill(t.verdictLeaning, { name: bilan.top.first_name });
   return (
     <View style={{ flex: 1 }}>
       <GlowBg intensity="strong" />
@@ -25,7 +35,7 @@ export default function Bilan() {
 
         <View style={{ paddingHorizontal: 22, marginBottom: 11 }}>
           <Card r={20} style={{ paddingVertical: 18, paddingHorizontal: 20, alignItems: 'center' }}>
-            <Text style={s.verdict}>{t.verdict}</Text>
+            <Text style={s.verdict}>{verdict}</Text>
             <Text style={s.verdictSub}>{fill(t.verdictSub, { a: bilan.me_pct, b: bilan.partner_pct, days: bilan.days, n: bilan.balanced_days })}</Text>
             <SplitBar left={bilan.me_pct / (bilan.me_pct + bilan.partner_pct)} style={{ alignSelf: 'stretch' }} />
           </Card>
@@ -54,14 +64,14 @@ export default function Bilan() {
           <Card r={16} style={{ paddingVertical: 14, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 13 }}>
             <Text style={{ fontSize: 20, color: colors.ink }}>✓</Text>
             <View style={{ flex: 1 }}>
-              <Text style={s.malusTitle}>{t.malusSettled}</Text>
-              <Text style={s.malusSub}>{fill(t.malusSettledSub, { n: bilan.malus_settled_points })}</Text>
+              <Text style={s.malusTitle}>{real ? (bilan.malus_total ? fill(t.malusRealTitle, { n: String(bilan.malus_total).replace('.', ',') }) : t.malusNone) : t.malusSettled}</Text>
+              <Text style={s.malusSub}>{real ? fill(t.malusRealSub, { n: String(bilan.malus_settled_points).replace('.', ',') }) : fill(t.malusSettledSub, { n: bilan.malus_settled_points })}</Text>
             </View>
           </Card>
         </View>
 
         <View style={s.ctaWrap}>
-          <CTAPrimary label={fill(t.cta, { month, next })} big onPress={() => router.back()} />
+          <CTAPrimary label={real ? copy.common.back : fill(t.cta, { month, next })} big onPress={() => router.back()} />
         </View>
       </SafeAreaView>
     </View>

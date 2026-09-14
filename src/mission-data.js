@@ -25,7 +25,7 @@ export const whoToCols = (who, uid) => who === 'alt' ? { assign_mode: 'alternate
 
 // occurrence + tâche au format de la sheet ; `real` = vit dans le store local
 // moment de la règle depuis les colonnes de fenêtre
-const deadlineOf = tk => (tk?.window_start && parseInt(String(tk.window_start).slice(0, 2), 10) >= 17 ? 'evening' : tk?.window_end && parseInt(String(tk.window_end).slice(0, 2), 10) <= 12 ? 'morning' : null);
+export const deadlineOf = tk => (tk?.window_start && parseInt(String(tk.window_start).slice(0, 2), 10) >= 17 ? 'evening' : tk?.window_end && parseInt(String(tk.window_end).slice(0, 2), 10) <= 12 ? 'morning' : null);
 
 export async function loadMission({ occId, tid, title, mins }) {
   const occs = await read('occurrences');

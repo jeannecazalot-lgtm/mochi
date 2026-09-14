@@ -231,7 +231,8 @@
     "weighsNone": "Rien ne pèse encore — coche des missions et l'écart apparaîtra ici.",
     "heroTasksOne": "{pct}% · 1 tâche",
     "streakDaysOne": "1 jour",
-    "plannedWeek": "Prévu cette semaine : {total} · toi {me} · {name} {partner}"
+    "plannedWeek": "Prévu cette semaine : {total} · toi {me} · {name} {partner}",
+    "analyseLink": "Analyse de la charge mentale ›"
   },
   "budget": {
     "_labels": {
@@ -915,7 +916,12 @@
     "malusLabel": "Malus du mois",
     "malusSettled": "Tout est réglé.",
     "malusSettledSub": "{n} points hebdo soldés aux points du dimanche — rien à reporter.",
-    "cta": "Clore {month} → démarrer {next}"
+    "cta": "Clore {month} → démarrer {next}",
+    "verdictEmpty": "Rien de coché ce mois-ci, pour l'instant.",
+    "verdictLeaning": "Ça penche chez {name}.",
+    "malusRealTitle": "{n} pt de malus ce mois-ci",
+    "malusRealSub": "{n} pt soldés au point hebdo",
+    "malusNone": "Aucun malus ce mois-ci"
   },
   "celebration": {
     "_labels": {
@@ -1022,7 +1028,9 @@
     "applied": "Appliqué",
     "gateTitle": "L’analyse détaillée est une fonction Duo+",
     "gateSub": "Aperçu — passe à Duo+ pour la version complète chaque semaine.",
-    "gateCta": "Découvrir Duo+"
+    "gateCta": "Découvrir Duo+",
+    "titleEmpty": "Pas encore de tâche\nmentale cochée.",
+    "empty": "Les tâches mentales cochées apparaîtront ici."
   },
   "profil": {
     "_labels": {
@@ -1101,7 +1109,9 @@
     "subscriptionFree": "Tout est inclus pendant le test",
     "mesReglages": "Mes dispos & préférences",
     "penseBete": "Pense-bête",
-    "penseBeteSub": "Le cerveau externe du duo"
+    "penseBeteSub": "Le cerveau externe du duo",
+    "bilan": "Bilan du mois",
+    "bilanSub": "Part de chacun, badges, malus"
   },
   "activity": {
     "_labels": {
