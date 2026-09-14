@@ -23,3 +23,12 @@ Sphère parfaite, halo externe, liseré arc-en-ciel, reflet dur + deux points bl
 
 ## Validation
 Captures simulateur à 120 px (3 inclinaisons) et 34 px (5 états) pour chaque variante, plus l'actuel en référence.
+
+## Révision du 14 sept au soir — le dôme (image de référence envoyée par Jeanne)
+Le galet « œuf » n'a pas plu (« ça me va pas en fait »). Nouvelle forme d'après son image : un mochi **posé**,
+bien plus large que haut (≈ 176 × 106 dans la boîte 220), sommet en dôme, flancs bombés, **base plate à coins
+arrondis (r ≈ 16)**. Visage petit et bas (yeux à y = 158, r 4,4 ; bouche à 174-181). Matière v1 conservée :
+dégradé corail chaud centré en haut à gauche, un reflet net + un voile diffus, liseré sauge → beurre → corail.
+Cadrage serré (viewBox 0 82 220 118) : la boîte du composant fait 118/220 de la largeur. Inclinaison :
+cisaillement 10° + 3° de rotation depuis le centre de la base (le sommet bascule, la base reste posée).
+Respiration : ±2,5 % en largeur, −4,5 % en hauteur, 1,6 s aller, depuis la base.

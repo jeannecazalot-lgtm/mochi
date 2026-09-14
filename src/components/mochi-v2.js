@@ -80,46 +80,48 @@ export function MochiV2({ variant = 'A', size = 140, mood = 'happy', lean = 0 })
   );
 }
 
-// ─── D · le visage et la matière actuels (v1) sur un corps galet qui bouge ─────────────────────
-// Demande Jeanne 14 sept : « garder le visage qu'on a déjà, pas rond, et que la forme bouge ».
+// ─── D · le dôme (référence image de Jeanne, 14 sept 2026 au soir) ─────────────────────────────
+// Un mochi posé : bien plus large que haut, base plate, sommet en dôme, visage petit et bas,
+// matière v1 (dégradé corail chaud, un reflet net, liseré sauge → beurre). Recette : docs/recettes/mochi-v2.md.
 import { Pressable } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, withSpring, withSequence, Easing } from 'react-native-reanimated';
 import { useEffect, useState } from 'react';
 
-const FACE_DY = 8; // le visage v1 descend de 8 unités pour se poser dans la masse du galet
-const MOUTH_V1 = {
-  happy: 'M88 136 Q110 150 132 136', wink: 'M88 136 Q110 150 132 136',
-  neutral: 'M92 140 L128 140', sad: 'M88 146 Q110 132 132 146', sleeping: 'M100 142 L120 142',
+const DOME = 'M22 170 C24 118 62 86 110 86 C158 86 196 118 198 170 C199 184 188 192 172 192 L48 192 C32 192 21 184 22 170 Z'; // flancs bombés, coins du bas arrondis (r ≈ 16), base plate
+const DOME_BASE = { x: 110, y: 192 };
+const VIEW = { y: 82, h: 118 }; // cadrage serré : la boîte du dessin = la hauteur du dôme + marges
+const MOUTH_D = {
+  happy: 'M100 174 Q110 183 120 174', wink: 'M100 174 Q110 183 120 174',
+  neutral: 'M101 177 L119 177', sad: 'M100 181 Q110 172 120 181', sleeping: 'M104 177 L116 177',
 };
 
 export function MochiGalet({ size = 140, mood = 'happy', lean = 0 }) {
   const id = 'mg';
-  const eye = (cx) => <Circle cx={cx} cy={110 + FACE_DY} r="4" fill={colors.ink} />;
-  const shut = (cx) => <Path d={`M${cx - 6} ${110 + FACE_DY} Q${cx} ${106 + FACE_DY} ${cx + 6} ${110 + FACE_DY}`} stroke={colors.ink} strokeWidth="2.8" fill="none" strokeLinecap="round" />;
+  const eye = (cx) => <Circle cx={cx} cy="158" r="4.4" fill={colors.ink} />;
+  const shut = (cx) => <Path d={`M${cx - 6} 158 Q${cx} 154 ${cx + 6} 158`} stroke={colors.ink} strokeWidth="2.8" fill="none" strokeLinecap="round" />;
   return (
     <View>
-      <Svg width={size} height={size} viewBox="0 0 220 220">
+      <Svg width={size} height={size * VIEW.h / 220} viewBox={`0 ${VIEW.y} 220 ${VIEW.h}`}>
         <Defs>
-          <RadialGradient id={`${id}Main`} cx="38%" cy="28%" r="78%">
-            <Stop offset="0" stopColor="#FFF1E0" /><Stop offset="0.2" stopColor="#FBC9A4" /><Stop offset="0.4" stopColor="#F5A89A" /><Stop offset="0.65" stopColor={colors.coral} /><Stop offset="1" stopColor={colors.coralDeep} />
+          <RadialGradient id={`${id}Main`} cx="36%" cy="30%" r="80%">
+            <Stop offset="0" stopColor="#FFE4CC" /><Stop offset="0.25" stopColor="#FBC4A4" /><Stop offset="0.55" stopColor="#F3A290" /><Stop offset="1" stopColor="#E8857A" />
           </RadialGradient>
-          <RadialGradient id={`${id}Gloss`} cx="32%" cy="22%" r="28%">
-            <Stop offset="0" stopColor="#FFFFFF" stopOpacity="0.95" /><Stop offset="0.5" stopColor="#FFFFFF" stopOpacity="0.4" /><Stop offset="1" stopColor="#FFFFFF" stopOpacity="0" />
+          <RadialGradient id={`${id}Gloss`} cx="50%" cy="50%" r="50%">
+            <Stop offset="0" stopColor="#FFFFFF" stopOpacity="0.55" /><Stop offset="1" stopColor="#FFFFFF" stopOpacity="0" />
           </RadialGradient>
           <LinearGradient id={`${id}Rim`} x1="0" y1="1" x2="1" y2="0">
-            <Stop offset="0" stopColor={colors.sage} stopOpacity="0.5" /><Stop offset="0.5" stopColor={colors.butterLight} stopOpacity="0.7" /><Stop offset="1" stopColor="#F5A89A" stopOpacity="0.5" />
+            <Stop offset="0" stopColor={colors.sage} stopOpacity="0.55" /><Stop offset="0.5" stopColor={colors.butterLight} stopOpacity="0.8" /><Stop offset="1" stopColor="#F5A89A" stopOpacity="0.5" />
           </LinearGradient>
         </Defs>
-        <G skewX={-lean * 10} rotation={lean * 4} originX={BASE.x} originY={BASE.y}>
-          <Path d={BODY} fill={`url(#${id}Main)`} />
-          <Path d={BODY} fill="none" stroke={`url(#${id}Rim)`} strokeWidth="6" />
-          <Ellipse cx="84" cy="80" rx="32" ry="24" fill={`url(#${id}Gloss)`} />
-          <Circle cx="76" cy="72" r="4" fill="#FFFFFF" />
-          <Circle cx="148" cy="96" r="2" fill="#FFFFFF" opacity="0.7" />
-          <G x={lean * 4}>
+        <G skewX={-lean * 10} rotation={lean * 3} originX={DOME_BASE.x} originY={DOME_BASE.y}>
+          <Path d={DOME} fill={`url(#${id}Main)`} />
+          <Path d={DOME} fill="none" stroke={`url(#${id}Rim)`} strokeWidth="5" />
+          <Ellipse cx="82" cy="116" rx="36" ry="18" fill={`url(#${id}Gloss)`} />
+          <Circle cx="72" cy="112" r="6" fill="#FFFFFF" opacity="0.95" />
+          <G x={lean * 5}>
             {mood === 'sleeping' ? shut(92) : eye(92)}
             {mood === 'sleeping' || mood === 'wink' ? shut(128) : eye(128)}
-            <Path d={(MOUTH_V1[mood] || MOUTH_V1.happy).replace(/(\d+) (\d+)/g, (m, x, y) => `${x} ${Number(y) + FACE_DY}`)} stroke={colors.ink} strokeWidth="3.4" fill="none" strokeLinecap="round" />
+            <Path d={MOUTH_D[mood] || MOUTH_D.happy} stroke={colors.ink} strokeWidth="3.4" fill="none" strokeLinecap="round" />
           </G>
         </G>
       </Svg>
@@ -137,8 +139,8 @@ export function LiveMochiGalet({ size = 140, mood = 'happy', lean = 0, breathe =
   const [blink, setBlink] = useState(false);
   useEffect(() => {
     if (!breathe) return;
-    sx.value = withRepeat(withTiming(1.03, { duration: 1400, easing: Easing.inOut(Easing.ease) }), -1, true);
-    sy.value = withRepeat(withTiming(0.97, { duration: 1400, easing: Easing.inOut(Easing.ease) }), -1, true);
+    sx.value = withRepeat(withTiming(1.025, { duration: 1600, easing: Easing.inOut(Easing.ease) }), -1, true);
+    sy.value = withRepeat(withTiming(0.955, { duration: 1600, easing: Easing.inOut(Easing.ease) }), -1, true);
   }, [breathe]);
   useEffect(() => {
     skew.value = withSpring(-lean * 10, { damping: 12, stiffness: 120 });
