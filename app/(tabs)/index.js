@@ -86,6 +86,7 @@ export default function Home() {
   const [anyOcc, setAnyOcc] = useState(false); // le foyer a-t-il déjà des missions (pas forcément à moi) ?
   const [noTask, setNoTask] = useState(false); // foyer sans aucune tâche (on vient de le former) → bouton vers l'écran 10
   const [bal, setBal] = useState(null);
+  const [late, setLate] = useState([]); // mes retards (Jeanne 14 sept 2026 : « tu devrais me les afficher dans l'accueil »)
   const [upcoming, setUpcoming] = useState([]); // « À venir » : mes missions des 2 jours suivants (décision Jeanne 7 sept 2026, confirmée le 13 sept : une page fixe) // balance réelle de la semaine → la phrase de Mochi dit la même chose que l'onglet Balance (6 sept 2026)
   const occV = occStore.useVersion(); // « Déplacer » depuis la sheet → on relit le store
   useEffect(() => {
@@ -114,6 +115,12 @@ export default function Home() {
         return { id: o.id, emoji: tk.emoji || '•', title: tk.title || '…', mental: !!tk.mental_load, badge: null, together: !o.assignee_id, mins: tk.duration_min || 15, href: `/mission?${q}`, ping: null };
       };
       // « À venir » : les 2 jours suivants, l'Accueil tient sur une page (Jeanne 13 sept 2026 : « max 2 jours après »)
+      // en retard : à faire, pas cochée, avant aujourd'hui — même section que le Planning, tap → sheet retard
+      setLate(occs.filter(o => isLive(o) && o.due_date < today && o.status !== 'done' && (!uid || !o.assignee_id || o.assignee_id === uid)).sort((a, b) => a.due_date.localeCompare(b.due_date)).map(o => {
+        const tk = byId[o.task_id] || {};
+        const q = `occ=${o.id}&tid=${o.task_id}&title=${encodeURIComponent(tk.title || '')}&emoji=${encodeURIComponent(tk.emoji || '•')}&mins=${tk.duration_min || 15}`;
+        return { id: o.id, emoji: tk.emoji || '•', title: tk.title || '…', mental: !!tk.mental_load, badge: t.lateBadge, together: !o.assignee_id, mins: tk.duration_min || 15, href: `/retard?${q}&due=${o.due_date}`, ping: null, late: true };
+      }));
       setUpcoming([1, 2].map(k => {
         const iso = addDaysIso(k);
         // cochée par erreur : elle reste, barrée, pour pouvoir la décocher (Jeanne 13 sept 2026)
@@ -150,7 +157,8 @@ export default function Home() {
     }
     return setup.result?.loads ? mochiLineReal(t, setup.result.loads).line : t.mochiBalanced;
   };
-  const todoSub = allDone ? t.allDoneSub : remaining.length === 0 ? t.mochiBalancedSub : remaining.length === 1 ? t.todoSubOne : fill(t.todoSub, { n: remaining.length });
+  const lateLeft = late.filter(v => !missionDone.has(v.id));
+  const todoSub = allDone && !lateLeft.length ? t.allDoneSub : remaining.length === 0 ? (lateLeft.length ? fill(lateLeft.length === 1 ? t.lateSubOne : t.lateSub, { n: lateLeft.length }) : t.mochiBalancedSub) : remaining.length === 1 ? t.todoSubOne : fill(t.todoSub, { n: remaining.length });
   const { line, sub } = vms === null ? { line: ' ', sub: ' ' }
     : real
       ? ((list.length || anyOcc) ? { line: allDone ? t.allDoneLine : balanceLine(), sub: todoSub } : { line: t.mochiNew, sub: t.mochiNewSub })
@@ -195,9 +203,9 @@ export default function Home() {
           <View style={{ paddingHorizontal: space.screenX }}>
             <Card padding={0} style={{ paddingVertical: 11, paddingHorizontal: 14 }}>
               {/* Retour Jeanne (2 sept 2026) : une mission cochée descend en bas de la liste */}
-              {vms !== null && list.length === 0
+              {vms !== null && list.length === 0 && late.length === 0
                 ? <Text style={[font.secondary, { textAlign: 'center', paddingVertical: 10 }]}>{t.emptyToday}</Text>
-                : [...list].sort((a, b) => (missionDone.has(a.id) ? 1 : 0) - (missionDone.has(b.id) ? 1 : 0))
+                : [...late, ...[...list].sort((a, b) => (missionDone.has(a.id) ? 1 : 0) - (missionDone.has(b.id) ? 1 : 0))]
                   .map((v, i) => (
                     <Animated.View key={v.id} layout={LinearTransition.duration(280)}>
                       <MissionRow vm={v} first={i === 0} done={missionDone.has(v.id)} onToggle={() => toggle(v.id)} />

@@ -132,7 +132,10 @@
     "allDoneMeta": "Tout est fait ✓",
     "remainingMeta": "{n} restantes · ≈ {time}",
     "remainingMetaOne": "1 restante · ≈ {time}",
-    "togetherBadge": "à deux"
+    "togetherBadge": "à deux",
+    "lateBadge": "En retard",
+    "lateSub": "{n} en retard à rattraper.",
+    "lateSubOne": "1 en retard à rattraper."
   },
   "planning": {
     "_labels": {
