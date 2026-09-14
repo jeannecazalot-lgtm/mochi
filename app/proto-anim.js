@@ -18,8 +18,8 @@ const SECTIONS = [
   ['Navigation entre onglets', 'Tab bar · forte', 'Fondu croisé du contenu avec un déplacement de 6 px dans le sens du mouvement ; l’icône active change sans rebond. 200 ms.', Demo6],
   ['Changement de jour', 'Planning · moyenne / forte', 'Les cards sortent dans le sens du swipe, les nouvelles prennent leur place ; le jour sélectionné glisse sous le doigt. 260 ms.', Demo7],
   ['Franchissement d’un seuil', 'Balance · moyenne', 'Le trait central se décale, Mochi suit avec 70 ms de retard ; le visage ne change qu’à la fin. 350-450 ms.', Demo8],
-  ['Mochi calcule', 'Fin du setup / recalcul · moyenne', 'Mochi se comprime, deux anneaux fins partent de lui ; au résultat ils disparaissent et Mochi prend son inclinaison finale. Pas de barre. 800 ms.', Demo9],
-  ['Célébration rare', 'Duo formé / streak / jalon · faible', 'Avatars, pop de Mochi, dix particules aux couleurs de l’app, stabilisation. Environ 1 s, jamais en boucle.', Demo10],
+  ['Mochi calcule', 'Fin du setup / recalcul · moyenne', 'Mochi se comprime puis fait un tour complet sur lui-même ; au résultat il se pose dans son inclinaison finale. Pas de barre. 850 ms.', Demo9],
+  ['Célébration rare', 'Duo formé / streak / jalon · faible', 'Halo, avatars qui arrivent des côtés, gros pop de Mochi, seize particules, titre. Environ 1,2 s, jamais en boucle.', Demo10],
 ];
 
 export default function ProtoAnim() {

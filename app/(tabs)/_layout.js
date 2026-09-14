@@ -40,7 +40,7 @@ export default function TabsLayout() {
   }, []);
   return (
     <View style={{ flex: 1 }}>
-      <Tabs tabBar={props => <TabBar {...props} onFab={fab.toggle} />} screenOptions={{ headerShown: false }}>
+      <Tabs tabBar={props => <TabBar {...props} onFab={fab.toggle} />} screenOptions={{ headerShown: false, animation: 'shift' /* ChatGPT n°6, validée 14 sept 2026 : fondu + léger décalage entre onglets */ }}>
         <Tabs.Screen name="index" />
         <Tabs.Screen name="planning" />
         <Tabs.Screen name="balance" />

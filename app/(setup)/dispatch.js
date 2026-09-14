@@ -32,15 +32,19 @@ const finish = () => {
 };
 
 // pop d'échelle à chaque bascule d'assigné (pas au montage)
-function usePopOnChange(dep) {
-  const sc = useSharedValue(1);
+// + ChatGPT n°3 (14 sept 2026) : la pastille glisse de 8 px vers sa place et sa bordure prend la couleur
+// du nouveau porteur en 230 ms (cubic-bezier .22 1 .36 1) — on voit que le tap a été pris.
+function usePopOnChange(dep, color) {
+  const sc = useSharedValue(1), tx = useSharedValue(0), bc = useSharedValue(color);
   const first = useRef(true);
   useEffect(() => {
     if (first.current) { first.current = false; return; }
-    if (prefersReducedMotion()) return;
+    if (prefersReducedMotion()) { bc.value = color; return; }
+    tx.value = 8; tx.value = withTiming(0, { duration: 230, easing: Easing.bezier(0.22, 1, 0.36, 1) });
+    bc.value = withTiming(color, { duration: 230 });
     sc.value = withSequence(withTiming(0.96, { duration: 70 }), withSpring(1.03, { damping: 18 }), withSpring(1, motion.spring)); // pop léger (retour Jeanne)
   }, [dep]);
-  return useAnimatedStyle(() => ({ transform: [{ scale: sc.value }] }));
+  return useAnimatedStyle(() => ({ borderColor: bc.value, transform: [{ translateX: tx.value }, { scale: sc.value }] }));
 }
 
 // jours de la tâche cette semaine : choisis à la main (fiche courte) ou placés par Mochi
@@ -58,7 +62,7 @@ function Row({ it, index, onToggle, onFreq, onOpen }) {
   const pair = both || alt;
   const who = pair ? me : byId(it.assignee_id);
   const pairLabel = alt ? t.alternate : t.both;
-  const pop = usePopOnChange(it.assignee_id);
+  const pop = usePopOnChange(it.assignee_id, pair ? colors.ink : who.color);
   return (
     <Animated.View entering={prefersReducedMotion() ? undefined : FadeInDown.delay(index * 45).duration(motion.screen)}>
       <Card padding={0} r={12} style={{ marginBottom: 6 }}>

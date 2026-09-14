@@ -5,10 +5,9 @@ import React, { useEffect, useState } from 'react';
 import { router } from 'expo-router';
 import { View, Text, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Svg, { Circle } from 'react-native-svg';
 import { GlowBg, Card } from '../../src/components/ui';
 import { LiveMochi, Animated, FadeInDown, FadeIn, prefersReducedMotion } from '../../src/components/motion';
-import { useSharedValue, useAnimatedStyle, withSpring, withTiming, withDelay, Easing } from 'react-native-reanimated';
+import { useSharedValue, useAnimatedStyle, withSpring, withTiming, withDelay, withRepeat, cancelAnimation, Easing } from 'react-native-reanimated';
 import { SetupProgress } from '../../src/components/setup/extra';
 import { me, partner } from '../../src/demo';
 import { computeDispatch } from '../../src/dispatch';
@@ -21,13 +20,11 @@ const STEPS = ['calcStep1', 'calcStep2', 'calcStep3'];
 const HOLD = 5000, HOLD_REDUCED = 1200;   // durée totale avant dispatch
 const FINALE_AT = 3700;                   // début du final « majestueux » (retour Jeanne, 23 août 2026)
 const STEP_MS = 1300;                     // cadence des étapes qui défilent
-const LEAN_MS = 900;                      // cadence du penchement gauche/droite
-const SIZE = 230, C = SIZE / 2, R = 112, R2 = 84;
+const SIZE = 230;
 
 export default function Calcul() {
   const reduced = prefersReducedMotion();
   const [step, setStep] = useState(reduced ? STEPS.length - 1 : 0);
-  const [lean, setLean] = useState(0);
   const [done, setDone] = useState(false);
 
   // Final majestueux : Mochi se redresse et grandit en ressort, deux anneaux
@@ -35,14 +32,23 @@ export default function Calcul() {
   const scale = useSharedValue(1);
   const burst1 = useSharedValue(0);
   const burst2 = useSharedValue(0);
-  const mochiStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+  // Retour Jeanne (14 sept 2026, sur la proposition ChatGPT n°9) : pendant le calcul, c'est Mochi qui tourne
+  // sur lui-même (un tour toutes les 1,5 s), puis il finit son tour en ressort et se pose pour le final.
+  const spin = useSharedValue(0);
+  const mochiStyle = useAnimatedStyle(() => ({ transform: [{ rotate: `${spin.value}deg` }, { scale: scale.value }] }));
+  useEffect(() => {
+    if (reduced) return;
+    spin.value = withRepeat(withTiming(360, { duration: 1500, easing: Easing.linear }), -1, false);
+  }, []);
   const ring = v => useAnimatedStyle(() => ({ opacity: v.value === 0 ? 0 : 0.85 * (1 - v.value), transform: [{ scale: 1 + v.value * 0.65 }] }));
   const ring1 = ring(burst1);
   const ring2 = ring(burst2);
   useEffect(() => {
     if (reduced) return;
     const id = setTimeout(() => {
-      setDone(true); setLean(0);
+      setDone(true);
+      cancelAnimation(spin);
+      spin.value = withSpring(Math.ceil(spin.value / 360) * 360, { damping: 14, stiffness: 90 }); // finit son tour et s'arrête droit
       scale.value = withSpring(1.16, { damping: 12, stiffness: 140 });
       burst1.value = withTiming(1, { duration: 750, easing: Easing.out(Easing.quad) });
       burst2.value = withDelay(160, withTiming(1, { duration: 750, easing: Easing.out(Easing.quad) }));
@@ -76,14 +82,6 @@ export default function Calcul() {
     const id = setInterval(() => setStep(v => Math.min(v + 1, STEPS.length - 1)), STEP_MS);
     return () => clearInterval(id);
   }, []);
-  // Mochi penche alternativement à gauche / à droite (−0.5 → +0.5, spring de LiveMochi)
-  useEffect(() => {
-    if (reduced) return;
-    setLean(-0.5);
-    const id = setInterval(() => setLean(v => (v >= 0 ? -0.5 : 0.5)), LEAN_MS);
-    const stop = setTimeout(() => clearInterval(id), FINALE_AT);
-    return () => { clearInterval(id); clearTimeout(stop); };
-  }, []);
 
   return (
     <View style={{ flex: 1 }}>
@@ -91,15 +89,10 @@ export default function Calcul() {
       <SafeAreaView style={{ flex: 1 }}>
         <View style={{ paddingTop: 90, paddingHorizontal: 24, alignItems: 'center' }}>
           <View style={{ width: SIZE, height: SIZE, marginBottom: 29, alignItems: 'center', justifyContent: 'center' }}>
-            <Svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`} style={StyleSheet.absoluteFill}>
-              <Circle cx={C} cy={C} r={R} stroke={alpha(colors.butter, 0.20)} strokeWidth={2} fill="none" />
-              <Circle cx={C} cy={C} r={R} stroke={colors.butter} strokeWidth={2} fill="none" strokeDasharray={`${Math.PI * R / 2} ${Math.PI * R * 2}`} strokeLinecap="round" transform={`rotate(135 ${C} ${C})`} />
-              <Circle cx={C} cy={C} r={R2} stroke={alpha(colors.sage, 0.20)} strokeWidth={2} fill="none" />
-              <Circle cx={C} cy={C} r={R2} stroke={colors.sage} strokeWidth={2} fill="none" strokeDasharray={`${Math.PI * R2 / 2} ${Math.PI * R2 * 2}`} strokeLinecap="round" transform={`rotate(45 ${C} ${C})`} />
-            </Svg>
+            {/* arcs décoratifs retirés le 14 sept 2026 : avec Mochi qui tourne, ils faisaient trois signaux de chargement (revue ChatGPT) */}
             <Animated.View pointerEvents="none" style={[s.burst, { borderColor: colors.butter }, ring1]} />
             <Animated.View pointerEvents="none" style={[s.burst, { borderColor: colors.sage }, ring2]} />
-            <Animated.View style={mochiStyle}><LiveMochi size={150} mood={done ? 'wink' : 'happy'} lean={done ? 0 : lean} /></Animated.View>
+            <Animated.View style={mochiStyle}><LiveMochi size={150} mood={done ? 'wink' : 'happy'} lean={0} float={false} /></Animated.View>
           </View>
 
           {done

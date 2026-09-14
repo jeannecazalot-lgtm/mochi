@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react';
 import { AccessibilityInfo, Text, View } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, withSpring, withSequence, withDelay, Easing, FadeIn, FadeInDown, FadeInUp, SlideInDown, SlideOutDown, ZoomIn } from 'react-native-reanimated';
 import { LiveMochiImage } from './mochi-img';
-import { motion } from '../theme';
+import { motion, colors } from '../theme';
 
 export { FadeIn, FadeInDown, FadeInUp, SlideInDown, SlideOutDown, ZoomIn, Animated };
 
@@ -41,6 +41,48 @@ export function ProgressBar({ ratio = 0, color, track, height = 8, radius = 999,
       <Animated.View style={[{ height: '100%', borderRadius: radius, backgroundColor: color }, fill]} />
     </View>
   );
+}
+
+// 3bis · coche (proposition ChatGPT n°1, validée par Jeanne le 14 sept 2026) : le disque se remplit
+// en 160 ms easeOut, le ✓ arrive 70 ms après en ressort avec un léger dépassement. Utilisé par les deux CheckCircle.
+export function useCheckFill(done) {
+  const fill = useSharedValue(done ? 1 : 0), check = useSharedValue(done ? 1 : 0);
+  useEffect(() => {
+    if (reduceMotion) { fill.value = done ? 1 : 0; check.value = done ? 1 : 0; return; }
+    if (done) {
+      fill.value = withTiming(1, { duration: 160, easing: Easing.out(Easing.cubic) });
+      check.value = withDelay(70, withSpring(1, { stiffness: 420, damping: 26 }));
+    } else { fill.value = withTiming(0, { duration: 120 }); check.value = withTiming(0, { duration: 80 }); }
+  }, [done]);
+  const fillStyle = useAnimatedStyle(() => ({ opacity: fill.value, transform: [{ scale: 0.55 + 0.45 * fill.value }] }));
+  const checkStyle = useAnimatedStyle(() => ({ opacity: check.value > 0.05 ? 1 : 0, transform: [{ scale: check.value }] }));
+  return { fillStyle, checkStyle };
+}
+
+// 10 · célébration rare (Duo formé) : halo qui s'ouvre + particules radiales, ~1 s, jamais en boucle
+// (proposition ChatGPT n°10, retour Jeanne 14 sept : « plus grosse » que la première version).
+export function Burst({ count = 16, colors: palette, dist = 120, delay = 0 }) {
+  if (reduceMotion) return null;
+  return (
+    <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' }}>
+      <Halo delay={delay} />
+      {Array.from({ length: count }).map((_, i) => <Spark key={i} i={i} n={count} palette={palette} dist={dist} delay={delay} />)}
+    </View>
+  );
+}
+function Halo({ delay }) {
+  const p = useSharedValue(0);
+  useEffect(() => { p.value = withDelay(delay + 120, withTiming(1, { duration: 900, easing: Easing.out(Easing.cubic) })); }, []);
+  const st = useAnimatedStyle(() => ({ opacity: (1 - p.value) * 0.55, transform: [{ scale: 0.3 + p.value * 2.2 }] }));
+  return <Animated.View style={[{ position: 'absolute', width: 160, height: 160, borderRadius: 80, backgroundColor: colors.butterLight }, st]} />;
+}
+function Spark({ i, n, palette, dist, delay }) {
+  const p = useSharedValue(0);
+  const a = (i / n) * Math.PI * 2 - Math.PI / 2 + (i % 2) * 0.18, d = dist + (i % 4) * 22;
+  useEffect(() => { p.value = withDelay(delay + 260 + (i % 4) * 40, withTiming(1, { duration: 720, easing: Easing.out(Easing.cubic) })); }, []);
+  const st = useAnimatedStyle(() => ({ opacity: 1 - p.value * p.value, transform: [{ translateX: Math.cos(a) * d * p.value }, { translateY: Math.sin(a) * d * p.value + 30 * p.value * p.value }, { rotate: `${p.value * 240 * (i % 2 ? 1 : -1)}deg` }, { scale: 0.7 + 0.5 * p.value }] }));
+  const round = i % 3 === 0;
+  return <Animated.View style={[{ position: 'absolute', width: round ? 12 : 8, height: round ? 12 : 18, borderRadius: round ? 6 : 3, backgroundColor: palette[i % palette.length] }, st]} />;
 }
 
 // 3 · check de tâche : scale 0.8 → 1.1 → 1 (~350 ms)

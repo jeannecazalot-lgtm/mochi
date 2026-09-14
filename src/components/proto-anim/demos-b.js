@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming, withDelay, Easing, FadeIn, FadeInRight, FadeInLeft, FadeOut, FadeOutLeft, FadeOutRight, ZoomIn, runOnJS } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming, withDelay, Easing, FadeIn, FadeInUp, FadeInRight, FadeInLeft, FadeOutLeft, FadeOutRight, runOnJS } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { Card, Avatar, Micro } from '../ui';
 import { colors, font, radius } from '../../theme';
@@ -123,31 +123,21 @@ export function Demo8() {
   );
 }
 
-// ─── 9 · Mochi calcule : compression, deux anneaux fins, puis inclinaison finale ─
+// ─── 9 · Mochi calcule : un tour complet sur lui-même, puis inclinaison finale (retour Jeanne 14 sept : « le mochi qui tourne ») ─
 export function Demo9() {
   const body = useMochiBody(0);
   const [state, setState] = useState('idle');
-  const [mood, setMood] = useState('neutral');
-  const r1 = useSharedValue(0), r2 = useSharedValue(0);
+  const [lean, setLean] = useState(0);
   const run = () => {
     if (state === 'calc') return;
-    setState('calc'); setMood('neutral'); haptic();
-    body.leanTo(0, SPRING_SOFT); body.compress(0.14, { stiffness: 200, damping: 16 });
-    r1.value = 0; r2.value = 0;
-    r1.value = withTiming(1, { duration: 700, easing: ease });
-    r2.value = withDelay(160, withTiming(1, { duration: 700, easing: ease }));
-    setTimeout(() => { body.leanTo(0.7, SPRING_SOFT); setMood('happy'); setState('done'); }, 800);
+    setState('calc'); setLean(0); haptic();
+    body.leanTo(0, SPRING_SOFT); body.compress(0.1, { stiffness: 200, damping: 16 });
+    body.turn(850, () => { setLean(0.7); body.leanTo(0.7, SPRING_SOFT); body.compress(0.06, SPRING_SOFT); setState('done'); });
   };
-  const ring = (v) => useAnimatedStyle(() => ({ opacity: (1 - v.value) * 0.7, transform: [{ scale: 1 + v.value * 1.5 }] }));
-  const s1 = ring(r1), s2 = ring(r2);
-  const R = { position: 'absolute', width: 120, height: 120, borderRadius: 60, borderWidth: 1.5, borderColor: colors.ink };
   return (
     <View>
       <Card>
-        <View style={{ height: 200, alignItems: 'center', justifyContent: 'center' }}>
-          <Animated.View style={[R, s1]} /><Animated.View style={[R, s2]} />
-          <MochiBody body={body} size={120} mood={mood} />
-        </View>
+        <View style={{ height: 200, alignItems: 'center', justifyContent: 'center' }}><MochiBody body={body} size={120} lean={lean} mood={state === 'calc' ? 'neutral' : 'happy'} /></View>
         <Text style={[font.body, { textAlign: 'center' }]}>{state === 'calc' ? 'Mochi calcule…' : state === 'done' ? 'Kima porte un peu plus cette semaine' : 'Prêt pour le calcul'}</Text>
       </Card>
       <Buttons><Btn label="Lancer le calcul" onPress={run} primary /></Buttons>
@@ -155,27 +145,38 @@ export function Demo9() {
   );
 }
 
-// ─── 10 · Célébration rare : Duo formé, ~1 s, jamais de boucle ──────
+// ─── 10 · Célébration rare : Duo formé (retour Jeanne 14 sept : plus grosse) ─
+// halo qui s'ouvre, avatars qui arrivent des côtés, gros pop de Mochi, 16 particules loin, titre. ~1,2 s, jamais en boucle.
 const PALETTE = [colors.coral, colors.butter, colors.sage, colors.lavender, colors.sky];
 function Particle({ i, n }) {
   const p = useSharedValue(0);
-  const a = (i / n) * Math.PI * 2 - Math.PI / 2, d = 70 + (i % 3) * 18;
-  useEffect(() => { p.value = withDelay(240 + (i % 3) * 40, withTiming(1, { duration: 620, easing: ease })); }, []);
-  const st = useAnimatedStyle(() => ({ opacity: 1 - p.value * p.value, transform: [{ translateX: Math.cos(a) * d * p.value }, { translateY: Math.sin(a) * d * p.value - 8 * p.value }, { scale: 0.6 + 0.4 * p.value }] }));
-  const round = i % 2 === 0;
-  return <Animated.View style={[{ position: 'absolute', width: round ? 8 : 6, height: round ? 8 : 12, borderRadius: round ? 4 : 2, backgroundColor: PALETTE[i % PALETTE.length] }, st]} />;
+  const a = (i / n) * Math.PI * 2 - Math.PI / 2 + (i % 2) * 0.18, d = 110 + (i % 4) * 22;
+  useEffect(() => { p.value = withDelay(260 + (i % 4) * 40, withTiming(1, { duration: 720, easing: ease })); }, []);
+  const st = useAnimatedStyle(() => ({ opacity: 1 - p.value * p.value, transform: [{ translateX: Math.cos(a) * d * p.value }, { translateY: Math.sin(a) * d * p.value + 30 * p.value * p.value }, { rotate: `${p.value * 240 * (i % 2 ? 1 : -1)}deg` }, { scale: 0.7 + 0.5 * p.value }] }));
+  const round = i % 3 === 0;
+  return <Animated.View style={[{ position: 'absolute', width: round ? 12 : 8, height: round ? 12 : 18, borderRadius: round ? 6 : 3, backgroundColor: PALETTE[i % PALETTE.length] }, st]} />;
+}
+function Halo() {
+  const p = useSharedValue(0);
+  useEffect(() => { p.value = withDelay(120, withTiming(1, { duration: 900, easing: ease })); }, []);
+  const st = useAnimatedStyle(() => ({ opacity: (1 - p.value) * 0.55, transform: [{ scale: 0.3 + p.value * 2.2 }] }));
+  return <Animated.View style={[{ position: 'absolute', width: 160, height: 160, borderRadius: 80, backgroundColor: colors.butterLight }, st]} />;
 }
 function Duo({ body }) {
-  useEffect(() => { const t = setTimeout(() => { body.pop(); haptic(); }, 150); return () => clearTimeout(t); }, []);
+  useEffect(() => { const t = setTimeout(() => { body.pop(0.2); body.compress(0.12, SPRING_BALANCE); haptic(); }, 180); return () => clearTimeout(t); }, []);
+  const side = (from) => FadeIn.duration(260).easing(ease).withInitialValues({ opacity: 0, transform: [{ translateX: from }, { scale: 0.7 }] });
   return (
-    <View style={{ height: 200, alignItems: 'center', justifyContent: 'center' }}>
-      <View style={{ position: 'absolute', alignItems: 'center', justifyContent: 'center' }}>{Array.from({ length: 10 }).map((_, i) => <Particle key={i} i={i} n={10} />)}</View>
+    <View style={{ height: 240, alignItems: 'center', justifyContent: 'center', overflow: 'visible' }}>
+      <Halo />
+      <View style={{ position: 'absolute', alignItems: 'center', justifyContent: 'center' }}>{Array.from({ length: 16 }).map((_, i) => <Particle key={i} i={i} n={16} />)}</View>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <Animated.View entering={ZoomIn.duration(160).easing(ease)}><Avatar initial="L" color={colors.sky} size={44} ring /></Animated.View>
-        <View style={{ marginHorizontal: 14 }}><MochiBody body={body} size={96} mood="happy" /></View>
-        <Animated.View entering={ZoomIn.duration(160).delay(60).easing(ease)}><Avatar initial="K" color={colors.lavender} size={44} ring /></Animated.View>
+        <Animated.View entering={side(-60)}><Avatar initial="L" color={colors.sky} size={52} ring /></Animated.View>
+        <View style={{ marginHorizontal: 16 }}><MochiBody body={body} size={120} /></View>
+        <Animated.View entering={side(60)}><Avatar initial="K" color={colors.lavender} size={52} ring /></Animated.View>
       </View>
-      <Animated.View entering={FadeIn.duration(220).delay(420)} style={{ position: 'absolute', bottom: 10 }}><Text style={font.cardTitle}>Duo formé</Text></Animated.View>
+      <Animated.View entering={FadeInUp.duration(300).delay(520).withInitialValues({ opacity: 0, transform: [{ translateY: 10 }] })} style={{ position: 'absolute', bottom: 6, alignItems: 'center' }}>
+        <Text style={font.cardTitle}>Duo formé</Text><Text style={[font.secondary, { marginTop: 2 }]}>Lea et Kima, même foyer</Text>
+      </Animated.View>
     </View>
   );
 }
@@ -184,7 +185,7 @@ export function Demo10() {
   const [k, setK] = useState(0);
   return (
     <View>
-      <Card>{k ? <Duo key={k} body={body} /> : <View style={{ height: 200, alignItems: 'center', justifyContent: 'center' }}><Text style={font.secondary}>Lea et Kima viennent de connecter leur foyer.</Text></View>}</Card>
+      <Card>{k ? <Duo key={k} body={body} /> : <View style={{ height: 240, alignItems: 'center', justifyContent: 'center' }}><Text style={font.secondary}>Lea et Kima viennent de connecter leur foyer.</Text></View>}</Card>
       <Buttons><Btn label={k ? 'Rejouer' : 'Former le duo'} onPress={() => { body.reset(); setK(k + 1); }} primary /></Buttons>
     </View>
   );

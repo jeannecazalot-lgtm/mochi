@@ -4,7 +4,7 @@ import { router } from 'expo-router';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
-import { useSharedValue, useAnimatedStyle, withTiming, LinearTransition } from 'react-native-reanimated';
+import { useSharedValue, useAnimatedStyle, withTiming, LinearTransition, FadeInDown, Easing } from 'react-native-reanimated';
 import { GlowBg, Card, Divider, Avatar, CTAPrimary } from '../../src/components/ui';
 import { LiveMochi, useCheckPop, Animated } from '../../src/components/motion';
 import { Icon, ICON, BadgePill, CheckCircle, RoundButton, Hint } from '../../src/components/core/extra';
@@ -223,7 +223,7 @@ export default function Home() {
                 ? <Text style={[font.secondary, { textAlign: 'center', paddingVertical: 10 }]}>{t.emptyToday}</Text>
                 : [...late, ...[...list].sort((a, b) => (missionDone.has(a.id) ? 1 : 0) - (missionDone.has(b.id) ? 1 : 0))]
                   .map((v, i) => (
-                    <Animated.View key={v.id} layout={LinearTransition.duration(280)}>
+                    <Animated.View key={v.id} layout={LinearTransition.duration(280)} entering={FadeInDown.duration(250).easing(Easing.out(Easing.cubic)).withInitialValues({ opacity: 0, transform: [{ translateY: 8 }] })}>{/* ChatGPT n°4 : une ligne ajoutée apparaît de 8 px plus bas, les autres se repositionnent (layout) */}
                       <MissionRow vm={v} first={i === 0} done={missionDone.has(v.id)} onToggle={() => toggle(v.id)} />
                     </Animated.View>
                   ))}

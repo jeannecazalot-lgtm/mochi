@@ -2,6 +2,8 @@
 // core/extra.js — composants supplémentaires des onglets (Accueil, Planning,
 // Budget, FAB sheet, dépense). Tout style via theme.js. Aucune ombre hors artboard.
 // ═══════════════════════════════════════════════════════════════════
+import Animated from 'react-native-reanimated';
+import { useCheckFill } from '../motion';
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
@@ -39,9 +41,12 @@ export function BadgePill({ children, color, tint = color, a = 0.16, size = 11 }
 
 // ─── cercle de check 24 : anneau 2 encre 22 % → rempli sage + ✓ blanc ─
 export function CheckCircle({ done, size = 24 }) {
+  // coche animée (ChatGPT n°1, validée 14 sept 2026) : disque qui se remplit, ✓ en ressort
+  const { fillStyle, checkStyle } = useCheckFill(done);
   return (
-    <View style={{ width: size, height: size, borderRadius: size / 2, borderWidth: done ? 0 : 2, borderColor: colors.checkRing, backgroundColor: done ? colors.sage : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
-      {done ? <Svg width={11} height={11} viewBox="0 0 12 12"><Path d={ICON.check} stroke={colors.white} strokeWidth={2.4} fill="none" strokeLinecap="round" strokeLinejoin="round" /></Svg> : null}
+    <View style={{ width: size, height: size, borderRadius: size / 2, borderWidth: 2, borderColor: done ? colors.sage : colors.checkRing, alignItems: 'center', justifyContent: 'center' }}>
+      <Animated.View style={[{ position: 'absolute', left: -2, top: -2, width: size, height: size, borderRadius: size / 2, backgroundColor: colors.sage }, fillStyle]} />
+      <Animated.View style={checkStyle}><Svg width={11} height={11} viewBox="0 0 12 12"><Path d={ICON.check} stroke={colors.white} strokeWidth={2.4} fill="none" strokeLinecap="round" strokeLinejoin="round" /></Svg></Animated.View>
     </View>
   );
 }

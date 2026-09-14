@@ -3,6 +3,8 @@
 // (Ping 18, À faire 20/21, Activité 22). Tout style passe par theme.js.
 // ═══════════════════════════════════════════════════════════════════
 import React from 'react';
+import Animated from 'react-native-reanimated';
+import { useCheckFill } from '../motion';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { colors, font, radius, alpha, shadows } from '../../theme';
@@ -57,13 +59,16 @@ export const SheetHandle = () => <View style={s.handle} />;
 
 // ─── cercle de check 22 (bordure 2 ; fait = sage + ✓ blanc) ─────────
 export function CheckCircle({ done, size = 22 }) {
+  // coche animée (ChatGPT n°1, validée 14 sept 2026) : disque qui se remplit, ✓ en ressort
+  const { fillStyle, checkStyle } = useCheckFill(done);
   return (
-    <View style={[s.check, { width: size, height: size, borderRadius: size / 2 }, done && s.checkOn]}>
-      {done ? (
+    <View style={[s.check, { width: size, height: size, borderRadius: size / 2 }, done && { borderColor: colors.sage }]}>
+      <Animated.View style={[{ position: 'absolute', left: -2, top: -2, width: size, height: size, borderRadius: size / 2, backgroundColor: colors.sage }, fillStyle]} />
+      <Animated.View style={checkStyle}>
         <Svg width={11} height={11} viewBox="0 0 12 12" fill="none" stroke={colors.white} strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round">
           <Path d="M2 6l3 3 5-6" />
         </Svg>
-      ) : null}
+      </Animated.View>
     </View>
   );
 }

@@ -3,7 +3,7 @@
 // lean ∈ [−1, 1] → cadre le plus proche (visage content) ; les autres humeurs ont leur cadre de face (mood-*.png).
 import React, { useEffect, useState } from 'react';
 import { Image, Pressable } from 'react-native';
-import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, withSpring, withSequence, Easing } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, withSpring, withSequence, withDelay, Easing } from 'react-native-reanimated';
 
 export const MOCHI_RATIO = 191 / 235; // hauteur / largeur du canevas
 const FRAMES = { // pas de « + » ni de « - » dans les noms : Metro ne résout pas ces fichiers
@@ -31,7 +31,8 @@ export const mochiReact = () => listeners.forEach(f => f());
 // vivant : respiration depuis la base, changement de cadre quand la balance bouge (avec une petite secousse), secousse au toucher
 export function LiveMochiImage({ size = 140, lean = 0, mood, breathe = true }) {
   const [frameLean, setFrameLean] = useState(lean);
-  const sx = useSharedValue(1), sy = useSharedValue(1);
+  const [shownMood, setShownMood] = useState(mood);
+  const sx = useSharedValue(1), sy = useSharedValue(1), tx = useSharedValue(lean * 6);
   useEffect(() => {
     if (!breathe) return;
     sx.value = withRepeat(withTiming(1.02, { duration: 1700, easing: Easing.inOut(Easing.ease) }), -1, true);
@@ -42,12 +43,27 @@ export function LiveMochiImage({ size = 140, lean = 0, mood, breathe = true }) {
     sx.value = withSequence(withTiming(1.12, { duration: 90 }), withSpring(1, s));
     sy.value = withSequence(withTiming(0.88, { duration: 90 }), withSpring(1, s));
   };
-  useEffect(() => { if (frameFor(lean, mood) !== frameFor(frameLean, mood)) { setFrameLean(lean); wobble(); } }, [lean]);
+  // ChatGPT n°2 + n°8 (validées 14 sept 2026) : quand la balance change, le corps glisse de quelques px du côté
+  // chargé en ressort (≈ response 0,35 s, damping 0,82), 70 ms après la barre ; la base se comprime puis revient ;
+  // le cadre incliné (le visage) ne change qu'à la fin du mouvement, jamais d'un coup.
+  const compress = () => {
+    const s = { stiffness: 320, damping: 29 };
+    sy.value = withSequence(withTiming(0.95, { duration: 90 }), withSpring(1, s));
+    sx.value = withSequence(withTiming(1.035, { duration: 90 }), withSpring(1, s));
+  };
+  useEffect(() => {
+    tx.value = withDelay(70, withSpring(lean * 6, { stiffness: 320, damping: 29 }));
+    if (frameFor(lean, mood) === frameFor(frameLean, mood)) return;
+    compress();
+    const t = setTimeout(() => setFrameLean(lean), 240);
+    return () => clearTimeout(t);
+  }, [lean]);
+  useEffect(() => { const t = setTimeout(() => setShownMood(mood), 300); return () => clearTimeout(t); }, [mood]);
   useEffect(() => { listeners.add(wobble); return () => listeners.delete(wobble); }, []);
-  const style = useAnimatedStyle(() => ({ transformOrigin: '50% 100%', transform: [{ scaleX: sx.value }, { scaleY: sy.value }] }));
+  const style = useAnimatedStyle(() => ({ transformOrigin: '50% 100%', transform: [{ translateX: tx.value }, { scaleX: sx.value }, { scaleY: sy.value }] }));
   return (
     <Pressable onPress={wobble}>
-      <Animated.View style={style}><MochiImage size={size} lean={frameLean} mood={mood} /></Animated.View>
+      <Animated.View style={style}><MochiImage size={size} lean={frameLean} mood={shownMood} /></Animated.View>
     </Pressable>
   );
 }

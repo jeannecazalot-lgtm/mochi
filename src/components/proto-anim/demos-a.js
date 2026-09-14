@@ -5,7 +5,7 @@ import Svg, { Path } from 'react-native-svg';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming, withDelay, withSequence, Easing, FadeInDown, FadeIn, LinearTransition, interpolateColor, runOnJS } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { Card, Avatar, CTAPrimary, Micro, Secondary } from '../ui';
-import { MochiGalet } from '../mochi-v2';
+import { MochiImage } from '../mochi-img';
 import { colors, font, space, radius } from '../../theme';
 import { useMochiBody, MochiBody, SPRING_BALANCE, haptic } from './body';
 
@@ -113,7 +113,7 @@ export function Demo2() {
   return (
     <View>
       <Card>
-        <View style={{ alignItems: 'center', paddingTop: 10, paddingBottom: 6 }}><MochiBody body={body} size={120} mood={Math.abs(bal) > 0.6 ? 'neutral' : 'happy'} /></View>
+        <View style={{ alignItems: 'center', paddingTop: 10, paddingBottom: 6 }}><MochiBody body={body} size={120} lean={bal} mood={Math.abs(bal) > 0.6 ? 'neutral' : 'happy'} /></View>
         <Text style={[font.body, { textAlign: 'center', marginTop: 8 }]}>{bal === 0 ? 'Vous êtes à l’équilibre' : bal > 0 ? 'Ça penche un peu chez Kima' : 'Ça penche un peu chez Lea'}</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 16 }}>
           <Avatar initial="L" color={colors.sky} size={26} />
@@ -160,7 +160,7 @@ export function Demo3() {
             <Text style={font.row}>Vaisselle</Text>
             <Text style={[font.caption, { marginTop: 1 }]}>Tous les soirs · 15ʼ · {WHO[idx][0]}</Text>
           </View>
-          <Animated.View style={mo}><MochiGalet size={34} mood="happy" /></Animated.View>
+          <Animated.View style={mo}><MochiImage size={34} lean={idx === 0 ? -0.4 : idx === 1 ? 0.4 : 0} /></Animated.View>
         </View>
         <View style={{ marginHorizontal: 14, marginBottom: 14, height: 40, borderRadius: 12, backgroundColor: colors.line, padding: 3 }} onLayout={e => setW(e.nativeEvent.layout.width - 6)}>
           <Animated.View style={[{ position: 'absolute', left: 3, top: 3, width: slot, height: 34, borderRadius: 10, backgroundColor: colors.card, flexDirection: 'row', alignItems: 'center', paddingLeft: 8 }, ind]}>

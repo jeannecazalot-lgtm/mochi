@@ -7,7 +7,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GlowBg, Avatar, PillLabel, CTAPrimary } from '../../src/components/ui';
 import {
-  LiveMochi, Confetti, prefersReducedMotion, ZoomIn, Animated,
+  LiveMochi, Burst, prefersReducedMotion, ZoomIn, Animated,
 } from '../../src/components/motion';
 import {
   useSharedValue, useAnimatedStyle, withSpring, withSequence, withDelay, withTiming,
@@ -49,10 +49,14 @@ export default function DuoForme() {
       <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }}>
         <View style={s.center}>
+          {/* Célébration (ChatGPT n°10, retour Jeanne 14 sept 2026 : « plus grosse ») : halo qui s'ouvre et
+              seize particules radiales aux couleurs de l'app autour d'un Mochi plus grand, ~1 s, pas de boucle.
+              Remplace les confettis qui tombaient 1,5 s. */}
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 19 }}>
+            <Burst colors={confettiPalette} dist={130} />
             <Animated.View style={[s.ring, left]}><Avatar initial={me.initial} color={me.color} photo={me.avatar_url} size={62} /></Animated.View>
-            <Animated.View entering={reduced ? undefined : ZoomIn.springify().damping(motion.spring.damping)} style={{ marginHorizontal: -4, zIndex: 2 }}>
-              <LiveMochi size={84} mood="happy" />
+            <Animated.View entering={reduced ? undefined : ZoomIn.springify().damping(11).stiffness(260).delay(150)} style={{ marginHorizontal: -6, zIndex: 2 }}>
+              <LiveMochi size={120} mood="happy" />
             </Animated.View>
             <Animated.View style={[s.ring, right]}><Avatar initial={partner.initial} color={partner.color} size={62} /></Animated.View>
           </View>
@@ -78,8 +82,6 @@ export default function DuoForme() {
           />
         </View>
       </SafeAreaView>
-      {/* confetti au-dessus de tout ; rend null si « réduire les animations » */}
-      <Confetti colors={confettiPalette} />
     </View>
   );
 }
