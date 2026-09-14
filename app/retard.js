@@ -10,7 +10,7 @@ import { Card, Avatar } from '../src/components/ui';
 import { SheetHandle, CheckCircle } from '../src/components/social/extra';
 import { me, partner, fmtMin } from '../src/demo';
 import { missionDone } from '../src/demo-core';
-import { moveOccurrence, toggleOccurrence, takeOver, giveBack, wasPartnersTask } from '../src/occ-actions';
+import { moveOccurrence, toggleOccurrence, takeOver, giveBack, wasPartnersTask, skipOccurrence } from '../src/occ-actions';
 import { Row, ConfirmRow, PillChip, Caption, Arrow } from '../src/components/task/proto';
 import { Animated, FadeIn, useCheckPop } from '../src/components/motion';
 import { useSheetGrow } from '../src/components/sheet-grow';
@@ -21,6 +21,7 @@ import { postponeMalus, malusPoints, clearMalusFor } from '../src/malus-actions'
 import { read } from '../src/store';
 import { requestSwap } from '../src/swap-actions';
 import { localIso, addDaysIso } from '../src/dates';
+import { lateCaption } from '../src/late-groups';
 import copy from '../src/data/copy.json';
 import { colors, space, font, motion } from '../src/theme';
 
@@ -31,7 +32,9 @@ export default function Retard() {
   // Décision Jeanne (6 sept 2026) : le malus n'apparaît QUE dans le bouton recommandé
   // (« ≈1h · efface 8 pt de malus ») — variante b des trois proposées ; a (légende sous
   // le titre) et c (note en bas) restent accessibles par ?v= pour comparaison.
-  const { occ: occId, tid, title, emoji, mins, due, v = 'b', other: otherParam, ask: askParam } = useLocalSearchParams(); // other=1 / ask=1 : variantes figées pour les captures
+  const { occ: occId, tid, title, emoji, mins, due, v = 'b', other: otherParam, ask: askParam, ids: idsParam, n: nParam } = useLocalSearchParams();
+  const seriesIds = String(idsParam || '').split(',').filter(Boolean); // retards groupés (14 sept 2026) : toute la série de la tâche
+  const seriesN = Number(nParam) || 1; // other=1 / ask=1 : variantes figées pour les captures
   const insets = useSafeAreaInsets();
   const t = copy.retard;
   const daysLate = due ? Math.max(1, Math.round((new Date(localIso()) - new Date(String(due))) / 86400000)) : 1;
@@ -79,6 +82,8 @@ export default function Retard() {
       missionDone.set(String(occId), true);
       toggleOccurrence(String(occId), true, Number(mins) || undefined).catch(() => {});
       clearMalusFor(String(occId)).catch(() => {}); // faite, même en retard : le malus s'efface
+      // série regroupée : rattraper une fois solde les retards plus anciens de la même tâche (statut « pas cette fois-ci », malus effacé)
+      for (const id of seriesIds.filter(x => x !== String(occId))) { skipOccurrence(id).catch(() => {}); clearMalusFor(id).catch(() => {}); }
     }
     setConfirm({ kind: 'done', title: copy.mission.confirmDone, sub: fill(copy.mission.doneSub, { time: fmtMin(Number(mins) || 15) }) });
     setTimeout(close, 1200);
@@ -131,7 +136,7 @@ export default function Retard() {
       <View style={s.meta}>
         <Avatar initial={who.initial} color={who.color} photo={who.avatar_url} size={18} />
         <Text style={s.metaTxt}>{other ? partner.first_name : copy.mission.metaYou} · </Text>
-        <Text style={[s.metaTxt, s.late]}>{fill(t.lateCaption, { n: daysLate })}</Text>
+        <Text style={[s.metaTxt, s.late]}>{seriesN > 1 ? lateCaption(seriesN, daysLate) : fill(t.lateCaption, { n: daysLate })}</Text>
         <Text style={s.metaTxt}> · {fill(copy.mission.metaApprox, { time: fmtMin(Number(mins) || 15) })}</Text>
       </View>
     </View>

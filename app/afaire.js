@@ -18,6 +18,7 @@ import { getUid, useIdentity, loadIdentity } from '../src/identity';
 import { occStore } from '../src/demo-core';
 import { toggleOccurrence, isLive } from '../src/occ-actions';
 import { localIso } from '../src/dates';
+import { groupLate, lateCaption } from '../src/late-groups';
 import copy from '../src/data/copy.json';
 import { colors, space, radius, font, motion } from '../src/theme';
 
@@ -45,8 +46,9 @@ function Row({ occ, done, onToggle }) {
   useEffect(() => { fade.value = withTiming(done ? 0.45 : 1, { duration: motion.micro }); }, [done]);
   const fadeStyle = useAnimatedStyle(() => ({ opacity: fade.value }));
 
+  // passe « rouge » (14 sept 2026) : la légende est le seul signal, malus compris ; série regroupée = « · n jours »
   const sub = late
-    ? fill(t.lateSince, { ago: diffDays >= 1 ? fill(t.daysAgo, { n: diffDays }) : fill(t.hoursAgo, { n: 1 }) })
+    ? lateCaption(occ._n || 1, occ._oldest ? Math.round((now - occ._oldest) / DAY) : diffDays, !done ? points : 0)
     : [occ.time || occ.badge, `${task.duration_min}ʼ`].filter(Boolean).join(' · ');
 
   const haptic = () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
@@ -72,7 +74,7 @@ function Row({ occ, done, onToggle }) {
     </View>
   );
 
-  const accent = !done && late ? colors.coral : !done && occ.urgent ? colors.sage : null;
+  const accent = !done && !late && occ.urgent ? colors.sage : null; // plus d'encadré corail (passe « rouge »)
   const inner = (
     <View style={s.rowInner}>
       {/* le rond coche/décoche directement, comme sur l'Accueil (test du 6 sept 2026) */}
@@ -82,7 +84,6 @@ function Row({ occ, done, onToggle }) {
         <Text style={[s.title, done && s.titleDone]} numberOfLines={1}>{task.title}</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 2 }}>
           <Text style={[s.sub, late && !done && s.subLate]}>{sub}</Text>
-          {late && !done && points ? <PillLabel color={colors.coralDeep} tint={colors.coral}>{fill(t.malusPill, { n: points })}</PillLabel> : null}
         </View>
       </View>
       {who ? <Avatar initial={who.initial} color={who.color} photo={who.avatar_url} size={26} /> : <AvatarPair members={[me, partner]} size={22} />}
@@ -125,14 +126,22 @@ export default function AFaire() {
       const byTask = Object.fromEntries(tasks.map(tk => [tk.id, tk]));
       const uid = getUid();
       const now = new Date(`${localIso()}T12:00:00`);
-      setRealAll(occs.filter(o => isLive(o) && (o.status !== 'done' || o.due_date >= localIso())).map(o => {
+      const todayI = localIso();
+      const isLateO = o => o.status !== 'done' && o.due_date < todayI;
+      const lateGroups = groupLate(occs.filter(o => isLive(o) && isLateO(o)));
+      const keep = new Set(lateGroups.map(g => g.latest.id));
+      // retards groupés : seule l'occurrence la plus récente de chaque série reste, porteuse de la série (_ids, _n)
+      setRealAll(occs.filter(o => isLive(o) && (o.status !== 'done' || o.due_date >= todayI) && (!isLateO(o) || keep.has(o.id))).map(o => {
+        const g = lateGroups.find(x => x.latest.id === o.id);
         const tk = byTask[o.task_id] || { id: o.task_id, title: '…', emoji: '•', duration_min: 15 };
         const q = `occ=${o.id}&tid=${o.task_id}&title=${encodeURIComponent(tk.title)}&emoji=${encodeURIComponent(tk.emoji || '•')}&mins=${tk.duration_min || 15}`;
         return {
           id: o.id, task_id: o.task_id, status: o.status || 'pending',
           assignee_id: o.assignee_id ? (o.assignee_id === uid ? me.id : partner.id) : null,
-          due_date: new Date(`${o.due_date}T12:00:00`), _today: now, _task: tk, _href: `/mission?${q}`,
-          _points: mal.filter(m => m.occurrence_id === o.id).reduce((a, m) => a + Number(m.points || 0), 0),
+          due_date: new Date(`${o.due_date}T12:00:00`), _today: now, _task: tk,
+          _points: mal.filter(m => (g ? g.ids : [o.id]).includes(m.occurrence_id)).reduce((a, m) => a + Number(m.points || 0), 0),
+          _n: g ? g.n : 1, _oldest: g ? new Date(`${g.oldest.due_date}T12:00:00`) : null,
+          _href: g ? `/retard?${q}&due=${g.oldest.due_date}&ids=${g.ids.join(',')}&n=${g.n}` : `/mission?${q}`,
         };
       }));
     })();

@@ -127,6 +127,10 @@ export function MochiGalet({ size = 140, mood = 'happy', lean = 0 }) {
   );
 }
 
+// Réaction partagée : une coche n'importe où → secousse du Mochi vivant à l'écran (proposition ChatGPT n°2, 14 sept)
+const reactListeners = new Set();
+export const mochiReact = () => reactListeners.forEach(f => f());
+
 // Corps vivant : respiration (squash/stretch depuis la base), inclinaison en ressort, secousse gélatine au toucher.
 export function LiveMochiGalet({ size = 140, mood = 'happy', lean = 0, breathe = true, onPress }) {
   const sx = useSharedValue(1), sy = useSharedValue(1), skew = useSharedValue(-lean * 10), rot = useSharedValue(lean * 4);
@@ -150,6 +154,7 @@ export function LiveMochiGalet({ size = 140, mood = 'happy', lean = 0, breathe =
     sy.value = withSequence(withTiming(0.86, { duration: 90 }), withSpring(1, s));
     onPress && onPress();
   };
+  useEffect(() => { const f = () => wobble(); reactListeners.add(f); return () => reactListeners.delete(f); }, []);
   const style = useAnimatedStyle(() => ({
     transformOrigin: '50% 100%',
     transform: [{ skewX: `${skew.value}deg` }, { rotate: `${rot.value}deg` }, { scaleX: sx.value }, { scaleY: sy.value }],

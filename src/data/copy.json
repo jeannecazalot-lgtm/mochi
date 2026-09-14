@@ -66,6 +66,13 @@
     "balance": "Balance",
     "budget": "Budget"
   },
+  "late": {
+    "_labels": { "days": "Légende d'une tâche en retard plusieurs fois (regroupée)", "since": "Légende d'un seul retard", "sinceYesterday": "Un seul retard, d'hier", "points": "Malus posé, ajouté à la légende" },
+    "days": "En retard · {n} jours",
+    "since": "En retard depuis {n} j",
+    "sinceYesterday": "En retard depuis hier",
+    "points": "{pts} pt de malus"
+  },
   "home": {
     "_labels": {
       "todayTitle": "Titre du bloc missions du jour",

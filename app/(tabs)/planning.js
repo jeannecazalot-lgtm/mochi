@@ -20,6 +20,7 @@ import { localIso } from '../../src/dates';
 import { toggleOccurrence, isLive } from '../../src/occ-actions';
 import { isPremium } from '../../src/demo-premium';
 import copy from '../../src/data/copy.json';
+import { groupLate, lateCaption, daysBetweenIso } from '../../src/late-groups';
 import { colors, space, font, motion, radius } from '../../src/theme';
 
 const t = copy.planning;
@@ -127,7 +128,7 @@ function RealRow({ vm, onToggle }) {
   // la coche vit HORS du Pressable de navigation : plus de conflit de tap
   // (retour Jeanne, 2 sept : « le rond ne marche pas »)
   return (
-    <View style={[s.row, vm.late && { borderColor: colors.coral, borderWidth: 1.5 }]}>
+    <View style={s.row}>{/* passe « rouge » 14 sept : plus d'encadré, la légende corail est le seul signal */}
       <Pressable onPress={() => router.push(vm.href)} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 }}>
         <Text style={{ fontSize: 18 }}>{vm.emoji}</Text>
         <View style={{ flex: 1 }}>
@@ -179,6 +180,7 @@ export default function Planning() {
       const todayIso = localIso();
       const byDate = {};
       const lateItems = [];
+      const lateOccs = [];
       const dotMap = {};
       for (const o of occs) {
         if (!isLive(o)) continue;
@@ -190,7 +192,8 @@ export default function Planning() {
         const dotColor = who ? who.color : null;
         (dotMap[o.due_date] ||= new Set()); if (dotColor) dotMap[o.due_date].add(dotColor); else members.forEach(m => dotMap[o.due_date].add(m.color));
         if (isDone && o.due_date < todayIso) continue; // passé et fait : c'est de l'historique
-        (late ? lateItems : (byDate[o.due_date] ||= [])).push({
+        if (late) { lateOccs.push(o); continue; }
+        (byDate[o.due_date] ||= []).push({
           id: o.id, emoji: tk.emoji || '•', title: tk.title || '…',
           sub: late ? t2.late : `${fmtMin(tk.duration_min || 15)}${tk.mental_load ? ` · ${t2.mental.replace('{coef}', fmtCoef(MENTAL_COEF))}` : ''}`,
           who, checkable: !o.assignee_id || o.assignee_id === uid || !uid,
@@ -218,6 +221,13 @@ export default function Planning() {
       }
       const groups = Object.keys(byDate).sort().map(d => ({ iso: d, date: new Date(d + 'T12:00:00'), items: byDate[d] }));
       // retour Jeanne 6 sept : les retards forment UNE section en tête, la semaine commence à aujourd'hui
+      // retards groupés : une ligne par tâche et par personne (Jeanne 14 sept 2026)
+      for (const g of groupLate(lateOccs)) {
+        const o = g.latest; const tk = byTask[o.task_id] || {};
+        const who = o.assignee_id ? (o.assignee_id === uid ? me : partner) : null;
+        const q = `occ=${o.id}&tid=${o.task_id}&title=${encodeURIComponent(tk.title || '')}&emoji=${encodeURIComponent(tk.emoji || '•')}&mins=${tk.duration_min || 15}`;
+        lateItems.push({ id: o.id, emoji: tk.emoji || '•', title: tk.title || '…', sub: lateCaption(g.n, daysBetweenIso(g.oldest.due_date, todayIso)), who, checkable: !o.assignee_id || o.assignee_id === uid || !uid, done: false, late: true, href: `/retard?${q}&due=${g.oldest.due_date}&ids=${g.ids.join(',')}&n=${g.n}` });
+      }
       if (lateItems.length) groups.unshift({ iso: '__late', late: true, items: lateItems });
       setRealGroups(groups); // [] = foyer réel encore vide (état vide, pas la démo)
       setRealDots(Object.fromEntries(Object.entries(dotMap).map(([k, v]) => [k, [...v]])));

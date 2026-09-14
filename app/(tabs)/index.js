@@ -16,6 +16,8 @@ import { useIdentity, getUid, loadIdentity } from '../../src/identity';
 import { localIso, addDaysIso } from '../../src/dates';
 import { fmtDayLabel } from '../../src/demo-core';
 import { toggleOccurrence, isLive } from '../../src/occ-actions';
+import { groupLate, lateCaption, daysBetweenIso } from '../../src/late-groups';
+import { mochiReact } from '../../src/components/mochi-v2';
 import { computeRealBalance } from '../../src/balance-real';
 import copy from '../../src/data/copy.json';
 import { colors, space, font, motion } from '../../src/theme';
@@ -56,7 +58,10 @@ function MissionRow({ vm, first, done, onToggle }) {
       {!first ? <Divider /> : null}
       <Animated.View style={[s.row, rowStyle]}>
         <Text style={{ fontSize: 19 }}>{vm.emoji}</Text>
-        <Text style={[font.body, { flex: 1 }, done && { textDecorationLine: 'line-through' }]} numberOfLines={1}>{vm.title}</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={[font.body, done && { textDecorationLine: 'line-through' }]} numberOfLines={1}>{vm.title}</Text>
+          {vm.sub && !done ? <Text style={[font.caption, { marginTop: 2, color: colors.coralDeep, fontWeight: '600' }]}>{vm.sub}</Text> : null}
+        </View>
         {vm.badge ? <BadgePill color={colors.coralDeep} tint={colors.coral} a={0.14}>{vm.badge}</BadgePill>
           : vm.together ? <BadgePill color={colors.sageDeep} tint={colors.sage} a={0.22}>{copy.home.togetherBadge}</BadgePill>
           : vm.mental ? <BadgePill color={colors.lavenderDeep} tint={colors.lavender} a={0.18}>{copy.home.mentalBadge}</BadgePill> : null}
@@ -116,10 +121,11 @@ export default function Home() {
       };
       // « À venir » : les 2 jours suivants, l'Accueil tient sur une page (Jeanne 13 sept 2026 : « max 2 jours après »)
       // en retard : à faire, pas cochée, avant aujourd'hui — même section que le Planning, tap → sheet retard
-      setLate(occs.filter(o => isLive(o) && o.due_date < today && o.status !== 'done' && (!uid || !o.assignee_id || o.assignee_id === uid)).sort((a, b) => a.due_date.localeCompare(b.due_date)).map(o => {
-        const tk = byId[o.task_id] || {};
+      // retards groupés : une ligne par tâche (Jeanne 14 sept 2026), tap → sheet retard sur le plus récent, toute la série passée en paramètre
+      setLate(groupLate(occs.filter(o => isLive(o) && o.due_date < today && o.status !== 'done' && (!uid || !o.assignee_id || o.assignee_id === uid))).map(g => {
+        const o = g.latest; const tk = byId[o.task_id] || {};
         const q = `occ=${o.id}&tid=${o.task_id}&title=${encodeURIComponent(tk.title || '')}&emoji=${encodeURIComponent(tk.emoji || '•')}&mins=${tk.duration_min || 15}`;
-        return { id: o.id, emoji: tk.emoji || '•', title: tk.title || '…', mental: !!tk.mental_load, badge: t.lateBadge, together: !o.assignee_id, mins: tk.duration_min || 15, href: `/retard?${q}&due=${o.due_date}`, ping: null, late: true };
+        return { id: o.id, emoji: tk.emoji || '•', title: tk.title || '…', mental: !!tk.mental_load, badge: null, sub: lateCaption(g.n, daysBetweenIso(g.oldest.due_date, today)), together: !o.assignee_id, mins: tk.duration_min || 15, href: `/retard?${q}&due=${g.oldest.due_date}&ids=${g.ids.join(',')}&n=${g.n}`, ping: null, late: true };
       }));
       setUpcoming([1, 2].map(k => {
         const iso = addDaysIso(k);
@@ -139,6 +145,7 @@ export default function Home() {
     (upcomingRow ? Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning) : Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)).catch(() => {});
     const nowDone = !missionDone.has(id);
     missionDone.toggle(id);
+    if (nowDone) mochiReact(); // le Mochi accuse la coche (secousse), puis penche avec la nouvelle balance
     if (real) toggleOccurrence(String(id), nowDone, (vms || []).find(v => v.id === id)?.mins).catch(() => {});
   };
   // phrase de Mochi : vrai dispatch si dispo ; foyer réel sans dispatch local
