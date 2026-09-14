@@ -1,7 +1,7 @@
 // Écran 17 · Accueil. Recette : docs/recettes/17-home.md
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { router } from 'expo-router';
-import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { useSharedValue, useAnimatedStyle, withTiming, LinearTransition } from 'react-native-reanimated';
@@ -17,7 +17,7 @@ import { localIso, addDaysIso } from '../../src/dates';
 import { fmtDayLabel } from '../../src/demo-core';
 import { toggleOccurrence, isLive } from '../../src/occ-actions';
 import { groupLate, lateCaption, daysBetweenIso } from '../../src/late-groups';
-import { mochiReact } from '../../src/components/mochi-v2';
+import { mochiReact } from '../../src/components/mochi-img';
 import { computeRealBalance } from '../../src/balance-real';
 import copy from '../../src/data/copy.json';
 import { colors, space, font, motion } from '../../src/theme';
@@ -92,7 +92,14 @@ export default function Home() {
   const [noTask, setNoTask] = useState(false); // foyer sans aucune tâche (on vient de le former) → bouton vers l'écran 10
   const [bal, setBal] = useState(null);
   const [late, setLate] = useState([]); // mes retards (Jeanne 14 sept 2026 : « tu devrais me les afficher dans l'accueil »)
-  const [upcoming, setUpcoming] = useState([]); // « À venir » : mes missions des 2 jours suivants (décision Jeanne 7 sept 2026, confirmée le 13 sept : une page fixe) // balance réelle de la semaine → la phrase de Mochi dit la même chose que l'onglet Balance (6 sept 2026)
+  const [upcoming, setUpcoming] = useState([]);
+  // mesure pour « autant de jours que la page en montre » : hauteur dispo, bloc du haut, titre de section, hauteur de chaque jour
+  const [availH, setAvailH] = useState(0); const [topH, setTopH] = useState(0); const [headH, setHeadH] = useState(0); const [gh, setGh] = useState({});
+  const fitDays = useMemo(() => {
+    let left = availH - topH - headH - 12; const out = [];
+    for (const g of upcoming) { const h = gh[g.iso]; if (h == null || h + 8 > left) break; left -= h + 8; out.push(g); }
+    return out;
+  }, [availH, topH, headH, gh, upcoming]); // « À venir » : mes missions des 2 jours suivants (décision Jeanne 7 sept 2026, confirmée le 13 sept : une page fixe) // balance réelle de la semaine → la phrase de Mochi dit la même chose que l'onglet Balance (6 sept 2026)
   const occV = occStore.useVersion(); // « Déplacer » depuis la sheet → on relit le store
   useEffect(() => {
     (async () => {
@@ -127,7 +134,7 @@ export default function Home() {
         const q = `occ=${o.id}&tid=${o.task_id}&title=${encodeURIComponent(tk.title || '')}&emoji=${encodeURIComponent(tk.emoji || '•')}&mins=${tk.duration_min || 15}`;
         return { id: o.id, emoji: tk.emoji || '•', title: tk.title || '…', mental: !!tk.mental_load, badge: null, sub: lateCaption(g.n, daysBetweenIso(g.oldest.due_date, today)), together: !o.assignee_id, mins: tk.duration_min || 15, href: `/retard?${q}&due=${g.oldest.due_date}&ids=${g.ids.join(',')}&n=${g.n}`, ping: null, late: true };
       }));
-      setUpcoming([1, 2].map(k => {
+      setUpcoming([1, 2, 3, 4, 5, 6].map(k => {
         const iso = addDaysIso(k);
         // cochée par erreur : elle reste, barrée, pour pouvoir la décocher (Jeanne 13 sept 2026)
         const items = occs.filter(o => isLive(o) && o.due_date === iso && (!uid || !o.assignee_id || o.assignee_id === uid));
@@ -178,7 +185,9 @@ export default function Home() {
     <View style={{ flex: 1 }}>
       <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }} edges={['top']}>
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
+        {/* pas de défilement (décision Jeanne 13 et 14 sept 2026) : la page tient dans l'écran, « À venir » montre le nombre de jours qui rentrent */}
+        <View style={{ flex: 1, overflow: 'hidden' }} onLayout={e => setAvailH(e.nativeEvent.layout.height)}>
+          <View onLayout={e => setTopH(e.nativeEvent.layout.height)}>
           {/* Header : date + bulle activité + avatar */}
           <View style={s.header}>
             {/* vraie date par défaut ; la date de démo n'apparaît qu'en démo confirmée */}
@@ -229,16 +238,28 @@ export default function Home() {
               : null}{/* plus d'indice de glissement ici : le geste n'existe que dans À faire (décision Jeanne 6 sept 2026) */}
           </View>
 
-          {/* Bloc 3 · À venir — les 2 jours suivants (Ketlon 7 sept 2026 : « un peu light ») */}
+          </View>{/* fin du bloc mesuré (header + Mochi + aujourd'hui) */}
+
+          {/* Bloc 3 · À venir — autant de jours que la page peut en montrer ; les jours sont mesurés hors écran */}
           {real && upcoming.length ? (
             <>
-              <View style={s.sectionHead}><Text style={font.sectionTitle}>{t.upcomingTitle}</Text></View>
+              <View style={s.sectionHead} onLayout={e => setHeadH(e.nativeEvent.layout.height)}><Text style={font.sectionTitle}>{t.upcomingTitle}</Text></View>
               <View style={{ paddingHorizontal: space.screenX, gap: 8 }}>
-                {upcoming.map(g => (
+                {fitDays.map(g => (
                   <Card key={g.iso} padding={0} style={{ paddingVertical: 8, paddingHorizontal: 14 }}>
                     <Text style={[font.micro, { paddingTop: 4, paddingBottom: 2 }]}>{g.label}</Text>
                     {g.items.map((v, i) => <MissionRow key={v.id} vm={v} first={i === 0} done={missionDone.has(v.id)} onToggle={() => toggle(v.id, true)} />)}
                   </Card>
+                ))}
+              </View>
+              <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, top: 0, opacity: 0, paddingHorizontal: space.screenX }}>
+                {upcoming.map(g => (
+                  <View key={g.iso} onLayout={e => { const h = e.nativeEvent.layout.height; setGh(m => (m[g.iso] === h ? m : { ...m, [g.iso]: h })); }}>
+                    <Card padding={0} style={{ paddingVertical: 8, paddingHorizontal: 14 }}>
+                      <Text style={[font.micro, { paddingTop: 4, paddingBottom: 2 }]}>{g.label}</Text>
+                      {g.items.map((v, i) => <MissionRow key={v.id} vm={v} first={i === 0} done={missionDone.has(v.id)} onToggle={() => {}} />)}
+                    </Card>
+                  </View>
                 ))}
               </View>
             </>
@@ -250,7 +271,7 @@ export default function Home() {
           {/* Bloc 4 · Streak discret — masqué en mode réel (pas d'historique encore) */}
           <View style={{ flex: 1 }} />
           {real || vms === null ? null : <Text style={s.streak}>{fill(t.streak, { n: streak.days, left, badge: streak.next.label })}</Text>}
-        </ScrollView>
+        </View>
       </SafeAreaView>
     </View>
   );
