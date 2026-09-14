@@ -57,7 +57,8 @@ const HIGHLIGHT = new Set(['reminder', 'budgetRemind', 'tookOver', 'gaveBack', '
 //   c · une colonne pleine largeur, filet corail à gauche pour rappels / reprises
 function Wrap({ variant, mine, highlight, children, style }) {
   if (variant === 'b') return <View style={[s.bub, mine ? s.bubMine : s.bubTheirs, highlight && s.bubHi, style]}>{children}</View>;
-  if (variant === 'c') return <Card r={radius.card} padding={0} style={[s.card, style]} accent={highlight ? colors.coral : undefined}>{children}</Card>;
+  // C colorée (choix Jeanne 14 sept 2026) : une colonne, cartes teintées — moi sauge, l'autre crème, corail quand ça demande une réponse
+  if (variant === 'c') return <View style={[s.card, s.cCard, mine ? s.cMine : s.cTheirs, highlight && s.cHi, style]}>{children}</View>;
   return <Card r={radius.card} padding={0} style={[s.card, highlight && s.highlight, style]}>{children}</Card>;
 }
 function Item({ item, chosen, onChoose, variant = 'a' }) {
@@ -65,7 +66,7 @@ function Item({ item, chosen, onChoose, variant = 'a' }) {
   const mine = actor?.id === me.id;
   const hi = item.type === 'info' ? HIGHLIGHT.has(item.preset) : item.type === 'swap_proposed';
   const task = item.task_title ? { title: item.task_title } : item.task_id ? taskById(item.task_id) : null;
-  const head = (content) => (variant === 'b' ? (
+  const head = (content) => (variant === 'b' || variant === 'c' ? (
     <View>
       {hi ? <Text style={s.bubTag}>{item.type === 'swap_proposed' ? t.tagSwap : item.preset === 'tookOver' || item.preset === 'gaveBack' ? t.tagTake : t.tagReminder}</Text> : null}
       <View style={s.head}>
@@ -143,7 +144,7 @@ function Item({ item, chosen, onChoose, variant = 'a' }) {
 }
 
 export default function Activite() {
-  const { v: variant = 'a', demo: demoParam } = useLocalSearchParams();
+  const { v: variant = 'c', demo: demoParam } = useLocalSearchParams();
   const [chosen, setChosen] = useState({});
   const choose = (id, key) => {
     Haptics.selectionAsync().catch(() => {});
@@ -256,6 +257,10 @@ const s = StyleSheet.create({
   bubMine: { backgroundColor: alpha(colors.sage, 0.35), borderBottomRightRadius: 6 },
   bubTheirs: { backgroundColor: colors.card, borderBottomLeftRadius: 6, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
   bubHi: { backgroundColor: alpha(colors.coral, 0.16) },
+  cCard: { borderRadius: radius.card, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
+  cMine: { backgroundColor: alpha(colors.sage, 0.3) },
+  cTheirs: { backgroundColor: colors.card },
+  cHi: { backgroundColor: alpha(colors.coral, 0.16), borderColor: alpha(colors.coral, 0.5) },
   bubTag: { fontSize: 10.5, fontWeight: '700', letterSpacing: 1, textTransform: 'uppercase', color: colors.coralDeep, marginBottom: 4 },
   bubbleMine: { alignSelf: 'flex-end' },
   bubbleTheirs: { alignSelf: 'flex-start' },
