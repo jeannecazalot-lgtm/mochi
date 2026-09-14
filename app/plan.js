@@ -18,7 +18,7 @@ const GROUPS = [
   ['Moments', [['24-25 · Wrapped', '/wrapped'], ['26 · Bilan mensuel (V2)', '/bilan'], ['28 · Streak célébration', '/celebration']]],
   ['Premium', [['35 · Calendrier mois', '/calendrier'], ['36 · Analyse (V2, avec le bilan)', '/analyse'], ['37 · Paywall Duo+', '/paywall'], ['38 · Profil & réglages', '/profil']]],
   ['Propositions (à choisir)', [['06 · Profil — A/B/C', '/props/profil06'], ['07 · Explication des créneaux — A/B/C', '/props/creneaux'], ['08 · Préférences — A/B/C + wording', '/props/prefs'], ['09 · Invitation — A/B/C', '/props/invite']]],
-  ['Compte', [['Connexion (lien e-mail)', '/(auth)/login']]],
+  ['Compte', [['Connexion (Apple / code e-mail)', '/(auth)/login']]],
 ];
 
 export default function Plan() {

@@ -80,8 +80,8 @@ export default function RootLayout() {
         <Stack.Screen name="note" options={sheet} />
         <Stack.Screen name="moi" options={sheet} />
         <Stack.Screen name="task/page" options={{ presentation: 'card' }} />
-        <Stack.Screen name="event" options={tallSheet} />
-        <Stack.Screen name="depense" options={tallSheet} />
+        <Stack.Screen name="event" options={sheet} />
+        <Stack.Screen name="depense" options={sheet} />
         <Stack.Screen name="mood" options={sheet} />
         <Stack.Screen name="wrapped" options={full} />
         <Stack.Screen name="celebration" options={full} />

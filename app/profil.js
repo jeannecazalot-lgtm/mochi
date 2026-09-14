@@ -8,7 +8,7 @@ import { GlowBg, Card, PillLabel, Avatar } from '../src/components/ui';
 import { BackButton, SectionMicro, SettingRow } from '../src/components/premium/extra';
 import { me, partner, household, streak, balance } from '../src/demo';
 import { duoSince, daysSince, lifetime, duoRules, prefs, isPremium, ALL_FREE } from '../src/demo-premium';
-import { signOut } from '../src/auth';
+import { signOut, currentAccount } from '../src/auth';
 import { clearSetup, loadSetup, inRealMode, setup , thresholdsOf } from '../src/setup-state';
 import { occStore } from '../src/demo-core';
 import { resetIdentity, getUid, loadIdentity, useIdentity } from '../src/identity';
@@ -30,6 +30,8 @@ export default function Profil() {
   // profil au backlog ; en attendant, pas de faux chiffres.)
   useIdentity();
   const [real, setReal] = useState(null);
+  const [account, setAccount] = useState(null); // { email, provider } du compte connecté
+  useEffect(() => { currentAccount().then(setAccount).catch(() => {}); }, []);
   // sous-titres calculés depuis ce qui est vraiment saisi (6 sept 2026 : « Soirs + week-end » était de la démo)
   const [mine, setMine] = useState(null);
   const refreshMine = async () => {
@@ -108,6 +110,7 @@ export default function Profil() {
           <View style={{ paddingHorizontal: 22 }}>
             <SectionMicro>{t.sectionMine}</SectionMicro>
             <View style={{ gap: 6 }}>
+              <SettingRow emoji="👤" title={t.account} sub={account ? (account.provider === 'apple' ? fill(t.accountApple, { email: account.email || '' }) : account.email) : t.accountNone} onPress={() => (account ? null : router.push('/(auth)/login'))} />
               <SettingRow emoji="🔔" title={t.notifs} sub={real && setup.reminder ? fill(t.notifsSubReal, { time: String(setup.reminder).replace(':', ' h ') }) : fill(t.notifsSub, { n: duoRules.reminder_before_min })} onPress={() => router.push('/notifs')} />
               <SettingRow emoji="📌" title={t.penseBete} sub={t.penseBeteSub} onPress={() => router.push('/pense-bete')} />
               <SettingRow emoji="🗓" title={t.mesReglages}

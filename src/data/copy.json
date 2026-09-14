@@ -24,35 +24,29 @@
       "apple": "Bouton Apple",
       "email": "Bouton email",
       "emailPlaceholder": "Placeholder email",
-      "sendLink": "Bouton envoi du lien magique",
-      "linkSent": "Message après envoi",
       "title2": "Titre écran connexion (façon Suno)",
       "or": "Séparateur entre le bouton principal et les carrés",
-      "emailTitle": "Titre de l état saisie e-mail",
-      "appleUnavailable": "Message si la connexion Apple n est pas encore configurée",
-      "phone": "Gros bouton principal (numéro de téléphone)",
-      "phoneTitle": "Titre de l état saisie du numéro",
-      "phonePlaceholder": "Placeholder du champ numéro",
-      "sendCode": "Bouton d envoi du code SMS",
-      "phoneUnavailable": "Message tant que le SMS n est pas configuré",
-      "googleUnavailable": "Message tant que Google n est pas configuré"
+      "emailTitle": "Titre de l état saisie e-mail"
     },
     "title": "Bienvenue",
     "apple": "Continuer avec Apple",
-    "email": "Continuer avec un e-mail",
+    "email": "Continuer par e-mail",
     "emailPlaceholder": "ton@email.fr",
-    "sendLink": "Recevoir un lien de connexion",
-    "linkSent": "Lien envoyé. Ouvre-le depuis ton téléphone.",
-    "title2": "Crée ton compte\nmochi",
+    "title2": "Bienvenue sur mochi",
     "or": "ou",
-    "emailTitle": "Par e-mail",
-    "appleUnavailable": "Connexion Apple bientôt disponible — passe par l e-mail.",
-    "phone": "Continuer avec mon numéro",
-    "phoneTitle": "Ton numéro",
-    "phonePlaceholder": "06 12 34 56 78",
+    "emailTitle": "Ton e-mail",
+    "sub": "Un compte pour retrouver ton foyer, même en changeant de téléphone.",
+    "emailSub": "Tu recevras un code à six chiffres, rien à installer.",
     "sendCode": "Recevoir un code",
-    "phoneUnavailable": "Connexion par SMS bientôt disponible — passe par l e-mail.",
-    "googleUnavailable": "Connexion Google bientôt disponible — passe par l e-mail."
+    "codeTitle": "Le code reçu",
+    "codeSub": "Envoyé à {email}. Regarde aussi les indésirables.",
+    "codePlaceholder": "123456",
+    "resend": "Renvoyer le code",
+    "changeEmail": "Changer d'e-mail",
+    "errSend": "Impossible d'envoyer le code. Vérifie l'adresse et réessaie.",
+    "errCode": "Code incorrect ou expiré.",
+    "errApple": "Connexion Apple impossible pour l'instant. Passe par l'e-mail.",
+    "legal": "En continuant, tu acceptes les conditions d'utilisation et la politique de confidentialité."
   },
   "tabs": {
     "_labels": {
@@ -698,7 +692,14 @@
     "addItem": "+ Ajouter une chose à porter",
     "cta": "Créer l'événement",
     "noteLabel": "Note",
-    "notePlaceholder": "Envoyée dans le récap du jour"
+    "notePlaceholder": "Envoyée dans le récap du jour",
+    "dateLabel": "Date",
+    "timeLabel": "Heure",
+    "placeLabel": "Lieu",
+    "whoSub": "Qui apporte quoi, qui s'occupe de quoi",
+    "addItemShort": "Ajouter",
+    "needDate": "Choisis une date",
+    "delete": "Supprimer l'événement"
   },
   "notes": {
     "_labels": {
@@ -848,7 +849,8 @@
     "cta": "Ajouter la dépense",
     "dateOther": "Autre date",
     "editTitle": "Modifier la dépense",
-    "delete": "Supprimer la dépense"
+    "delete": "Supprimer la dépense",
+    "needAll": "Un intitulé et un montant"
   },
   "wrapped": {
     "_labels": {
@@ -1111,7 +1113,10 @@
     "penseBete": "Pense-bête",
     "penseBeteSub": "Le cerveau externe du duo",
     "bilan": "Bilan du mois",
-    "bilanSub": "Part de chacun, badges, malus"
+    "bilanSub": "Part de chacun, badges, malus",
+    "account": "Compte",
+    "accountApple": "Apple · {email}",
+    "accountNone": "Pas encore de compte · appuie pour te connecter"
   },
   "activity": {
     "_labels": {

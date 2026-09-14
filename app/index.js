@@ -6,7 +6,7 @@
 import React, { useEffect, useState } from 'react';
 import { Redirect } from 'expo-router';
 import { View, ActivityIndicator } from 'react-native';
-import { useSession } from '../src/auth';
+import { useSession, isRealUser } from '../src/auth';
 import { loadProfile } from '../src/profile';
 import { SUPABASE_READY } from '../src/supabase';
 import { colors } from '../src/theme';
@@ -27,5 +27,7 @@ export default function Index() {
   if (session === undefined || profile === undefined) {
     return <View style={{ flex: 1, backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator /></View>;
   }
+  // compte d'abord (13 sept 2026) : sans session vraie (nulle ou anonyme) → connexion ; puis prénom ; puis l'app
+  if (!isRealUser(session)) return <Redirect href="/(auth)/login" />;
   return <Redirect href={profile?.first_name ? '/(tabs)' : '/(setup)/identite'} />;
 }

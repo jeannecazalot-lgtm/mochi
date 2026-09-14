@@ -1,50 +1,49 @@
-// Formulaire dépense (pas d'artboard, DNA 30) — présenté en transparentModal par app/_layout.js :
-// scrim + sheet qui monte, fermeture router.back(). Recette : docs/recettes/30b-depense.md
+// Dépense (sheet) — même langage que la sheet Tâche (Jeanne 14 sept 2026). `?id=` = édition
+// (retour Jeanne 13 sept : « je ne peux pas modifier les dépenses »). Table `expenses`, parts égales.
 import React, { useState, useEffect } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
-import { View, Text, TextInput, Pressable, ScrollView, Platform, StyleSheet, KeyboardAvoidingView, Keyboard } from 'react-native';
+import { View, Text, TextInput, Pressable, StyleSheet, KeyboardAvoidingView, Keyboard } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ScreenTitle, Micro, Card, Avatar, CTAPrimary, Footer } from '../src/components/ui';
-
-import { Icon, ICON, Chip, RoundButton, SheetHandle } from '../src/components/core/extra';
-import { me, members } from '../src/demo';
+import * as Haptics from 'expo-haptics';
+import { Card } from '../src/components/ui';
+import { SheetHandle } from '../src/components/social/extra';
+import { Row, PillChip, Arrow } from '../src/components/task/proto';
+import { DateGrid } from '../src/components/date-grid';
+import { useSheetGrow } from '../src/components/sheet-grow';
+import { me, partner } from '../src/demo';
 import { occStore } from '../src/demo-core';
 import { mutate, read, uuid } from '../src/store';
 import { loadSetup, setup } from '../src/setup-state';
 import { getUid, getPartnerUid, useIdentity } from '../src/identity';
 import { localIso, addDaysIso } from '../src/dates';
-import { DateGrid } from '../src/components/date-grid';
 import { logActivity } from '../src/activity-actions';
 import { pushToPartner } from '../src/push';
 import copy from '../src/data/copy.json';
-import { colors, space, font, alpha, radius, motion } from '../src/theme';
+import { colors, space, font, alpha } from '../src/theme';
 
 const t = copy.depense;
+const ph = alpha(colors.ink, 0.3);
 const parseAmount = s => Math.round(parseFloat(String(s).replace(',', '.')) * 100) || 0;
 const fmtDate = iso => new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }).format(new Date(iso + 'T12:00:00'));
 
 export default function Depense() {
-  const { id } = useLocalSearchParams(); // édition d'une dépense existante (Jeanne 13 sept 2026 : « je ne peux pas modifier »)
-  const [existing, setExisting] = useState(null);
+  const { id } = useLocalSearchParams();
   const insets = useSafeAreaInsets();
-  useIdentity(); // vrais prénoms/photos des payeurs
+  useIdentity();
+  const [existing, setExisting] = useState(null);
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
-  const [paidBy, setPaidBy] = useState(me.id);
-  // date : hier · aujourd'hui · autre (calendrier) — ordre chronologique (retour Ketley 12 sept 2026)
+  const [paidBy, setPaidBy] = useState('me');
   const [dateIso, setDateIso] = useState(localIso());
   const [dateOpen, setDateOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
   const todayIso = localIso(), yesterdayIso = addDaysIso(-1);
-  useEffect(() => { if (!id) return; read('expenses').then(rows => { const e = rows.find(x => x.id === id); if (!e) return; setExisting(e); setTitle(e.title || ''); setAmount((e.amount_cents / 100).toFixed(2).replace('.', ',')); setPaidBy(e.paid_by === getUid() ? me.id : members[1]?.id || me.id); setDateIso(e.spent_on); }); }, [id]);
-  const remove = async () => { if (!existing) return; await mutate('expenses', { ...existing, deleted_at: new Date().toISOString() }); occStore.bump(); router.back(); };
+  const onGrowLayout = useSheetGrow(dateOpen);
+  useEffect(() => { if (!id) return; read('expenses').then(rows => { const e = rows.find(x => x.id === id); if (!e) return; setExisting(e); setTitle(e.title || ''); setAmount((e.amount_cents / 100).toFixed(2).replace('.', ',')); setPaidBy(e.paid_by === getUid() ? 'me' : 'partner'); setDateIso(e.spent_on); }); }, [id]);
   const valid = title.trim().length > 0 && parseAmount(amount) > 0;
 
-  // Dépense RÉELLE (décision Jeanne 6 sept 2026 : table expenses synchronisée à deux) —
-  // sans catégorie (décision Jeanne 6 sept : rien ne s'en sert en v1, la base garde « autre ») :
-  // ligne locale + file de synchro, le Budget se relit via occStore ; sans foyer (démo) on ferme.
-  const [busy, setBusy] = useState(false);
   const submit = async () => {
-    if (busy) return;
+    if (busy || !valid) return;
     setBusy(true);
     try {
       await loadSetup();
@@ -56,79 +55,50 @@ export default function Depense() {
         await mutate('expenses', {
           ...(existing || { id: uuid(), household_id: hid, emoji: null, split_mode: 'equal', category: 'autre', created_by: uid, currency }),
           title: title.trim(), amount_cents: parseAmount(amount),
-          paid_by: paidBy === me.id ? uid : (getPartnerUid() || uid), spent_on: dateIso,
+          paid_by: paidBy === 'me' ? uid : (getPartnerUid() || uid), spent_on: dateIso,
         });
         occStore.bump();
-        if (existing) { router.back(); return; }
-        const vars = { title: title.trim(), amount: `${(parseAmount(amount) / 100).toFixed(2).replace('.', ',')} €` };
-        logActivity({ type: 'ping', preset_key: 'expenseAdded', payload: vars }).catch(() => {});
-        pushToPartner('expenseAdded', vars, '/(tabs)/budget');
+        if (!existing) {
+          const vars = { title: title.trim(), amount: `${(parseAmount(amount) / 100).toFixed(2).replace('.', ',')} €` };
+          logActivity({ type: 'ping', preset_key: 'expenseAdded', payload: vars }).catch(() => {});
+          pushToPartner('expenseAdded', vars, '/(tabs)/budget');
+        }
       }
     } catch (e) { /* hors ligne : la file rejouera */ }
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
     router.back();
   };
+  const remove = async () => { if (!existing) return; await mutate('expenses', { ...existing, deleted_at: new Date().toISOString() }); occStore.bump(); router.back(); };
+  const dateLabel = dateIso === todayIso ? t.dateToday : dateIso === yesterdayIso ? t.dateYesterday : fmtDate(dateIso);
 
   return (
-    <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
-        <View style={[s.sheet, { flex: 1 }]} onStartShouldSetResponder={() => false} onTouchEnd={() => {}}>
-          <SheetHandle />
-          <ScrollView contentInsetAdjustmentBehavior="never" automaticallyAdjustKeyboardInsets contentContainerStyle={{ paddingHorizontal: space.headerX, paddingBottom: 24 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-            <View style={s.header}>
-              <ScreenTitle style={{ letterSpacing: -1.1 }}>{existing ? t.editTitle : t.title}</ScreenTitle>
-              <RoundButton size={32} onPress={() => router.back()} accessibilityLabel={copy.common.cancel}><Icon d={ICON.close} size={15} sw={2} /></RoundButton>
-            </View>
-            <Micro style={s.label}>{t.titleLabel}</Micro>
-            <Card padding={0}>
-              <TextInput value={title} onChangeText={setTitle} placeholder={t.titlePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)}
-                autoCapitalize="sentences" returnKeyType="done" onSubmitEditing={Keyboard.dismiss} cursorColor={colors.coral} selectionColor={colors.coral} style={s.input} />
-            </Card>
-
-            <Micro style={s.label}>{t.amountLabel}</Micro>
-            <Card padding={0}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 18 }}>
-                <TextInput value={amount} onChangeText={setAmount} placeholder={t.amountPlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)}
-                  keyboardType="decimal-pad" cursorColor={colors.coral} selectionColor={colors.coral} style={[s.input, s.amount]} />
-                <Text style={{ fontSize: 20, fontWeight: '600', color: colors.muted }}>€</Text>
-              </View>
-            </Card>
-
-            <Micro style={s.label}>{t.paidByLabel}</Micro>
-            <View style={{ flexDirection: 'row', gap: 10 }}>
-              {members.map(m => {
-                const on = m.id === paidBy;
-                return (
-                  <Pressable key={m.id} onPress={() => setPaidBy(m.id)} style={{ flex: 1 }}>
-                    <Card padding={0} accent={on ? m.color : undefined} style={s.payer}>
-                      <Avatar initial={m.initial} color={m.color} photo={m.avatar_url} size={28} />
-                      <Text style={font.row}>{m.first_name}</Text>
-                    </Card>
-                  </Pressable>
-                );
-              })}
-            </View>
-
-            <Micro style={s.label}>{t.dateLabel}</Micro>
-            <View style={s.chips}>
-              <Chip label={t.dateYesterday} on={dateIso === yesterdayIso && !dateOpen} onPress={() => { setDateIso(yesterdayIso); setDateOpen(false); }} />
-              <Chip label={t.dateToday} on={dateIso === todayIso && !dateOpen} onPress={() => { setDateIso(todayIso); setDateOpen(false); }} />
-              <Chip label={dateOpen || (dateIso !== todayIso && dateIso !== yesterdayIso) ? fmtDate(dateIso) : t.dateOther} on={dateOpen || (dateIso !== todayIso && dateIso !== yesterdayIso)} onPress={() => setDateOpen(o => !o)} />
-            </View>
-            {dateOpen ? <Card padding={0} style={{ marginTop: 10 }}><DateGrid value={dateIso} onChange={iso => { setDateIso(iso); setDateOpen(false); }} allowPast /></Card> : null}
-            {existing ? <Pressable onPress={remove} style={{ alignSelf: 'center', marginTop: 22 }}><Text style={{ fontSize: 14.5, fontWeight: '600', color: colors.coralDeep }}>{t.delete}</Text></Pressable> : null}
-          </ScrollView>
-
-          <Footer bottom={Math.max(insets.bottom, space.footerBottom)}><CTAPrimary label={existing ? copy.common.save : t.cta} disabled={!valid || busy} onPress={submit} /></Footer>
+    <KeyboardAvoidingView behavior="padding" style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 31) }]} onLayout={onGrowLayout}>
+      <Pressable onPress={Keyboard.dismiss} accessible={false}>
+        <SheetHandle />
+        <View style={s.head}>
+          <TextInput value={title} onChangeText={setTitle} placeholder={t.titlePlaceholder} placeholderTextColor={ph} autoCapitalize="sentences" returnKeyType="done" onSubmitEditing={Keyboard.dismiss} cursorColor={colors.coral} selectionColor={colors.coral} style={s.title} />
         </View>
+        <Card r={16} padding={0} style={s.block}>
+          <Row first label={t.amountLabel} right={<View style={s.amountBox}><TextInput value={amount} onChangeText={setAmount} placeholder={t.amountPlaceholder} placeholderTextColor={ph} keyboardType="decimal-pad" style={s.amountInput} cursorColor={colors.coral} selectionColor={colors.coral} /><Text style={s.amountUnit}>€</Text></View>} />
+          <Row label={t.paidByLabel} right={<View style={{ flexDirection: 'row', gap: 6 }}><PillChip label={me.first_name} avatar={me} selected={paidBy === 'me'} onPress={() => setPaidBy('me')} /><PillChip label={partner.first_name} avatar={partner} selected={paidBy === 'partner'} onPress={() => setPaidBy('partner')} /></View>} />
+          <Row label={t.dateLabel} right={<View style={{ flexDirection: 'row', gap: 6 }}><PillChip label={t.dateYesterday} selected={dateIso === yesterdayIso && !dateOpen} onPress={() => { setDateIso(yesterdayIso); setDateOpen(false); }} /><PillChip label={t.dateToday} selected={dateIso === todayIso && !dateOpen} onPress={() => { setDateIso(todayIso); setDateOpen(false); }} /><PillChip label={dateOpen || (dateIso !== todayIso && dateIso !== yesterdayIso) ? dateLabel : t.dateOther} selected={dateOpen || (dateIso !== todayIso && dateIso !== yesterdayIso)} onPress={() => setDateOpen(o => !o)} /></View>} />
+          {dateOpen ? <DateGrid value={dateIso} onChange={iso => { setDateIso(iso); setDateOpen(false); }} allowPast /> : null}
+        </Card>
+        <Card r={16} padding={0}>
+          <Row first strong label={existing ? copy.common.save : t.cta} sub={valid ? null : t.needAll} right={<Arrow />} onPress={valid ? submit : undefined} />
+          {existing ? <Row label={<Text style={{ color: colors.coralDeep }}>{t.delete}</Text>} onPress={remove} /> : null}
+        </Card>
+      </Pressable>
     </KeyboardAvoidingView>
   );
 }
 
 const s = StyleSheet.create({
-  sheet: { backgroundColor: colors.card, paddingTop: 10 },
-  header: { paddingTop: 6, paddingBottom: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  label: { marginTop: 18, marginBottom: 9 },
-  input: { paddingVertical: 15, paddingHorizontal: 18, fontSize: 17, fontWeight: '600', color: colors.ink },
-  amount: { flex: 1, paddingHorizontal: 0, fontSize: 24, fontWeight: '700', letterSpacing: -1.2, fontVariant: ['tabular-nums'] },
-  payer: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, paddingHorizontal: 12, borderRadius: radius.card },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  sheet: { backgroundColor: colors.card, paddingTop: 10, paddingHorizontal: space.screenX },
+  head: { marginTop: 2, marginBottom: 12, paddingHorizontal: 2 },
+  title: { ...font.cardTitle, padding: 0 },
+  block: { marginBottom: 8 },
+  amountBox: { flexDirection: 'row', alignItems: 'center', gap: 4, borderBottomWidth: 1.5, borderBottomColor: colors.ink, paddingBottom: 2 },
+  amountInput: { fontSize: 17, fontWeight: '600', color: colors.ink, minWidth: 64, textAlign: 'right', padding: 0, fontVariant: ['tabular-nums'] },
+  amountUnit: { fontSize: 15, fontWeight: '600', color: colors.ink },
 });

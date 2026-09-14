@@ -8,6 +8,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
 import { GlowBg } from '../src/components/ui';
 import { joinWithCode } from '../src/invite-actions';
+import { supabase } from '../src/supabase';
 import copy from '../src/data/copy.json';
 import { colors } from '../src/theme';
 
@@ -18,6 +19,9 @@ export default function LienInvitation() {
   useEffect(() => {
     let alive = true;
     (async () => {
+      // pas encore de vrai compte : connexion d'abord, puis retour ici avec le code (13 sept 2026)
+      const { data } = await supabase.auth.getSession();
+      if (!data.session || data.session.user?.is_anonymous) { router.replace(`/(auth)/login?next=${encodeURIComponent(`/j?code=${clean}`)}`); return; }
       if (clean.length === 6) {
         const r = await joinWithCode(clean);
         if (!alive) return;

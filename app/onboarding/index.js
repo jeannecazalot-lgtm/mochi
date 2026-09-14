@@ -22,7 +22,7 @@ export default function Onboarding() {
   const [index, setIndex] = useState(0);
   const last = index === SLIDES.length - 1;
 
-  const finish = useCallback(() => router.replace('/(setup)/identite'), []);
+  const finish = useCallback(() => router.replace('/(auth)/login'), []); // compte avant le prénom (13 sept 2026)
   const next = useCallback(() => {
     if (last) return finish();
     list.current?.scrollToIndex({ index: index + 1, animated: true });
