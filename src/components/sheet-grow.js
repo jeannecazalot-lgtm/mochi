@@ -23,7 +23,8 @@ export function useSheetGrow(grown, tall = false, min = null) {
   const [contentH, setContentH] = useState(0);
   useEffect(() => {
     if (tall) { navigation.setOptions({ sheetAllowedDetents: [0.92] }); return; }
-    if (!grown) { navigation.setOptions({ sheetAllowedDetents: min ? [min] : 'fitToContents' }); return; }
+    // plancher commun, mais jamais plus bas que le contenu (la fiche tâche dépasse 62 %)
+    if (!grown) { navigation.setOptions({ sheetAllowedDetents: min ? [contentH ? Math.max(min, Math.min(0.92, (contentH + 12) / (winH - insets.top - 10))) : min] : 'fitToContents' }); return; }
     // tout de suite (13 sept 2026 : avec 450 ms d'attente, les jours du report ne recevaient pas les touches)
     if (contentH) navigation.setOptions({ sheetAllowedDetents: [Math.max(min || 0, Math.min(0.92, (contentH + 12) / (winH - insets.top - 10)))] });
   }, [grown, tall, contentH, min]);
