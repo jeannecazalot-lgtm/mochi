@@ -15,7 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 // cachait le champ (la mesure et le clavier se répondaient en boucle).
 // `min` (fraction d'écran) : hauteur plancher commune aux sheets de création (Jeanne 14 sept 2026 :
 // « ce serait mieux si tous les pop-up faisaient la même taille ») — jamais plus bas, plus haut si besoin.
-export const CREATE_SHEET_MIN = 0.62;
+export const CREATE_SHEET_MIN = 0.5;
 export function useSheetGrow(grown, tall = false, min = null) {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();

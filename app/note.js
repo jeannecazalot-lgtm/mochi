@@ -11,18 +11,21 @@ import { SheetHandle } from '../src/components/social/extra';
 import { Row, PillChip, Arrow } from '../src/components/task/proto';
 import { Toggle } from '../src/components/task/extra';
 import { DateGrid } from '../src/components/date-grid';
+import { EmojiPicker } from '../src/components/emoji-picker';
 import { useSheetGrow, CREATE_SHEET_MIN } from '../src/components/sheet-grow';
 import { loadNotes, saveNote, deleteNote } from '../src/notes-actions';
 import copy from '../src/data/copy.json';
 import { colors, space, font, alpha } from '../src/theme';
 
 const t = copy.notes;
+const NOTE_EMOJIS = ['📌', '💡', '🔑', '📞', '🎁', '🩺', '🏠', '🚗', '🧾', '🎂', '✈️', '📝'];
 const fmtDate = iso => new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }).format(new Date(iso + 'T12:00:00'));
 
 export default function NoteSheet() {
   const { id } = useLocalSearchParams();
   const insets = useSafeAreaInsets();
   const [title, setTitle] = useState('');
+  const [emoji, setEmoji] = useState(NOTE_EMOJIS[0]);
   const [body, setBody] = useState('');
   const [date, setDate] = useState(null);
   const [remind, setRemind] = useState(false);
@@ -30,12 +33,12 @@ export default function NoteSheet() {
   const [bodyOpen, setBodyOpen] = useState(false);
   const [existing, setExisting] = useState(null);
   const onGrowLayout = useSheetGrow(dateOpen || bodyOpen, bodyOpen, CREATE_SHEET_MIN);
-  useEffect(() => { if (id) loadNotes().then(rows => { const n = rows.find(x => x.id === id); if (n) { setExisting(n); setTitle(n.title || n.body || ''); setBody(n.title ? n.body || '' : ''); setDate(n.due_date || null); setRemind(!!n.remind); } }); }, [id]);
+  useEffect(() => { if (id) loadNotes().then(rows => { const n = rows.find(x => x.id === id); if (n) { setExisting(n); setEmoji(n.emoji || NOTE_EMOJIS[0]); setTitle(n.title || n.body || ''); setBody(n.title ? n.body || '' : ''); setDate(n.due_date || null); setRemind(!!n.remind); } }); }, [id]);
 
   const save = async () => {
     if (!title.trim()) return;
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-    await saveNote({ id: existing?.id, title, body, due_date: date, remind: date ? remind : false });
+    await saveNote({ id: existing?.id, title, body, emoji, due_date: date, remind: date ? remind : false });
     router.back();
   };
   const remove = async () => { await deleteNote(existing.id); router.back(); };
@@ -44,8 +47,9 @@ export default function NoteSheet() {
     <KeyboardAvoidingView behavior="padding" style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 31) }]} onLayout={onGrowLayout}>
       <Pressable onPress={Keyboard.dismiss} accessible={false}>
         <SheetHandle />
-        <View style={s.head}>
-          <TextInput value={title} onChangeText={setTitle} placeholder={t.newTitlePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)} autoCorrect={false} returnKeyType="done" cursorColor={colors.coral} selectionColor={colors.coral} style={s.title} />
+        <View style={[s.head, { flexDirection: 'row', alignItems: 'center', gap: 12 }]}>
+          <EmojiPicker value={emoji} onChange={setEmoji} choices={NOTE_EMOJIS} />
+          <TextInput value={title} onChangeText={setTitle} placeholder={t.newTitlePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)} autoCorrect={false} returnKeyType="done" cursorColor={colors.coral} selectionColor={colors.coral} style={[s.title, { flex: 1 }]} />
         </View>
         <Card r={16} padding={0} style={s.block}>
           {bodyOpen

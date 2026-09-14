@@ -213,7 +213,7 @@ export default function Planning() {
       // pense-bêtes datés (13 sept 2026) : une rangée 📌 le jour dit, tap → la note
       for (const n of notes || []) {
         if (n.deleted_at || n.done || !n.due_date || n.due_date < todayIso) continue;
-        (byDate[n.due_date] ||= []).push({ id: n.id, emoji: '📌', title: n.title || n.body, sub: n.title && n.body ? n.body : t2.noteSub, who: null, event: true, checkable: false, done: false, late: false, href: `/note?id=${n.id}` });
+        (byDate[n.due_date] ||= []).push({ id: n.id, emoji: n.emoji || '📌', title: n.title || n.body, sub: n.title && n.body ? n.body : t2.noteSub, who: null, event: true, checkable: false, done: false, late: false, href: `/note?id=${n.id}` });
         (dotMap[n.due_date] ||= new Set()).add(colors.lavenderDeep);
       }
       const groups = Object.keys(byDate).sort().map(d => ({ iso: d, date: new Date(d + 'T12:00:00'), items: byDate[d] }));

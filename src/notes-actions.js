@@ -14,14 +14,14 @@ export const liveNotes = rows => rows.filter(n => !n.deleted_at).sort((a, b) => 
 
 export async function loadNotes() { return liveNotes(await read('notes')); }
 
-export async function saveNote({ id, title, body, due_date, remind, tone }) {
+export async function saveNote({ id, title, body, emoji, due_date, remind, tone }) {
   await loadSetup();
   const hid = setup.householdId; const uid = getUid();
   if (!hid || !uid || !title?.trim()) return null;
   const rows = await read('notes');
   const prev = id ? rows.find(n => n.id === id) : null;
   const row = { ...(prev || { id: uuid(), household_id: hid, created_by: uid, done: false, created_at: new Date().toISOString(), tone: rows.length % 5 }),
-    title: title.trim(), body: (body || '').trim(), due_date: due_date || null, remind: !!remind, ...(tone != null ? { tone } : {}) };
+    title: title.trim(), body: (body || '').trim(), emoji: emoji || null, due_date: due_date || null, remind: !!remind, ...(tone != null ? { tone } : {}) };
   await mutate('notes', row);
   if (!prev) { const vars = { title: row.title }; logActivity({ type: 'ping', preset_key: 'noteCreated', payload: vars }).catch(() => {}); pushToPartner('noteCreated', vars, '/pense-bete'); }
   occStore.bump();

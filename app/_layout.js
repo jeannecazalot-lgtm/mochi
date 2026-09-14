@@ -19,7 +19,7 @@ const base = { headerShown: false, contentStyle: { backgroundColor: colors.bg },
 // sheets natives iOS (formSheet) : fond assombri, coins 26, montée native, touches garanties
 const sheet = { presentation: 'formSheet', sheetAllowedDetents: 'fitToContents', sheetCornerRadius: radius.sheet, sheetGrabberVisible: false, contentStyle: { backgroundColor: colors.card } };
 const tallSheet = { ...sheet, sheetAllowedDetents: [0.92] };
-const createSheet = { ...sheet, sheetAllowedDetents: [0.62] }; // tâche / événement / dépense / pense-bête : même hauteur (14 sept 2026)
+const createSheet = { ...sheet, sheetAllowedDetents: [0.5] }; // tâche / événement / dépense / pense-bête : même hauteur (14 sept 2026)
 const full = { presentation: 'fullScreenModal', animation: 'fade' };
 
 // ─── Badge dev : numéro d'artboard en haut à droite (demande Jeanne, 1er sept

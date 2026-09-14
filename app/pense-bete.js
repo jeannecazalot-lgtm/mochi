@@ -22,7 +22,7 @@ export default function PenseBete() {
   const [notes, setNotes] = useState(demoNotes);
   const [real, setReal] = useState(false);
   const occV = occStore.useVersion();
-  useEffect(() => { (async () => { await loadSetup(); if (!inRealMode()) return; setReal(true); setNotes((await loadNotes()).map(n => ({ id: n.id, title: n.title || n.body, detail: n.title ? [n.due_date ? fmtDate(n.due_date) : null, n.body].filter(Boolean).join(' · ') : '', tone: n.tone || 0, done: !!n.done }))); })(); }, [occV]);
+  useEffect(() => { (async () => { await loadSetup(); if (!inRealMode()) return; setReal(true); setNotes((await loadNotes()).map(n => ({ id: n.id, emoji: n.emoji || '📌', title: n.title || n.body, detail: n.title ? [n.due_date ? fmtDate(n.due_date) : null, n.body].filter(Boolean).join(' · ') : '', tone: n.tone || 0, done: !!n.done }))); })(); }, [occV]);
   const [query, setQuery] = useState('');
   const [adding, setAdding] = useState(false);
   const [newTitle, setNewTitle] = useState('');
@@ -85,7 +85,7 @@ function Note({ note, index, onPress, onLongPress }) {
     <Pressable onPress={onPress} onLongPress={onLongPress} delayLongPress={350} style={s.cell}>
       <Animated.View style={[s.note, { backgroundColor: extraColors.notes[note.tone % extraColors.notes.length], transform: [{ rotate: index % 2 === 0 ? '-0.8deg' : '0.6deg' }], opacity: note.done ? 0.45 : 1 }, pop]}>
         <View style={s.tape} />
-        <Text style={[s.noteTitle, note.done && { textDecorationLine: 'line-through' }]}>{note.title}</Text>
+        <Text style={[s.noteTitle, note.done && { textDecorationLine: 'line-through' }]}>{note.emoji ? `${note.emoji} ` : ''}{note.title}</Text>
         {!!note.detail && <Text style={s.noteDetail}>{note.detail}</Text>}
       </Animated.View>
     </Pressable>

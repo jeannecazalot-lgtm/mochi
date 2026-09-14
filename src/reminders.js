@@ -22,7 +22,7 @@ export async function rescheduleReminders() {
     const evByDay = {};
     for (const ev of events || []) { if (ev.deleted_at || !ev.starts_at) continue; (evByDay[localIso(new Date(ev.starts_at))] ||= []).push(ev); }
     // pense-bêtes avec rappel : dans le récap de leur jour
-    for (const n of notes || []) { if (n.deleted_at || n.done || !n.remind || !n.due_date) continue; (evByDay[n.due_date] ||= []).push({ emoji: '📌', title: n.title || n.body, details: { note: n.title ? n.body : '' } }); }
+    for (const n of notes || []) { if (n.deleted_at || n.done || !n.remind || !n.due_date) continue; (evByDay[n.due_date] ||= []).push({ emoji: n.emoji || '📌', title: n.title || n.body, details: { note: n.title ? n.body : '' } }); }
     if (!occs.length && !Object.keys(evByDay).length) return true;
     const byTask = Object.fromEntries(tasks.map(tk => [tk.id, tk]));
     const [h, m] = String(setup.reminder || '19:30').split(':').map(Number);
