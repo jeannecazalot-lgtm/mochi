@@ -67,7 +67,12 @@
     "budget": "Budget"
   },
   "late": {
-    "_labels": { "days": "Légende d'une tâche en retard plusieurs fois (regroupée)", "since": "Légende d'un seul retard", "sinceYesterday": "Un seul retard, d'hier", "points": "Malus posé, ajouté à la légende" },
+    "_labels": {
+      "days": "Légende d'une tâche en retard plusieurs fois (regroupée)",
+      "since": "Légende d'un seul retard",
+      "sinceYesterday": "Un seul retard, d'hier",
+      "points": "Malus posé, ajouté à la légende"
+    },
     "days": "En retard · {n} jours",
     "since": "En retard depuis {n} j",
     "sinceYesterday": "En retard depuis hier",
@@ -424,7 +429,8 @@
     "pingLabel": "Petit rappel à {name}",
     "pingSub": "« Quand tu as un moment… »",
     "pingBtn": "Envoyer",
-    "confirmPing": "Envoyé à {name}"
+    "confirmPing": "Envoyé à {name}",
+    "moveDaily": "Elle est déjà prévue tous les jours : rien à déplacer, mais tu peux la repasser."
   },
   "pings": {
     "_labels": {

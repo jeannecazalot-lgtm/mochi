@@ -259,16 +259,22 @@ export default function Mission() {
               {already ? (
                 <Row first strong label={t.doneAlready} sub={[fmtMin(spent), cents ? fmtAmount(cents) : null].filter(Boolean).join(' · ') + ' · ' + t.doneAlreadySub} onPress={undo} />
               ) : !asking ? (
-                <Row first label={t.noTimeLabel} sub={(!m.occ?.assignee_id ? t.noTimeSubBoth : fill(t.noTimeSub, { name: partner.first_name }))} right={<Arrow />} onPress={() => { Haptics.selectionAsync().catch(() => {}); setAsking(true); }} />
+                <Row first label={t.noTimeLabel} sub={(!m.occ?.assignee_id ? t.noTimeSubBoth : fill(t.noTimeSub, { name: partner.first_name }))} right={<Arrow />} onPress={() => { Haptics.selectionAsync().catch(() => {}); setAsking(true); setRuleOpen(false); }} />
               ) : (
                 <Animated.View entering={FadeIn.duration(motion.micro)}>
                   <Row first label={t.noTimeLabel} right={<Text style={s.chevDown}>›</Text>} onPress={() => { Haptics.selectionAsync().catch(() => {}); setAsking(false); setMoveMsg(null); }} />
                   <View style={s.moveBox}>
                     <Micro>{t.moveLabel}</Micro>
-                    <View style={s.days}>
-                      {days.map(d => <PillChip key={d.iso} flex label={d.label} dim={m.busy.includes(d.iso)} onPress={() => moveTo(d)} />)}
-                    </View>
-                    <Caption style={{ textAlign: 'left' }}>{moveMsg || fill(t.moveWarn, { name: partner.first_name })}</Caption>
+                    {days.every(d => m.busy.includes(d.iso)) ? (
+                      <Caption style={{ textAlign: 'left' }}>{t.moveDaily}</Caption>
+                    ) : (
+                      <>
+                        <View style={s.days}>
+                          {days.map(d => <PillChip key={d.iso} flex label={d.label} dim={m.busy.includes(d.iso)} onPress={() => moveTo(d)} />)}
+                        </View>
+                        <Caption style={{ textAlign: 'left' }}>{moveMsg || fill(t.moveWarn, { name: partner.first_name })}</Caption>
+                      </>
+                    )}
                   </View>
                   {/* tâche commune : rien à repasser, l'autre est déjà dessus (audit 8 sept) */}
                   {!m.occ?.assignee_id ? null : m.pendingSwap
@@ -281,7 +287,7 @@ export default function Mission() {
           {/* « Modifier la tâche » se déplie SOUS « Je n'aurai pas le temps », qui reste visible (Jeanne, 9 sept 2026) */}
           <Animated.View layout={layout}>
             <Card r={16} padding={0}>
-              <Row first label={t.ruleLabel} sub={ruleOpen ? null : ruleSummary} right={ruleOpen ? <Text style={s.chevDown}>›</Text> : <Arrow />} onPress={() => { Haptics.selectionAsync().catch(() => {}); setRuleOpen(o => !o); }} />
+              <Row first label={t.ruleLabel} sub={ruleOpen ? null : ruleSummary} right={ruleOpen ? <Text style={s.chevDown}>›</Text> : <Arrow />} onPress={() => { Haptics.selectionAsync().catch(() => {}); setRuleOpen(o => !o); setAsking(false); setMoveMsg(null); }} />
               {ruleOpen ? (
                 <Animated.View entering={FadeIn.duration(motion.micro)}>
                   {/* pas de durée ici : « Temps passé » se règle à la coche (Jeanne, 9 sept 2026) */}
