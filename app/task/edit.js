@@ -8,7 +8,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import { View, TextInput, StyleSheet, KeyboardAvoidingView, Keyboard, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useSheetGrow } from '../../src/components/sheet-grow';
+import { useSheetGrow, CREATE_SHEET_MIN } from '../../src/components/sheet-grow';
 import { Card } from '../../src/components/ui';
 import { SheetHandle } from '../../src/components/social/extra';
 import { TaskHeader } from '../../src/components/task/extra';
@@ -66,7 +66,7 @@ export function TaskEditBody({ page = false }) {
   const insets = useSafeAreaInsets();
   const isNew = !id && !setupId;
   const [noteOpen, setNoteOpen] = useState(false);
-  const onGrowLayout = useSheetGrow(false, noteOpen);
+  const onGrowLayout = useSheetGrow(false, noteOpen, page ? null : CREATE_SHEET_MIN);
   const [f, setF] = useState(() => (setupId ? fromSetupTask(setupId) : EMPTY));
   const [base, setBase] = useState(null); // fiche réelle d'origine (rien n'est perdu à l'enregistrement)
   useEffect(() => { if (id) loadRealTask(id).then(rt => { if (rt) { setBase(rt); setF(fromReal(rt)); } }); }, [id]);

@@ -10,7 +10,7 @@ import { SheetHandle } from '../src/components/social/extra';
 import { Row, PillChip, Arrow } from '../src/components/task/proto';
 import { DateGrid } from '../src/components/date-grid';
 import { EmojiPicker } from '../src/components/emoji-picker';
-import { useSheetGrow } from '../src/components/sheet-grow';
+import { useSheetGrow, CREATE_SHEET_MIN } from '../src/components/sheet-grow';
 import { me, partner } from '../src/demo';
 import { occStore } from '../src/demo-core';
 import { mutate, read, uuid } from '../src/store';
@@ -41,7 +41,7 @@ export default function Depense() {
   const [dateOpen, setDateOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const todayIso = localIso(), yesterdayIso = addDaysIso(-1);
-  const onGrowLayout = useSheetGrow(dateOpen);
+  const onGrowLayout = useSheetGrow(dateOpen, false, CREATE_SHEET_MIN);
   useEffect(() => { if (!id) return; read('expenses').then(rows => { const e = rows.find(x => x.id === id); if (!e) return; setExisting(e); setTitle(e.title || ''); setEmoji(e.emoji || EXPENSE_EMOJIS[0]); setAmount((e.amount_cents / 100).toFixed(2).replace('.', ',')); setPaidBy(e.paid_by === getUid() ? 'me' : 'partner'); setDateIso(e.spent_on); }); }, [id]);
   const valid = title.trim().length > 0 && parseAmount(amount) > 0;
 

@@ -12,7 +12,7 @@ import { Row, PillChip, Arrow } from '../src/components/task/proto';
 import { AvatarPair } from '../src/components/core/extra';
 import { EmojiPicker } from '../src/components/emoji-picker';
 import { DateGrid } from '../src/components/date-grid';
-import { useSheetGrow } from '../src/components/sheet-grow';
+import { useSheetGrow, CREATE_SHEET_MIN } from '../src/components/sheet-grow';
 import { me, partner, fmtMin } from '../src/demo';
 import { read, mutate, uuid } from '../src/store';
 import { loadSetup, setup } from '../src/setup-state';
@@ -42,7 +42,7 @@ export default function Evenement() {
   const [note, setNote] = useState('');
   const [noteOpen, setNoteOpen] = useState(false);
   const [existing, setExisting] = useState(null);
-  const onGrowLayout = useSheetGrow(dateOpen || noteOpen || items.length > 0, noteOpen);
+  const onGrowLayout = useSheetGrow(dateOpen || noteOpen || items.length > 0, noteOpen, CREATE_SHEET_MIN);
 
   useEffect(() => {
     if (!id) return;

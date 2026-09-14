@@ -19,6 +19,7 @@ const base = { headerShown: false, contentStyle: { backgroundColor: colors.bg },
 // sheets natives iOS (formSheet) : fond assombri, coins 26, montée native, touches garanties
 const sheet = { presentation: 'formSheet', sheetAllowedDetents: 'fitToContents', sheetCornerRadius: radius.sheet, sheetGrabberVisible: false, contentStyle: { backgroundColor: colors.card } };
 const tallSheet = { ...sheet, sheetAllowedDetents: [0.92] };
+const createSheet = { ...sheet, sheetAllowedDetents: [0.62] }; // tâche / événement / dépense / pense-bête : même hauteur (14 sept 2026)
 const full = { presentation: 'fullScreenModal', animation: 'fade' };
 
 // ─── Badge dev : numéro d'artboard en haut à droite (demande Jeanne, 1er sept
@@ -76,12 +77,12 @@ export default function RootLayout() {
         <Stack.Screen name="rejoindre" options={sheet} />
         <Stack.Screen name="seuils" options={sheet} />
         {/* Retour Jeanne (1er sept 2026) : la fiche tâche monte en pop-up, comme sa maquette */}
-        <Stack.Screen name="task/edit" options={sheet} />
-        <Stack.Screen name="note" options={sheet} />
+        <Stack.Screen name="task/edit" options={createSheet} />
+        <Stack.Screen name="note" options={createSheet} />
         <Stack.Screen name="moi" options={sheet} />
         <Stack.Screen name="task/page" options={{ presentation: 'card' }} />
-        <Stack.Screen name="event" options={sheet} />
-        <Stack.Screen name="depense" options={sheet} />
+        <Stack.Screen name="event" options={createSheet} />
+        <Stack.Screen name="depense" options={createSheet} />
         <Stack.Screen name="mood" options={sheet} />
         <Stack.Screen name="wrapped" options={full} />
         <Stack.Screen name="celebration" options={full} />

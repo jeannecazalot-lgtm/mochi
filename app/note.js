@@ -11,7 +11,7 @@ import { SheetHandle } from '../src/components/social/extra';
 import { Row, PillChip, Arrow } from '../src/components/task/proto';
 import { Toggle } from '../src/components/task/extra';
 import { DateGrid } from '../src/components/date-grid';
-import { useSheetGrow } from '../src/components/sheet-grow';
+import { useSheetGrow, CREATE_SHEET_MIN } from '../src/components/sheet-grow';
 import { loadNotes, saveNote, deleteNote } from '../src/notes-actions';
 import copy from '../src/data/copy.json';
 import { colors, space, font, alpha } from '../src/theme';
@@ -29,7 +29,7 @@ export default function NoteSheet() {
   const [dateOpen, setDateOpen] = useState(false);
   const [bodyOpen, setBodyOpen] = useState(false);
   const [existing, setExisting] = useState(null);
-  const onGrowLayout = useSheetGrow(dateOpen || bodyOpen, bodyOpen);
+  const onGrowLayout = useSheetGrow(dateOpen || bodyOpen, bodyOpen, CREATE_SHEET_MIN);
   useEffect(() => { if (id) loadNotes().then(rows => { const n = rows.find(x => x.id === id); if (n) { setExisting(n); setTitle(n.title || n.body || ''); setBody(n.title ? n.body || '' : ''); setDate(n.due_date || null); setRemind(!!n.remind); } }); }, [id]);
 
   const save = async () => {
