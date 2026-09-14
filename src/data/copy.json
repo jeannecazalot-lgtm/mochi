@@ -1497,7 +1497,11 @@
     "confirmPing": "Rappel envoyé à {name}",
     "confirmPingSub": "« Quand tu as un moment… »",
     "pingBtn": "Envoyer",
-    "giveBtn": "Rendre"
+    "giveBtn": "Rendre",
+    "doTodaySub": "Elle passe dans ta journée, à cocher quand c'est fait",
+    "doTodaySubMalus": "Elle passe dans ta journée · {pts} pt effacés quand tu la coches",
+    "confirmToday": "C'est pour aujourd'hui",
+    "confirmTodaySub": "Coche-la quand c'est fait, le malus s'effacera"
   },
   "malus": {
     "_labels": {

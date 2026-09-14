@@ -1,7 +1,7 @@
 // Écran 21 · Tâche en retard — sheet de l'ASSIGNÉ (maquette Jeanne, 1er sept 2026).
 // Ouvert depuis une rangée en retard du Planning. La vue lecture du non-assigné
 // viendra avec l'invitation réelle. `?occ=&tid=&title=&emoji=&mins=&due=`.
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -16,6 +16,9 @@ import { Animated, FadeIn, useCheckPop } from '../src/components/motion';
 import { useSheetGrow } from '../src/components/sheet-grow';
 import { fmtWeekday } from '../src/demo-task';
 import { sendPing } from '../src/activity-actions';
+import { loadMission, saveRule } from '../src/mission-data';
+import { RuleEditor } from '../src/components/task/rule-editor';
+import { deleteRealTask } from '../src/task-actions';
 import { getUid } from '../src/identity';
 import { postponeMalus, malusPoints, clearMalusFor } from '../src/malus-actions';
 import { read } from '../src/store';
@@ -32,7 +35,7 @@ export default function Retard() {
   // Décision Jeanne (6 sept 2026) : le malus n'apparaît QUE dans le bouton recommandé
   // (« ≈1h · efface 8 pt de malus ») — variante b des trois proposées ; a (légende sous
   // le titre) et c (note en bas) restent accessibles par ?v= pour comparaison.
-  const { occ: occId, tid, title, emoji, mins, due, v = 'b', other: otherParam, ask: askParam, ids: idsParam, n: nParam } = useLocalSearchParams();
+  const { occ: occId, tid, title, emoji, mins, due, v = 'b', other: otherParam, ask: askParam, ids: idsParam, n: nParam, rule: ruleParam } = useLocalSearchParams();
   const seriesIds = String(idsParam || '').split(',').filter(Boolean); // retards groupés (14 sept 2026) : toute la série de la tâche
   const seriesN = Number(nParam) || 1; // other=1 / ask=1 : variantes figées pour les captures
   const insets = useSafeAreaInsets();
@@ -49,7 +52,16 @@ export default function Retard() {
   const [busy, setBusy] = useState([]);
   const [moveMsg, setMoveMsg] = useState(null);
   const [confirm, setConfirm] = useState(null); // { kind, title, sub, who?, pill? }
-  const onGrowLayout = useSheetGrow(asking);
+  // « Modifier la tâche » aussi sur un retard (Jeanne 15 sept 2026 : « on ne me propose pas de la modifier »)
+  const [ruleOpen, setRuleOpen] = useState(ruleParam === '1');
+  const [rule, setRule] = useState(null);
+  const [noteOpen, setNoteOpen] = useState(false);
+  const dirty = useRef(false); const initialRule = useRef(null); const ruleRef = useRef(null);
+  const patchRule = p => { dirty.current = true; setRule(r => ({ ...r, ...p })); Haptics.selectionAsync().catch(() => {}); };
+  useEffect(() => { loadMission({ occId, tid, title, mins }).then(r => { if (!r) return; const rl = { window_days: r.task.window_days, daily: !!r.task.daily, deadline: r.task.deadline ?? null, who: r.task.who, duration_min: r.task.duration_min, note: r.task.note, pain: r.task.pain ?? 3 }; setRule(rl); initialRule.current = JSON.stringify(rl); ruleRef.current = { id: r.task.id, ...rl }; }); }, [occId]);
+  useEffect(() => { if (rule && ruleRef.current) ruleRef.current = { ...ruleRef.current, ...rule }; }, [rule]);
+  useEffect(() => () => { const r = ruleRef.current; if (dirty.current && r && JSON.stringify({ ...r, id: undefined }) !== JSON.stringify({ ...JSON.parse(initialRule.current || '{}'), id: undefined })) saveRule(r.id, r); }, []);
+  const onGrowLayout = useSheetGrow(asking || ruleOpen, noteOpen);
   useEffect(() => {
     (async () => {
       const [malus, tasks, occs] = await Promise.all([read('malus'), read('tasks'), read('occurrences')]);
@@ -75,6 +87,17 @@ export default function Retard() {
     return { iso: localIso(d), label: copy.calendar.dowsLong[(d.getDay() + 6) % 7].toLowerCase(), long: fmtWeekday(d) };
   });
   const pop = useCheckPop(!!confirm && confirm.kind === 'done');
+  const doToday = async () => {
+    if (confirm) return;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    if (occId) {
+      const r = await moveOccurrence(String(occId), localIso());
+      // série regroupée : les retards plus anciens de la même tâche se soldent, celui-ci revient aujourd'hui
+      for (const id of seriesIds.filter(x => x !== String(occId))) { skipOccurrence(id).catch(() => {}); clearMalusFor(id).catch(() => {}); }
+      if (!r.ok && r.reason !== 'introuvable') { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {}); return; }
+    }
+    finish({ kind: 'moved', title: t.confirmToday, sub: t.confirmTodaySub });
+  };
   const doNow = () => {
     if (confirm) return;
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
@@ -164,7 +187,7 @@ export default function Retard() {
       ) : (
         <>
           <Card r={16} padding={0} style={s.block} accent={colors.sage}>
-            <Row first strong label={t.doNow} sub={points != null ? fill(t.doNowSubMalus, { time: fmtMin(Number(mins) || 15), pts: fmtPts(points) }) : fill(t.doNowSub, { time: fmtMin(Number(mins) || 15) })} right={<Arrow />} onPress={doNow} />
+            <Row first strong label={t.doNow} sub={points != null ? fill(t.doTodaySubMalus, { pts: fmtPts(points) }) : t.doTodaySub} right={<Arrow />} onPress={doToday} />
           </Card>
           <Card r={16} padding={0}>
             <Row first strong label={fill(theirs ? t.giveBack : t.swap, { name: partner.first_name })} sub={theirs ? t.giveBackSub : fill(t.swapSub, { name: partner.first_name })} left={pAvatar} right={<PillChip label={theirs ? t.giveBtn : copy.mission.swapBtn} selected onPress={theirs ? give : swap} />} onPress={theirs ? give : swap} />
@@ -180,6 +203,18 @@ export default function Retard() {
           </Card>
         </>
       )}
+
+      {rule ? (
+        <Card r={16} padding={0} style={{ marginTop: 8 }}>
+          <Row first label={copy.mission.ruleLabel} sub={ruleOpen ? null : [rule.window_days.length ? rule.window_days.map(i => copy.calendar.dowsLong[i].toLowerCase()).join(', ') : copy.mission.ruleAnyDay, copy.mission.who[rule.who] || partner.first_name].join(' · ')} right={<Text style={[s.chev, ruleOpen && { transform: [{ rotate: '90deg' }] }]}>›</Text>} onPress={() => { Haptics.selectionAsync().catch(() => {}); setRuleOpen(o => !o); setAsking(false); }} />
+          {ruleOpen ? (
+            <Animated.View entering={FadeIn.duration(motion.micro)}>
+              <RuleEditor rule={rule} onPatch={patchRule} showMoment showEffort showDuration={false} first={false} onNoteOpen={setNoteOpen}
+                onDeleteTask={ruleRef.current?.id ? async () => { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {}); await deleteRealTask(ruleRef.current.id).catch(() => {}); dirty.current = false; finish({ kind: 'moved', title: fill(copy.mission.confirmDeleted, { task: title }), sub: fill(copy.mission.confirmDeletedSub, { name: partner.first_name }) }); } : undefined} />
+            </Animated.View>
+          ) : null}
+        </Card>
+      ) : null}
     </View>
   );
 }
