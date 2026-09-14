@@ -1377,7 +1377,49 @@
     "s4Note": "* Chiffres officieux. Bien-être : confirmé.",
     "s5Pill": "Bienvenue",
     "s5Title": "Vous êtes deux à porter le foyer.",
-    "s5Body": "mochi aide les couples à répartir équitablement la charge mentale, sans se prendre la tête."
+    "s5Body": "mochi aide les couples à répartir équitablement la charge mentale, sans se prendre la tête.",
+    "v1aTitle": "Une seule tête porte le foyer.",
+    "v1aBody": "Dans la plupart des couples, l'un des deux fait et pense plus que l'autre. Ça se compte.",
+    "v1aRow1": "Chaque jour",
+    "v1aRow1Sub": "de tâches en plus pour cette personne",
+    "v1aRow2": "Chaque semaine",
+    "v1aRow2Sub": "l'équivalent d'une soirée",
+    "v1aRow3": "Sur l'année",
+    "v1aRow3Sub": "tâches domestiques et organisation",
+    "v1aRow3Value": "un mi-temps",
+    "v1bPill": "Le constat",
+    "v1bTitle": "Ça penche toujours du même côté.",
+    "v1bOne": "L'un",
+    "v1bOther": "L'autre",
+    "v1bPerDay": "par jour",
+    "v1bGap": "{daily} de plus par jour pour l'un des deux",
+    "v1bBody": "Tâches domestiques et organisation : dans la plupart des couples, la balance ne bouge pas. Sur l'année, un mi-temps invisible.",
+    "v1cTitle": "Aujourd'hui, pour une seule personne.",
+    "v1cSection": "Aujourd'hui",
+    "v1cMeta": "+{daily} · tous les jours",
+    "v1cItems": [
+      {
+        "c": "🍽️",
+        "t": "Vaisselle"
+      },
+      {
+        "c": "🛒",
+        "t": "Courses"
+      },
+      {
+        "c": "🩺",
+        "t": "RDV pédiatre"
+      },
+      {
+        "c": "🎁",
+        "t": "Cadeau anniv. Marie"
+      },
+      {
+        "c": "🧺",
+        "t": "Lessive"
+      }
+    ],
+    "v1cBody": "{daily} par jour de plus pour la personne qui porte le foyer. Sur l'année, un mi-temps invisible."
   },
   "join": {
     "_labels": {

@@ -6,21 +6,27 @@ import { View, FlatList, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { OnbHeader, SourceLine, CtaOnb, onb } from '../../src/components/onboarding/extra';
 import { Slide01, Slide02, Slide03, Slide04, Slide05 } from '../../src/components/onboarding/slides';
+import { Slide01A, Slide01B, Slide01C } from '../../src/components/onboarding/slide01-variants';
+import { useLocalSearchParams } from 'expo-router';
 import copy from '../../src/data/copy.json';
 import { colors, space } from '../../src/theme';
 import { dailyGapLabel } from '../../src/demo-onboarding';
 
 const t = copy.onboarding;
 const SLIDES = [Slide01, Slide02, Slide03, Slide04, Slide05];
+// propositions pour la slide 01 (14 sept 2026) : ?v=a|b|c
+const VARIANTS = { a: Slide01A, b: Slide01B, c: Slide01C };
 // ligne de source affichée au-dessus du CTA (slides 01 et 03)
 const SOURCES = { 0: t.s1Source, 2: t.s3Source.replace('{daily}', dailyGapLabel()) };
 
 export default function Onboarding() {
+  const { v } = useLocalSearchParams();
+  const slides = VARIANTS[v] ? [VARIANTS[v], ...SLIDES.slice(1)] : SLIDES;
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const list = useRef(null);
   const [index, setIndex] = useState(0);
-  const last = index === SLIDES.length - 1;
+  const last = index === slides.length - 1;
 
   const finish = useCallback(() => router.replace('/(auth)/login'), []); // compte avant le prénom (13 sept 2026)
   const next = useCallback(() => {
@@ -30,7 +36,7 @@ export default function Onboarding() {
 
   const onMomentumScrollEnd = useCallback(e => {
     const i = Math.round(e.nativeEvent.contentOffset.x / width);
-    if (i !== index) setIndex(Math.max(0, Math.min(SLIDES.length - 1, i)));
+    if (i !== index) setIndex(Math.max(0, Math.min(slides.length - 1, i)));
   }, [width, index]);
 
   const bottom = Math.max(insets.bottom, 24);
@@ -41,7 +47,7 @@ export default function Onboarding() {
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <FlatList
         ref={list}
-        data={SLIDES}
+        data={slides}
         keyExtractor={(_, i) => String(i)}
         renderItem={renderItem}
         extraData={index}
