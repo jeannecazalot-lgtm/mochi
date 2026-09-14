@@ -6,6 +6,7 @@ import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { Card, Micro, Avatar, PillLabel } from '../ui';
 import { CheckCircle, Chevron } from '../social/extra';
+import { Icon, ICON } from '../core/extra';
 import { Animated, useCheckPop } from '../motion';
 import { colors, alpha, radius, font } from '../../theme';
 
@@ -56,6 +57,15 @@ export function RuleGroup({ label, children, first, row }) {
   );
 }
 
+// ─── corbeille (Jeanne 15 sept 2026 : « pas besoin d'Enregistrer, un picto pour supprimer ») ───
+export function TrashButton({ onPress, label }) {
+  return (
+    <Pressable onPress={onPress} accessibilityLabel={label} style={({ pressed }) => [s.trash, pressed && { opacity: 0.7 }]}>
+      <Icon d={ICON.trash} size={20} color={colors.coralDeep} sw={1.8} />
+    </Pressable>
+  );
+}
+
 // ─── ligne de confirmation (variante B, choisie par Jeanne le 10 sept 2026) : la sheet garde
 // sa forme, la première carte devient une ligne d'état — avatar de l'autre ou coche à gauche,
 // pastille à droite. Sert à toutes les confirmations (proposé, rendu, déplacé, rappel, fait).
@@ -97,6 +107,7 @@ const s = StyleSheet.create({
   stepBtn: { width: 26, height: 26, borderRadius: 13, backgroundColor: alpha(colors.ink, 0.06), alignItems: 'center', justifyContent: 'center' },
   stepTxt: { fontSize: 15, fontWeight: '600', color: colors.ink, lineHeight: 17 },
   stepVal: { fontSize: 15, fontWeight: '600', color: colors.ink, fontVariant: ['tabular-nums'], minWidth: 52, textAlign: 'center' },
+  trash: { width: 52, height: 52, borderRadius: 17, backgroundColor: alpha(colors.coral, 0.14), alignItems: 'center', justifyContent: 'center', alignSelf: 'flex-end' },
   chip: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, height: 30, paddingHorizontal: 11, borderRadius: radius.pill, backgroundColor: alpha(colors.ink, 0.05), borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
   chipOn: { backgroundColor: colors.ink, borderColor: colors.ink },
   chipTxt: { fontSize: 13, fontWeight: '600', color: colors.ink },

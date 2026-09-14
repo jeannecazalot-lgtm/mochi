@@ -1,14 +1,14 @@
 // Pense-bête · fiche (sheet, depuis le ⊕ ou une note existante `?id=`) — retour Ketley 12 sept 2026 :
 // « ça devrait apparaître en fenêtre sur le bas de l'écran comme pour ajouter une tâche », « choisir la
 // date en mode calendrier et qu'il s'affiche dans notre planning… avec date, rappel, note ».
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import { View, Text, TextInput, Pressable, StyleSheet, KeyboardAvoidingView, Keyboard } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
-import { Card } from '../src/components/ui';
+import { Card, CTAPrimary } from '../src/components/ui';
 import { SheetHandle } from '../src/components/social/extra';
-import { Row, PillChip, Arrow } from '../src/components/task/proto';
+import { Row, PillChip, Arrow, TrashButton } from '../src/components/task/proto';
 import { Toggle } from '../src/components/task/extra';
 import { DateGrid } from '../src/components/date-grid';
 import { EmojiPicker } from '../src/components/emoji-picker';
@@ -35,6 +35,11 @@ export default function NoteSheet() {
   const onGrowLayout = useSheetGrow(dateOpen || bodyOpen, bodyOpen, CREATE_SHEET_MIN);
   useEffect(() => { if (id) loadNotes().then(rows => { const n = rows.find(x => x.id === id); if (n) { setExisting(n); setEmoji(n.emoji || NOTE_EMOJIS[0]); setTitle(n.title || n.body || ''); setBody(n.title ? n.body || '' : ''); setDate(n.due_date || null); setRemind(!!n.remind); } }); }, [id]);
 
+  // existant : s'enregistre à la fermeture (Jeanne 15 sept 2026)
+  const latest = useRef(null); latest.current = { existing, title, body, emoji, date, remind };
+  const initial = useRef(null);
+  useEffect(() => { if (existing && !initial.current) initial.current = JSON.stringify({ title, body, emoji, date, remind }); }, [existing, title]);
+  useEffect(() => () => { const l = latest.current; if (!l?.existing || !l.title.trim()) return; if (JSON.stringify({ title: l.title, body: l.body, emoji: l.emoji, date: l.date, remind: l.remind }) !== initial.current) saveNote({ id: l.existing.id, title: l.title, body: l.body, emoji: l.emoji, due_date: l.date, remind: l.date ? l.remind : false }); }, []);
   const save = async () => {
     if (!title.trim()) return;
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
@@ -64,11 +69,14 @@ export default function NoteSheet() {
           ) : null}
           {date ? <Row label={t.remindLabel} sub={t.remindSub} right={<Toggle on={remind} onChange={setRemind} />} /> : null}
         </Card>
-        <Card r={16} padding={0}>
-          <Row first strong label={existing ? copy.common.save : t.add} sub={title.trim() ? null : t.newTitlePlaceholder} right={<Arrow />} onPress={title.trim() ? save : undefined} />
-          {existing ? <Row label={<Text style={{ color: colors.coralDeep }}>{t.delete}</Text>} onPress={remove} /> : null}
-          {!existing ? <Row label={t.seeAll} right={<Arrow />} onPress={() => { router.back(); setTimeout(() => router.push('/pense-bete'), 250); }} /> : null}
-        </Card>
+        {existing
+          ? <View style={{ marginTop: 18 }}><TrashButton onPress={remove} label={t.delete} /></View>
+          : (
+            <View style={{ marginTop: 14 }}>
+              <CTAPrimary label={t.add} disabled={!title.trim()} onPress={save} big />
+              <Pressable onPress={() => { router.back(); setTimeout(() => router.push('/pense-bete'), 250); }} hitSlop={8} style={{ alignSelf: 'center', marginTop: 14 }}><Text style={s.link}>{t.seeAll}</Text></Pressable>
+            </View>
+          )}
       </Pressable>
     </KeyboardAvoidingView>
   );

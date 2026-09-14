@@ -28,6 +28,7 @@ export const ICON = {
   event: 'M8 3v4M16 3v4M4 9h16M5 5h14a1 1 0 011 1v13a1 1 0 01-1 1H5a1 1 0 01-1-1V6a1 1 0 011-1z',
   expense: 'M3 8a2 2 0 012-2h14a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V8zM3 10h18M16 15h2',
   note: 'M4 4h12l4 4v12H4V4zM16 4v4h4M8 12h8M8 16h5',
+  trash: 'M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3',
 };
 
 // ─── badge de mission : 11/700 tracking 0,6 uppercase, padding 8 10 ──

@@ -9,10 +9,10 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { View, TextInput, StyleSheet, KeyboardAvoidingView, Keyboard, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSheetGrow, CREATE_SHEET_MIN } from '../../src/components/sheet-grow';
-import { Card } from '../../src/components/ui';
+import { Card, CTAPrimary } from '../../src/components/ui';
 import { SheetHandle } from '../../src/components/social/extra';
 import { TaskHeader } from '../../src/components/task/extra';
-import { Row, Arrow } from '../../src/components/task/proto';
+import { TrashButton } from '../../src/components/task/proto';
 import { RuleEditor } from '../../src/components/task/rule-editor';
 import { dayKeys, me, partner } from '../../src/demo-task';
 import { loadRealTask, saveRealTask, createRealTask, deleteRealTask } from '../../src/task-actions';
@@ -97,13 +97,11 @@ export function TaskEditBody({ page = false }) {
           />
         </View>
         <Card r={16} padding={0} style={s.block}>
-          <RuleEditor rule={f} onPatch={patch} showMoment showEffort mochiDays={f.mochiDays || null} onNoteOpen={setNoteOpen} onDeleteTask={id ? async () => { await deleteRealTask(String(id)).catch(() => {}); dirty.current = false; router.back(); } : undefined} />
+          <RuleEditor rule={f} onPatch={patch} showMoment showEffort mochiDays={f.mochiDays || null} onNoteOpen={setNoteOpen} />
         </Card>
-        {isNew ? (
-          <Card r={16} padding={0}>
-            <Row first strong label={t.ctaCreate} sub={f.title.trim() ? null : t.titlePlaceholder} right={<Arrow />} onPress={f.title.trim() ? create : undefined} />
-          </Card>
-        ) : null}
+        {isNew
+          ? <View style={{ marginTop: 14 }}><CTAPrimary label={t.ctaCreate} disabled={!f.title.trim()} onPress={create} big /></View>
+          : id ? <View style={{ marginTop: 18 }}><TrashButton onPress={async () => { await deleteRealTask(String(id)).catch(() => {}); dirty.current = false; router.back(); }} label={copy.mission.deleteTask} /></View> : null}
       </Pressable>
     </KeyboardAvoidingView>
   );

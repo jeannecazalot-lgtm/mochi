@@ -8,7 +8,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, Keyboard } from 'react-native';
 import { LinkText } from '../ui';
-import { Row, Stepper, PillChip, RuleGroup, Arrow } from './proto';
+import { Row, Stepper, PillChip, RuleGroup, Arrow, TrashButton } from './proto';
 import { Stars } from './extra';
 import { me, partner, fmtMin } from '../../demo';
 import copy from '../../data/copy.json';
@@ -57,7 +57,7 @@ export function RuleEditor({ rule, onPatch, showMoment = false, showEffort = fal
         )
         : <Row label={t.ruleNote} sub={rule.note ? <LinkText>{rule.note}</LinkText> : t.notePlaceholder} right={<Arrow />} onPress={() => setNoteOpen(true)} />}
       {onSkipOnce ? <Row label={t.skipOnce} sub={t.skipOnceSub} right={<Arrow />} onPress={onSkipOnce} /> : null}
-      {onDeleteTask ? <Row label={<Text style={s.danger}>{t.deleteTask}</Text>} sub={t.deleteTaskSub} onPress={onDeleteTask} /> : null}
+      {onDeleteTask ? <View style={{ paddingHorizontal: 14, paddingVertical: 12 }}><TrashButton onPress={onDeleteTask} label={t.deleteTask} /></View> : null}
     </View>
   );
 }

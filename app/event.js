@@ -1,14 +1,14 @@
 // Événement (sheet) — même langage que la sheet Tâche (Jeanne 14 sept 2026 : « unifie la DA des tâches
 // avec les événements, dépenses et pense-bête »). Écrit dans `events` (détails en jsonb, migration
 // 0007). `?id=` = édition. Porteur d'une ligne : moi → l'autre → à deux.
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import { View, Text, TextInput, Pressable, StyleSheet, KeyboardAvoidingView, Keyboard } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
-import { Card, Avatar } from '../src/components/ui';
+import { Card, Avatar, CTAPrimary } from '../src/components/ui';
 import { SheetHandle } from '../src/components/social/extra';
-import { Row, PillChip, Arrow } from '../src/components/task/proto';
+import { Row, PillChip, Arrow, TrashButton } from '../src/components/task/proto';
 import { AvatarPair } from '../src/components/core/extra';
 import { EmojiPicker } from '../src/components/emoji-picker';
 import { DateGrid } from '../src/components/date-grid';
@@ -61,35 +61,40 @@ export default function Evenement() {
   const whoOf = it => (it.who === 'partner' ? partner : me);
   const nextWho = w => (w === 'me' ? 'partner' : w === 'partner' ? 'both' : 'me');
 
-  const save = async () => {
+  const saveWith = async (l, silent = false) => {
     await loadSetup();
     const hid = setup.householdId;
     const uid = getUid();
-    if (!hid || !uid) { router.back(); return; } // démo : rien à écrire
+    if (!hid || !uid) { if (!silent) router.back(); return; } // démo : rien à écrire
     const puid = getPartnerUid();
-    const who = [...new Set(items.flatMap(it => (it.who === 'both' ? [uid, puid] : it.who === 'partner' ? [puid] : [uid])).filter(Boolean))];
-    const [h, m] = /^(\d{1,2})\s*[h:]?\s*(\d{0,2})$/.exec(time.trim()) ? [RegExp.$1, RegExp.$2 || '0'] : ['20', '0'];
-    const starts = new Date(`${date}T${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:00`);
+    const who = [...new Set(l.items.flatMap(it => (it.who === 'both' ? [uid, puid] : it.who === 'partner' ? [puid] : [uid])).filter(Boolean))];
+    const [h, m] = /^(\d{1,2})\s*[h:]?\s*(\d{0,2})$/.exec(l.time.trim()) ? [RegExp.$1, RegExp.$2 || '0'] : ['20', '0'];
+    const starts = new Date(`${l.date}T${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:00`);
     await mutate('events', {
-      ...(existing || { id: uuid(), household_id: hid, created_by: uid }),
-      title: title.trim(), emoji, starts_at: starts.toISOString(), who,
-      details: { ...(existing?.details || {}), note: note.trim(), time: time.trim(), place: place.trim(), items: items.filter(it => it.label.trim()).map(it => ({ ...it, label: it.label.trim() })) },
+      ...(l.existing || { id: uuid(), household_id: hid, created_by: uid }),
+      title: l.title.trim(), emoji: l.emoji, starts_at: starts.toISOString(), who,
+      details: { ...(l.existing?.details || {}), note: l.note.trim(), time: l.time.trim(), place: l.place.trim(), items: l.items.filter(it => it.label.trim()).map(it => ({ ...it, label: it.label.trim() })) },
     });
     occStore.bump();
-    if (!existing) {
-      const vars = { event: title.trim(), day: fmtDate(date) };
+    if (!l.existing) {
+      const vars = { event: l.title.trim(), day: fmtDate(l.date) };
       logActivity({ type: 'ping', preset_key: 'eventCreated', payload: vars }).catch(() => {});
       pushToPartner('eventCreated', vars, '/(tabs)/planning');
     }
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-    router.back();
+    if (!silent) { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {}); router.back(); }
   };
+  const save = () => saveWith({ existing, title, emoji, date, time, place, items, note });
   const remove = async () => {
     if (!existing) return;
     await mutate('events', { ...existing, deleted_at: new Date().toISOString() });
     occStore.bump(); router.back();
   };
   const valid = title.trim() && date;
+  // existant : s'enregistre à la fermeture (Jeanne 15 sept 2026)
+  const latest = useRef(null); latest.current = { existing, title, emoji, date, time, place, items, note, valid };
+  const initial = useRef(null);
+  useEffect(() => { if (existing && !initial.current) initial.current = JSON.stringify({ title, emoji, date, time, place, items, note }); }, [existing, title]);
+  useEffect(() => () => { const l = latest.current; if (!l?.existing || !l.valid) return; if (JSON.stringify({ title: l.title, emoji: l.emoji, date: l.date, time: l.time, place: l.place, items: l.items, note: l.note }) !== initial.current) saveWith(l, true); }, []);
 
   return (
     <KeyboardAvoidingView behavior="padding" style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 31) }]} onLayout={onGrowLayout}>
@@ -125,10 +130,9 @@ export default function Evenement() {
             : <Row label={t.noteLabel} sub={note || t.notePlaceholder} right={<Arrow />} onPress={() => setNoteOpen(true)} />}
         </Card>
 
-        <Card r={16} padding={0}>
-          <Row first strong label={existing ? copy.common.save : t.cta} sub={valid ? null : !title.trim() ? t.titlePlaceholder : t.needDate} right={<Arrow />} onPress={valid ? save : undefined} />
-          {existing ? <Row label={<Text style={{ color: colors.coralDeep }}>{t.delete}</Text>} onPress={remove} /> : null}
-        </Card>
+        {existing
+          ? <View style={{ marginTop: 18 }}><TrashButton onPress={remove} label={t.delete} /></View>
+          : <View style={{ marginTop: 14 }}><CTAPrimary label={t.cta} disabled={!valid} onPress={save} big /></View>}
       </Pressable>
     </KeyboardAvoidingView>
   );
