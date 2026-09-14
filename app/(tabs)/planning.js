@@ -258,7 +258,11 @@ export default function Planning() {
     return () => clearTimeout(id);
   }, [realGroups]);
   // la bande des jours suit la liste (retour Ketley 12 sept 2026 : « quand je scroll, mardi devrait passer en noir »)
+  // tap sur un jour : pendant le défilement animé, la bande ne se re-sélectionne pas toute seule
+  // (bug 15 sept 2026 : le jour tapé repassait sur un autre) ; un jour vide sélectionne le prochain jour rempli
+  const jumping = useRef(0);
   const onScroll = e => {
+    if (Date.now() - jumping.current < 800) return;
     const y = e.nativeEvent.contentOffset.y + 24;
     let cur = null;
     for (const [iso, gy] of Object.entries(groupY.current).filter(([k]) => k !== '__late').sort((a, b) => a[1] - b[1])) if (gy <= y) cur = iso;
@@ -267,8 +271,11 @@ export default function Planning() {
   const jumpTo = date => {
     const iso = localIso(date);
     setSelectedIso(iso);
-    const y = groupY.current[iso];
+    jumping.current = Date.now();
+    let y = groupY.current[iso];
+    if (y == null) { const next = Object.keys(groupY.current).filter(k => k !== '__late' && k > iso).sort()[0]; y = next ? groupY.current[next] : null; }
     if (y != null) scrollRef.current?.scrollTo({ y: Math.max(0, y - 8), animated: true });
+    else scrollRef.current?.scrollToEnd({ animated: true });
   };
   // la liste couvre exactement les 7 jours de la bande (les retards restent en tête)
   const lastIso = localIso(addDays(base, 6));
