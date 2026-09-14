@@ -205,6 +205,61 @@ const B9 = p => (
     </Card>
   </Frame>
 );
+// ─── Version finale : les textes de Jeanne (14 sept 2026, travaillés avec ChatGPT), style B ───
+const j = copy.onbFinal;
+const Src = ({ children }) => <Text style={s.src}>{children}</Text>;
+const J1 = p => (
+  <Frame {...p} title={j.s1Title} body={j.s1Body}>
+    <Card r={16} padding={0} style={s.card}>
+      {j.s1Rows.map((r, i) => <Row key={i} first={i === 0} label={r.t} right={<Text style={[s.num, i === 2 && { color: colors.coralDeep }]}>{r.v}</Text>} />)}
+    </Card>
+    <Src>{j.s1Source}</Src>
+  </Frame>
+);
+const J2 = p => (
+  <Frame {...p} title={j.s2Title} body={j.s2Body} intensity="soft">
+    <Card r={16} padding={0} style={s.card}>
+      {o.s2Items.map((it, i) => <Row key={i} first={i === 0} label={it.t} sub={it.s} left={<Text style={{ fontSize: 18 }}>{it.c}</Text>} />)}
+    </Card>
+  </Frame>
+);
+const J3 = p => (
+  <Frame {...p} title={j.s3Title} body={j.s3Body}>
+    <Card r={16} padding={0} style={s.card}>
+      {o.s4Rows.map((label, i) => <Row key={i} first={i === 0} label={label} right={<Text style={[s.num, pitch.avoidedPerYear[i].accent && { color: colors.coralDeep }]}>{pitch.avoidedPerYear[i].value ? `×${pitch.avoidedPerYear[i].value}` : '0'}</Text>} />)}
+      <Row strong label={o.s4Total} right={<Text style={[s.num, { color: colors.sageDeep }]}>{fill(o.s4TotalValue, { n: pitch.coupleBreathing })}</Text>} />
+    </Card>
+    <Src>{j.s3Source}</Src>
+  </Frame>
+);
+const J4 = p => (
+  <Frame {...p} title={j.s4Title} body={j.s4Body} intensity="soft">
+    <Card r={16} padding={0} style={s.card}>
+      <View style={{ paddingHorizontal: 14, paddingTop: 14, paddingBottom: 12 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+          <View><Text style={[s.heroName, { color: A.deep }]}>{t.one}</Text><Text style={[s.heroNum, { fontSize: 24, lineHeight: 26 }]}>52%</Text></View>
+          <PillLabel color={colors.sage}>{t.balancedPill}</PillLabel>
+          <View style={{ alignItems: 'flex-end' }}><Text style={[s.heroName, { color: B.deep }]}>{t.other}</Text><Text style={[s.heroNum, { fontSize: 24, lineHeight: 26 }]}>48%</Text></View>
+        </View>
+        <Bar left={0.52} />
+      </View>
+      <Row label={t.c3Items[0]} sub={t.s6Sub1} left={<Text style={{ fontSize: 18 }}>🍽️</Text>} right={<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Avatar initial={A.initial} color={A.color} size={22} /><CheckCircle done /></View>} />
+      <Row label={t.c3Items[1]} sub={t.s6Sub2} left={<Text style={{ fontSize: 18 }}>🛒</Text>} right={<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Avatar initial={B.initial} color={B.color} size={22} /><CheckCircle done={false} /></View>} />
+      <Row label={t.c3Items[2]} sub={t.s6Sub3} left={<Text style={{ fontSize: 18 }}>🗑️</Text>} right={<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><View style={{ flexDirection: 'row' }}><Avatar initial={A.initial} color={A.color} size={22} ring /><View style={{ marginLeft: -7 }}><Avatar initial={B.initial} color={B.color} size={22} ring /></View></View><CheckCircle done={false} /></View>} />
+    </Card>
+  </Frame>
+);
+const J5 = p => (
+  <Frame {...p} title={j.s5Title} body={j.s5Body}>
+    <Card r={16} padding={0} style={s.card}>
+      <Row first label={t.b5Row1} sub={t.b5Row1Sub} left={<Avatar initial={A.initial} color={A.color} size={24} />} />
+      <Row label={t.b5Row2} sub={t.b5Row2Sub} left={<Avatar initial={B.initial} color={B.color} size={24} />} />
+      <Row label={t.b5Row3} sub={j.s5Mochi} left={<LiveMochi size={26} float={false} />} />
+    </Card>
+  </Frame>
+);
+export const FINAL = [J1, J2, J3, J4, J5];
+
 // 5 slides maximum (Jeanne 14 sept) : ses trois, puis « Mochi répartit » (avec chacun sa journée) et la balance
 export const ITERATIONS = { a: [A1, A2, A3, A4, A5], b: [B1, B2, B3, B4, B6, B5], b5: [B1, B2, B3, B4, B5], b9: [B1, B2, B3, B4b, B4, B6, B5, B8, B9], c: [C1, C2, C3, C4, C5] };
 
@@ -223,6 +278,7 @@ const s = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 11 },
   rowLine: { borderBottomWidth: 1, borderBottomColor: colors.line },
   note: { width: '47%', borderRadius: 14, paddingVertical: 12, paddingHorizontal: 13, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline, minHeight: 80 },
+  src: { ...font.caption, textAlign: 'center', marginTop: 10 },
   noteTitle: { fontSize: 14.5, fontWeight: '600', color: colors.ink },
   noteSub: { ...font.caption, marginTop: 4 },
 });

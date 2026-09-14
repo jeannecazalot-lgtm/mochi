@@ -1940,5 +1940,38 @@
         "s": "un récap chaque soir, jamais de spam"
       }
     ]
+  },
+  "onbFinal": {
+    "_labels": {
+      "_": "Onboarding final, textes de Jeanne du 14 sept 2026 (5 slides, style B)"
+    },
+    "s1Title": "Quand l'un porte plus, ça finit par peser.",
+    "s1Body": "Dans beaucoup de foyers, une personne consacre davantage de temps aux tâches domestiques et à leur organisation.",
+    "s1Rows": [
+      {
+        "t": "Chaque jour",
+        "v": "+1h26"
+      },
+      {
+        "t": "Chaque semaine",
+        "v": "≈ 10h"
+      },
+      {
+        "t": "Sur l'année",
+        "v": "≈ 260h"
+      }
+    ],
+    "s1Source": "Insee · Enquête emploi du temps",
+    "s2Title": "Faire est une chose. Y penser en est une autre.",
+    "s2Body": "Anticiper, se rappeler, organiser, relancer. Tout ce travail invisible fait aussi partie de ce qu'il y a à partager.",
+    "s3Title": "Et tout ce qu'on s'épargne au passage.",
+    "s3Body": "Une charge mieux répartie, c'est aussi moins de tensions inutiles au quotidien.",
+    "s3Source": "Chiffres officieux. Bien-être : confirmé.",
+    "s4Title": "Mochi répartit. Et voit quand ça penche.",
+    "s4Body": "Vos tâches, vos disponibilités, vos préférences. Mochi aide à répartir la semaine et vous montre si la charge dérive.",
+    "s5Title": "À deux, c'est plus léger.",
+    "s5Body": "Chacun sait ce qu'il a à faire. Mochi garde un œil sur l'équilibre et sur ce qu'il ne faut pas oublier.",
+    "s5Mochi": "répartit, rappelle et le dit quand ça penche",
+    "start": "Configurer Mochi →"
   }
 }

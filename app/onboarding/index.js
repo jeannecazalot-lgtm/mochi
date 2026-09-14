@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { OnbHeader, SourceLine, CtaOnb, onb } from '../../src/components/onboarding/extra';
 import { Slide01, Slide02, Slide03, Slide04, Slide05 } from '../../src/components/onboarding/slides';
 import { Slide01A, Slide01B, Slide01C } from '../../src/components/onboarding/slide01-variants';
-import { ITERATIONS } from '../../src/components/onboarding/iterations';
+import { ITERATIONS, FINAL } from '../../src/components/onboarding/iterations';
 import { useLocalSearchParams } from 'expo-router';
 import copy from '../../src/data/copy.json';
 import { colors, space } from '../../src/theme';
@@ -22,7 +22,8 @@ const SOURCES = { 0: t.s1Source, 2: t.s3Source.replace('{daily}', dailyGapLabel(
 
 export default function Onboarding() {
   const { v, it, s: startAt } = useLocalSearchParams(); // it=a|b|c : itération complète ; s=n : slide de départ (captures)
-  const slides = ITERATIONS[it] ? ITERATIONS[it] : VARIANTS[v] ? [VARIANTS[v], ...SLIDES.slice(1)] : SLIDES;
+  // par défaut : la version finale de Jeanne (14 sept 2026) ; ?it=old pour l'ancien onboarding
+  const slides = it === 'old' ? SLIDES : ITERATIONS[it] ? ITERATIONS[it] : VARIANTS[v] ? [VARIANTS[v], ...SLIDES.slice(1)] : FINAL;
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const list = useRef(null);
@@ -68,13 +69,13 @@ export default function Onboarding() {
       </View>
 
       {/* pied fixe : source (01, 03) + CTA */}
-      {!ITERATIONS[it] && SOURCES[index] ? (
+      {it === 'old' && SOURCES[index] ? (
         <View pointerEvents="none" style={{ position: 'absolute', bottom: bottom + 54, left: 22, right: 22 }}>
           <SourceLine>{SOURCES[index]}</SourceLine>
         </View>
       ) : null}
       <View style={{ position: 'absolute', bottom, left: space.screenX, right: space.screenX }}>
-        <CtaOnb label={last ? t.start : t.next} onPress={next} />
+        <CtaOnb label={last ? (it === 'old' ? t.start : copy.onbFinal.start) : t.next} onPress={next} />
       </View>
     </View>
   );
