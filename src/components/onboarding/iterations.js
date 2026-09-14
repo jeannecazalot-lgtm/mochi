@@ -26,7 +26,7 @@ function Frame({ width, headerH, title, body, children, intensity = 'strong' }) 
     <View style={{ width, alignSelf: 'stretch' }}>
       <GlowBg intensity={intensity} />
       <View style={{ paddingTop: headerH + 26, paddingHorizontal: 24 }}>
-        <Text style={s.title} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>{title}</Text>
+        <Text style={s.title} numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.85}>{title}</Text>
         <View style={s.visual}>{children}</View>
         <Text style={s.body}>{body}</Text>
       </View>
@@ -36,17 +36,27 @@ function Frame({ width, headerH, title, body, children, intensity = 'strong' }) 
 
 const Pill = ({ children, color = colors.coral }) => <View style={{ marginTop: 14 }}><PillLabel color={color}>{children}</PillLabel></View>;
 
+// Textes de Jeanne pour 01 · 02 · 03 (« plus explicatifs »), puis ce que propose mochi (14 sept 2026).
+const o = copy.onboarding;
+const T1 = `${o.s1Title1} ${o.s1Title2} ${o.s1TitleAccent}`;
+const T2 = `${o.s2TitleA1} ${o.s2Title1} ${o.s2TitleA2} ${o.s2Title2}`;
+const T3 = `${o.s3Kicker} : ${fill(o.s3SubAccent, { n: pitch.yearlyFullDays })}`;
+const B1txt = `${fill(o.s1Body, { daily })} ${o.s1BodyEm}`;
+const B2txt = `${o.s2Kicker} ${o.s2Outro} ${o.s2OutroStrong}`;
+const B3txt = `${o.s3Sub1} ${fill(o.s3SubAccent, { n: pitch.yearlyFullDays })} ${o.s3Sub2}`;
+const alts = o.s3Alt.map((label, i) => ({ n: fill(o.s3Times, { n: pitch.yearlyAlternatives[i] }), label }));
+
 // ─── a · Mochi raconte ───
-const A1 = p => <Frame {...p} title={t.s1Title} body={fill(t.s1Body, { daily })}><LiveMochi size={150} mood="sad" /><Pill>{fill(t.s1Pill, { daily })}</Pill></Frame>;
-const A2 = p => <Frame {...p} title={t.s2Title} body={t.s2Body} intensity="soft"><LiveMochi size={150} mood="sad" /><Pill color={colors.lavender}>{t.s2Pill}</Pill></Frame>;
-const A3 = p => <Frame {...p} title={t.s3Title} body={t.s3Body}><LiveMochi size={150} mood="happy" /><Pill color={colors.sage}>{t.s3Pill}</Pill></Frame>;
-const A4 = p => <Frame {...p} title={t.s4Title} body={t.s4Body} intensity="soft"><LiveMochi size={150} mood="happy" /><Pill color={colors.butter}>{t.s4Pill}</Pill></Frame>;
-const A5 = p => <Frame {...p} title={t.s5Title} body={t.s5Body}><LiveMochi size={150} mood="happy" /><View style={{ flexDirection: 'row', marginTop: 14 }}><Avatar initial={A.initial} color={A.color} size={30} ring /><View style={{ marginLeft: -8 }}><Avatar initial={B.initial} color={B.color} size={30} ring /></View></View></Frame>;
+const A1 = p => <Frame {...p} title={T1} body={B1txt}><LiveMochi size={150} mood="sad" /><Pill>{fill(t.s1Pill, { daily })}</Pill></Frame>;
+const A2 = p => <Frame {...p} title={T2} body={B2txt} intensity="soft"><LiveMochi size={150} mood="sad" /><Pill color={colors.lavender}>{t.s2Pill}</Pill></Frame>;
+const A3 = p => <Frame {...p} title={T3} body={B3txt}><LiveMochi size={150} mood="neutral" /><Pill color={colors.butter}>{`${pitch.fmtHours(pitch.yearlyHours)} ${o.s3Unit}`}</Pill></Frame>;
+const A4 = p => <Frame {...p} title={t.s3Title} body={t.s3Body} intensity="soft"><LiveMochi size={150} mood="happy" /><Pill color={colors.sage}>{t.s3Pill}</Pill></Frame>;
+const A5 = p => <Frame {...p} title={t.s4Title} body={t.s4Body}><LiveMochi size={150} mood="happy" /><Pill color={colors.butter}>{t.s4Pill}</Pill></Frame>;
 
 // ─── b · cartes (DA des sheets) ───
 const Bar = ({ left }) => <View style={s.bar}><View style={{ flex: left, backgroundColor: A.color }} /><View style={{ flex: 1 - left, backgroundColor: B.color }} /></View>;
 const B1 = p => (
-  <Frame {...p} title={t.s1Title} body={fill(t.s1Body, { daily })}>
+  <Frame {...p} title={T1} body={B1txt}>
     <Card r={16} padding={0} style={s.card}>
       <Row first label={t.b1Row1} sub={t.b1Row1Sub} right={<Text style={s.num}>{daily}</Text>} />
       <Row label={t.b1Row2} sub={t.b1Row2Sub} right={<Text style={s.num}>{pitch.fmtHours(pitch.weeklyGapHours)}</Text>} />
@@ -55,21 +65,29 @@ const B1 = p => (
   </Frame>
 );
 const B2 = p => (
-  <Frame {...p} title={t.s2Title} body={t.s2Body} intensity="soft">
+  <Frame {...p} title={T2} body={B2txt} intensity="soft">
     <Card r={16} padding={0} style={s.card}>
-      {t.thoughts.map((it, i) => <Row key={i} first={i === 0} label={it.t} sub={it.s} left={<Text style={{ fontSize: 18 }}>{it.c}</Text>} />)}
+      {o.s2Items.map((it, i) => <Row key={i} first={i === 0} label={it.t} sub={it.s} left={<Text style={{ fontSize: 18 }}>{it.c}</Text>} />)}
     </Card>
   </Frame>
 );
 const B3 = p => (
-  <Frame {...p} title={t.s3Title} body={t.s3Body}>
+  <Frame {...p} title={T3} body={B3txt}>
+    <Card r={16} padding={0} style={s.card}>
+      <Row first label={`${pitch.fmtHours(pitch.yearlyHours)} ${o.s3Unit}`} sub={o.s3Breakdown} right={<Text style={[s.num, { color: colors.coralDeep }]}>{fill(o.s3SubAccent, { n: pitch.yearlyFullDays }).replace(',', '')}</Text>} />
+      {alts.map((al, i) => <Row key={i} label={al.label} right={<Text style={s.num}>{al.n}</Text>} />)}
+    </Card>
+  </Frame>
+);
+const B4 = p => (
+  <Frame {...p} title={t.s3Title} body={t.s3Body} intensity="soft">
     <Card r={16} padding={0} style={s.card}>
       {t.steps.map((st, i) => <Row key={i} first={i === 0} label={st.t} sub={st.s} left={<View style={s.stepNum}><Text style={s.stepTxt}>{i + 1}</Text></View>} />)}
     </Card>
   </Frame>
 );
-const B4 = p => (
-  <Frame {...p} title={t.s4Title} body={t.s4Body} intensity="soft">
+const B5 = p => (
+  <Frame {...p} title={t.s4Title} body={t.s4Body}>
     <Card r={18} padding={18} style={s.card}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
         <View><Text style={[s.heroName, { color: A.deep }]}>{t.one}</Text><Text style={s.heroNum}>52%</Text></View>
@@ -77,15 +95,6 @@ const B4 = p => (
       </View>
       <Bar left={0.52} />
       <View style={{ alignItems: 'center', marginTop: 12 }}><PillLabel color={colors.sage}>{t.balancedPill}</PillLabel></View>
-    </Card>
-  </Frame>
-);
-const B5 = p => (
-  <Frame {...p} title={t.s5Title} body={t.s5Body}>
-    <Card r={16} padding={0} style={s.card}>
-      <Row first label={t.b5Row1} sub={t.b5Row1Sub} left={<Avatar initial={A.initial} color={A.color} size={24} />} />
-      <Row label={t.b5Row2} sub={t.b5Row2Sub} left={<Avatar initial={B.initial} color={B.color} size={24} />} />
-      <Row label={t.b5Row3} sub={t.b5Row3Sub} left={<LiveMochi size={26} float={false} />} />
     </Card>
   </Frame>
 );
@@ -108,16 +117,16 @@ const Mini = ({ label, meta, children }) => (
   </View>
 );
 const C1 = p => (
-  <Frame {...p} title={t.s1Title} body={fill(t.s1Body, { daily })}>
+  <Frame {...p} title={T1} body={B1txt}>
     <Mini label={t.today} meta={fill(t.c1Meta, { daily })}>
       {t.c1Items.map((it, i) => <ListRow key={i} emoji={it.c} title={it.t} who={A} last={i === t.c1Items.length - 1} />)}
     </Mini>
   </Frame>
 );
 const C2 = p => (
-  <Frame {...p} title={t.s2Title} body={t.s2Body} intensity="soft">
+  <Frame {...p} title={T2} body={B2txt} intensity="soft">
     <View style={[s.card, { flexDirection: 'row', flexWrap: 'wrap', gap: 8 }]}>
-      {t.thoughts.slice(0, 4).map((it, i) => (
+      {o.s2Items.slice(0, 4).map((it, i) => (
         <View key={i} style={[s.note, { backgroundColor: [alpha(colors.butter, 0.7), alpha(colors.sky, 0.6), alpha(colors.lavender, 0.55), alpha(colors.sage, 0.55)][i], transform: [{ rotate: i % 2 ? '-0.8deg' : '0.6deg' }] }]}>
           <Text style={s.noteTitle}>{it.c} {it.t}</Text><Text style={s.noteSub}>{it.s}</Text>
         </View>
@@ -126,7 +135,18 @@ const C2 = p => (
   </Frame>
 );
 const C3 = p => (
-  <Frame {...p} title={t.s3Title} body={t.s3Body}>
+  <Frame {...p} title={T3} body={B3txt}>
+    <View style={[s.card, { flexDirection: 'row', flexWrap: 'wrap', gap: 8 }]}>
+      {alts.map((al, i) => (
+        <View key={i} style={[s.note, { width: i === 2 ? '100%' : '47%', backgroundColor: [alpha(colors.butter, 0.7), alpha(colors.sky, 0.6), alpha(colors.sage, 0.55)][i] }]}>
+          <Text style={[s.noteTitle, { fontSize: 22 }]}>{al.n}</Text><Text style={s.noteSub}>{al.label}</Text>
+        </View>
+      ))}
+    </View>
+  </Frame>
+);
+const C4 = p => (
+  <Frame {...p} title={t.s3Title} body={t.s3Body} intensity="soft">
     <Mini label={t.c3Label}>
       <ListRow emoji="🍽️" title={t.c3Items[0]} who={A} />
       <ListRow emoji="🛒" title={t.c3Items[1]} who={B} />
@@ -135,8 +155,8 @@ const C3 = p => (
     </Mini>
   </Frame>
 );
-const C4 = p => (
-  <Frame {...p} title={t.s4Title} body={t.s4Body} intensity="soft">
+const C5 = p => (
+  <Frame {...p} title={t.s4Title} body={t.s4Body}>
     <View style={s.card}>
       <View style={{ alignItems: 'center', marginBottom: 8 }}><PillLabel color={colors.sage}>{t.balancedPill}</PillLabel></View>
       <Card r={18} padding={16}>
@@ -149,20 +169,12 @@ const C4 = p => (
     </View>
   </Frame>
 );
-const C5 = p => (
-  <Frame {...p} title={t.s5Title} body={t.s5Body}>
-    <View style={{ alignItems: 'center' }}>
-      <LiveMochi size={120} mood="happy" />
-      <View style={{ flexDirection: 'row', marginTop: 12 }}><Avatar initial={A.initial} color={A.color} size={34} ring /><View style={{ marginLeft: -10 }}><Avatar initial={B.initial} color={B.color} size={34} ring /></View></View>
-    </View>
-  </Frame>
-);
 
 export const ITERATIONS = { a: [A1, A2, A3, A4, A5], b: [B1, B2, B3, B4, B5], c: [C1, C2, C3, C4, C5] };
 
 const s = StyleSheet.create({
-  title: { fontSize: 27, fontWeight: '700', letterSpacing: -1, lineHeight: 32, color: colors.ink, height: 34 },
-  visual: { height: 330, justifyContent: 'center', alignItems: 'center', marginTop: 18 },
+  title: { fontSize: 25, fontWeight: '700', letterSpacing: -0.9, lineHeight: 30, color: colors.ink, height: 62 },
+  visual: { height: 320, justifyContent: 'center', alignItems: 'center', marginTop: 10 },
   body: { ...font.secondary, fontSize: 15.5, lineHeight: 23, marginTop: 6, textAlign: 'center' },
   card: { alignSelf: 'stretch' },
   num: { fontSize: 17, fontWeight: '700', color: colors.ink, fontVariant: ['tabular-nums'] },
