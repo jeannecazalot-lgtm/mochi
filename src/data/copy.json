@@ -1714,7 +1714,8 @@
     "momentLabel": "Moment",
     "daysLabel": "Jours",
     "effortSub": "Pèse dans la balance",
-    "ctaCreate": "Créer la tâche"
+    "ctaCreate": "Créer la tâche",
+    "needTitle": "Donne un nom à la tâche, en haut"
   },
   "props": {
     "_labels": {

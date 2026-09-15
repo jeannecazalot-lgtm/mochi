@@ -36,7 +36,7 @@ export function RuleEditor({ rule, onPatch, showMoment = false, showEffort = fal
       {!days.length && (mochiDays || allDays) ? <Text style={s.hint}>{t.ruleMochiDays.replace('{days}', allDays ? copy.setup.everyDay : mochiDays)}</Text> : null}
       {showMoment ? (
         <RuleGroup label={t.ruleMoment}>
-          {MOMENTS.map(dl => <PillChip key={String(dl)} label={momentLabel(dl)} selected={dl != null && (rule.deadline ?? null) === dl} onPress={() => onPatch({ deadline: dl })} />)}
+          {MOMENTS.map(dl => <PillChip key={String(dl)} label={momentLabel(dl)} selected={(rule.deadline ?? null) === dl && (dl != null || !!rule.momentChosen)} onPress={() => onPatch({ deadline: dl, momentChosen: true })} />)}
         </RuleGroup>
       ) : null}
       {/* une seule ligne, « Mochi décide » compris (Jeanne, 10 sept 2026) */}
@@ -44,7 +44,7 @@ export function RuleEditor({ rule, onPatch, showMoment = false, showEffort = fal
         <PillChip flex label={t.who.me} avatar={me} selected={rule.who === 'me'} onPress={() => onPatch({ who: 'me' })} />
         <PillChip flex label={partner.first_name} avatar={partner} selected={rule.who === 'partner'} onPress={() => onPatch({ who: 'partner' })} />
         <PillChip flex label={t.who.alt} selected={rule.who === 'alt'} onPress={() => onPatch({ who: 'alt' })} />
-        <PillChip flex label={t.who.auto} selected={false} onPress={() => onPatch({ who: 'auto' })} />
+        <PillChip flex label={t.who.auto} selected={rule.who === 'auto' && !!rule.whoChosen} onPress={() => onPatch({ who: 'auto', whoChosen: true })} />
       </RuleGroup>
       {showDuration ? <Row label={t.ruleDuration} right={<Stepper value={fmtMin(rule.duration_min)} onMinus={() => onPatch({ duration_min: Math.max(5, rule.duration_min - 5) })} onPlus={() => onPatch({ duration_min: rule.duration_min + 5 })} />} /> : null}
       {showEffort ? <Row label={tt.statPain} sub={tt.effortSub} right={<Stars value={rule.pain || 3} onChange={n => onPatch({ pain: n })} />} /> : null}

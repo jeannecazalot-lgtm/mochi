@@ -100,7 +100,7 @@ export function TaskEditBody({ page = false }) {
           <RuleEditor rule={f} onPatch={patch} showMoment showEffort mochiDays={f.mochiDays || null} onNoteOpen={setNoteOpen} />
         </Card>
         {isNew
-          ? <View style={{ marginTop: 14 }}><CTAPrimary label={t.ctaCreate} disabled={!f.title.trim()} onPress={create} big /></View>
+          ? <View style={{ marginTop: 14 }}>{!f.title.trim() ? <Text style={s.hint}>{t.needTitle}</Text> : null}<CTAPrimary label={t.ctaCreate} disabled={!f.title.trim()} onPress={create} big /></View>
           : id ? <View style={{ marginTop: 18 }}><TrashButton onPress={async () => { await deleteRealTask(String(id)).catch(() => {}); dirty.current = false; router.back(); }} label={copy.mission.deleteTask} /></View> : null}
       </Pressable>
     </KeyboardAvoidingView>
@@ -114,4 +114,5 @@ const s = StyleSheet.create({
   head: { marginTop: 2, marginBottom: 12, paddingHorizontal: 2 },
   title: { ...font.cardTitle, padding: 0 },
   block: { marginBottom: 8 },
+  hint: { ...font.caption, textAlign: 'center', marginBottom: 8, color: colors.coralDeep },
 });

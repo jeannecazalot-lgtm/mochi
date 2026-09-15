@@ -11,7 +11,8 @@ import { GlowBg, Card, Secondary, CTAPrimary } from '../../src/components/ui';
 import { LiveMochi } from '../../src/components/motion';
 import { sendEmailCode, verifyEmailCode, signInWithApple, appleAvailable } from '../../src/auth';
 import { loadProfile } from '../../src/profile';
-import { loadIdentity } from '../../src/identity';
+import { loadIdentity, getUid } from '../../src/identity';
+import { loadSetup, bindSetupToUser } from '../../src/setup-state';
 import copy from '../../src/data/copy.json';
 import { colors, font, radius, alpha } from '../../src/theme';
 
@@ -38,6 +39,7 @@ export default function Login() {
   const done = async () => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
     await loadIdentity().catch(() => {});
+    await loadSetup(); bindSetupToUser(getUid());
     const p = await loadProfile().catch(() => null);
     if (next) { router.replace(String(next)); return; }
     router.replace(p?.first_name ? '/(tabs)' : '/(setup)/identite');

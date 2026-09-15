@@ -121,7 +121,10 @@ export async function pull(table, householdId) {
   let rows = await read(table);
   for (const r of data) { const i = rows.findIndex(x => same(x, r)); if (i >= 0) rows[i] = r; else rows.push(r); }
   await AsyncStorage.setItem(K.table(table), JSON.stringify(rows));
-  await AsyncStorage.setItem(K.sync(table), new Date().toISOString());
+  // repère = dernier updated_at reçu (15 sept 2026 : avec l'heure du téléphone, une horloge en avance
+  // faisait rater les lignes créées entre-temps — chez Ketley, des occurrences sans leur tâche « • … »)
+  const newest = data.reduce((m, r) => (r.updated_at && r.updated_at > m ? r.updated_at : m), since);
+  if (newest !== since) await AsyncStorage.setItem(K.sync(table), newest);
   flush(); // chaque réception (temps réel, join) est aussi l'occasion de vider la file
   return rows;
 }
@@ -138,3 +141,17 @@ export async function drain(tries = 10) {
 }
 
 NetInfo.addEventListener(s => { if (s.isConnected) flush(); });
+
+// Réparation : des occurrences dont la tâche manque en cache → on recharge les tâches depuis le début
+// (au plus une fois par minute). Retour Ketley 15 sept 2026 : rangées « • … » sur l'Accueil.
+let lastHeal = 0;
+export async function healMissingTasks(householdId) {
+  if (!householdId || Date.now() - lastHeal < 60000) return false;
+  const [occs, tasks] = await Promise.all([read('occurrences'), read('tasks')]);
+  const known = new Set(tasks.map(t => t.id));
+  if (!occs.some(o => !known.has(o.task_id))) return false;
+  lastHeal = Date.now();
+  await AsyncStorage.removeItem(K.sync('tasks'));
+  await pull('tasks', householdId);
+  return true;
+}

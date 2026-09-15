@@ -21,6 +21,7 @@ const state = {
   joinedByCode: null,     // 09 · j'ai rejoint un foyer avec un code (je suis le/la rejoignant·e)
   thresholds: null,       // seuils d'alerte du duo { warn, alert } en % (copie locale de households)
   crossReminder: null,    // profil · rappel croisé (alerte quand l'autre oublie)
+  uid: null,              // compte auquel ce setup local appartient
 };
 
 let loadedPromise = null;
@@ -57,6 +58,8 @@ export const isJoiner = () => state.joinedByCode === true || (!state.invitedCode
 // (retour test n°2, 7 sept 2026 : « Vaisselle » en double, une par téléphone)
 export function clearSetupTasks() { state.tasks = null; state.result = null; state.realTaskIds = null; persist(); }
 export function clearSetup() { Object.keys(state).forEach(k => { state[k] = null; }); persist(); }
+// un autre compte se connecte sur ce téléphone → le setup local de l'ancien ne doit pas réapparaître (15 sept 2026)
+export function bindSetupToUser(uid) { if (!uid) return; if (state.uid && state.uid !== uid) { Object.keys(state).forEach(k => { state[k] = null; }); } state.uid = uid; persist(); }
 
 // fréquence du catalogue ({ daily } | { perWeek: n } | { perDay: n }) → occurrences/semaine
 export const freqPerWeek = f => (f?.daily ? 7 : f?.perDay ? f.perDay * 7 : f?.perWeek || 1);

@@ -111,12 +111,13 @@ export default function Invite() {
             </Pressable>
             {/* « Inviter plus tard » retiré (décision Jeanne 9 sept 2026 : l'app ne sert à rien seul) ;
                 une fois le lien envoyé, on peut préparer les tâches en attendant l'autre */}
-            {waiting ? (
-              <Pressable onPress={next} hitSlop={8}>
-                <Text style={s.later}>{t.continueMeanwhile}</Text>
-              </Pressable>
-            ) : null}
           </View>
+          {/* « Choisir nos tâches en attendant » sur sa propre ligne (retour Jeanne 15 sept : les boutons s'écartaient) */}
+          {waiting ? (
+            <Pressable onPress={next} hitSlop={8} style={{ alignSelf: 'center', marginBottom: 14 }}>
+              <Text style={s.later}>{t.continueMeanwhile}</Text>
+            </Pressable>
+          ) : null}
           <CTAPrimary label={waiting ? t.resendLink : t.sendLink} onPress={send} big />
         </View>
 

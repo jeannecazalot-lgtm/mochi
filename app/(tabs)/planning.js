@@ -14,6 +14,7 @@ import { members, byId, taskById, today, me, partner, fmtMin } from '../../src/d
 import { weekDays, addDays, dayDots, planningGroups, sameDay, fmtDayLabel, weekdayShort, MENTAL_COEF, fmtCoef, missionDone, occStore } from '../../src/demo-core';
 import { addDaysIso } from '../../src/dates';
 import { read } from '../../src/store';
+import { healMissingTasks } from '../../src/store';
 import { loadSetup, setup, inRealMode } from '../../src/setup-state';
 import { getUid, useIdentity } from '../../src/identity';
 import { localIso } from '../../src/dates';
@@ -175,6 +176,7 @@ export default function Planning() {
       if (!inRealMode()) return;
       try {
       const [occs, tasks, events, notes] = await Promise.all([read('occurrences'), read('tasks'), read('events'), read('notes').catch(() => [])]);
+      if (setup.householdId && occs.some(o => !tasks.some(t => t.id === o.task_id))) healMissingTasks(setup.householdId).then(ok => { if (ok) occStore.bump(); }).catch(() => {});
       const byTask = Object.fromEntries(tasks.map(tk => [tk.id, tk]));
       const uid = getUid();
       const todayIso = localIso();

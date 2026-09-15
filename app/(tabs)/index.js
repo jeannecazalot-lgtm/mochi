@@ -11,6 +11,7 @@ import { Icon, ICON, BadgePill, CheckCircle, RoundButton, Hint } from '../../src
 import { me, partner, balance, streak, myToday, taskById, fmtMin } from '../../src/demo';
 import { fmtHeaderDate, mochiLean, moreLoaded, hasUnreadPing, missionDone, occStore } from '../../src/demo-core';
 import { read } from '../../src/store';
+import { healMissingTasks } from '../../src/store';
 import { loadSetup, setup, inRealMode, isJoiner , thresholdsOf } from '../../src/setup-state';
 import { useIdentity, getUid, loadIdentity } from '../../src/identity';
 import { localIso, addDaysIso } from '../../src/dates';
@@ -108,6 +109,7 @@ export default function Home() {
       // qui rejoignait voyait la démo figée — fausses missions, faux jour, streak)
       if (!inRealMode()) { setVms(demoVms()); return; }
       const [occs, tasks] = await Promise.all([read('occurrences'), read('tasks')]);
+      if (setup.householdId && occs.some(o => !tasks.some(t => t.id === o.task_id))) healMissingTasks(setup.householdId).then(ok => { if (ok) occStore.bump(); }).catch(() => {});
       const byId = Object.fromEntries(tasks.map(tk => [tk.id, tk]));
       const today = localIso();
       // « pour toi » = mes missions + les communes (bot/simulateur 5 sept 2026 :
