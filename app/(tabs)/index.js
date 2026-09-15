@@ -16,7 +16,8 @@ import { loadSetup, setup, inRealMode, isJoiner , thresholdsOf } from '../../src
 import { useIdentity, getUid, loadIdentity } from '../../src/identity';
 import { localIso, addDaysIso } from '../../src/dates';
 import { fmtDayLabel } from '../../src/demo-core';
-import { toggleOccurrence, isLive } from '../../src/occ-actions';
+import { toggleOccurrence, isLive, skipOccurrence } from '../../src/occ-actions';
+import { clearMalusFor } from '../../src/malus-actions';
 import { groupLate, lateCaption, daysBetweenIso } from '../../src/late-groups';
 import { mochiReact } from '../../src/components/mochi-img';
 import { computeRealBalance } from '../../src/balance-real';
@@ -134,7 +135,7 @@ export default function Home() {
       setLate(groupLate(occs.filter(o => isLive(o) && o.due_date < today && o.status !== 'done' && (!uid || !o.assignee_id || o.assignee_id === uid))).map(g => {
         const o = g.latest; const tk = byId[o.task_id] || {};
         const q = `occ=${o.id}&tid=${o.task_id}&title=${encodeURIComponent(tk.title || '')}&emoji=${encodeURIComponent(tk.emoji || '•')}&mins=${tk.duration_min || 15}`;
-        return { id: o.id, emoji: tk.emoji || '•', title: tk.title || '…', mental: !!tk.mental_load, badge: null, sub: lateCaption(g.n, daysBetweenIso(g.oldest.due_date, today)), together: !o.assignee_id, mins: tk.duration_min || 15, href: `/retard?${q}&due=${g.oldest.due_date}&ids=${g.ids.join(',')}&n=${g.n}`, ping: null, late: true };
+        return { id: o.id, emoji: tk.emoji || '•', title: tk.title || '…', mental: !!tk.mental_load, badge: null, sub: lateCaption(g.n, daysBetweenIso(g.oldest.due_date, today)), together: !o.assignee_id, mins: tk.duration_min || 15, href: `/retard?${q}&due=${g.oldest.due_date}&ids=${g.ids.join(',')}&n=${g.n}`, ping: null, late: true, ids: g.ids };
       }));
       setUpcoming([1, 2, 3, 4, 5, 6].map(k => {
         const iso = addDaysIso(k);
@@ -156,6 +157,13 @@ export default function Home() {
     missionDone.toggle(id);
     if (nowDone) mochiReact(); // le Mochi accuse la coche (secousse), puis penche avec la nouvelle balance
     if (real) toggleOccurrence(String(id), nowDone, (vms || []).find(v => v.id === id)?.mins).catch(() => {});
+    // retard coché depuis l'Accueil = même effet que « Je le fais » dans la sheet retard :
+    // malus effacé, retards plus anciens de la même tâche soldés (« pas cette fois-ci »)
+    const lateVm = late.find(v => v.id === id);
+    if (real && nowDone && lateVm) {
+      clearMalusFor(String(id)).catch(() => {});
+      for (const oid of (lateVm.ids || []).filter(x => String(x) !== String(id))) { skipOccurrence(String(oid)).catch(() => {}); clearMalusFor(String(oid)).catch(() => {}); }
+    }
   };
   // phrase de Mochi : vrai dispatch si dispo ; foyer réel sans dispatch local
   // (on vient de rejoindre) → phrase neutre, jamais la phrase de démo

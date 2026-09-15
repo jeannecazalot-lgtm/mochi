@@ -59,13 +59,16 @@ export default function Balance() {
   const parts = real?.parts || demoParts;
   const { state, top, lean } = real ? { state: real.state, top: real.top, lean: real.lean } : demoState;
   const week = real?.week || weekInfo();
-  const review = nextReview();
+  const review = nextReview(real ? new Date() : undefined); // réel : le vrai prochain dimanche (la démo a une date figée)
   const chartDays = real?.days || dayMinutes;
   // malus réels de la semaine (écrits par sweepMissed / postponeMalus), démo sinon
   const realMalus = real
-    ? realMalusItems.map(m => ({ id: m.id, emoji: m.task_emoji, title: m.task_title || t.malusPostponed, sub: fill(t.malusReal, { n: m.points }), points: m.points, real: true }))
+    ? realMalusItems.filter(m => m.occurrence_id).map(m => ({ id: m.id, emoji: m.task_emoji, title: m.task_title || '…', sub: fill(t.missedSub, { who: m.user_id === getUid() ? t.missedMe : partner.first_name, n: m.due_date ? Math.max(1, Math.round((new Date(localIso()) - new Date(m.due_date)) / 86400000)) : 1 }), points: m.points, real: true }))
     : malusItems;
-  const stateLabel = fill(t[state], { name: top.first_name });
+  // même phrase que l'Accueil (Jeanne, 15 sept 2026 : « on ne me dit pas la même chose »)
+  const h = copy.home;
+  const stateLabel = state === 'balanced' ? h.mochiBalanced
+    : fill(state === 'leaning' ? (top === me ? h.mochiLeaningMe : h.mochiLeaningOther) : (top === me ? h.mochiUnbalancedMe : h.mochiUnbalancedOther), { name: top.first_name });
 
   // README flow : déséquilibre > 25 % → écran détail (une fois, au montage de l'onglet)
   useEffect(() => { if (!real && state === 'unbalanced') router.push('/balance-detail'); }, []);
@@ -87,7 +90,7 @@ export default function Balance() {
 
           {/* Mochi qui penche vers celui qui porte plus */}
           <Pressable onPress={openDetail} style={s.mochiWrap}>
-            <LiveMochi size={72} mood={state === 'unbalanced' ? 'neutral' : 'happy'} lean={lean} />
+            <LiveMochi size={72} mood={state === 'unbalanced' ? 'sad' : state === 'leaning' ? 'neutral' : 'happy'} lean={lean} />
             <Text style={s.stateLabel}>{stateLabel}</Text>
           </Pressable>
 
@@ -151,8 +154,8 @@ export default function Balance() {
           {/* malus en cours → point hebdo */}
           <View style={s.block}>
             <Card padding={14}>
-              <Micro style={{ marginBottom: 10 }}>{t.malusTitle}</Micro>
-              {realMalus.length === 0 ? <Text style={font.secondary}>{t.malusNone}</Text> : realMalus.map((m, i) => {
+              <Micro style={{ marginBottom: 10 }}>{real ? t.missedTitle : t.malusTitle}</Micro>
+              {realMalus.length === 0 ? <Text style={font.secondary}>{real ? t.missedNone : t.malusNone}</Text> : realMalus.map((m, i) => {
                 const task = m.real ? null : taskById(m.task_id);
                 const emoji = m.real ? m.emoji : task?.emoji;
                 const title = m.real ? m.title : task?.title;
@@ -161,7 +164,7 @@ export default function Balance() {
                   <View key={m.id}>
                     {i > 0 && <Divider />}
                     <View style={{ paddingTop: i > 0 ? 10 : 0, paddingBottom: 10 }}>
-                      <InfoRow emoji={emoji} title={title} sub={sub} right={<DarkPill>{fill(t.malusPts, { n: m.points })}</DarkPill>} />
+                      <InfoRow emoji={emoji} title={title} sub={sub} right={m.real ? null : <DarkPill>{fill(t.malusPts, { n: m.points })}</DarkPill>} />
                     </View>
                   </View>
                 );

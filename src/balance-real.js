@@ -18,13 +18,18 @@ export const isoWeek = d => {
   return 1 + Math.round(((x - w1) / 86400000 - 3 + ((w1.getDay() + 6) % 7)) / 7);
 };
 
+// jour où l'occurrence a été cochée (repli : sa date due)
+export const doneDay = o => (o.done_at ? localIso(new Date(o.done_at)) : o.due_date);
+
 export const scoreOf = o => chargeOf(o.duration_min, o.pain, o.mental_load);
 
 export function computeRealBalance(occs, uid) {
   // Décision Jeanne (8 sept 2026) : la Balance est HEBDOMADAIRE — la semaine en cours
   // (lundi → dimanche), remise à zéro au point hebdo ; le streak, lui, reste continu.
   const wkIso = weekDays(new Date()).map(localIso);
-  const dones = occs.filter(o => o.status === 'done' && wkIso.includes(o.due_date));
+  // une coche compte le jour où elle est FAITE (une tâche en retard cochée aujourd'hui
+  // compte aujourd'hui, pas la semaine où elle était due) — retour Jeanne 15 sept 2026
+  const dones = occs.filter(o => o.status === 'done' && wkIso.includes(doneDay(o)));
   const mine = dones.filter(o => o.done_by === uid);
   const other = dones.filter(o => o.done_by && o.done_by !== uid);
   // + 15 min « pour y penser » par tâche distincte portée cette semaine (src/charge.js)
@@ -44,7 +49,7 @@ export function computeRealBalance(occs, uid) {
   const days = weekDays(new Date()).map(d => {
     const iso = localIso(d);
     const by = { [me.id]: 0, [partner.id]: 0 };
-    dones.filter(o => o.due_date === iso).forEach(o => { by[o.done_by === uid ? me.id : partner.id] += o.duration_min || 0; });
+    dones.filter(o => doneDay(o) === iso).forEach(o => { by[o.done_by === uid ? me.id : partner.id] += o.duration_min || 0; });
     return { d: dows[(d.getDay() + 6) % 7], by };
   });
   // streak réel : jours consécutifs (en remontant depuis hier/aujourd'hui) où tout le dû est fait

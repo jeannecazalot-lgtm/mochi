@@ -80,7 +80,7 @@ export async function weekMalus() {
     .filter(m => m.week_start === ws && !m.review_id)
     .map(m => {
       const t = m.occurrence_id ? byTask[byOcc[m.occurrence_id]?.task_id] : null;
-      return { ...m, task_title: t?.title || null, task_emoji: t?.emoji || '⏰', importance: t?.importance || 3 };
+      return { ...m, task_title: t?.title || null, task_emoji: t?.emoji || '⏰', importance: t?.importance || 3, due_date: byOcc[m.occurrence_id]?.due_date || null };
     });
 }
 

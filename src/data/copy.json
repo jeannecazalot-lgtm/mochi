@@ -210,7 +210,11 @@
       "contribDelta": "Écart en minutes d'un contributeur ({n})",
       "contribMental": "Libellé du contributeur charge mentale",
       "contribMentalSub": "Sous-ligne charge mentale ({examples} = exemples de tâches)",
-      "contribCyclesSub": "Sous-ligne cycles ({a} cycles de l'un vs {b} de l'autre)"
+      "contribCyclesSub": "Sous-ligne cycles ({a} cycles de l'un vs {b} de l'autre)",
+      "missedTitle": "Micro-titre de la card des tâches ratées (réel, sans points)",
+      "missedNone": "Quand aucune tâche n a été ratée cette semaine",
+      "missedSub": "Sous-titre d une ratée ({who} = Toi ou prénom, {n} jours)",
+      "missedMe": "Mot pour soi dans missedSub"
     },
     "title": "Balance",
     "balanced": "Équilibré",
@@ -249,7 +253,11 @@
     "streakDaysOne": "1 jour",
     "plannedWeek": "Prévu cette semaine : {total} · toi {me} · {name} {partner}",
     "analyseLink": "Analyse de la charge mentale",
-    "emptyWeek": "Rien de coché depuis lundi : la balance se remplit à chaque coche."
+    "emptyWeek": "Rien de coché depuis lundi : la balance se remplit à chaque coche.",
+    "missedTitle": "Ratées cette semaine",
+    "missedNone": "Aucune tâche ratée cette semaine.",
+    "missedSub": "{who} · depuis {n} j",
+    "missedMe": "Toi"
   },
   "budget": {
     "_labels": {
