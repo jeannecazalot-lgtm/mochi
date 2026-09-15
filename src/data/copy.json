@@ -147,7 +147,8 @@
     "togetherBadge": "à deux",
     "lateBadge": "En retard",
     "lateSub": "{n} en retard à rattraper.",
-    "lateSubOne": "1 en retard à rattraper."
+    "lateSubOne": "1 en retard à rattraper.",
+    "chooseWithCta": "Choisir nos tâches avec {name}"
   },
   "planning": {
     "_labels": {
@@ -247,7 +248,8 @@
     "heroTasksOne": "{pct}% · 1 tâche",
     "streakDaysOne": "1 jour",
     "plannedWeek": "Prévu cette semaine : {total} · toi {me} · {name} {partner}",
-    "analyseLink": "Analyse de la charge mentale"
+    "analyseLink": "Analyse de la charge mentale",
+    "emptyWeek": "Rien de coché depuis lundi : la balance se remplit à chaque coche."
   },
   "budget": {
     "_labels": {
@@ -692,7 +694,8 @@
     "everyDay": "tous les jours",
     "beforeTasksTitle": "Les missions se choisissent ici.",
     "beforeTasksSub": "Comme tu as créé le duo, la liste se fait sur ton téléphone. {name} recevra le récap et pourra tout modifier à son tour.",
-    "beforeTasksCta": "Choisir nos tâches"
+    "beforeTasksCta": "Choisir nos tâches",
+    "tasksSubDuo": "À deux : ce que {name} coche apparaît ici en direct, et inversement."
   },
   "event": {
     "_labels": {

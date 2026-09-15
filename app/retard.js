@@ -186,9 +186,7 @@ export default function Retard() {
         </Card>
       ) : (
         <>
-          <Card r={16} padding={0} style={s.block} accent={colors.sage}>
-            <Row first strong label={t.doNow} sub={points != null ? fill(t.doTodaySubMalus, { pts: fmtPts(points) }) : t.doTodaySub} right={<Arrow />} onPress={doToday} />
-          </Card>
+          {/* « Je le fais maintenant » retiré (Jeanne 15 sept 2026) : la tâche en retard est déjà dans « Aujourd'hui pour toi », le rond suffit */}
           <Card r={16} padding={0}>
             <Row first strong label={fill(theirs ? t.giveBack : t.swap, { name: partner.first_name })} sub={theirs ? t.giveBackSub : fill(t.swapSub, { name: partner.first_name })} left={pAvatar} right={<PillChip label={theirs ? t.giveBtn : copy.mission.swapBtn} selected onPress={theirs ? give : swap} />} onPress={theirs ? give : swap} />
             <Row strong label={t.moveOther} sub={t.moveOtherSub} right={<Text style={[s.chev, asking && { transform: [{ rotate: '90deg' }] }]}>›</Text>} onPress={() => { Haptics.selectionAsync().catch(() => {}); setAsking(a => !a); setMoveMsg(null); }} />

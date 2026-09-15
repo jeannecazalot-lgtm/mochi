@@ -21,7 +21,7 @@ export async function resetLocal(table) { await AsyncStorage.setItem(K.table(tab
 // (changement de foyer / de compte — 5 sept 2026 : le rejoignant repartait d'un
 // filigrane périmé et ratait les lignes plus anciennes)
 export async function resetTable(table) { await resetLocal(table); await AsyncStorage.removeItem(K.sync(table)); }
-export const SYNCED_TABLES = ['occurrences', 'tasks', 'task_pains', 'malus', 'swap_requests', 'household_members', 'households', 'expenses', 'settlements', 'activity', 'events', 'notes'];
+export const SYNCED_TABLES = ['occurrences', 'tasks', 'task_pains', 'malus', 'swap_requests', 'household_members', 'households', 'expenses', 'settlements', 'activity', 'events', 'notes', 'setup_drafts'];
 // nouveau compte / nouveau foyer : cache, filigranes ET file de mutations
 export async function resetAll() {
   await Promise.all(SYNCED_TABLES.map(resetTable));
@@ -51,7 +51,7 @@ export async function mutate(table, row) {
 }
 
 // Clés primaires composites (les autres tables ont un `id`)
-const PK = { household_members: ['household_id', 'user_id'], task_pains: ['task_id', 'user_id'] };
+const PK = { household_members: ['household_id', 'user_id'], task_pains: ['task_id', 'user_id'], setup_drafts: ['household_id'] };
 
 // Poussée idempotente SANS upsert : `ON CONFLICT` exige un droit de lecture
 // que la RLS ne donne pas encore au moment de créer son foyer (constaté le

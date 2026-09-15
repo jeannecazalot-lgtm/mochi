@@ -15,6 +15,7 @@ import { dispatch, dispatchEmoji, balanceState } from '../../src/demo-setup';
 import { loadSetup, setup, saveResult, saveTasks } from '../../src/setup-state';
 import { daysForTask } from '../../src/dispatch';
 import { syncSetup } from '../../src/sync-setup';
+import { pushDraft } from '../../src/draft-sync';
 import { rescheduleReminders } from '../../src/reminders';
 import { useIdentity } from '../../src/identity';
 import copy from '../../src/data/copy.json';
@@ -25,6 +26,7 @@ const fmtMinRound = v => fmtMin(Math.round(v));
 // « C'est parti » : la synchro Supabase part en tâche de fond (foyer, tâches,
 // pénibilités, occurrences) et ne bloque JAMAIS le parcours (règle du 22 août).
 const finish = () => {
+  pushDraft((setup.tasks || []).map(tk => ({ ...tk })), 'done'); // l'autre téléphone quitte le 10, son Accueil se remplit
   syncSetup(setup.result)
     .then(() => rescheduleReminders()) // rappels locaux calés sur les occurrences générées
     .catch(e => console.warn('[12] synchro Supabase échouée (on avance quand même) :', e?.message || e));

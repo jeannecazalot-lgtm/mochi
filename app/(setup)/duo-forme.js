@@ -75,7 +75,7 @@ export default function DuoForme() {
               if (!joiner) { router.push('/(setup)/avant-taches'); return; }
               // décision Jeanne (6 sept 2026) : on saute ce qui est déjà rempli — prénom, dispos,
               // préférences faits avant de saisir le code → Accueil direct, réglages envoyés au foyer
-              if (filled) { syncJoinerPrefs().catch(() => {}); router.replace('/(tabs)'); }
+              if (filled) { syncJoinerPrefs().catch(() => {}); router.replace('/(setup)/taches'); } // à deux (15 sept 2026)
               else router.push('/(setup)/identite');
             }}
             big

@@ -107,6 +107,7 @@ export default function Balance() {
                 })}
               </View>
               <SplitBar height={8} parts={parts.map(p => ({ ratio: p.pct / 100, color: p.member.color }))} />
+              {real && parts.every(p => !p.minutes) ? <Text style={s.plannedTxt}>{t.emptyWeek}</Text> : null}
               {real && planned ? <Text style={s.plannedTxt}>{fill(t.plannedWeek, { total: fmtMin(planned.me + planned.partner + planned.both), me: fmtMin(planned.me + Math.round(planned.both / 2)), partner: fmtMin(planned.partner + Math.round(planned.both / 2)), name: partner.first_name })}</Text> : null}
               <Text style={s.seeDetail}>{t.seeDetail}</Text>
             </Card>

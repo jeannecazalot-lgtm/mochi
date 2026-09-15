@@ -206,7 +206,7 @@ export default function Home() {
 
           {/* Bloc 1 · Mochi qui penche + phrase */}
           <View style={s.mochiBlock}>
-            <LiveMochi size={104} mood={allDone ? 'happy' : 'neutral'} lean={bal ? bal.lean : mochiLean()} />
+            <LiveMochi size={104} mood={bal?.state === 'unbalanced' ? 'sad' : lateLeft.length ? 'neutral' : (bal && bal.state !== 'leaning') || allDone ? 'happy' : 'neutral'} lean={bal ? bal.lean : mochiLean()} />
             <View style={{ flex: 1 }}>
               <Text style={[font.cardTitle, { lineHeight: 23 }]}>{line}</Text>
               <Text style={[font.secondary, { marginTop: 4 }]}>{sub}</Text>
@@ -235,7 +235,7 @@ export default function Home() {
                 et ajuste ensuite depuis le Planning (avant : les deux passaient par le 10 → tâches en double) */}
             {real && noTask
               ? (isJoiner()
-                ? <Text style={[font.secondary, { textAlign: 'center', paddingTop: 14, paddingHorizontal: 8 }]}>{fill(t.waitingTasks, { name: partner.first_name })}</Text>
+                ? <View style={{ marginTop: 14 }}><CTAPrimary label={fill(t.chooseWithCta, { name: partner.first_name })} onPress={() => router.push('/(setup)/taches')} /></View>
                 : <View style={{ marginTop: 14 }}><CTAPrimary label={t.chooseTasksCta} onPress={() => router.push('/(setup)/taches')} /></View>)
               : null}{/* plus d'indice de glissement ici : le geste n'existe que dans À faire (décision Jeanne 6 sept 2026) */}
           </View>
