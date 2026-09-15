@@ -57,7 +57,7 @@ export default function Retard() {
   const [rule, setRule] = useState(null);
   const [noteOpen, setNoteOpen] = useState(false);
   const dirty = useRef(false); const initialRule = useRef(null); const ruleRef = useRef(null);
-  const patchRule = p => { dirty.current = true; setRule(r => ({ ...r, ...p })); Haptics.selectionAsync().catch(() => {}); };
+  const patchRule = p => { dirty.current = true; setRule(r => ({ ...r, ...p })); }; // sans vibration (15 sept 2026)
   useEffect(() => { loadMission({ occId, tid, title, mins }).then(r => { if (!r) return; const rl = { window_days: r.task.window_days, daily: !!r.task.daily, deadline: r.task.deadline ?? null, who: r.task.who, duration_min: r.task.duration_min, note: r.task.note, pain: r.task.pain ?? 3 }; setRule(rl); initialRule.current = JSON.stringify(rl); ruleRef.current = { id: r.task.id, ...rl }; }); }, [occId]);
   useEffect(() => { if (rule && ruleRef.current) ruleRef.current = { ...ruleRef.current, ...rule }; }, [rule]);
   useEffect(() => () => { const r = ruleRef.current; if (dirty.current && r && JSON.stringify({ ...r, id: undefined }) !== JSON.stringify({ ...JSON.parse(initialRule.current || '{}'), id: undefined })) saveRule(r.id, r); }, []);

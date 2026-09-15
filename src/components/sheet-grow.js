@@ -28,5 +28,6 @@ export function useSheetGrow(grown, tall = false, min = null) {
     // tout de suite (13 sept 2026 : avec 450 ms d'attente, les jours du report ne recevaient pas les touches)
     if (contentH) navigation.setOptions({ sheetAllowedDetents: [Math.max(min || 0, Math.min(0.92, (contentH + 12) / (winH - insets.top - 10)))] });
   }, [grown, tall, contentH, min]);
-  return e => { if (!tall) setContentH(e.nativeEvent.layout.height); };
+  // ignorer les variations de quelques points (chips qui changent d'état) : sinon la sheet tremble
+  return e => { if (tall) return; const h = e.nativeEvent.layout.height; setContentH(prev => (Math.abs(h - prev) < 12 ? prev : h)); };
 }

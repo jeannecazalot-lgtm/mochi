@@ -91,7 +91,7 @@ export default function Mission() {
   useEffect(() => () => { const r = ruleRef.current; if (dirty.current && r && JSON.stringify({ ...r, id: null }) !== initialRule.current) saveRule(r.id, r); }, []);
   useEffect(() => { if (m && rule) ruleRef.current = { id: m.task.id, ...rule }; }, [m, rule]);
 
-  const patchRule = p => { dirty.current = true; setRule(r => ({ ...r, ...p })); Haptics.selectionAsync().catch(() => {}); };
+  const patchRule = p => { dirty.current = true; setRule(r => ({ ...r, ...p })); }; // sans vibration (15 sept 2026)
   const close = () => router.back();
   const finish = kind => { setConfirm(kind); setTimeout(close, kind === 'done' ? CLOSE_AFTER : CLOSE_AFTER_SLOW); };
   // objet { kind, title, sub } = confirmation libre (passer cette fois-ci, supprimer)
