@@ -1,6 +1,6 @@
 // Écran 09c · Avant le choix des tâches (retour Jeanne 10 sept 2026, test réel avec Ketley :
 // « il faudrait un écran avant pour dire : comme tu as créé le duo, on choisit les missions sur
-// ton tel, X recevra le récap et pourra modifier à son tour »). Créateur du duo seulement.
+// Depuis le choix partagé (15 sept 2026) : « on choisit à deux, ce que tu coches X le voit en direct ».
 import React from 'react';
 import { router } from 'expo-router';
 import { View, Text, StyleSheet } from 'react-native';

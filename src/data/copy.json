@@ -579,7 +579,8 @@
       "calcDone": "Titre du final de l animation Mochi calcule",
       "both": "Libellé du porteur partagé (écran 12)",
       "alternate": "Libellé du porteur alterné (écran 12, zigzag un jour chacun)",
-      "perWeekSlash": "Suffixe des totaux de l écran 12"
+      "perWeekSlash": "Suffixe des totaux de l écran 12",
+      "beforeTasksSub": "Écran 09c (choix partagé en direct, 15 sept 2026) — {name} = prénom du binôme"
     },
     "identityTitle": "C'est toi.",
     "firstNameLabel": "Ton prénom",
@@ -700,8 +701,8 @@
     "duoSubJoinerReady": "{name} choisit et répartit vos tâches, tu pourras tout ajuster depuis le Planning. Tes dispos et tes préférences partent dans le foyer.",
     "continueMeanwhile": "Choisir nos tâches en attendant",
     "everyDay": "tous les jours",
-    "beforeTasksTitle": "Les missions se choisissent ici.",
-    "beforeTasksSub": "Comme tu as créé le duo, la liste se fait sur ton téléphone. {name} recevra le récap et pourra tout modifier à son tour.",
+    "beforeTasksTitle": "On choisit les tâches à deux.",
+    "beforeTasksSub": "Ce que tu coches, {name} le voit en direct, et inversement. Chacun peut ajouter les siennes. Quand vous validez, Mochi répartit.",
     "beforeTasksCta": "Choisir nos tâches",
     "tasksSubDuo": "À deux : ce que {name} coche apparaît ici en direct, et inversement."
   },
