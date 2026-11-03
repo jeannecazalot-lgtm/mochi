@@ -13,6 +13,8 @@ import { sweepMissed } from '../../src/malus-actions';
 import { pull } from '../../src/store';
 import { occStore } from '../../src/demo-core';
 import { registerPushToken } from '../../src/push';
+import { read } from '../../src/store';
+import { loadNightMode } from '../../src/theme-v3';
 
 export default function TabsLayout() {
   const fab = useFabSheet();
@@ -27,8 +29,10 @@ export default function TabsLayout() {
       occStore.bump();
       sweepMissed().catch(() => {});
     };
-    loadSetup().then(() => {
+    loadNightMode(); // réglage de la personne (auto / toujours / jamais)
+    loadSetup().then(async () => {
       if (!setup.householdId) return;
+      try { const hh = (await read('households')).find(x => x.id === setup.householdId); if (hh?.bedtime) loadNightMode(String(hh.bedtime).slice(0, 5)); } catch (e) { /* 22 h par défaut */ }
       startRealtime(setup.householdId);
       loadPartner(setup.householdId);
       loadThresholds(setup.householdId); // seuils d'alerte du duo

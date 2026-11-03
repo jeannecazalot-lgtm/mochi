@@ -143,16 +143,16 @@ export default function Home() {
   return (
     <View style={{ flex: 1, backgroundColor: T.bg }}>
       <Pressable onPress={() => router.push('/chambre')} style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><Scene T={T} stage={m.stage} mood={mood} lvl={lvl} away={away} /></Pressable>
-      <SafeAreaView style={{ flex: 1 }} edges={['top']}>
-        <View style={{ flex: 1, overflow: 'hidden' }} onLayout={e => setAvailH(e.nativeEvent.layout.height)}>
-          <View onLayout={e => setTopH(e.nativeEvent.layout.height)}>
+      <SafeAreaView style={{ flex: 1 }} edges={['top']} pointerEvents="box-none">
+        <View style={{ flex: 1, overflow: 'hidden' }} pointerEvents="box-none" onLayout={e => setAvailH(e.nativeEvent.layout.height)}>
+          <View pointerEvents="box-none" onLayout={e => setTopH(e.nativeEvent.layout.height)}>
             <View style={s.header}>
               <Label T={T} style={{ flex: 1, color: T.ink }}>{fmtDate(new Date())}</Label>
               <Num T={T}>{m.pearls ?? 0}</Num><Label T={T} style={{ marginLeft: 6, marginRight: 6 }}>perles</Label>
               <RoundButton onPress={() => router.push('/activite')} accessibilityLabel={h.activityA11y}><Icon d={ICON.bubble} size={17} color={T.ink} /></RoundButton>
               <Pressable onPress={() => router.push('/profil')} accessibilityLabel={h.profileA11y}><Avatar initial={me.initial} color={me.color} photo={me.avatar_url} size={36} /></Pressable>
             </View>
-            <View style={{ height: Math.max(8, layout.scene + 12 - insets.top - 48) }} />
+            <Pressable onPress={() => router.push('/chambre')} accessibilityLabel={t.roomA11y} style={{ height: Math.max(8, layout.scene + 12 - insets.top - 48) }} />{/* la scène se tape ici : vers la pièce de Mochi */}
             <View style={{ paddingHorizontal: layout.x, paddingTop: 24 * layout.air, flexDirection: 'row', alignItems: 'baseline' }}>
               <Text style={[type.name, { color: T.ink, flex: 1 }]}>{m.name || 'Mochi'}</Text>
               <Label T={T}>{m.stage === 'egg' ? t.eggPill : fill(t.stagePill, { day, k: Math.max(1, STAGES.indexOf(m.stage)) })}</Label>

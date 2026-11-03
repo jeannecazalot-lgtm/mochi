@@ -48,6 +48,7 @@ export async function loadNightMode(householdBedtime) {
 }
 export async function setNightMode(m) { mode = m; try { await AsyncStorage.setItem(K, m); } catch (e) { /* ignore */ } compute(); notify(); }
 export function setBedtime(t) { bedtime = t; compute(); }
+compute(); // dès le chargement du module (sinon le premier rendu était toujours « jour »)
 setInterval(compute, 60 * 1000);
 // hook : les écrans repris en DA v3 lisent leurs couleurs ici
 export function useTokens() {

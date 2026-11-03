@@ -2040,7 +2040,8 @@
       "meta": "({n}, {time})",
       "metaOne": "singulier",
       "allDoneMeta": "tout fait",
-      "empty": "Liste vide"
+      "empty": "Liste vide",
+      "roomA11y": "Accessibilité : tap sur la scène"
     },
     "pearls": "{n} perles",
     "stagePill": "Jour {day} · palier {k}",
@@ -2068,7 +2069,8 @@
     "meta": "{n} restantes · {time}",
     "metaOne": "1 restante · {time}",
     "allDoneMeta": "tout est fait",
-    "empty": "Rien de prévu aujourd'hui."
+    "empty": "Rien de prévu aujourd'hui.",
+    "roomA11y": "Ouvrir la pièce de Mochi"
   },
   "moments": {
     "_labels": {
