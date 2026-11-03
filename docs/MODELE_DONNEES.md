@@ -38,6 +38,18 @@ SQL complet : `supabase/migrations/0001_init.sql`. Toute évolution passe par un
 | `mood_checkins` | mood dimanche soir (33, Duo+) | 33 |
 | `wraps` / `badges` | wrapped hebdo figé / badges de streak | 24-28 |
 
+## Mochi qu'on élève (3 nov 2026, migration 0013 — à valider par Jeanne avant application)
+Un Mochi par foyer. Vérité = le journal `mochi_events` ; `mochi_state` = l'état courant. L'énergie du jour n'a pas de table (dérivée des occurrences du jour, comme la balance).
+| Table | Rôle | Écrans |
+|---|---|---|
+| `mochi_state` | nom, stade (egg → mini → mochi → maxi → dore), éclosion, semaines saines, cœurs (1-5), perles, balade en cours | Accueil, Balance, chambre |
+| `mochi_events` | journal : hatch, walk_start/return, stage_up, heart_lost/gained, pearls, week_closed, sick, quest_done ; `seen_by` pour les plein écran reçus par chacun | moments plein écran, Suivi |
+| `mochi_inventory` | souvenirs ramenés, objets et tenues achetés (catalogue dans l'app) | chambre, boutique |
+| `mochi_checkins` | check-in quotidien matin/soir, 3 états | check-in, Suivi (ressenti vs réel) |
+| `profiles.night_mode`, `households.bedtime` | mode nuit par personne (auto/on/off), heure de coucher du foyer | réglages |
+Dérivé : énergie du jour, stade suivant (3/8/16 semaines saines), semaine saine (balance < seuil, ≥ 80 % faites, pas malade).
+Retiré de l'usage (gardé en base) : `malus`, `weekly_reviews`, `mood_checkins` hebdo.
+
 ## Ce qui est dérivé (pas de table)
 - **Balance** (score = Σ durée × (1 + pénibilité × 0,15), ×1,5 si mental), seuils 10 % / 25 %.
   À N membres : part de chacun comparée à la part idéale 1/N (à 2, ça redonne le 50/50 du design).
