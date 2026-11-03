@@ -361,6 +361,7 @@ tant que la tranche n'est pas cohérente (le build 19 des testeurs reste tel que
 5. Appartement + collection (1-2) : page chambre, souvenirs par lieu, boutique perles, paywall Mochi+ refait en DA v3.
 6. Onboarding v3 + setup (1-2) : nouvelle promesse « élevez Mochi à deux », 4 slides en DA v3, puis connexion, identité, dispos, prefs,
    invitation ; « duo formé » devient l'œuf ; choix des tâches à deux et dispatch repris dans la DA ; l'éclosion = première mission cochée par chacun.
+   Jeanne (3 nov) : l'onboarding de Finch est **trop long** → le nôtre : 3-4 slides max, pas de questionnaire, l'œuf apparaît avant toute question, le setup (dispos, prefs) peut attendre après l'éclosion.
 7. Les outils (2) : Planning, Budget, Suivi, sheets, profil, réglages → DA v3 sans changer les fonctions.
 8. Test à deux téléphones, captures ASC, build 20, TestFlight interne.
 V3 (après) : quêtes de couple, compagnons, 2e pièce, Wrapped en DA v3.
