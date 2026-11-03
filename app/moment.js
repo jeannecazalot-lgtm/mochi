@@ -1,0 +1,69 @@
+// Moments plein écran de « Mochi qu'on élève » (étape 2, 4 nov 2026) : éclosion, retour de balade, passage de palier.
+// Source = mochi_events non vus par moi (seen_by) ; chacun des deux les reçoit. Démo : /moment?demo=hatch|walk_return|stage_up
+import React, { useEffect, useState } from 'react';
+import { router, useLocalSearchParams } from 'expo-router';
+import { View, Text, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { CTAPrimary } from '../src/components/ui';
+import { Scene } from '../src/components/mochi/scene';
+import { Label, Num } from '../src/components/mochi/gauges';
+import { useTokens, type, layout } from '../src/theme-v3';
+import { unseenMoments, markSeen, getMochi, PEARLS, STAGES } from '../src/mochi-state';
+import items from '../src/data/mochi-items.json';
+import copy from '../src/data/copy.json';
+
+const fill = (s, vars) => Object.keys(vars).reduce((acc, k) => acc.replace(`{${k}}`, vars[k]), s);
+const DEMO = {
+  hatch: { type: 'hatch', payload: {}, created_at: new Date().toISOString() },
+  walk_return: { type: 'walk_return', payload: { souvenir_key: 'jardin-01', place: 'jardin' }, created_at: new Date().toISOString() },
+  stage_up: { type: 'stage_up', payload: { from: 'mini', to: 'mochi' }, created_at: new Date().toISOString() },
+};
+const fmtTime = iso => new Date(iso).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }).replace(':', ' h ');
+
+export default function Moment() {
+  const t = copy.moments;
+  const T = useTokens();
+  const { demo } = useLocalSearchParams();
+  const [queue, setQueue] = useState(demo ? [DEMO[demo] || DEMO.hatch] : null);
+  const [mochi, setMochi] = useState(null);
+  useEffect(() => { if (!demo) unseenMoments().then(q => { if (!q.length) router.back(); else setQueue(q); }); getMochi().then(setMochi); }, []);
+  if (!queue) return <View style={{ flex: 1, backgroundColor: T.bg }} />;
+  const ev = queue[0];
+  const m = mochi || { stage: ev.payload?.to || 'mini', hearts: 5 };
+  const souvenir = ev.type === 'walk_return' && ev.payload?.souvenir_key ? items.souvenirs.find(s => s.key === ev.payload.souvenir_key) : null;
+  const place = items.placeTo[ev.payload?.place] || 'dehors';
+  const stageAfter = ev.type === 'hatch' ? 'mini' : ev.type === 'stage_up' ? ev.payload?.to || m.stage : m.stage;
+  const k = Math.max(1, STAGES.indexOf(stageAfter));
+  const lvl = ev.type === 'hatch' ? 1 : ev.type === 'walk_return' ? 2 : k >= 3 ? 4 : 3;
+  const title = ev.type === 'hatch' ? t.hatchTitle : ev.type === 'walk_return' ? t.returnTitle : t.stageTitle;
+  const sub = ev.type === 'hatch' ? t.hatchSub
+    : ev.type === 'walk_return' ? (souvenir ? fill(t.returnSub, { place, label: souvenir.label.toLowerCase() }) : fill(t.returnEmpty, { place }))
+    : fill(t.stageSub, { weeks: m.healthy_weeks || k, k });
+  const next = async () => {
+    if (!demo) await markSeen(ev).catch(() => {});
+    const rest = queue.slice(1);
+    if (rest.length) setQueue(rest); else router.back();
+  };
+  return (
+    <View style={{ flex: 1, backgroundColor: T.bg }}>
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><Scene T={T} stage={stageAfter} mood={T.night ? 'sleeping' : 'wink'} lvl={lvl} height={layout.scene + 60} /></View>
+      <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
+        <View style={{ height: layout.scene + 60 - 20 }} />
+        <View style={{ paddingHorizontal: layout.x, paddingTop: 28 }}>
+          <Label T={T}>{fill(t.kicker, { time: fmtTime(ev.created_at) })}</Label>
+          <Text style={[type.name, { color: T.ink, marginTop: 8 }]}>{title}</Text>
+          <Text style={[type.sub, { color: T.muted, marginTop: 10, maxWidth: 360 }]}>{sub}</Text>
+          {ev.type === 'walk_return' ? (
+            <View style={[s.pearls, { borderColor: T.line }]}>
+              <View style={{ flex: 1 }}>{souvenir ? <><Text style={[type.section, { color: T.ink }]}>{souvenir.label}</Text><Label T={T} style={{ marginTop: 2 }}>{items.places[souvenir.place]}</Label></> : <Label T={T}>{items.places[ev.payload?.place] || ''}</Label>}</View>
+              <Num T={T} style={{ color: T.accent }}>{fill(t.pearls, { n: PEARLS.walk })}</Num>
+            </View>
+          ) : null}
+        </View>
+        <View style={{ flex: 1 }} />
+        <View style={{ paddingHorizontal: layout.x, paddingBottom: 16 }}><CTAPrimary big label={queue.length > 1 ? t.cta : t.ctaLast} onPress={next} /></View>
+      </SafeAreaView>
+    </View>
+  );
+}
+const s = StyleSheet.create({ pearls: { marginTop: 22, paddingVertical: 16, borderTopWidth: StyleSheet.hairlineWidth, borderBottomWidth: StyleSheet.hairlineWidth, flexDirection: 'row', alignItems: 'center', gap: 12 } });

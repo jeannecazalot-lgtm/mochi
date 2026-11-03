@@ -2059,5 +2059,31 @@
     "metaOne": "1 restante · {time}",
     "allDoneMeta": "tout est fait",
     "empty": "Rien de prévu aujourd'hui."
+  },
+  "moments": {
+    "_labels": {
+      "hatchTitle": "Titre éclosion",
+      "hatchSub": "Sous-titre éclosion",
+      "returnTitle": "Titre retour de balade",
+      "returnSub": "Sous-titre ({place}, {label})",
+      "returnEmpty": "Retour sans souvenir (tout trouvé)",
+      "pearls": "Perles gagnées (+{n})",
+      "stageTitle": "Titre passage de palier",
+      "stageSub": "Sous-titre ({weeks} semaines saines, {k} palier)",
+      "cta": "Bouton",
+      "ctaLast": "Bouton du dernier moment",
+      "kicker": "Petite ligne au-dessus du titre ({time})"
+    },
+    "kicker": "{time}",
+    "hatchTitle": "Mochi a éclos.",
+    "hatchSub": "Vous avez chacun coché une première mission. À partir de maintenant, il grandit avec vous deux.",
+    "returnTitle": "Mochi est rentré.",
+    "returnSub": "Il est allé {place} et il a trouvé ça : {label}. C'est posé dans sa pièce.",
+    "returnEmpty": "Il est allé {place}. Rien de nouveau cette fois, il a tout vu là-bas.",
+    "pearls": "+{n} perles",
+    "stageTitle": "Mochi grandit.",
+    "stageSub": "{weeks} semaines saines. Il passe au palier {k}, et sa pièce aussi.",
+    "cta": "Continuer",
+    "ctaLast": "C'est noté"
   }
 }

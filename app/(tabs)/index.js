@@ -23,7 +23,7 @@ import { toggleOccurrence, isLive, skipOccurrence } from '../../src/occ-actions'
 import { clearMalusFor } from '../../src/malus-actions';
 import { groupLate, lateCaption, daysBetweenIso } from '../../src/late-groups';
 import { mochiReact } from '../../src/components/mochi-img';
-import { mochiStore, getMochi, energyOf, onMissionDone, STAGES } from '../../src/mochi-state';
+import { mochiStore, getMochi, energyOf, onMissionDone, STAGES, unseenMoments } from '../../src/mochi-state';
 import copy from '../../src/data/copy.json';
 
 const fill = (s, vars) => Object.keys(vars).reduce((acc, k) => acc.replace(`{${k}}`, vars[k]), s);
@@ -65,6 +65,7 @@ export default function Home() {
   const [energy, setEnergy] = useState({ done: 0, total: 0 });
   const [lvl, setLvl] = useState(1);
   const data = useRef({ occs: [], byId: {} });
+  const shown = useRef(false); // moments plein écran : une seule ouverture par montage
   const [availH, setAvailH] = useState(0); const [topH, setTopH] = useState(0); const [headH, setHeadH] = useState(0); const [gh, setGh] = useState({});
   const fitDays = useMemo(() => { let left = availH - topH - headH - 12; const out = []; for (const g of upcoming) { const hgt = gh[g.iso]; if (hgt == null || hgt + 8 > left) break; left -= hgt + 8; out.push(g); } return out; }, [availH, topH, headH, gh, upcoming]);
   const occV = occStore.useVersion();
@@ -85,6 +86,7 @@ export default function Home() {
       setReal(true); setAnyOcc(occs.length > 0); setNoTask(tasks.length === 0);
       occs.forEach(o => { if (o.status === 'done' && !missionDone.has(o.id)) missionDone.set(o.id, true); });
       const m = await getMochi(); setMochi(m);
+      if (!shown.current) { const un = await unseenMoments(); if (un.length) { shown.current = true; setTimeout(() => router.push('/moment'), 400); } }
       setEnergy(energyOf(occs));
       const souvenirs = inv.filter(i => i.household_id === setup.householdId && i.kind === 'souvenir').length;
       setLvl(!m || m.stage === 'egg' ? 0 : souvenirs === 0 ? 1 : m.stage === 'mini' ? 2 : m.stage === 'mochi' ? 3 : 4);

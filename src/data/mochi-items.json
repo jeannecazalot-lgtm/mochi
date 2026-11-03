@@ -270,5 +270,13 @@
    "price": 120,
    "plus": true
   }
- ]
+ ],
+ "placeTo": {
+  "jardin": "au jardin",
+  "riviere": "à la rivière",
+  "foret": "dans la forêt",
+  "ville": "en ville",
+  "plage": "à la plage",
+  "montagne": "à la montagne"
+ }
 }
