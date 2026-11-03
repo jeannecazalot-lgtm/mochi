@@ -72,7 +72,7 @@ create table if not exists mochi_checkins (
 
 -- ── réglages : mode nuit par personne, heure de coucher du foyer (mode nuit automatique) ──────
 alter table profiles   add column if not exists night_mode text not null default 'auto' check (night_mode in ('auto','on','off'));
-alter table households add column if not exists bedtime time not null default '22:30';
+alter table households add column if not exists bedtime time not null default '22:00';   -- 22 h : décision Jeanne 4 nov 2026 (appliqué en 0014)
 
 -- ── sécurité : membres du foyer, comme partout ───────────────────────────────────────────────
 alter table mochi_state     enable row level security;

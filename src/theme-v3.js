@@ -29,10 +29,10 @@ export const type = {
 export const layout = { x: 24, air: 1.3, scene: 300, floor: 54, mochi: 150 };
 
 const K = 'mochi:nightMode';
-let mode = 'auto', bedtime = '22:30', night = false, version = 0;
+let mode = 'auto', bedtime = '22:00', night = false, version = 0; // 22 h = décision Jeanne (tableau de bord, 4 nov 2026)
 const subs = new Set();
 const notify = () => { version++; subs.forEach(f => f()); };
-const minutes = hhmm => { const [h, m] = String(hhmm || '22:30').split(':').map(Number); return h * 60 + (m || 0); };
+const minutes = hhmm => { const [h, m] = String(hhmm || '22:00').split(':').map(Number); return h * 60 + (m || 0); };
 function compute() {
   const d = new Date(); const now = d.getHours() * 60 + d.getMinutes();
   const auto = now >= minutes(bedtime) || now < 7 * 60; // du coucher du foyer à 7 h

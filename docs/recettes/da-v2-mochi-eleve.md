@@ -169,3 +169,8 @@ Chaque objet est une forme plate sans contour, dans les tokens de scène (§6). 
 | Stade « Maxi » (8 semaines) / 1er achat | la lampe, le cadre, le tapis ; étagère pleine | 4 |
 | Au-delà | objets achetés avec les perles, 2e pièce Mochi+ | — |
 Règle : un objet n'apparaît jamais sans raison ; la pièce est la mémoire visible du foyer.
+
+## 8. Décisions prises sur le tableau de bord (4 nov 2026)
+- Heure de coucher du foyer : **22 h** par défaut (mode nuit automatique de 22 h à 7 h), modifiable dans les réglages. Migration 0014.
+- Paywall Mochi+ : **après l'onboarding**, comme Finch — soft paywall, tout le cœur reste gratuit, on peut passer.
+- Noms des stades : « pas fan » des étiquettes (Mini/Maxi, S/M/L/XL) → à reproposer avec l'écran de passage de stade.
