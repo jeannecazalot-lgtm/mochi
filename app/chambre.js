@@ -59,7 +59,7 @@ export default function Chambre() {
           <Num T={T}>{m.pearls ?? 0}</Num><Label T={T} style={{ marginLeft: 6 }}>perles</Label>
         </View>
         <ScrollView contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
-          <View style={{ height: Math.max(8, layout.scene + 40 + 8 - insets.top - 48) }} />
+          <View pointerEvents="none" style={{ height: Math.max(8, layout.scene + 40 + 8 - insets.top - 48) }} />
           <View style={{ paddingHorizontal: X, paddingTop: 22 }}><Text style={[type.name, { color: T.ink }]}>{t.title}</Text></View>
           <View style={{ flexDirection: 'row', gap: 22, paddingHorizontal: X, marginTop: 18, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: T.line }}>
             {t.tabs.map((lab, i) => <Pressable key={lab} onPress={() => setTab(i)} style={{ paddingBottom: 10, borderBottomWidth: 2, borderColor: tab === i ? T.ink : 'transparent' }}><Text style={[type.label, { color: tab === i ? T.ink : T.muted, fontWeight: '600' }]}>{lab}</Text></Pressable>)}
