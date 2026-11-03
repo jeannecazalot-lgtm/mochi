@@ -155,3 +155,17 @@ Rejeté au passage : chiffres en matrice de points (« moins adapté »), capita
 - Tab bar : hairline en haut, icônes 1,6, étiquettes 11, + plat accent 48.
 - Les émojis des tâches restent (ce sont des données), taille 16.
 - Ailleurs (Planning, Budget, Suivi, sheets) : on garde la DA actuelle tant que l'écran n'est pas repris ; chaque reprise suit ces tokens.
+
+## 7. L'appartement (3 nov 2026, « vas-y tu as raison ») — composition retenue et ordre d'apparition
+Point de départ = composition « Fenêtre » (`/proto-instrument?v=d&apt=4&lvl=0`), la pièce se remplit avec le temps.
+Chaque objet est une forme plate sans contour, dans les tokens de scène (§6). Positions : ancrées gauche/droite,
+à adapter en largeur relative avant la vraie implémentation.
+| Moment (déclencheur) | Ce qui apparaît | lvl |
+|---|---|---|
+| Foyer créé (œuf) | mur, sol, grande arche avec le soleil (lune la nuit) | 0 |
+| Éclosion (chacun a coché sa 1re mission) | la plante, le tabouret | 1 |
+| 1er souvenir de balade | l'étagère, avec le souvenir posé dessus ; 5 cases, une par souvenir | 2 |
+| Stade « Mochi » (3 semaines saines) | la banquette et son coussin ; étagère à 3 | 3 |
+| Stade « Maxi » (8 semaines) / 1er achat | la lampe, le cadre, le tapis ; étagère pleine | 4 |
+| Au-delà | objets achetés avec les perles, 2e pièce Mochi+ | — |
+Règle : un objet n'apparaît jamais sans raison ; la pièce est la mémoire visible du foyer.
