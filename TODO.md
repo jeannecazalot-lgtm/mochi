@@ -347,3 +347,21 @@ Jeanne (WhatsApp 10 sept) : écran avant « Choisis vos tâches » pour le créa
 - DA : 3 directions (`/proto-da?v=recre|maison|veilleuse|foyer`) → rejets : bords 3D « jouet », fonds lumière/matière, rendus 3D réalistes (Figma AI, `assets/maison-proto/`, NON committés, à ne plus utiliser), kawaii. Références validées par Jeanne : Headspace, Gentler Streak, Teenage Engineering, Nothing, Suno. → **DA v3 « l'instrument et la créature »** (`/proto-instrument?v=d`, nuit `&n=1`), décision « fais confiance » : tokens et règles en §6 de la recette.
 - Reste (prochaine session) : modèle de données du système Mochi (4 tables : état du Mochi, événements/balades, inventaire du foyer, check-ins) → vrai Accueil en DA v3 → puis Balance, retour de balade, chambre, check-in, selon l'inventaire §4. Composition de l'appartement à dessiner proprement (formes plates). Mode nuit : réglage + automatique.
 - Fragile : les protos sont des pages à données en dur ; `proto-cadre.js` dépend d'images rejetées et reste hors git.
+
+### Plan de refonte « Mochi qu'on élève » (écrit le 3 nov 2026, soir)
+Principe : page par page, dans l'ordre où un nouveau foyer les rencontre, chaque écran validé au simulateur avant le suivant ;
+audit de cohérence tous les 3-4 écrans. Travail sur une branche `mochi-eleve` ; **aucun EAS Update** sur le canal production
+tant que la tranche n'est pas cohérente (le build 19 des testeurs reste tel quel) ; build 20 quand Accueil + moments + Balance + onboarding sont faits.
+0. Fondations (1 session) : tokens DA v3 dans theme.js + mode nuit (réglage + automatique) ; modèle de données (4 tables, migration, RLS) ;
+   points / malus / point hebdo retirés du code (gardés en base) ; branche.
+1. Accueil réel (1-2) : scène + jauges + liste branchées sur les vraies occurrences ; énergie du foyer, cœurs, perles ; Mochi absent en balade ; nuit.
+2. Moments plein écran (1) : éclosion (à deux), retour de balade + souvenirs, passage de stade ; notifications associées.
+3. Balance v3 (1) : stades et semaines saines, ratées en cœurs, ressenti vs réel.
+4. Check-in d'humeur (0,5) : matin ; soir en mode nuit.
+5. Appartement + collection (1-2) : page chambre, souvenirs par lieu, boutique perles, paywall Mochi+ refait en DA v3.
+6. Onboarding v3 + setup (1-2) : nouvelle promesse « élevez Mochi à deux », 4 slides en DA v3, puis connexion, identité, dispos, prefs,
+   invitation ; « duo formé » devient l'œuf ; choix des tâches à deux et dispatch repris dans la DA ; l'éclosion = première mission cochée par chacun.
+7. Les outils (2) : Planning, Budget, Suivi, sheets, profil, réglages → DA v3 sans changer les fonctions.
+8. Test à deux téléphones, captures ASC, build 20, TestFlight interne.
+V3 (après) : quêtes de couple, compagnons, 2e pièce, Wrapped en DA v3.
+≈ 10 à 12 sessions. Décisions à prendre en route : noms des stades, soft paywall (après l'onboarding comme Finch ou après la 1re semaine), heure de coucher du foyer pour le mode nuit auto.
