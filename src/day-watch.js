@@ -24,8 +24,8 @@ export function check() {
   const today = localIso();
   if (today !== lastDay) { lastDay = today; occStore.bump(); }
   extendHorizon({ force: today !== lastDay }).catch(() => {}); // la semaine suivante se remplit toute seule
-  clearOldNotifications();
-  mochiTick().catch(() => {}); // Mochi qu'on élève : cœurs, éclosion, balade, semaine (migration 0013) // les notifs d'hier ne s'empilent plus
+  clearOldNotifications(); // les notifs d'hier ne s'empilent plus
+  mochiTick().catch(() => {}); // Mochi qu'on élève : cœurs, éclosion, balade, semaine (migration 0013)
   schedule();
 }
 export function startDayWatch() {
