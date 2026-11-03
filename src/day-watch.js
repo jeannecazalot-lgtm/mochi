@@ -9,6 +9,7 @@ import { localIso } from './dates';
 import { occStore } from './demo-core';
 import { extendHorizon } from './horizon';
 import { clearOldNotifications } from './notifications';
+import { tick as mochiTick } from './mochi-state';
 
 let lastDay = localIso();
 let timer = null;
@@ -23,7 +24,8 @@ export function check() {
   const today = localIso();
   if (today !== lastDay) { lastDay = today; occStore.bump(); }
   extendHorizon({ force: today !== lastDay }).catch(() => {}); // la semaine suivante se remplit toute seule
-  clearOldNotifications(); // les notifs d'hier ne s'empilent plus
+  clearOldNotifications();
+  mochiTick().catch(() => {}); // Mochi qu'on élève : cœurs, éclosion, balade, semaine (migration 0013) // les notifs d'hier ne s'empilent plus
   schedule();
 }
 export function startDayWatch() {

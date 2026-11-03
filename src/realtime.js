@@ -7,6 +7,7 @@ import { supabase } from './supabase';
 import { pull } from './store';
 import { occStore } from './demo-core';
 import { loadPartner } from './identity';
+import { mochiStore } from './mochi-state';
 
 let channel = null;
 let currentHid = null;
@@ -32,6 +33,9 @@ export function startRealtime(householdId) {
     .on('postgres_changes', { event: '*', schema: 'public', table: 'notes', filter: `household_id=eq.${householdId}` }, refresh('notes'))
     .on('postgres_changes', { event: '*', schema: 'public', table: 'events', filter: `household_id=eq.${householdId}` }, refresh('events'))
     .on('postgres_changes', { event: '*', schema: 'public', table: 'setup_drafts', filter: `household_id=eq.${householdId}` }, refresh('setup_drafts'))
+    // Mochi qu'on élève (migration 0013) : l'état et le journal bougent sur les deux téléphones
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'mochi_state', filter: `household_id=eq.${householdId}` }, async () => { try { await pull('mochi_state', householdId); mochiStore.bump(); } catch (e) { /* re-pull au prochain */ } })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'mochi_events', filter: `household_id=eq.${householdId}` }, async () => { try { await pull('mochi_events', householdId); await pull('mochi_inventory', householdId); mochiStore.bump(); } catch (e) { /* idem */ } })
     .on('postgres_changes', { event: '*', schema: 'public', table: 'household_members', filter: `household_id=eq.${householdId}` }, () => { occStore.bump(); loadPartner(householdId); })
     .subscribe();
 }

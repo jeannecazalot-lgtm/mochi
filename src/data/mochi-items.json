@@ -1,0 +1,274 @@
+{
+ "_readme": "Catalogue de l'appartement de Mochi (3 nov 2026). souvenirs = ramenés de balade (lieux débloqués par le stade) ; objects/outfits = achetés en perles ; plus = Mochi+.",
+ "places": {
+  "jardin": "Le jardin",
+  "riviere": "La rivière",
+  "foret": "La forêt",
+  "ville": "La ville",
+  "plage": "La plage",
+  "montagne": "La montagne"
+ },
+ "souvenirs": [
+  {
+   "key": "jardin-01",
+   "place": "jardin",
+   "label": "Un galet lisse"
+  },
+  {
+   "key": "jardin-02",
+   "place": "jardin",
+   "label": "Une plume grise"
+  },
+  {
+   "key": "jardin-03",
+   "place": "jardin",
+   "label": "Une pomme de pin"
+  },
+  {
+   "key": "jardin-04",
+   "place": "jardin",
+   "label": "Une feuille rousse"
+  },
+  {
+   "key": "jardin-05",
+   "place": "jardin",
+   "label": "Un trèfle à quatre feuilles"
+  },
+  {
+   "key": "jardin-06",
+   "place": "jardin",
+   "label": "Un escargot vide"
+  },
+  {
+   "key": "jardin-07",
+   "place": "jardin",
+   "label": "Une pierre blanche"
+  },
+  {
+   "key": "jardin-08",
+   "place": "jardin",
+   "label": "Une brindille tordue"
+  },
+  {
+   "key": "riviere-01",
+   "place": "riviere",
+   "label": "Un galet rayé"
+  },
+  {
+   "key": "riviere-02",
+   "place": "riviere",
+   "label": "Un bout de verre poli"
+  },
+  {
+   "key": "riviere-03",
+   "place": "riviere",
+   "label": "Une écorce flottée"
+  },
+  {
+   "key": "riviere-04",
+   "place": "riviere",
+   "label": "Un caillou en cœur"
+  },
+  {
+   "key": "riviere-05",
+   "place": "riviere",
+   "label": "Une petite écrevisse en coquille"
+  },
+  {
+   "key": "riviere-06",
+   "place": "riviere",
+   "label": "Un roseau"
+  },
+  {
+   "key": "riviere-07",
+   "place": "riviere",
+   "label": "Une plume de héron"
+  },
+  {
+   "key": "riviere-08",
+   "place": "riviere",
+   "label": "Du sable fin dans un bocal"
+  },
+  {
+   "key": "foret-01",
+   "place": "foret",
+   "label": "Un gland"
+  },
+  {
+   "key": "foret-02",
+   "place": "foret",
+   "label": "Une mousse douce"
+  },
+  {
+   "key": "foret-03",
+   "place": "foret",
+   "label": "Un champignon séché"
+  },
+  {
+   "key": "foret-04",
+   "place": "foret",
+   "label": "Une plume de chouette"
+  },
+  {
+   "key": "foret-05",
+   "place": "foret",
+   "label": "Un morceau de lichen"
+  },
+  {
+   "key": "foret-06",
+   "place": "foret",
+   "label": "Une noisette"
+  },
+  {
+   "key": "ville-01",
+   "place": "ville",
+   "label": "Un ticket de métro"
+  },
+  {
+   "key": "ville-02",
+   "place": "ville",
+   "label": "Une pièce étrangère"
+  },
+  {
+   "key": "ville-03",
+   "place": "ville",
+   "label": "Un bouchon de limonade"
+  },
+  {
+   "key": "ville-04",
+   "place": "ville",
+   "label": "Une carte postale"
+  },
+  {
+   "key": "ville-05",
+   "place": "ville",
+   "label": "Un bouton doré"
+  },
+  {
+   "key": "ville-06",
+   "place": "ville",
+   "label": "Un petit miroir"
+  },
+  {
+   "key": "plage-01",
+   "place": "plage",
+   "label": "Un coquillage nacré"
+  },
+  {
+   "key": "plage-02",
+   "place": "plage",
+   "label": "Une étoile de mer"
+  },
+  {
+   "key": "plage-03",
+   "place": "plage",
+   "label": "Un bout de corde"
+  },
+  {
+   "key": "plage-04",
+   "place": "plage",
+   "label": "Un verre bleu poli"
+  },
+  {
+   "key": "plage-05",
+   "place": "plage",
+   "label": "Un oursin vide"
+  },
+  {
+   "key": "plage-06",
+   "place": "plage",
+   "label": "Une ammonite"
+  },
+  {
+   "key": "montagne-01",
+   "place": "montagne",
+   "label": "Un edelweiss séché"
+  },
+  {
+   "key": "montagne-02",
+   "place": "montagne",
+   "label": "Un quartz"
+  },
+  {
+   "key": "montagne-03",
+   "place": "montagne",
+   "label": "Une pomme de pin géante"
+  },
+  {
+   "key": "montagne-04",
+   "place": "montagne",
+   "label": "Une clochette"
+  },
+  {
+   "key": "montagne-05",
+   "place": "montagne",
+   "label": "Un caillou de neige"
+  },
+  {
+   "key": "montagne-06",
+   "place": "montagne",
+   "label": "Une plume d'aigle"
+  }
+ ],
+ "objects": [
+  {
+   "key": "plante",
+   "label": "Plante grasse",
+   "price": 40
+  },
+  {
+   "key": "pouf",
+   "label": "Pouf moelleux",
+   "price": 60
+  },
+  {
+   "key": "cadre",
+   "label": "Cadre photo de vous deux",
+   "price": 80
+  },
+  {
+   "key": "lampe",
+   "label": "Lampe champignon",
+   "price": 90
+  },
+  {
+   "key": "tapis",
+   "label": "Tapis rond",
+   "price": 120
+  },
+  {
+   "key": "etagere2",
+   "label": "Deuxième étagère",
+   "price": 150
+  },
+  {
+   "key": "fauteuil",
+   "label": "Fauteuil",
+   "price": 200
+  },
+  {
+   "key": "bibliotheque",
+   "label": "Bibliothèque",
+   "price": 300
+  }
+ ],
+ "outfits": [
+  {
+   "key": "bonnet",
+   "label": "Bonnet",
+   "price": 60
+  },
+  {
+   "key": "echarpe",
+   "label": "Écharpe d'hiver",
+   "price": 80,
+   "plus": true
+  },
+  {
+   "key": "chapeau",
+   "label": "Chapeau melon",
+   "price": 120,
+   "plus": true
+  }
+ ]
+}
