@@ -171,3 +171,15 @@ export async function tick() {
   mochiStore.bump();
   return getMochi();
 }
+
+// ── boutique : un objet ou une tenue contre des perles communes (jamais d'utilitaire derrière) ─────
+export async function buyItem(item, kind = 'object') {
+  const m = await getMochi(); if (!m) return { ok: false, reason: 'no_mochi' };
+  if ((m.pearls || 0) < item.price) return { ok: false, reason: 'pearls' };
+  const inv = await read('mochi_inventory');
+  if (inv.some(i => i.household_id === hid() && i.item_key === item.key)) return { ok: false, reason: 'owned' };
+  const ev = await event('pearls', { payload: { delta: -item.price, reason: 'shop', item_key: item.key } });
+  await mutate('mochi_inventory', { id: uuid(), household_id: hid(), item_key: item.key, kind, source: 'shop', placed: true, event_id: ev.id, acquired_by: getUid(), acquired_at: nowIso() });
+  await patch({ pearls: (m.pearls || 0) - item.price });
+  return { ok: true };
+}

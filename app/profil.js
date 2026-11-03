@@ -14,6 +14,7 @@ import { occStore } from '../src/demo-core';
 import { resetIdentity, getUid, loadIdentity, useIdentity } from '../src/identity';
 import { resetAll, read } from '../src/store';
 import { computeRealBalance } from '../src/balance-real';
+import { getNightMode, setNightMode, useTokens } from '../src/theme-v3';
 import copy from '../src/data/copy.json';
 import { colors, space, radius, font, slotColors, alpha } from '../src/theme';
 
@@ -23,6 +24,7 @@ const fmtDate = d => new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: '
 
 export default function Profil() {
   occStore.useVersion(); // seuils modifiés dans la sheet → ligne à jour
+  useTokens(); const nightMode = getNightMode(); // re-rend quand le mode nuit change
   const th = thresholdsOf();
   const premium = isPremium();
   // Réel (5 sept 2026, audit QA) : streak, tâches faites et part d'équilibre calculés
@@ -122,7 +124,8 @@ export default function Profil() {
             <View style={{ gap: 6 }}>
               <SettingRow emoji="⚖️" title={t.thresholds} sub={fill(t.thresholdsSub, { warn: th.warn, alert: th.alert })}
                 right={<Text style={s.value}>{fill(t.thresholdsValue, { warn: th.warn, alert: th.alert })}</Text>} onPress={() => router.push('/seuils')} />
-              <SettingRow emoji="🎯" title={t.malus} sub={t.malusSub} onPress={() => router.push('/point-hebdo')} />
+              {/* Mochi qu'on élève (4 nov 2026) : le point hebdo laisse la place au mode nuit ; un tap fait tourner auto → toujours → jamais */}
+              <SettingRow emoji="🌙" title={t.nightMode} sub={t.nightModeSub} right={<Text style={s.value}>{t.nightValues[nightMode]}</Text>} onPress={() => { const order = ['auto', 'on', 'off']; setNightMode(order[(order.indexOf(nightMode) + 1) % 3]); }} />
               <SettingRow emoji="📆" title={t.bilan} sub={t.bilanSub} onPress={() => router.push('/bilan')} />
               <SettingRow emoji="💳" title={t.subscription} sub={ALL_FREE ? t.subscriptionFree : premium ? fill(t.subscriptionOn, { date: fmtDate(household.premium_until) }) : t.subscriptionOff} onPress={() => router.push('/paywall')} />
               <SettingRow emoji="🗺" title={t.plan} sub={t.planSub} onPress={() => router.push('/plan')} />

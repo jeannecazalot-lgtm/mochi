@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import { View, Text, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CTAPrimary } from '../src/components/ui';
 import { Scene } from '../src/components/mochi/scene';
 import { Label, Num } from '../src/components/mochi/gauges';
@@ -23,6 +23,7 @@ const fmtTime = iso => new Date(iso).toLocaleTimeString('fr-FR', { hour: '2-digi
 export default function Moment() {
   const t = copy.moments;
   const T = useTokens();
+  const insets = useSafeAreaInsets();
   const { demo } = useLocalSearchParams();
   const [queue, setQueue] = useState(demo ? [DEMO[demo] || DEMO.hatch] : null);
   const [mochi, setMochi] = useState(null);
@@ -48,7 +49,7 @@ export default function Moment() {
     <View style={{ flex: 1, backgroundColor: T.bg }}>
       <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><Scene T={T} stage={stageAfter} mood={T.night ? 'sleeping' : 'wink'} lvl={lvl} height={layout.scene + 60} /></View>
       <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
-        <View style={{ height: layout.scene + 60 - 20 }} />
+        <View style={{ height: Math.max(8, layout.scene + 60 + 8 - insets.top) }} />
         <View style={{ paddingHorizontal: layout.x, paddingTop: 28 }}>
           <Label T={T}>{fill(t.kicker, { time: fmtTime(ev.created_at) })}</Label>
           <Text style={[type.name, { color: T.ink, marginTop: 8 }]}>{title}</Text>

@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { router } from 'expo-router';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { LinearTransition, FadeInDown, Easing } from 'react-native-reanimated';
 import { Animated } from '../../src/components/motion';
@@ -52,6 +52,7 @@ const demoVms = () => myToday().map(o => { const task = taskById(o.task_id); ret
 export default function Home() {
   const t = copy.homeV3, h = copy.home;
   const T = useTokens();
+  const insets = useSafeAreaInsets();
   missionDone.useVersion();
   const mochiV = mochiStore.useVersion();
   const ident = useIdentity();
@@ -64,6 +65,7 @@ export default function Home() {
   const [mochi, setMochi] = useState(null);
   const [energy, setEnergy] = useState({ done: 0, total: 0 });
   const [lvl, setLvl] = useState(1);
+  const [checkedIn, setCheckedIn] = useState(true); // ligne check-in masquée tant qu'on ne sait pas
   const data = useRef({ occs: [], byId: {} });
   const shown = useRef(false); // moments plein écran : une seule ouverture par montage
   const [availH, setAvailH] = useState(0); const [topH, setTopH] = useState(0); const [headH, setHeadH] = useState(0); const [gh, setGh] = useState({});
@@ -73,14 +75,15 @@ export default function Home() {
   useEffect(() => {
     (async () => {
       await loadSetup();
-      if (!inRealMode()) { setVms(demoVms()); setMochi(DEMO_MOCHI); setLvl(2); setEnergy({ done: 0, total: 0 }); return; }
-      const [occs, tasks, inv] = await Promise.all([read('occurrences'), read('tasks'), read('mochi_inventory')]);
+      if (!inRealMode()) { setVms(demoVms()); setMochi(DEMO_MOCHI); setLvl(2); setEnergy({ done: 0, total: 0 }); setCheckedIn(false); return; }
+      const [occs, tasks, inv, cks] = await Promise.all([read('occurrences'), read('tasks'), read('mochi_inventory'), read('mochi_checkins')]);
       if (setup.householdId && occs.some(o => !tasks.some(tk => tk.id === o.task_id))) healMissingTasks(setup.householdId).then(ok => { if (ok) occStore.bump(); }).catch(() => {});
       const byId = Object.fromEntries(tasks.map(tk => [tk.id, tk]));
       data.current = { occs, byId };
       const today = localIso();
       await loadIdentity();
       const uid = getUid();
+      setCheckedIn(cks.some(c => c.user_id === uid && c.day === today && c.moment === (T.night ? 'evening' : 'morning')));
       const mine = o => !uid || !o.assignee_id || o.assignee_id === uid;
       const todays = occs.filter(o => isLive(o) && o.due_date === today && mine(o));
       setReal(true); setAnyOcc(occs.length > 0); setNoTask(tasks.length === 0);
@@ -139,7 +142,7 @@ export default function Home() {
 
   return (
     <View style={{ flex: 1, backgroundColor: T.bg }}>
-      <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><Scene T={T} stage={m.stage} mood={mood} lvl={lvl} away={away} /></View>
+      <Pressable onPress={() => router.push('/chambre')} style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><Scene T={T} stage={m.stage} mood={mood} lvl={lvl} away={away} /></Pressable>
       <SafeAreaView style={{ flex: 1 }} edges={['top']}>
         <View style={{ flex: 1, overflow: 'hidden' }} onLayout={e => setAvailH(e.nativeEvent.layout.height)}>
           <View onLayout={e => setTopH(e.nativeEvent.layout.height)}>
@@ -149,13 +152,14 @@ export default function Home() {
               <RoundButton onPress={() => router.push('/activite')} accessibilityLabel={h.activityA11y}><Icon d={ICON.bubble} size={17} color={T.ink} /></RoundButton>
               <Pressable onPress={() => router.push('/profil')} accessibilityLabel={h.profileA11y}><Avatar initial={me.initial} color={me.color} photo={me.avatar_url} size={36} /></Pressable>
             </View>
-            <View style={{ height: layout.scene - 130 }} />
+            <View style={{ height: Math.max(8, layout.scene + 12 - insets.top - 48) }} />
             <View style={{ paddingHorizontal: layout.x, paddingTop: 24 * layout.air, flexDirection: 'row', alignItems: 'baseline' }}>
               <Text style={[type.name, { color: T.ink, flex: 1 }]}>{m.name || 'Mochi'}</Text>
               <Label T={T}>{m.stage === 'egg' ? t.eggPill : fill(t.stagePill, { day, k: Math.max(1, STAGES.indexOf(m.stage)) })}</Label>
             </View>
             <Text style={[type.sub, { paddingHorizontal: layout.x, marginTop: 6, color: T.muted }]}>{line}</Text>
-            <View style={{ marginTop: 24 * layout.air }}><Gauges T={T} t={t} energy={en} hearts={hearts} formLabel={t.formLabels[hearts] || ''} /></View>
+            {!checkedIn ? <Pressable onPress={() => router.push('/checkin')} style={{ marginHorizontal: layout.x, marginTop: 14, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 10 }}><View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: T.accent }} /><Text style={[type.label, { color: T.ink, flex: 1 }]}>{T.night ? copy.checkin.homeRowEvening : copy.checkin.homeRow}</Text><Label T={T}>›</Label></Pressable> : null}
+            <View style={{ marginTop: (checkedIn ? 24 : 10) * layout.air }}><Gauges T={T} t={t} energy={en} hearts={hearts} formLabel={t.formLabels[hearts] || ''} /></View>
             <View style={s.sectionHead}>
               <Pressable onPress={() => router.push('/afaire')} hitSlop={6}><Text style={[type.section, { color: T.ink }]}>{t.today}</Text></Pressable>
               <Label T={T}>{meta}</Label>

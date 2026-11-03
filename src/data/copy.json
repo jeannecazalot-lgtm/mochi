@@ -1105,7 +1105,10 @@
       "subscriptionOff": "Sous-titre si pas abonné",
       "plan": "Rangée de navigation dev vers le plan des écrans",
       "planSub": "Sous-titre",
-      "logout": "Bouton se déconnecter"
+      "logout": "Bouton se déconnecter",
+      "nightMode": "Ligne mode nuit",
+      "nightModeSub": "Sous-titre",
+      "nightValues": "Valeurs auto / on / off"
     },
     "title": "Profil & réglages",
     "duoWith": "En duo avec {name} · depuis {n} jours",
@@ -1154,7 +1157,14 @@
     "bilanSub": "Part de chacun, badges, malus",
     "account": "Compte",
     "accountApple": "Apple · {email}",
-    "accountNone": "Pas encore de compte · appuie pour te connecter"
+    "accountNone": "Pas encore de compte · appuie pour te connecter",
+    "nightMode": "Mode nuit",
+    "nightModeSub": "Automatique de 22 h à 7 h, ou à la main",
+    "nightValues": {
+      "auto": "Auto",
+      "on": "Toujours",
+      "off": "Jamais"
+    }
   },
   "activity": {
     "_labels": {
@@ -2122,5 +2132,81 @@
     "missedMe": "Toi",
     "heartCost": "− 1 cœur",
     "detail": "Voir le détail"
+  },
+  "checkin": {
+    "_labels": {
+      "morningTitle": "Titre matin ({name})",
+      "eveningTitle": "Titre soir",
+      "sub": "Sous-titre ({name} = binôme, {answer} = sa réponse)",
+      "subNone": "Sous-titre quand le binôme n'a pas répondu",
+      "moods": "3 états",
+      "partnerMoods": "Idem pour parler du binôme",
+      "retainTitle": "Titre bloc",
+      "retain": "Phrase ressenti vs réel ({pct}, {days})",
+      "done": "Missions faites",
+      "felt": "Charge ressentie",
+      "cta": "Bouton",
+      "week": "Titre des 7 jours",
+      "homeRow": "Ligne sur l'Accueil tant que pas fait",
+      "homeRowEvening": "Idem le soir"
+    },
+    "morningTitle": "Bonjour {name}, tu te sens comment ?",
+    "eveningTitle": "Comment s'est passée la journée ?",
+    "sub": "Dix secondes. {name} a répondu « {answer} ».",
+    "subNone": "Dix secondes, chaque matin. {name} n'a pas encore répondu.",
+    "moods": [
+      "",
+      "Chargé·e",
+      "Ça va",
+      "Léger·ère"
+    ],
+    "retainTitle": "Ce que Mochi en retient",
+    "retain": "Cette semaine tu as fait {pct} % des missions et tu t'es senti·e chargé·e {days}. C'est la charge qu'on ne voit pas dans le planning.",
+    "days": [
+      "0 jour sur 7",
+      "1 jour sur 7",
+      "2 jours sur 7",
+      "3 jours sur 7",
+      "4 jours sur 7",
+      "5 jours sur 7",
+      "6 jours sur 7",
+      "7 jours sur 7"
+    ],
+    "done": "Missions faites",
+    "felt": "Charge ressentie",
+    "week": "Les 7 derniers jours",
+    "cta": "C'est noté",
+    "homeRow": "Comment tu te sens ce matin ?",
+    "homeRowEvening": "Comment s'est passée la journée ?"
+  },
+  "chambre": {
+    "_labels": {
+      "title": "Titre",
+      "pearls": "({n})",
+      "tabs": "Onglets",
+      "buy": "Bouton acheter ({n} perles)",
+      "owned": "Déjà à vous",
+      "plus": "Badge Mochi+",
+      "notEnough": "Pas assez de perles",
+      "souvenirsCount": "({n} sur {total} + lieu)",
+      "locked": "Lieu pas encore débloqué",
+      "empty": "Aucun souvenir",
+      "rule": "Rappel des perles"
+    },
+    "title": "La pièce de Mochi",
+    "pearls": "{n} perles",
+    "tabs": [
+      "Objets",
+      "Tenues",
+      "Souvenirs"
+    ],
+    "buy": "{n}",
+    "owned": "À vous",
+    "plus": "Mochi+",
+    "notEnough": "Il vous manque {n} perles.",
+    "souvenirsCount": "{n} sur {total}",
+    "locked": "Se débloque au palier suivant",
+    "empty": "Mochi n'a encore rien ramené. La première balade part quand la jauge est pleine.",
+    "rule": "Les perles sont communes au foyer : 3 par mission, 4 si mentale, 5 chacun à deux, 12 par balade."
   }
 }
