@@ -1,207 +1,140 @@
-// Écran 21 · Onglet Balance. Recette : docs/recettes/21-balance.md
-// Source : duo-v2-iridescent-iter3.jsx › BalanceEmbossed (DNA) + brief (Mochi qui penche,
-// chart 7 jours, streak, malus en cours). Onglet : pas de retour, tab bar par le layout.
+// Écran 21 · Balance — v3 « l'instrument » (4 nov 2026). Logique v1 conservée (balance réelle de la semaine,
+// prévu, ratées) ; les points et le point hebdo disparaissent, une ratée coûte un cœur à Mochi (recette §1, §6).
 import React, { useEffect, useMemo, useState } from 'react';
 import { router } from 'expo-router';
-import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, Pressable, ScrollView, StyleSheet, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { GlowBg, Card, PillLabel, Micro, Divider } from '../../src/components/ui';
-import { LiveMochi, CountUp } from '../../src/components/motion';
-import { SplitBar, DarkPill, InfoRow } from '../../src/components/balance/extra';
-import { members, me, partner, streak, taskById, fmtMin } from '../../src/demo';
-import { shares, balanceState, weekInfo, nextReview, malusItems, dayMinutes } from '../../src/demo-balance';
-import { weekDays, missionDone, occStore } from '../../src/demo-core';
+import { CountUp } from '../../src/components/motion';
+import { Label, Num, Hair } from '../../src/components/mochi/gauges';
+import { useTokens, type, layout } from '../../src/theme-v3';
+import { frameFor, MOCHI_RATIO } from '../../src/components/mochi-img';
+import { members, me, partner, taskById, fmtMin } from '../../src/demo';
+import { shares, balanceState, weekInfo, malusItems, dayMinutes } from '../../src/demo-balance';
+import { missionDone, occStore } from '../../src/demo-core';
 import { read } from '../../src/store';
 import { loadSetup, setup, inRealMode } from '../../src/setup-state';
 import { getUid, useIdentity } from '../../src/identity';
 import { localIso } from '../../src/dates';
 import { weekMalus, sweepMissed } from '../../src/malus-actions';
 import { computeRealBalance } from '../../src/balance-real';
+import { mochiStore, getMochi, STAGES, STAGE_AT } from '../../src/mochi-state';
 import copy from '../../src/data/copy.json';
-import { colors, space, radius, font, slotColors } from '../../src/theme';
+import { slotColors } from '../../src/theme';
 
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
-const deep = m => slotColors[m.slot]?.deep ?? colors.ink;
+const deep = m => slotColors[m.slot]?.deep ?? '#2B2420';
+const DEMO_MOCHI = { stage: 'mini', hearts: 4, healthy_weeks: 2 };
+
+function Split({ T, parts, height = 8 }) {
+  return <View style={{ height, borderRadius: height / 2, backgroundColor: T.seg, overflow: 'hidden', flexDirection: 'row' }}>{parts.map((p, i) => <View key={i} style={{ width: `${Math.max(0, Math.min(1, p.ratio)) * 100}%`, backgroundColor: p.color }} />)}</View>;
+}
 
 export default function Balance() {
-  const t = copy.balance;
+  const t = copy.balanceV3, h = copy.home;
+  const T = useTokens();
   useIdentity();
-  const occV = occStore.useVersion();
+  const occV = occStore.useVersion(); const mochiV = mochiStore.useVersion();
   missionDone.useVersion();
   const [real, setReal] = useState(null);
-  const [planned, setPlanned] = useState(null); // { me, partner, both } minutes prévues cette semaine
-  const [realMalusItems, setRealMalusItems] = useState([]);
+  const [planned, setPlanned] = useState(null);
+  const [missed, setMissed] = useState([]);
+  const [mochi, setMochi] = useState(null);
   useEffect(() => {
     (async () => {
       await loadSetup();
-      // Réel dès qu'on a un foyer, même vide (retour test à deux, 3 sept 2026)
-      if (!inRealMode()) return;
-      await sweepMissed().catch(() => {}); // les échues deviennent missed + malus
+      if (!inRealMode()) { setMochi(DEMO_MOCHI); return; }
+      await sweepMissed().catch(() => {});
       const [occs, tasks] = await Promise.all([read('occurrences'), read('tasks')]);
-      setReal(computeRealBalance(occs, getUid())); // gère aussi zéro occurrence
-      // prévu cette semaine (lun → dim), par personne : toutes les occurrences à faire ou faites
+      setReal(computeRealBalance(occs, getUid()));
       const byTask = Object.fromEntries(tasks.map(tk => [tk.id, tk]));
       const d0 = new Date(); const mon = new Date(d0); mon.setDate(d0.getDate() - ((d0.getDay() + 6) % 7)); const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
       const from = localIso(mon), to = localIso(sun); const uid = getUid();
       const pl = { me: 0, partner: 0, both: 0 };
-      for (const o of occs) {
-        if (o.status === 'skipped' || o.due_date < from || o.due_date > to) continue;
-        const min = o.duration_min || byTask[o.task_id]?.duration_min || 15;
-        if (!o.assignee_id) pl.both += min; else if (o.assignee_id === uid) pl.me += min; else pl.partner += min;
-      }
+      for (const o of occs) { if (o.status === 'skipped' || o.due_date < from || o.due_date > to) continue; const min = o.duration_min || byTask[o.task_id]?.duration_min || 15; if (!o.assignee_id) pl.both += min; else if (o.assignee_id === uid) pl.me += min; else pl.partner += min; }
       setPlanned(pl);
-      setRealMalusItems(await weekMalus().catch(() => []));
+      setMissed(await weekMalus().catch(() => []));
+      setMochi(await getMochi());
     })();
-  }, [occV]);
+  }, [occV, mochiV]);
 
-  const demoParts = useMemo(shares, []);
-  const demoState = useMemo(balanceState, []);
+  const demoParts = useMemo(shares, []); const demoState = useMemo(balanceState, []);
   const parts = real?.parts || demoParts;
   const { state, top, lean } = real ? { state: real.state, top: real.top, lean: real.lean } : demoState;
   const week = real?.week || weekInfo();
-  const review = nextReview(real ? new Date() : undefined); // réel : le vrai prochain dimanche (la démo a une date figée)
   const chartDays = real?.days || dayMinutes;
-  // malus réels de la semaine (écrits par sweepMissed / postponeMalus), démo sinon
-  const realMalus = real
-    ? realMalusItems.filter(m => m.occurrence_id).map(m => ({ id: m.id, emoji: m.task_emoji, title: m.task_title || '…', sub: fill(t.missedSub, { who: m.user_id === getUid() ? t.missedMe : partner.first_name, n: m.due_date ? Math.max(1, Math.round((new Date(localIso()) - new Date(m.due_date)) / 86400000)) : 1 }), points: m.points, real: true }))
-    : malusItems;
-  // même phrase que l'Accueil (Jeanne, 15 sept 2026 : « on ne me dit pas la même chose »)
-  const h = copy.home;
-  const stateLabel = state === 'balanced' ? h.mochiBalanced
-    : fill(state === 'leaning' ? (top === me ? h.mochiLeaningMe : h.mochiLeaningOther) : (top === me ? h.mochiUnbalancedMe : h.mochiUnbalancedOther), { name: top.first_name });
-
-  // README flow : déséquilibre > 25 % → écran détail (une fois, au montage de l'onglet)
-  useEffect(() => { if (!real && state === 'unbalanced') router.push('/balance-detail'); }, []);
-
-  const openDetail = () => router.push('/balance-detail');
-  const left = streak.next.at - streak.days;
+  const m = mochi || DEMO_MOCHI;
+  const stateLabel = state === 'balanced' ? h.mochiBalanced : fill(state === 'leaning' ? (top === me ? h.mochiLeaningMe : h.mochiLeaningOther) : (top === me ? h.mochiUnbalancedMe : h.mochiUnbalancedOther), { name: top.first_name });
+  const mood = state === 'unbalanced' ? 'sad' : state === 'leaning' ? 'neutral' : undefined;
+  const k = Math.max(0, STAGES.indexOf(m.stage)); const hw = m.healthy_weeks || 0;
+  const nextAt = m.stage === 'mini' ? STAGE_AT.mochi : m.stage === 'mochi' ? STAGE_AT.maxi : m.stage === 'maxi' ? STAGE_AT.dore : null;
+  const growLine = m.stage === 'egg' ? t.growEgg : nextAt ? fill(t.growNext, { n: hw, left: Math.max(1, nextAt - hw) }) : t.growMax;
+  const missedRows = real
+    ? missed.filter(x => x.occurrence_id).map(x => ({ id: x.id, emoji: x.task_emoji, title: x.task_title || '…', sub: fill(t.missedSub, { who: x.user_id === getUid() ? t.missedMe : partner.first_name, n: x.due_date ? Math.max(1, Math.round((new Date(localIso()) - new Date(x.due_date)) / 86400000)) : 1 }) }))
+    : malusItems.map(x => { const task = taskById(x.task_id); return { id: x.id, emoji: task?.emoji, title: task?.title, sub: fill(t.missedSub, { who: t.missedMe, n: x.times || 1 }) }; });
+  const X = layout.x, A = layout.air;
 
   return (
-    <View style={{ flex: 1 }}>
-      <GlowBg intensity="strong" />
+    <View style={{ flex: 1, backgroundColor: T.bg }}>
       <SafeAreaView style={{ flex: 1 }} edges={['top']}>
-        <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
-          {/* Retour Jeanne (1er sept 2026) : titre aligné sur les autres onglets
-              (même ligne de base que Planning/Budget), pastille semaine à sa droite */}
-          <View style={s.header}>
-            <Text style={s.title}>{t.title}</Text>
-            <PillLabel color={colors.sky}>{fill(t.weekPill, { n: week.num, range: week.range })}</PillLabel>
+        <ScrollView contentContainerStyle={{ paddingBottom: 30 }} showsVerticalScrollIndicator={false}>
+          <View style={{ paddingTop: 14, paddingHorizontal: X, flexDirection: 'row', alignItems: 'baseline' }}>
+            <Text style={[type.name, { color: T.ink, flex: 1 }]}>{t.title}</Text>
+            <Label T={T}>{fill(t.week, { n: week.num, range: week.range })}</Label>
           </View>
 
-          {/* Mochi qui penche vers celui qui porte plus */}
-          <Pressable onPress={openDetail} style={s.mochiWrap}>
-            <LiveMochi size={72} mood={state === 'unbalanced' ? 'sad' : state === 'leaning' ? 'neutral' : 'happy'} lean={lean} />
-            <Text style={s.stateLabel}>{stateLabel}</Text>
+          {/* Mochi penche vers qui porte plus */}
+          <Pressable onPress={() => router.push('/balance-detail')} style={{ paddingHorizontal: X, paddingTop: 18 * A, flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+            <Image source={frameFor(lean, mood)} style={{ width: 64, height: 64 * MOCHI_RATIO, transform: [{ rotate: `${(lean || 0) * 8}deg` }] }} resizeMode="contain" />
+            <Text style={[type.sub, { color: T.ink, flex: 1 }]}>{stateLabel}</Text>
           </Pressable>
 
-          {/* héros : temps de chacun + barre scindée */}
-          <Pressable onPress={openDetail} style={({ pressed }) => [s.block, { opacity: pressed ? 0.9 : 1 }]}>
-            <Card r={radius.cardLg} padding={18}>
-              <View style={s.heroRow}>
-                {parts.map((p, i) => {
-                  const align = i === 0 ? 'left' : i === parts.length - 1 ? 'right' : 'center';
-                  return (
-                    <View key={p.member.id} style={{ flex: 1 }}>
-                      <Text style={[s.heroName, { color: deep(p.member), textAlign: align }]}>{p.member.first_name}</Text>
-                      <CountUp value={p.minutes} format={v => fmtMin(Math.round(v))} style={[s.heroNum, { textAlign: align }]} />
-                      <Text style={[s.heroSub, { textAlign: align }]}>{p.tasks === 1 ? fill(t.heroTasksOne, { pct: p.pct }) : fill(t.heroTasks, { pct: p.pct, n: p.tasks })}</Text>
-                    </View>
-                  );
-                })}
-              </View>
-              <SplitBar height={8} parts={parts.map(p => ({ ratio: p.pct / 100, color: p.member.color }))} />
-              {real && parts.every(p => !p.minutes) ? <Text style={s.plannedTxt}>{t.emptyWeek}</Text> : null}
-              {real && planned ? <Text style={s.plannedTxt}>{fill(t.plannedWeek, { total: fmtMin(planned.me + planned.partner + planned.both), me: fmtMin(planned.me + Math.round(planned.both / 2)), partner: fmtMin(planned.partner + Math.round(planned.both / 2)), name: partner.first_name })}</Text> : null}
-              <Text style={s.seeDetail}>{t.seeDetail}</Text>
-            </Card>
-          </Pressable>
+          {/* croissance : 5 paliers, pas de nom pour l'instant */}
+          <View style={{ marginHorizontal: X, marginTop: 22 * A, borderTopWidth: StyleSheet.hairlineWidth, borderColor: T.line, paddingTop: 16 * A }}>
+            <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' }}><Text style={[type.section, { color: T.ink }]}>{t.growTitle}</Text><Label T={T}>{m.stage === 'egg' ? copy.homeV3.eggPill : `palier ${k}`}</Label></View>
+            <View style={{ flexDirection: 'row', gap: 6, marginTop: 12 }}>{STAGES.map((st, i) => <View key={st} style={{ flex: 1, height: 14, borderRadius: 2, backgroundColor: i <= k ? T.ink : T.seg }} />)}</View>
+            <Text style={[type.sub, { color: T.muted, marginTop: 10 }]}>{growLine}</Text>
+          </View>
 
-          {/* chart 7 jours : une barre scindée animée par jour */}
-          <View style={s.block}>
-            <View style={s.chartHead}>
-              <Micro>{t.chartTitle}</Micro>
-              <Text style={s.chartUnit}>{t.chartUnit}</Text>
+          {/* héros : temps de chacun */}
+          <Pressable onPress={() => router.push('/balance-detail')} style={{ marginHorizontal: X, marginTop: 18 * A, borderTopWidth: StyleSheet.hairlineWidth, borderColor: T.line, paddingTop: 16 * A }}>
+            <View style={{ flexDirection: 'row', gap: 13, marginBottom: 12 }}>
+              {parts.map((p, i) => { const align = i === 0 ? 'left' : i === parts.length - 1 ? 'right' : 'center'; return (
+                <View key={p.member.id} style={{ flex: 1 }}>
+                  <Text style={[type.label, { color: deep(p.member), fontWeight: '600', textAlign: align }]}>{p.member.first_name}</Text>
+                  <CountUp value={p.minutes} format={v => fmtMin(Math.round(v))} style={{ fontSize: 30, fontWeight: '600', letterSpacing: -1.2, color: T.ink, fontVariant: ['tabular-nums'], textAlign: align, marginTop: 2 }} />
+                  <Label T={T} style={{ textAlign: align, marginTop: 2 }}>{p.tasks === 1 ? fill(t.heroTasksOne, { pct: p.pct }) : fill(t.heroTasks, { pct: p.pct, n: p.tasks })}</Label>
+                </View>); })}
             </View>
-            <Card padding={14}>
-              {chartDays.map((d, i) => {
-                const total = members.reduce((a, m) => a + (d.by[m.id] || 0), 0);
-                return (
-                  <View key={i} style={[s.dayRow, i > 0 && { marginTop: 8 }]}>
-                    <Text style={s.dayLabel}>{d.d}</Text>
-                    <SplitBar height={6} delay={i * 40} style={{ flex: 1 }}
-                      parts={members.map(m => ({ ratio: total ? (d.by[m.id] || 0) / total : 0, color: m.color }))} />
-                  </View>
-                );
-              })}
-            </Card>
+            <Split T={T} parts={parts.map(p => ({ ratio: p.pct / 100, color: p.member.color }))} />
+            {real && parts.every(p => !p.minutes) ? <Label T={T} style={{ marginTop: 10 }}>{t.empty}</Label> : null}
+            {real && planned ? <Label T={T} style={{ marginTop: 10 }}>{fill(copy.balance.plannedWeek, { total: fmtMin(planned.me + planned.partner + planned.both), me: fmtMin(planned.me + Math.round(planned.both / 2)), partner: fmtMin(planned.partner + Math.round(planned.both / 2)), name: partner.first_name })}</Label> : null}
+            <Label T={T} style={{ marginTop: 10, textAlign: 'right', color: T.ink }}>{t.detail}</Label>
+          </Pressable>
+
+          {/* 7 jours */}
+          <View style={{ marginHorizontal: X, marginTop: 18 * A, borderTopWidth: StyleSheet.hairlineWidth, borderColor: T.line, paddingTop: 16 * A }}>
+            <Text style={[type.section, { color: T.ink }]}>{t.chartTitle}</Text>
+            <View style={{ marginTop: 12, gap: 8 }}>
+              {chartDays.map((d, i) => { const total = members.reduce((a, mm) => a + (d.by[mm.id] || 0), 0); return (
+                <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                  <Label T={T} style={{ width: 16, textAlign: 'center' }}>{d.d}</Label>
+                  <View style={{ flex: 1 }}><Split T={T} height={6} parts={members.map(mm => ({ ratio: total ? (d.by[mm.id] || 0) / total : 0, color: mm.color }))} /></View>
+                </View>); })}
+            </View>
           </View>
 
-          {/* streak */}
-          <View style={s.block}>
-            <Card padding={14}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 13 }}>
-                <Text style={{ fontSize: 24 }}>🔥</Text>
-                <View style={{ flex: 1 }}>
-                  <Micro>{t.streakTitle}</Micro>
-                  <CountUp value={real ? real.streakDays : streak.days} format={v => (Math.round(v) === 1 ? t.streakDaysOne : fill(t.streakDays, { n: Math.round(v) }))} style={s.streakNum} />
-                  {real ? null : <Text style={s.streakNext}>{fill(left === 1 ? t.streakNextOne : t.streakNextMany, { left, badge: streak.next.label })}</Text>}
-                </View>
-                {real ? null : <Text style={s.record}>{fill(t.streakRecord, { n: streak.record })}</Text>}
-              </View>
-            </Card>
-          </View>
-
-          {/* malus en cours → point hebdo */}
-          <View style={s.block}>
-            <Card padding={14}>
-              <Micro style={{ marginBottom: 10 }}>{real ? t.missedTitle : t.malusTitle}</Micro>
-              {realMalus.length === 0 ? <Text style={font.secondary}>{real ? t.missedNone : t.malusNone}</Text> : realMalus.map((m, i) => {
-                const task = m.real ? null : taskById(m.task_id);
-                const emoji = m.real ? m.emoji : task?.emoji;
-                const title = m.real ? m.title : task?.title;
-                const sub = m.real ? m.sub : fill(copy.malus.times, { n: m.times, i: m.importance });
-                return (
-                  <View key={m.id}>
-                    {i > 0 && <Divider />}
-                    <View style={{ paddingTop: i > 0 ? 10 : 0, paddingBottom: 10 }}>
-                      <InfoRow emoji={emoji} title={title} sub={sub} right={m.real ? null : <DarkPill>{fill(t.malusPts, { n: m.points })}</DarkPill>} />
-                    </View>
-                  </View>
-                );
-              })}
-              <Pressable onPress={() => router.push('/analyse')} hitSlop={6}>
-                <Text style={[s.weeklyLink, { color: colors.lavenderDeep }]}>{t.analyseLink}</Text>
-              </Pressable>
-              <Pressable onPress={() => router.push('/point-hebdo')} hitSlop={6}>
-                <Text style={s.weeklyLink}>{fill(t.weeklyLink, { day: review.label })}</Text>
-              </Pressable>
-            </Card>
+          {/* ratées = cœurs perdus */}
+          <View style={{ marginHorizontal: X, marginTop: 18 * A, borderTopWidth: StyleSheet.hairlineWidth, borderColor: T.line, paddingTop: 16 * A }}>
+            <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' }}><Text style={[type.section, { color: T.ink }]}>{t.missedTitle}</Text>{missedRows.length ? <Label T={T}>{`− ${missedRows.length} ${missedRows.length > 1 ? 'cœurs' : 'cœur'}`}</Label> : null}</View>
+            {missedRows.length === 0 ? <Text style={[type.sub, { color: T.muted, marginTop: 8 }]}>{t.missedNone}</Text> : missedRows.map((r, i) => (
+              <View key={r.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 12 * A, borderTopWidth: i ? StyleSheet.hairlineWidth : 0, borderColor: T.line, marginTop: i ? 0 : 4 }}>
+                <Text style={{ fontSize: 16 }}>{r.emoji}</Text>
+                <View style={{ flex: 1, minWidth: 0 }}><Text style={[type.body, { color: T.ink }]} numberOfLines={1}>{r.title}</Text><Label T={T} style={{ marginTop: 2 }}>{r.sub}</Label></View>
+                <Label T={T} style={{ color: T.accent }}>{t.heartCost}</Label>
+              </View>))}
           </View>
         </ScrollView>
       </SafeAreaView>
     </View>
   );
 }
-
-const s = StyleSheet.create({
-  scroll: { paddingBottom: 24 },
-  header: { paddingTop: 14, paddingHorizontal: space.headerX, marginBottom: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  title: { fontSize: 22, fontWeight: '600', letterSpacing: -1.2, lineHeight: 22, color: colors.ink },
-  mochiWrap: { alignItems: 'center', gap: 8, marginBottom: 14 },
-  stateLabel: { fontSize: 13, fontWeight: '500', color: colors.muted },
-  block: { paddingHorizontal: space.screenX, marginBottom: 12 },
-  heroRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 13, marginBottom: 11 },
-  heroName: { fontSize: 13, fontWeight: '600', marginBottom: 6 },
-  plannedTxt: { ...font.caption, textAlign: 'center', marginTop: 10 },
-  heroNum: { fontSize: 32, fontWeight: '600', letterSpacing: -1.4, lineHeight: 32, color: colors.ink, fontVariant: ['tabular-nums'] },
-  heroSub: { fontSize: 13, fontWeight: '400', color: colors.muted, marginTop: 4, fontVariant: ['tabular-nums'] },
-  seeDetail: { marginTop: 10, fontSize: 12.5, fontWeight: '500', color: colors.muted, textAlign: 'right' },
-  chartHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', paddingHorizontal: 4, paddingBottom: 8 },
-  chartUnit: { fontSize: 11.5, fontWeight: '500', color: colors.muted },
-  dayRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  dayLabel: { width: 14, fontSize: 11.5, fontWeight: '600', color: colors.muted, textAlign: 'center' },
-  streakNum: { fontSize: 20, fontWeight: '600', letterSpacing: -0.6, color: colors.ink, marginTop: 2, fontVariant: ['tabular-nums'] },
-  streakNext: { fontSize: 13, fontWeight: '400', color: colors.muted, marginTop: 3 },
-  record: { fontSize: 12, fontWeight: '500', color: colors.muted, fontVariant: ['tabular-nums'] },
-  weeklyLink: { marginTop: 4, fontSize: 13, fontWeight: '600', color: colors.coralDeep, textAlign: 'right' },
-});

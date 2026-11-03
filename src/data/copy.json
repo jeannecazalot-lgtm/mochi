@@ -2085,5 +2085,42 @@
     "stageSub": "{weeks} semaines saines. Il passe au palier {k}, et sa pièce aussi.",
     "cta": "Continuer",
     "ctaLast": "C'est noté"
+  },
+  "balanceV3": {
+    "_labels": {
+      "title": "Titre",
+      "week": "Pastille semaine ({n}, {range})",
+      "growTitle": "Titre bloc croissance",
+      "growNext": "({n} semaines saines, {left} avant le prochain palier)",
+      "growMax": "Au dernier palier",
+      "growEgg": "Quand il est encore un œuf",
+      "growWeeks": "Compteur ({n})",
+      "heroTasks": "({pct} %, {n} missions)",
+      "heroTasksOne": "singulier",
+      "empty": "Semaine sans coche",
+      "chartTitle": "Titre 7 jours",
+      "missedTitle": "Titre ratées",
+      "missedNone": "Aucune ratée",
+      "missedSub": "({who}, {n} jours)",
+      "missedMe": "Toi",
+      "heartCost": "Coût d'une ratée",
+      "detail": "Lien détail"
+    },
+    "title": "Balance",
+    "week": "Sem. {n} · {range}",
+    "growTitle": "Mochi grandit",
+    "growNext": "{n} semaines saines. Encore {left} et il passe au palier suivant.",
+    "growMax": "Dernier palier atteint. Il reste grand.",
+    "growEgg": "Il éclot quand vous aurez chacun coché une première mission.",
+    "heroTasks": "{pct} % · {n} missions",
+    "heroTasksOne": "{pct} % · 1 mission",
+    "empty": "Rien de coché depuis lundi.",
+    "chartTitle": "Les 7 derniers jours",
+    "missedTitle": "Ratées cette semaine",
+    "missedNone": "Aucune mission ratée cette semaine.",
+    "missedSub": "{who} · depuis {n} j",
+    "missedMe": "Toi",
+    "heartCost": "− 1 cœur",
+    "detail": "Voir le détail"
   }
 }

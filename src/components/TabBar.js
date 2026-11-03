@@ -1,12 +1,10 @@
-// TabBar canonique (README §Composants) : barre blanche, borderTop #EBEBEB,
-// 4 onglets icône outline 22 + label, FAB central 54 gradient Mochi,
-// détouré 4px blanc, marginTop −34.
+// TabBar v3 « l'instrument » (4 nov 2026) : hairline en haut, icônes fines, étiquettes en phrase normale,
+// + plat couleur accent ; suit le mode jour / nuit (theme-v3). Accueil · Planning · [+] · Balance · Budget
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, gradients, tabBar, font, shadows } from '../theme';
+import { useTokens } from '../theme-v3';
 import copy from '../data/copy.json';
 
 const ICONS = {
@@ -20,27 +18,26 @@ const ORDER = ['index', 'planning', 'fab', 'balance', 'budget'];
 
 export default function TabBar({ state, navigation, onFab }) {
   const insets = useSafeAreaInsets();
+  const T = useTokens();
   const active = state.routes[state.index].name;
   return (
-    <View style={[s.bar, { paddingBottom: Math.max(insets.bottom, 24) }]}>
+    <View style={[s.bar, { paddingBottom: Math.max(insets.bottom, 24), backgroundColor: T.bg, borderTopColor: T.line }]}>
       {ORDER.map(name => {
         if (name === 'fab') {
           return (
-            <Pressable key="fab" onPress={onFab} style={s.fabWrap}>
-              <LinearGradient {...gradients.mochi} style={[s.fab, shadows.fab]}>
-                <Svg width={22} height={22} viewBox="0 0 24 24" fill="none"><Path d="M12 5v14M5 12h14" stroke={colors.ink} strokeWidth={2.4} strokeLinecap="round" /></Svg>
-              </LinearGradient>
+            <Pressable key="fab" onPress={onFab} style={s.fabWrap} accessibilityLabel="Ajouter">
+              <View style={[s.fab, { backgroundColor: T.accent }]}>
+                <Svg width={20} height={20} viewBox="0 0 24 24" fill="none"><Path d="M12 5v14M5 12h14" stroke={T.bg} strokeWidth={2.4} strokeLinecap="round" /></Svg>
+              </View>
             </Pressable>
           );
         }
         const on = active === name;
-        const c = on ? colors.coral : colors.tabInactive;
+        const c = on ? T.ink : T.muted;
         return (
           <Pressable key={name} onPress={() => navigation.navigate(name)} style={s.tab}>
-            <Svg width={tabBar.iconSize} height={tabBar.iconSize} viewBox="0 0 24 24" fill="none">
-              <Path d={ICONS[name]} stroke={c} strokeWidth={on ? 2 : 1.7} strokeLinecap="round" strokeLinejoin="round" />
-            </Svg>
-            <Text style={[font.tabLabel, { color: c, fontWeight: on ? '600' : '400' }]}>{LABELS[name]}</Text>
+            <Svg width={21} height={21} viewBox="0 0 24 24" fill="none"><Path d={ICONS[name]} stroke={c} strokeWidth={on ? 1.9 : 1.6} strokeLinecap="round" strokeLinejoin="round" /></Svg>
+            <Text style={{ fontSize: 11, color: c, fontWeight: on ? '600' : '400' }}>{LABELS[name]}</Text>
           </Pressable>
         );
       })}
@@ -49,8 +46,8 @@ export default function TabBar({ state, navigation, onFab }) {
 }
 
 const s = StyleSheet.create({
-  bar: { backgroundColor: colors.white, borderTopWidth: 1, borderTopColor: colors.footerLine, paddingTop: 8, paddingHorizontal: 10, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' },
-  tab: { alignItems: 'center', gap: 5, minWidth: 52 },
-  fabWrap: { marginTop: tabBar.fabLift },
-  fab: { width: tabBar.fabSize, height: tabBar.fabSize, borderRadius: tabBar.fabSize / 2, alignItems: 'center', justifyContent: 'center', borderWidth: tabBar.fabRing, borderColor: colors.white },
+  bar: { borderTopWidth: StyleSheet.hairlineWidth, paddingTop: 10, paddingHorizontal: 10, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'flex-end' },
+  tab: { alignItems: 'center', gap: 6, minWidth: 56 },
+  fabWrap: { marginBottom: 6 },
+  fab: { width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center' },
 });
