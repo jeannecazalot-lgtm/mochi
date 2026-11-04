@@ -26,6 +26,7 @@ import { groupLate, lateCaption, daysBetweenIso } from '../../src/late-groups';
 import { mochiReact } from '../../src/components/mochi-img';
 import { mochiStore, getMochi, energyOf, onMissionDone, STAGES, unseenMoments, demoFlags, applyPendingName, pearlsFor } from '../../src/mochi-state';
 import copy from '../../src/data/copy.json';
+import { TaskIcon } from '../../src/components/task-icon';
 
 const fill = (s, vars) => Object.keys(vars).reduce((acc, k) => acc.replace(`{${k}}`, vars[k]), s);
 const DEMO_MOCHI = { stage: 'mini', hearts: 4, pearls: 128, walk_status: 'home', hatched_at: new Date(Date.now() - 12 * 86400e3).toISOString() };
@@ -36,7 +37,7 @@ function Row({ T, vm, first, done, onToggle }) {
   return (
     <Pressable onPress={() => router.push(vm.href)}>
       <View style={[s.row, { borderTopWidth: first ? 0 : StyleSheet.hairlineWidth, borderTopColor: T.line, opacity: done ? 0.4 : 1, paddingVertical: 14 * layout.air }]}>
-        <Text style={{ fontSize: 16 }}>{vm.emoji}</Text>
+        <TaskIcon emoji={vm.emoji} size={21} />
         <View style={{ flex: 1, minWidth: 0 }}>
           <Text style={[type.body, { color: T.ink, textDecorationLine: done ? 'line-through' : 'none' }]} numberOfLines={1}>{vm.title}</Text>
           {vm.sub && !done ? <Text style={[type.label, { color: T.accent, marginTop: 2 }]}>{vm.sub}</Text> : vm.pending && !done ? <Text style={[type.label, { color: T.muted, marginTop: 2 }]}>{vm.pending}</Text> : null}

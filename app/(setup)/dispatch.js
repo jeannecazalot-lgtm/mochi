@@ -21,6 +21,7 @@ import { useIdentity } from '../../src/identity';
 import copy from '../../src/data/copy.json';
 import { colors, space, alpha, motion } from '../../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';
+import { TaskIcon } from '../../src/components/task-icon';
 
 const t = copy.setup;
 const fmtMinRound = v => fmtMin(Math.round(v));
@@ -73,7 +74,7 @@ function Row({ it, index, onToggle, onFreq, onOpen }) {
           {/* Retour Jeanne (1er sept 2026) : tap sur le corps de la rangée → pop-up
               fiche tâche (fenêtre de jours, alternance…) sans quitter le 12 */}
           <Pressable onPress={onOpen} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 }}>
-            <Text style={{ fontSize: 19 }}>{it.emoji || dispatchEmoji(it)}</Text>
+            <TaskIcon emoji={it.emoji || dispatchEmoji(it)} size={22} />
             <View style={{ flex: 1 }}>
               <Text style={s.title}>{it.label}</Text>
               {/* fréquence réglable : − n×/sem + */}

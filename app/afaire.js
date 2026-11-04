@@ -22,6 +22,7 @@ import { groupLate, lateCaption } from '../src/late-groups';
 import copy from '../src/data/copy.json';
 import { colors, space, radius, font, motion } from '../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
+import { TaskIcon } from '../src/components/task-icon';
 
 const t = copy.afaire;
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
@@ -80,7 +81,7 @@ function Row({ occ, done, onToggle }) {
     <View style={s.rowInner}>
       {/* le rond coche/décoche directement, comme sur l'Accueil (test du 6 sept 2026) */}
       <Pressable onPress={() => onToggle(occ.id)} hitSlop={8}><Animated.View style={pop}><CheckCircle done={done} /></Animated.View></Pressable>
-      <Text style={{ fontSize: 19 }}>{task.emoji}</Text>
+      <TaskIcon emoji={task.emoji} size={22} />
       <View style={{ flex: 1 }}>
         <Text style={[s.title, done && s.titleDone]} numberOfLines={1}>{task.title}</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 2 }}>

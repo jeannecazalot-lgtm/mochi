@@ -20,6 +20,7 @@ import { computeRealBalance } from '../../src/balance-real';
 import { mochiStore, getMochi, STAGES, STAGE_AT } from '../../src/mochi-state';
 import copy from '../../src/data/copy.json';
 import { slotColors } from '../../src/theme';
+import { TaskIcon } from '../../src/components/task-icon';
 
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
 const deep = m => slotColors[m.slot]?.deep ?? '#2B2420';
@@ -153,7 +154,7 @@ export default function Balance() {
             <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' }}><Text style={[type.section, { color: T.ink }]}>{t.missedTitle}</Text>{missedRows.length ? <Label T={T}>{`− ${missedRows.length} ${missedRows.length > 1 ? 'cœurs' : 'cœur'}`}</Label> : null}</View>
             {missedRows.length === 0 ? <Text style={[type.sub, { color: T.muted, marginTop: 8 }]}>{t.missedNone}</Text> : missedRows.map((r, i) => (
               <View key={r.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 12 * A, borderTopWidth: i ? StyleSheet.hairlineWidth : 0, borderColor: T.line, marginTop: i ? 0 : 4 }}>
-                <Text style={{ fontSize: 16 }}>{r.emoji}</Text>
+                <TaskIcon emoji={r.emoji} size={21} />
                 <View style={{ flex: 1, minWidth: 0 }}><Text style={[type.body, { color: T.ink }]} numberOfLines={1}>{r.title}</Text><Label T={T} style={{ marginTop: 2 }}>{r.sub}</Label></View>
                 <Label T={T} style={{ color: T.accent }}>{t.heartCost}</Label>
               </View>))}

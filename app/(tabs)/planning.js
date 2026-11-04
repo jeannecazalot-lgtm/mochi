@@ -27,6 +27,7 @@ import { isPremium } from '../../src/demo-premium';
 import copy from '../../src/data/copy.json';
 import { groupLate, lateCaption, daysBetweenIso } from '../../src/late-groups';
 import { space, motion, radius } from '../../src/theme';
+import { TaskIcon } from '../../src/components/task-icon';
 const EVENT_DOT = '#9A7BC8'; // point lavande des événements / pense-bêtes dans les semainiers
 
 const t = copy.planning;
@@ -64,7 +65,7 @@ function TaskRow({ T, occ, onGrab }) {
     <Pressable onLongPress={() => grab(1)} onPressOut={() => grab(0)} delayLongPress={300}>
       <Animated.View style={[s.row, st]}>
         <Icon d={ICON.grip} size={13} color={T.muted} sw={2.4} />
-        <Text style={{ fontSize: 18 }}>{task.emoji}</Text>
+        <TaskIcon emoji={task.emoji} size={21} />
         <View style={{ flex: 1 }}>
           <Text style={[type.body, { color: T.ink }]} numberOfLines={1}>{task.title}</Text>
           <Label T={T} style={{ marginTop: 3 }}>{subtitle(occ, task)}</Label>
@@ -132,7 +133,7 @@ function RealRow({ T, vm, onToggle }) {
   return (
     <View style={s.row}>{/* passe « rouge » 14 sept : plus d'encadré, la légende corail est le seul signal */}
       <Pressable onPress={() => router.push(vm.href)} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 }}>
-        <Text style={{ fontSize: 18 }}>{vm.emoji}</Text>
+        <TaskIcon emoji={vm.emoji} size={21} />
         <View style={{ flex: 1 }}>
           <Text style={[type.body, { color: T.ink, textDecorationLine: vm.done ? 'line-through' : 'none', opacity: vm.done ? 0.45 : 1 }]} numberOfLines={1}>{vm.title}</Text>
           <Label T={T} style={[{ marginTop: 3 }, vm.late && { color: T.accent, fontWeight: '600' }]}>{vm.sub}</Label>

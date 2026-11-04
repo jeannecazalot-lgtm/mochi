@@ -9,6 +9,7 @@ import { monthOccurrences, isPremium } from '../src/demo-premium';
 import copy from '../src/data/copy.json';
 import { colors, space, radius, font, alpha } from '../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
+import { TaskIcon } from '../src/components/task-icon';
 
 const t = copy.calendar;
 const sameDay = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
@@ -83,7 +84,7 @@ export default function Calendrier() {
                   <View key={o.id}>
                     {i > 0 && <Divider />}
                     <View style={s.row}>
-                      <Text style={{ fontSize: 17 }}>{o.task.emoji}</Text>
+                      <TaskIcon emoji={o.task.emoji} size={20} />
                       <Text style={s.rowLabel}>{o.task.title}{o.time ? ` · ${o.time}` : ''}</Text>
                       {who ? <Avatar initial={who.initial} color={who.color} photo={who.avatar_url} size={22} /> : null}
                     </View>

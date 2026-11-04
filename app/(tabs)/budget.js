@@ -22,6 +22,7 @@ import { loadSetup, setup, inRealMode } from '../../src/setup-state';
 import { getUid, getPartnerUid, loadIdentity, useIdentity } from '../../src/identity';
 import copy from '../../src/data/copy.json';
 import { space } from '../../src/theme';
+import { TaskIcon } from '../../src/components/task-icon';
 
 const t = copy.budget;
 const fill = (s, vars) => Object.keys(vars).reduce((acc, k) => acc.replace(`{${k}}`, vars[k]), s);
@@ -163,7 +164,7 @@ export default function Budget() {
               return (
                 <Animated.View key={e.id} entering={i < 10 ? FadeInDown.delay(i * 30).duration(240) : undefined} layout={LinearTransition.duration(240)}>
                 <Pressable onPress={real ? () => router.push(`/depense?id=${e.id}`) : undefined} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 * layout.air, borderTopWidth: i ? StyleSheet.hairlineWidth : 0, borderColor: T.line }}>
-                  <Text style={{ fontSize: 17 }}>{e.emoji}</Text>
+                  <TaskIcon emoji={e.emoji} size={21} />
                   <View style={{ flex: 1, minWidth: 0 }}>
                     <Text style={[type.body, { color: T.ink }]} numberOfLines={1}>{e.title}{e.via_task || e._viaTitle ? <Text style={{ color: T.muted }}> · {t.viaTask.toLowerCase()}</Text> : null}</Text>
                     <Label T={T} style={{ marginTop: 2 }}>{desc(e, now)}</Label>

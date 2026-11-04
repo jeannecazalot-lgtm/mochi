@@ -1,11 +1,12 @@
 // ═══════════════════════════════════════════════════════════════════
-// EmojiPicker — tuile émoji + rangée de choix (même recette que l'événement). Sert à la
+// EmojiPicker — tuile + rangée de choix, rendus avec NOS icônes (task-icon.js, 4 nov 2026) ; la valeur reste l'emoji-clé (même recette que l'événement). Sert à la
 // tâche ajoutée (décision Jeanne 13 sept 2026 : « émoji au choix sur une tâche ajoutée »).
 // ═══════════════════════════════════════════════════════════════════
 import React, { useState } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { colors, alpha } from '../theme';
 import { styles as v3Styles, currentTokens as tk } from '../theme-v3';
+import { TaskIcon } from './task-icon';
 
 export const TASK_EMOJIS = ['📝', '🍽️', '🍳', '🛒', '🧺', '👕', '🧹', '🛁', '🗑️', '🛏️', '🐶', '👶', '🌱', '🧾', '🔧', '🚗', '💊', '🎁'];
 
@@ -14,11 +15,11 @@ export function EmojiPicker({ value, onChange, choices = TASK_EMOJIS, size = 46 
   return (
     <View>
       <Pressable onPress={() => setOpen(o => !o)} style={[s.tile, { width: size, height: size, borderRadius: size * 0.3 }, open && { borderColor: tk().ink }]}>
-        <Text style={{ fontSize: size * 0.42 }}>{value || choices[0]}</Text>
+        <TaskIcon emoji={value || choices[0]} size={size * 0.5} />
       </Pressable>
       {open ? (
         <View style={s.row}>
-          {choices.map(e => <Pressable key={e} onPress={() => { onChange(e); setOpen(false); }} style={[s.btn, e === value && { backgroundColor: tk().seg }]}><Text style={{ fontSize: 20 }}>{e}</Text></Pressable>)}
+          {choices.map(e => <Pressable key={e} onPress={() => { onChange(e); setOpen(false); }} style={[s.btn, e === value && { backgroundColor: tk().seg }]}><TaskIcon emoji={e} size={22} /></Pressable>)}
         </View>
       ) : null}
     </View>

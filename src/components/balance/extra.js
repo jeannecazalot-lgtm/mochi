@@ -12,6 +12,7 @@ import { Card } from '../ui';
 import { prefersReducedMotion } from '../motion';
 import { colors, font, radius, space, alpha, motion } from '../../theme';
 import { styles as v3Styles, currentTokens as tk } from '../../theme-v3';
+import { TaskIcon } from '../task-icon';
 
 // ─── en-tête des écrans poussés : bouton rond à gauche, titre micro centré ─
 export function ScreenHeader({ title, onBack, right, sub }) {
@@ -97,7 +98,7 @@ export function SectionMicro({ children, style }) {
 export function InfoRow({ emoji, title, sub, right }) {
   return (
     <View style={s.infoRow}>
-      <Text style={{ fontSize: 19 }}>{emoji}</Text>
+      <TaskIcon emoji={emoji} size={22} />
       <View style={{ flex: 1 }}>
         <Text style={s.infoTitle}>{title}</Text>
         {sub ? <Text style={s.infoSub}>{sub}</Text> : null}
@@ -120,7 +121,7 @@ export function ChoiceChip({ label, selected, onPress }) {
 export function NoteBox({ emoji, lead, strong, tint = tk().accent }) {
   return (
     <View style={[s.note, { backgroundColor: alpha(tint, 0.10) }]}>
-      <Text style={{ fontSize: 15 }}>{emoji}</Text>
+      <TaskIcon emoji={emoji} size={18} />
       <Text style={s.noteText}>{lead}<Text style={{ fontWeight: '700' }}>{strong}</Text></Text>
     </View>
   );

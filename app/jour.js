@@ -19,6 +19,7 @@ import { localIso } from '../src/dates';
 import copy from '../src/data/copy.json';
 import { colors, space, font } from '../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
+import { TaskIcon } from '../src/components/task-icon';
 
 export default function Jour() {
   const { d } = useLocalSearchParams();
@@ -54,7 +55,7 @@ export default function Jour() {
         <View key={o.id}>
           {i > 0 ? <Divider /> : null}
           <Pressable disabled={!o.href} onPress={() => router.push(o.href)} style={({ pressed }) => [s.row, pressed && { opacity: 0.7 }]}>
-            <Text style={{ fontSize: 18 }}>{o.task.emoji}</Text>
+            <TaskIcon emoji={o.task.emoji} size={21} />
             <Text style={[s.rowLabel, o.done && { textDecorationLine: 'line-through', opacity: 0.5 }]} numberOfLines={1}>{o.task.title}{o.time ? ` · ${o.time}` : ''}</Text>
             {o.who ? <Avatar initial={o.who.initial} color={o.who.color} photo={o.who.avatar_url} size={24} /> : <AvatarPair members={[me, partner]} size={24} />}
           </Pressable>

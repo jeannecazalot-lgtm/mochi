@@ -22,6 +22,7 @@ import { read } from '../../src/store';
 import copy from '../../src/data/copy.json';
 import { colors, space, motion } from '../../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';
+import { TaskIcon } from '../../src/components/task-icon';
 
 const t = copy.setup;
 const next = () => router.push('/(setup)/calcul');
@@ -33,7 +34,7 @@ function Row({ c, index, active, onToggle, who }) {
       <Pressable onPress={onToggle}>
         <Card padding={0} r={14} style={{ marginBottom: 6 }} accent={active ? tk().ok : undefined}>
           <View style={s.row}>
-            <Text style={{ fontSize: 19 }}>{c.emoji}</Text>
+            <TaskIcon emoji={c.emoji} size={22} />
             <Text style={[s.title, { flex: 1 }]}>{c.label}</Text>
             {c.mental ? <Text style={s.mental}>{t.mentalTag}</Text> : null}
             {who ? <Avatar initial={who.initial} color={who.color} photo={who.avatar_url} size={22} /> : null}

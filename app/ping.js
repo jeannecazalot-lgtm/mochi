@@ -12,6 +12,7 @@ import { pingOptions } from '../src/demo-social';
 import copy from '../src/data/copy.json';
 import { colors, space, radius, font, motion } from '../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
+import { TaskIcon } from '../src/components/task-icon';
 
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
 
@@ -42,7 +43,7 @@ export default function Ping() {
         <View style={{ paddingHorizontal: space.screenX, paddingTop: 14 }}>
           <Card r={radius.card} padding={0}>
             <View style={s.raisedRow}>
-              <Text style={{ fontSize: 19 }}>{task.emoji}</Text>
+              <TaskIcon emoji={task.emoji} size={22} />
               <View style={{ flex: 1 }}>
                 <Text style={s.raisedTitle}>{task.title}</Text>
                 {time ? <Text style={s.raisedSub}>{time} · {who.first_name}</Text> : <Text style={s.raisedSub}>{who.first_name}</Text>}
@@ -63,7 +64,7 @@ export default function Ping() {
           <Pressable key={o.key} onPress={() => send(o.key)} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
             <Card r={radius.row} padding={0} style={{ marginBottom: 6 }}>
               <View style={s.optRow}>
-                <Text style={{ fontSize: 19 }}>{o.emoji}</Text>
+                <TaskIcon emoji={o.emoji} size={22} />
                 <View style={{ flex: 1 }}>
                   <Text style={s.optLabel}>{o.label}</Text>
                   <Text style={s.optSub}>{o.sub}</Text>

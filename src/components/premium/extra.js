@@ -9,6 +9,7 @@ import Svg, { Path } from 'react-native-svg';
 import { colors, radius, font } from '../../theme';
 import { Card, CTAPrimary } from '../ui';
 import { styles as v3Styles, currentTokens as tk } from '../../theme-v3';
+import { TaskIcon } from '../task-icon';
 
 // tokens manquants dans theme.js (append interdit ici → locaux à premium)
 export const premiumTokens = {
@@ -71,7 +72,7 @@ export function CheckDot() {
 export function SettingRow({ emoji, title, sub, onPress, right, disabled }) {
   const inner = (
     <View style={s.setting}>
-      <Text style={{ fontSize: 18 }}>{emoji}</Text>
+      <TaskIcon emoji={emoji} size={21} />
       <View style={{ flex: 1 }}>
         <Text style={s.settingTitle}>{title}</Text>
         {sub ? <Text style={s.settingSub}>{sub}</Text> : null}
