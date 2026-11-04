@@ -1,96 +1,61 @@
-// Écran 09b · Duo formé — l'autre a accepté. Recette : docs/recettes/09b-duo-forme.md
-// Retours Jeanne 22 août 2026 : arrivée « waouh » — confetti palette + Mochi en
-// ZoomIn spring + avatars qui glissent l'un vers l'autre puis léger pulse.
+// Écran 09b · Duo formé — l'autre a accepté. Refait le 4 nov 2026 (retour Jeanne : « l'animation est cheap ») :
+// l'œuf arrive dans la pièce (c'est le moment où Mochi existe), vos deux avatars dessous, pas de particules.
 import React, { useEffect, useState } from 'react';
 import { router } from 'expo-router';
 import { View, Text, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { GlowBg, Avatar, PillLabel, CTAPrimary } from '../../src/components/ui';
-import {
-  LiveMochi, Burst, prefersReducedMotion, ZoomIn, Animated,
-} from '../../src/components/motion';
-import {
-  useSharedValue, useAnimatedStyle, withSpring, withSequence, withDelay, withTiming,
-} from 'react-native-reanimated';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as Haptics from 'expo-haptics';
+import Animated, { FadeInDown, FadeIn } from 'react-native-reanimated';
+import { Avatar, CTAPrimary } from '../../src/components/ui';
+import { Scene } from '../../src/components/mochi/scene';
+import { Bubble } from '../../src/components/mochi/bubble';
+import { Label } from '../../src/components/mochi/gauges';
 import { fill } from '../../src/components/setup/extra';
 import { me, partner } from '../../src/demo';
-import { loadSetup, setup, isJoiner } from '../../src/setup-state';
+import { loadSetup, isJoiner, setup } from '../../src/setup-state';
 import { syncJoinerPrefs } from '../../src/sync-setup';
 import { useIdentity } from '../../src/identity';
+import { useTokens, type, layout } from '../../src/theme-v3';
 import copy from '../../src/data/copy.json';
-import { colors, space, motion } from '../../src/theme';
-import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';
 
 const t = copy.setup;
-const confettiPalette = [tk().accent, tk().scene.lamp, tk().ok, '#9A7BC8', '#7DB3D5'];
 
 export default function DuoForme() {
-  const reduced = prefersReducedMotion();
-  const realMe = useIdentity(); // le vrai prénom du binôme dans « Bravo, {name} a rejoint le duo ! »
-  const filled = !!(realMe?.first_name && setup.availability && setup.prefs); // 06 + 07 + 08 déjà faits avant le code
-  // « joiner » = j'ai rejoint un foyer existant avec un code (marqueur posé par joinWithCode) ;
-  // l'inviteur·se, même sans tâches encore, va choisir les tâches (bug du 6 sept 2026)
+  const T = useTokens();
+  const insets = useSafeAreaInsets();
+  const realMe = useIdentity();
   const [joiner, setJoiner] = useState(false);
-  useEffect(() => { loadSetup().then(() => setJoiner(isJoiner())); }, []);
-  // avatars : partent écartés (±46 px), glissent l'un vers l'autre en spring
-  // jusqu'au léger chevauchement du layout final, puis pulse 1 → 1.06 → 1.
-  // (restaurée le 1er sept 2026 — Jeanne signale son absence sur le 09b)
-  const gap = useSharedValue(reduced ? 0 : 46);
-  const pulse = useSharedValue(1);
-  useEffect(() => {
-    if (reduced) return;
-    gap.value = withDelay(150, withSpring(0, { damping: motion.spring.damping }));
-    pulse.value = withDelay(750, withSequence(withTiming(1.06, { duration: 160 }), withTiming(1, { duration: 180 })));
-  }, []);
-  const left = useAnimatedStyle(() => ({ transform: [{ translateX: -gap.value }, { scale: pulse.value }] }));
-  const right = useAnimatedStyle(() => ({ transform: [{ translateX: gap.value }, { scale: pulse.value }] }));
-
+  const [ready, setReady] = useState(false);
+  useEffect(() => { loadSetup().then(() => { setJoiner(isJoiner()); setReady(true); }); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {}); }, []);
+  const prefilled = !!(realMe?.first_name && setup.availability && setup.prefs);
+  const title = fill(joiner ? t.duoTitleJoiner : t.duoTitle, { name: partner.first_name }).replace('\n', ' ');
+  const sub = fill(joiner ? (prefilled ? t.duoSubJoinerReady : t.duoSubJoiner) : t.duoSub, { name: partner.first_name });
+  const sceneH = layout.scene + insets.top;
+  const go = () => {
+    if (!joiner) { router.push('/(setup)/avant-taches'); return; }
+    if (prefilled) { syncJoinerPrefs().catch(() => {}); router.replace('/(setup)/taches'); } else router.push('/(setup)/identite');
+  };
   return (
-    <View style={{ flex: 1 }}>
-      <GlowBg intensity="strong" />
-      <SafeAreaView style={{ flex: 1 }}>
-        <View style={s.center}>
-          {/* Célébration (ChatGPT n°10, retour Jeanne 14 sept 2026 : « plus grosse ») : halo qui s'ouvre et
-              seize particules radiales aux couleurs de l'app autour d'un Mochi plus grand, ~1 s, pas de boucle.
-              Remplace les confettis qui tombaient 1,5 s. */}
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 19 }}>
-            <Burst colors={confettiPalette} dist={130} />
-            <Animated.View style={[s.ring, left]}><Avatar initial={me.initial} color={me.color} photo={me.avatar_url} size={62} /></Animated.View>
-            <Animated.View entering={reduced ? undefined : ZoomIn.springify().damping(11).stiffness(260).delay(150)} style={{ marginHorizontal: -6, zIndex: 2 }}>
-              <LiveMochi size={120} mood="happy" />
-            </Animated.View>
-            <Animated.View style={[s.ring, right]}><Avatar initial={partner.initial} color={partner.color} size={62} /></Animated.View>
-          </View>
-          <View style={{ marginBottom: 11 }}><PillLabel color={tk().ok}>{t.duoPill}</PillLabel></View>
-          {/* celui qui rejoint lit « Tu as rejoint le foyer de X » (décision Jeanne, 5 sept) */}
-          <Text style={s.title}>{fill(joiner ? t.duoTitleJoiner : t.duoTitle, { name: partner.first_name })}</Text>
-          <Text style={s.sub}>{fill(joiner ? (filled ? t.duoSubJoinerReady : t.duoSubJoiner) : t.duoSub, { name: partner.first_name })}</Text>
-        </View>
-        <View style={s.ctaWrap}>
-          {/* celui qui REJOINT un foyer existant : les tâches sont déjà choisies par
-              l'autre → il passe par 06 → 07 → 08 (prénom/photo, dispos, préférences —
-              décision Jeanne 5 sept 2026, « un rond avec un K » sinon) puis l'Accueil */}
-          <CTAPrimary
-            label={joiner ? copy.common.continue : t.chooseTasks}
-            onPress={() => {
-              if (!joiner) { router.push('/(setup)/avant-taches'); return; }
-              // décision Jeanne (6 sept 2026) : on saute ce qui est déjà rempli — prénom, dispos,
-              // préférences faits avant de saisir le code → Accueil direct, réglages envoyés au foyer
-              if (filled) { syncJoinerPrefs().catch(() => {}); router.replace('/(setup)/taches'); } // à deux (15 sept 2026)
-              else router.push('/(setup)/identite');
-            }}
-            big
-          />
-        </View>
+    <View style={{ flex: 1, backgroundColor: T.bg }}>
+      <View>
+        <Scene T={T} stage="egg" lvl={1} height={sceneH} />
+        <Bubble T={T} style={{ top: insets.top + 54 }}>{t.duoSay}</Bubble>
+      </View>
+      <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
+        <Animated.View entering={FadeInDown.delay(200).duration(320)} style={{ paddingHorizontal: layout.x, paddingTop: 22, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          <Avatar initial={me.initial} color={me.color} photo={me.avatar_url} size={34} />
+          <Avatar initial={partner.initial} color={partner.color} photo={partner.avatar_url} size={34} />
+          <Label T={T} style={{ marginLeft: 4 }}>{t.duoPill}</Label>
+        </Animated.View>
+        <Animated.View entering={FadeInDown.delay(320).duration(320)} style={{ paddingHorizontal: layout.x, paddingTop: 16 }}>
+          <Text style={[type.name, { color: T.ink }]}>{title}</Text>
+          <Text style={[type.sub, { color: T.muted, marginTop: 10, maxWidth: 380 }]}>{sub}</Text>
+        </Animated.View>
+        <View style={{ flex: 1 }} />
+        <Animated.View entering={FadeIn.delay(500)} style={{ paddingHorizontal: layout.x, paddingBottom: 16 }}>
+          <CTAPrimary big label={joiner ? copy.common.continue : t.chooseTasks} onPress={ready ? go : undefined} />
+        </Animated.View>
       </SafeAreaView>
     </View>
   );
 }
-
-const s = v3Styles(T => StyleSheet.create({
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: 60, paddingHorizontal: 26 },
-  ring: { borderWidth: 3, borderColor: T.bg, borderRadius: 34 },
-  title: { fontSize: 22, fontWeight: '600', letterSpacing: -1.2, lineHeight: 24, textAlign: 'center', color: T.ink },
-  sub: { fontSize: 14.5, fontWeight: '400', color: T.muted, marginTop: 10, lineHeight: 22, maxWidth: 240, textAlign: 'center' },
-  ctaWrap: { position: 'absolute', left: space.screenX, right: space.screenX, bottom: 26 },
-}));

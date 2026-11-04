@@ -162,7 +162,9 @@
       "divisible": "Sous-texte tâche divisible",
       "grabbed": "Indice quand une rangée est saisie (long press)",
       "late": "Sous-texte d'une tâche en retard (mode réel)",
-      "realHint": "Indice sous la liste en mode réel (tap = sheet Mission)"
+      "realHint": "Indice sous la liste en mode réel (tap = sheet Mission)",
+      "filters": "Filtre Toi / L'autre ({name}) / À deux (semaine)",
+      "filterEmpty": "Aucune mission pour ce filtre"
     },
     "title": "Planning",
     "week": "Semaine",
@@ -178,7 +180,14 @@
     "emptyReal": "Rien de planifié pour l'instant — la répartition arrive après le choix des tâches.",
     "lateGroup": "En retard",
     "eventSub": "Événement",
-    "noteSub": "Pense-bête"
+    "noteSub": "Pense-bête",
+    "filters": [
+      "Tout",
+      "Toi",
+      "{name}",
+      "À deux"
+    ],
+    "filterEmpty": "Rien pour ce filtre sur ces 7 jours."
   },
   "balance": {
     "_labels": {
@@ -375,7 +384,9 @@
   "mission": {
     "_labels": {
       "_": "Sheet Tâche v2 (6 sept 2026) — Accueil/Planning → tap sur une mission. Deux étages : ce moment-ci / la règle. {name} = prénom du binôme, {time} = durée, {amount} = dépense, {day} = jour",
-      "ruleLabel": "Rangée qui ouvre la sous-page jours / moment / qui / effort / note (ex-« La règle », 9 sept 2026)"
+      "ruleLabel": "Rangée qui ouvre la sous-page jours / moment / qui / effort / note (ex-« La règle », 9 sept 2026)",
+      "editHint": "Petit libellé à côté du titre (tap → Modifier la tâche)",
+      "metaPending": "Ajout dans la ligne de méta quand une proposition est en attente ({name})"
     },
     "metaYou": "Toi",
     "metaToday": "aujourd'hui",
@@ -431,8 +442,8 @@
     "skipOnceSub": "Cette fois-là disparaît, sans peser",
     "deleteTask": "Supprimer la tâche",
     "deleteTaskSub": "Elle ne reviendra plus",
-    "confirmSkipped": "Passée cette fois-ci",
-    "confirmSkippedSub": "Elle revient la prochaine fois",
+    "confirmSkipped": "Passée pour cette fois",
+    "confirmSkippedSub": "Pas de cœur perdu. La prochaine reste prévue comme d'habitude, {name} est prévenu·e.",
     "confirmDeleted": "{task} supprimée",
     "confirmDeletedSub": "{name} recevra une notification",
     "swapPending": "Proposé à {name}",
@@ -445,7 +456,9 @@
     "ruleMochiDays": "Sans choix : {days}",
     "pingRow": "Pinger {name}",
     "pingReminder": "🌷 Petit rappel",
-    "pingTurn": "👉 C'est ton tour"
+    "pingTurn": "👉 C'est ton tour",
+    "editHint": "modifier",
+    "metaPending": "proposée à {name}"
   },
   "pings": {
     "_labels": {
@@ -581,7 +594,8 @@
       "both": "Libellé du porteur partagé (écran 12)",
       "alternate": "Libellé du porteur alterné (écran 12, zigzag un jour chacun)",
       "perWeekSlash": "Suffixe des totaux de l écran 12",
-      "beforeTasksSub": "Écran 09c (choix partagé en direct, 15 sept 2026) — {name} = prénom du binôme"
+      "beforeTasksSub": "Écran 09c (choix partagé en direct, 15 sept 2026) — {name} = prénom du binôme",
+      "duoSay": "Bulle de Mochi (œuf) sur Duo formé"
     },
     "identityTitle": "C'est toi.",
     "firstNameLabel": "Ton prénom",
@@ -672,7 +686,7 @@
     "calcStep1": "Je lis vos dispos…",
     "calcStep2": "Je pèse chaque tâche…",
     "calcStep3": "J’équilibre…",
-    "dispatchSubTap": "Règle la fréquence de chaque tâche, et tape le prénom pour changer qui s'en occupe.",
+    "dispatchSubTap": "Tape le prénom d'une tâche pour la donner à l'autre, l'alterner ou la faire à deux. Tape son nom pour changer la durée et la fréquence.",
     "dispatchShared": "Ton binôme verra cette répartition en rejoignant le foyer et pourra l'ajuster depuis le Planning.",
     "reminderHours": "Heure",
     "reminderMinutes": "Minutes",
@@ -705,7 +719,8 @@
     "beforeTasksTitle": "On choisit les tâches à deux.",
     "beforeTasksSub": "Ce que tu coches, {name} le voit en direct, et inversement. Chacun peut ajouter les siennes. Quand vous validez, Mochi répartit.",
     "beforeTasksCta": "Choisir nos tâches",
-    "tasksSubDuo": "À deux : ce que {name} coche apparaît ici en direct, et inversement."
+    "tasksSubDuo": "À deux : ce que {name} coche apparaît ici en direct, et inversement.",
+    "duoSay": "Vous êtes deux. Maintenant, j'existe."
   },
   "event": {
     "_labels": {
@@ -1109,7 +1124,8 @@
       "logout": "Bouton se déconnecter",
       "nightMode": "Ligne mode nuit",
       "nightModeSub": "Sous-titre",
-      "nightValues": "Valeurs auto / on / off"
+      "nightValues": "Valeurs auto / on / off",
+      "mochiName": "Réglage : nom de Mochi"
     },
     "title": "Profil & réglages",
     "duoWith": "En duo avec {name} · depuis {n} jours",
@@ -1165,7 +1181,9 @@
       "auto": "Auto",
       "on": "Toujours",
       "off": "Jamais"
-    }
+    },
+    "mochiName": "Nom de Mochi",
+    "mochiNameSub": "Comme vous l'appelez à la maison"
   },
   "activity": {
     "_labels": {
@@ -2043,7 +2061,10 @@
       "allDoneMeta": "tout fait",
       "empty": "Liste vide",
       "roomA11y": "Accessibilité : tap sur la scène",
-      "heavy": "Phrase quand j'ai dit « chargé·e » au check-in du jour"
+      "heavy": "Phrase quand j'ai dit « chargé·e » au check-in du jour",
+      "energyHint": "Ligne sous la jauge d'énergie (tant qu'elle n'est pas pleine)",
+      "pearlsHint": "Ligne sous le compteur de perles (démo et réel), tap → la pièce",
+      "pending": "Ligne sous une mission proposée à l'autre ({name})"
     },
     "pearls": "{n} perles",
     "stagePill": "Jour {day} · palier {k}",
@@ -2073,7 +2094,10 @@
     "allDoneMeta": "tout est fait",
     "empty": "Rien de prévu aujourd'hui.",
     "roomA11y": "Ouvrir la pièce de Mochi",
-    "heavy": "Tu as dit que c'était chargé. Mochi reste près de toi aujourd'hui."
+    "heavy": "Tu as dit que c'était chargé. Mochi reste près de toi aujourd'hui.",
+    "energyHint": "Une mission cochée = un cran. Jauge pleine, il part en balade.",
+    "pearlsHint": "3 par mission, 12 par balade · tap pour sa pièce",
+    "pending": "Proposée à {name}, en attente de sa réponse"
   },
   "moments": {
     "_labels": {
@@ -2216,32 +2240,6 @@
     "empty": "Mochi n'a encore rien ramené. La première balade part quand la jauge est pleine.",
     "rule": "Les perles sont communes au foyer : 3 par mission, 4 si mentale, 5 chacun à deux, 12 par balade."
   },
-  "onbV3": {
-    "_labels": {
-      "_": "Onboarding v3 court (4 nov 2026) : 3 slides, l'œuf avant toute question. La scène évolue avec le slide.",
-      "skip": "Passer",
-      "next": "Bouton suivant",
-      "start": "Bouton du dernier slide",
-      "slides": "3 slides (title, body)"
-    },
-    "skip": "Passer",
-    "next": "Suivant",
-    "start": "Commencer",
-    "slides": [
-      {
-        "title": "Un œuf. Il est à vous deux.",
-        "body": "Mochi vit dans votre foyer. Il grandit quand vous prenez soin de la maison ensemble, et il le montre."
-      },
-      {
-        "title": "Chaque mission lui donne de l'énergie.",
-        "body": "Jauge pleine, il part en balade et revient avec un souvenir pour sa pièce. Une mission oubliée, il perd un cœur. Il ne meurt jamais, mais il compte sur vous deux."
-      },
-      {
-        "title": "Mochi répartit. Et voit quand ça penche.",
-        "body": "Vos tâches, vos disponibilités, vos préférences : il répartit la semaine et le dit quand la charge dérive."
-      }
-    ]
-  },
   "mochiNotifs": {
     "_labels": {
       "walkReturnTitle": "Titre de la notification locale au retour de balade",
@@ -2249,5 +2247,69 @@
     },
     "walkReturnTitle": "Mochi est rentré",
     "walkReturnBody": "Il a ramené quelque chose de sa balade. Venez voir sa pièce."
+  },
+  "onbV4": {
+    "_labels": {
+      "_": "Onboarding v4 (4 nov 2026, retour Jeanne : mixer le pathos de l'ancien et Mochi qui parle). 5 écrans : 2 de constat (chiffres Insee), l'œuf qui parle, le nom, la jauge. Mochi parle dans une bulle (say).",
+      "skip": "Passer",
+      "next": "Suivant",
+      "start": "Bouton final",
+      "namePlaceholder": "Champ nom",
+      "slides": "5 écrans : title, body, say (bulle de Mochi, optionnelle)"
+    },
+    "skip": "Passer",
+    "next": "Suivant",
+    "start": "Commencer",
+    "namePlaceholder": "Mochi",
+    "slides": [
+      {
+        "title": "Quand l'un porte plus, ça finit par peser.",
+        "body": "Dans beaucoup de foyers, une personne consacre davantage de temps aux tâches domestiques et à leur organisation.",
+        "rows": [
+          {
+            "t": "Chaque jour",
+            "v": "+1h26"
+          },
+          {
+            "t": "Chaque semaine",
+            "v": "≈ 10h"
+          },
+          {
+            "t": "Sur l'année",
+            "v": "≈ 260h"
+          }
+        ],
+        "source": "Insee · Enquête emploi du temps"
+      },
+      {
+        "title": "Faire est une chose. Y penser en est une autre.",
+        "body": "Anticiper, se rappeler, organiser, relancer. Tout ce travail invisible fait aussi partie de ce qu'il y a à partager."
+      },
+      {
+        "title": "Voici Mochi. C'est vous deux.",
+        "body": "Il vit dans votre foyer. Quand vous prenez soin de la maison ensemble, il va bien. Quand l'un porte tout, il le sent, et il le montre.",
+        "say": "Je suis ce qu'il y a entre vous deux. Prenez soin de la maison, et je vais bien."
+      },
+      {
+        "title": "Donnez-lui un nom.",
+        "body": "Vous pourrez le changer plus tard, dans les réglages.",
+        "say": "Comment vous m'appelez ?"
+      },
+      {
+        "title": "Il grandit avec vous.",
+        "body": "Jauge pleine, il part en balade et revient avec un souvenir. Une mission oubliée, il perd un cœur. Il ne meurt jamais, mais il compte sur vous deux.",
+        "say": "Chaque mission cochée me donne de l'énergie."
+      }
+    ]
+  },
+  "nomMochi": {
+    "_labels": {
+      "title": "Titre de la sheet",
+      "sub": "Sous-titre",
+      "cta": "Bouton"
+    },
+    "title": "Comment vous l'appelez ?",
+    "sub": "Le nom est partagé par le foyer.",
+    "cta": "C'est noté"
   }
 }

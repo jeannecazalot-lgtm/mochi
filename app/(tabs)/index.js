@@ -3,11 +3,12 @@
 // le rendu est la DA v3 : scène pleine largeur, jauges, hairlines. L'état de Mochi vient de mochi-state (migration 0013).
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { router } from 'expo-router';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet, useWindowDimensions } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { LinearTransition, FadeInDown, Easing } from 'react-native-reanimated';
-import { Animated, Confetti } from '../../src/components/motion';
+import { Animated } from '../../src/components/motion';
+import { PearlFlight, usePop } from '../../src/components/mochi/pearls';
 import { Avatar, CTAPrimary } from '../../src/components/ui';
 import { Icon, ICON, RoundButton } from '../../src/components/core/extra';
 import { Scene } from '../../src/components/mochi/scene';
@@ -23,7 +24,7 @@ import { toggleOccurrence, isLive, skipOccurrence } from '../../src/occ-actions'
 import { clearMalusFor } from '../../src/malus-actions';
 import { groupLate, lateCaption, daysBetweenIso } from '../../src/late-groups';
 import { mochiReact } from '../../src/components/mochi-img';
-import { mochiStore, getMochi, energyOf, onMissionDone, STAGES, unseenMoments, demoFlags } from '../../src/mochi-state';
+import { mochiStore, getMochi, energyOf, onMissionDone, STAGES, unseenMoments, demoFlags, applyPendingName, pearlsFor } from '../../src/mochi-state';
 import copy from '../../src/data/copy.json';
 
 const fill = (s, vars) => Object.keys(vars).reduce((acc, k) => acc.replace(`{${k}}`, vars[k]), s);
@@ -38,7 +39,7 @@ function Row({ T, vm, first, done, onToggle }) {
         <Text style={{ fontSize: 16 }}>{vm.emoji}</Text>
         <View style={{ flex: 1, minWidth: 0 }}>
           <Text style={[type.body, { color: T.ink, textDecorationLine: done ? 'line-through' : 'none' }]} numberOfLines={1}>{vm.title}</Text>
-          {vm.sub && !done ? <Text style={[type.label, { color: T.accent, marginTop: 2 }]}>{vm.sub}</Text> : null}
+          {vm.sub && !done ? <Text style={[type.label, { color: T.accent, marginTop: 2 }]}>{vm.sub}</Text> : vm.pending && !done ? <Text style={[type.label, { color: T.muted, marginTop: 2 }]}>{vm.pending}</Text> : null}
         </View>
         {vm.together ? <Label T={T}>{copy.home.togetherBadge.toLowerCase()}</Label> : vm.mental ? <Label T={T}>{copy.home.mentalBadge.toLowerCase()}</Label> : null}
         <Pressable onPress={onToggle} hitSlop={8}><Check T={T} done={done} /></Pressable>
@@ -53,6 +54,7 @@ export default function Home() {
   const t = copy.homeV3, h = copy.home;
   const T = useTokens();
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
   missionDone.useVersion();
   const mochiV = mochiStore.useVersion();
   const ident = useIdentity();
@@ -67,7 +69,10 @@ export default function Home() {
   const [lvl, setLvl] = useState(1);
   const [checkedIn, setCheckedIn] = useState(true); // ligne check-in masquée tant qu'on ne sait pas
   const [myMood, setMyMood] = useState(null); // mon check-in du jour (1 chargé·e, 2 ça va, 3 léger·ère)
-  const [party, setParty] = useState(false); // confettis quand la jauge se remplit
+  const [flight, setFlight] = useState(null); // perles qui volent de Mochi au compteur ({ key, n })
+  const [demoPearls, setDemoPearls] = useState(0); // perles gagnées en démo (session)
+  const pearlsRef = useRef(null); const [pearlsAt, setPearlsAt] = useState(null); // position du compteur
+  const { pop, style: popStyle } = usePop();
   const [demoAway, setDemoAway] = useState(false); // en démo : Mochi part quand tout est coché
   const data = useRef({ occs: [], byId: {} });
   const shown = useRef(false); // moments plein écran : une seule ouverture par montage
@@ -92,12 +97,13 @@ export default function Home() {
       const todays = occs.filter(o => isLive(o) && o.due_date === today && mine(o));
       setReal(true); setAnyOcc(occs.length > 0); setNoTask(tasks.length === 0);
       occs.forEach(o => { if (o.status === 'done' && !missionDone.has(o.id)) missionDone.set(o.id, true); });
-      const m = await getMochi(); setMochi(m);
+      let m = await getMochi(); if (await applyPendingName()) m = await getMochi(); setMochi(m); // nom choisi à l'onboarding
       if (!shown.current) { const un = await unseenMoments(); if (un.length) { shown.current = true; setTimeout(() => router.push('/moment'), 400); } }
       setEnergy(energyOf(occs));
       const souvenirs = inv.filter(i => i.household_id === setup.householdId && i.kind === 'souvenir').length;
       setLvl(!m || m.stage === 'egg' ? 0 : souvenirs === 0 ? 1 : m.stage === 'mini' ? 2 : m.stage === 'mochi' ? 3 : 4);
-      const toVm = o => { const tk = byId[o.task_id] || {}; const q = `occ=${o.id}&tid=${o.task_id}&title=${encodeURIComponent(tk.title || '')}&emoji=${encodeURIComponent(tk.emoji || '•')}&mins=${tk.duration_min || 15}`; return { id: o.id, emoji: tk.emoji || '•', title: tk.title || '…', mental: !!tk.mental_load, together: !o.assignee_id, mins: tk.duration_min || 15, href: `/mission?${q}` }; };
+      const swaps = await read('swap_requests').catch(() => []); const pendingIds = new Set(swaps.filter(sw => sw.status === 'pending' && sw.from_user === uid).map(sw => sw.occurrence_id));
+      const toVm = o => { const tk = byId[o.task_id] || {}; const q = `occ=${o.id}&tid=${o.task_id}&title=${encodeURIComponent(tk.title || '')}&emoji=${encodeURIComponent(tk.emoji || '•')}&mins=${tk.duration_min || 15}`; return { id: o.id, emoji: tk.emoji || '•', title: tk.title || '…', mental: !!tk.mental_load, together: !o.assignee_id, mins: tk.duration_min || 15, href: `/mission?${q}`, pending: pendingIds.has(o.id) ? fill(t.pending, { name: partner.first_name }) : null }; };
       setLate(groupLate(occs.filter(o => isLive(o) && o.due_date < today && o.status !== 'done' && mine(o))).map(g => {
         const o = g.latest; const tk = byId[o.task_id] || {};
         const q = `occ=${o.id}&tid=${o.task_id}&title=${encodeURIComponent(tk.title || '')}&emoji=${encodeURIComponent(tk.emoji || '•')}&mins=${tk.duration_min || 15}`;
@@ -112,7 +118,7 @@ export default function Home() {
     (upcomingRow ? Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning) : Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)).catch(() => {});
     const nowDone = !missionDone.has(id);
     missionDone.toggle(id);
-    if (nowDone) mochiReact();
+    if (nowDone) { mochiReact(); const vm = (vms || []).find(v => v.id === id) || late.find(v => v.id === id); const n = vm ? pearlsFor({ assignee_id: vm.together ? null : 'me' }, { mental_load: vm.mental }) : 3; setFlight({ key: Date.now(), n }); if (!real) setDemoPearls(p => p + n); }
     if (real) toggleOccurrence(String(id), nowDone, (vms || []).find(v => v.id === id)?.mins).catch(() => {});
     const lateVm = late.find(v => v.id === id);
     if (real && nowDone && lateVm) {
@@ -139,10 +145,9 @@ export default function Home() {
   const full = en.total > 0 && en.done >= en.total;
   useEffect(() => {
     if (!full || vms === null) return;
-    setParty(true); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
     const a = setTimeout(() => { if (!real) setDemoAway(true); }, 900);
-    const b = setTimeout(() => setParty(false), 1800);
-    return () => { clearTimeout(a); clearTimeout(b); };
+    return () => clearTimeout(a);
   }, [full]);
   useEffect(() => { if (!full && demoAway) setDemoAway(false); }, [full]);
   const line = vms === null ? ' '
@@ -158,13 +163,16 @@ export default function Home() {
 
   return (
     <View style={{ flex: 1, backgroundColor: T.bg }}>
-      <Pressable onPress={() => router.push('/chambre')} style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><Scene T={T} stage={m.stage} mood={mood} lvl={lvl} away={away} />{party ? <Confetti count={32} colors={[T.accent, T.ok, T.scene.lamp, T.ink]} /> : null}</Pressable>
+      <Pressable onPress={() => router.push('/chambre')} style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><Scene T={T} stage={m.stage} mood={mood} lvl={lvl} away={away} /></Pressable>
+      {flight && pearlsAt ? <PearlFlight key={flight.key} from={{ x: width / 2, y: layout.scene - layout.floor - 60 }} to={pearlsAt} count={Math.min(5, flight.n)} color={T.accent} onArrive={() => { pop(); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {}); }} /> : null}
       <SafeAreaView style={{ flex: 1 }} edges={['top']} pointerEvents="box-none">
         <View style={{ flex: 1, overflow: 'hidden' }} pointerEvents="box-none" onLayout={e => setAvailH(e.nativeEvent.layout.height)}>
           <View pointerEvents="box-none" onLayout={e => setTopH(e.nativeEvent.layout.height)}>
             <View style={s.header}>
               <Label T={T} style={{ flex: 1, color: T.ink }}>{fmtDate(new Date())}</Label>
-              <Num T={T}>{m.pearls ?? 0}</Num><Label T={T} style={{ marginLeft: 6, marginRight: 6 }}>perles</Label>
+              <Pressable onPress={() => router.push('/chambre')} hitSlop={8} ref={pearlsRef} onLayout={() => pearlsRef.current?.measureInWindow((x, y, w, hh) => setPearlsAt({ x: x + w / 2, y: y + hh / 2 }))} style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 6 }}>
+                <Animated.View style={popStyle}><Num T={T}>{(m.pearls ?? 0) + demoPearls}</Num></Animated.View><Label T={T} style={{ marginLeft: 6 }}>perles</Label>
+              </Pressable>
               <RoundButton onPress={() => router.push('/activite')} accessibilityLabel={h.activityA11y}><Icon d={ICON.bubble} size={17} color={T.ink} /></RoundButton>
               <Pressable onPress={() => router.push('/profil')} accessibilityLabel={h.profileA11y}><Avatar initial={me.initial} color={me.color} photo={me.avatar_url} size={36} /></Pressable>
             </View>
@@ -175,7 +183,7 @@ export default function Home() {
             </View>
             <Text style={[type.sub, { paddingHorizontal: layout.x, marginTop: 6, color: T.muted }]}>{line}</Text>
             {!checkedIn ? <Pressable onPress={() => router.push('/checkin')} style={{ marginHorizontal: layout.x, marginTop: 14, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 10 }}><View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: T.accent }} /><Text style={[type.label, { color: T.ink, flex: 1 }]}>{T.night ? copy.checkin.homeRowEvening : copy.checkin.homeRow}</Text><Label T={T}>›</Label></Pressable> : null}
-            <View style={{ marginTop: (checkedIn ? 24 : 10) * layout.air }}><Gauges T={T} t={t} energy={en} hearts={hearts} formLabel={t.formLabels[hearts] || ''} /></View>
+            <View style={{ marginTop: (checkedIn ? 24 : 10) * layout.air }}><Gauges T={T} t={t} energy={en} hearts={hearts} formLabel={t.formLabels[hearts] || ''} hint={m.stage !== 'egg' && !away && !full ? t.energyHint : null} /></View>
             <View style={s.sectionHead}>
               <Pressable onPress={() => router.push('/afaire')} hitSlop={6}><Text style={[type.section, { color: T.ink }]}>{t.today}</Text></Pressable>
               <Label T={T}>{meta}</Label>
@@ -190,7 +198,7 @@ export default function Home() {
               {real && noTask ? <View style={{ marginTop: 14 }}><CTAPrimary label={isJoiner() ? fill(h.chooseWithCta, { name: partner.first_name }) : h.chooseTasksCta} onPress={() => router.push('/(setup)/taches')} /></View> : null}
             </View>
           </View>
-          {real && upcoming.length ? (
+          {real && fitDays.length ? (
             <>
               <View style={s.sectionHead} onLayout={e => setHeadH(e.nativeEvent.layout.height)}><Text style={[type.section, { color: T.ink }]}>{t.upcoming}</Text></View>
               <View style={{ marginHorizontal: layout.x }}>

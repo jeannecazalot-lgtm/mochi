@@ -32,16 +32,18 @@ export const mochiReact = () => listeners.forEach(f => f());
 export function LiveMochiImage({ size = 140, lean = 0, mood, breathe = true }) {
   const [frameLean, setFrameLean] = useState(lean);
   const [shownMood, setShownMood] = useState(mood);
-  const sx = useSharedValue(1), sy = useSharedValue(1), tx = useSharedValue(lean * 6);
+  const sx = useSharedValue(1), sy = useSharedValue(1), tx = useSharedValue(lean * 6), ty = useSharedValue(0);
   useEffect(() => {
     if (!breathe) return;
     sx.value = withRepeat(withTiming(1.02, { duration: 1700, easing: Easing.inOut(Easing.ease) }), -1, true);
     sy.value = withRepeat(withTiming(0.965, { duration: 1700, easing: Easing.inOut(Easing.ease) }), -1, true);
   }, [breathe]);
+  // réaction : il s'écrase, bondit (−18 px) et retombe en ressort (4 nov 2026 : « il ne s'anime pas assez »)
   const wobble = () => {
     const s = { damping: 7, stiffness: 240 };
     sx.value = withSequence(withTiming(1.12, { duration: 90 }), withSpring(1, s));
     sy.value = withSequence(withTiming(0.88, { duration: 90 }), withSpring(1, s));
+    ty.value = withSequence(withTiming(0, { duration: 90 }), withTiming(-18, { duration: 140, easing: Easing.out(Easing.quad) }), withSpring(0, { damping: 9, stiffness: 320 }));
   };
   // ChatGPT n°2 + n°8 (validées 14 sept 2026) : quand la balance change, le corps glisse de quelques px du côté
   // chargé en ressort (≈ response 0,35 s, damping 0,82), 70 ms après la barre ; la base se comprime puis revient ;
@@ -60,7 +62,7 @@ export function LiveMochiImage({ size = 140, lean = 0, mood, breathe = true }) {
   }, [lean]);
   useEffect(() => { const t = setTimeout(() => setShownMood(mood), 300); return () => clearTimeout(t); }, [mood]);
   useEffect(() => { listeners.add(wobble); return () => listeners.delete(wobble); }, []);
-  const style = useAnimatedStyle(() => ({ transformOrigin: '50% 100%', transform: [{ translateX: tx.value }, { scaleX: sx.value }, { scaleY: sy.value }] }));
+  const style = useAnimatedStyle(() => ({ transformOrigin: '50% 100%', transform: [{ translateX: tx.value }, { translateY: ty.value }, { scaleX: sx.value }, { scaleY: sy.value }] }));
   return (
     <Pressable onPress={wobble}>
       <Animated.View style={style}><MochiImage size={size} lean={frameLean} mood={shownMood} /></Animated.View>

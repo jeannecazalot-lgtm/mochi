@@ -84,49 +84,41 @@ function MonthPane({ T, real, dots }) {
   const s = mk(T);
   const tc = copy.calendar;
   const base = real ? new Date() : today;
-  const [offset, setOffset] = useState(0);
-  const first = new Date(base.getFullYear(), base.getMonth() + offset, 1);
-  const year = first.getFullYear(), month = first.getMonth();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const firstDow = (first.getDay() + 6) % 7; // lundi = 0
-  const cells = Array.from({ length: Math.ceil((firstDow + daysInMonth) / 7) * 7 }, (_, i) => { const d = i - firstDow + 1; return d >= 1 && d <= daysInMonth ? d : null; });
-  // glissement horizontal : un simple suivi du doigt suffit (pas de lib)
-  const touchX = useRef(null);
-  const onTouchStart = e => { touchX.current = e.nativeEvent.pageX; };
-  const onTouchEnd = e => {
-    if (touchX.current == null) return;
-    const dx = e.nativeEvent.pageX - touchX.current; touchX.current = null;
-    if (dx < -50) setOffset(o => o + 1); else if (dx > 50) setOffset(o => o - 1);
-  };
   const dotsOf = date => (real ? (dots[localIso(date)] || []) : dayDots(date));
+  // tous les mois à la suite, en défilement vertical (retour Jeanne 4 nov 2026 : « plutôt qui descend, sinon vide »)
+  const months = Array.from({ length: 12 }, (_, k) => new Date(base.getFullYear(), base.getMonth() + k, 1));
   return (
-    <ScrollView contentContainerStyle={{ paddingHorizontal: space.screenX, paddingBottom: 16 }} showsVerticalScrollIndicator={false}>
-      <View onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-        <View style={s.monthHead}>
-          <Pressable onPress={() => setOffset(o => o - 1)} hitSlop={10} accessibilityLabel={tc.prevMonth}><Text style={s.monthArrow}>‹</Text></Pressable>
-          <Text style={[type.section, { color: T.ink }]}>{tc.months[month]}{year !== base.getFullYear() ? ` ${year}` : ''}</Text>
-          <Pressable onPress={() => setOffset(o => o + 1)} hitSlop={10} accessibilityLabel={tc.nextMonth}><Text style={s.monthArrow}>›</Text></Pressable>
-        </View>
-        <View style={s.grid}>{tc.dows.map((d, i) => <Text key={i} style={s.dow}>{d}</Text>)}</View>
-        <View style={s.grid}>
-          {cells.map((d, i) => {
-            if (!d) return <View key={i} style={s.cell} />;
-            const date = new Date(year, month, d);
-            const isToday = sameDay(date, base);
-            return (
-              <View key={i} style={s.cell}>
-                <Pressable onPress={() => router.push(`/jour?d=${date.getTime()}`)} style={[s.day, isToday && s.today]}>
-                  <Text style={[s.dayNum, isToday && { color: T.bg }]}>{d}</Text>
-                  <View style={{ flexDirection: 'row', gap: 5, height: 4 }}>
-                    {dotsOf(date).map((c, j) => <View key={j} style={[s.dot, { backgroundColor: isToday ? T.bg : c }]} />)}
+    <ScrollView contentContainerStyle={{ paddingHorizontal: space.screenX, paddingBottom: 24 }} showsVerticalScrollIndicator={false}>
+      {months.map(first => {
+        const year = first.getFullYear(), month = first.getMonth();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const firstDow = (first.getDay() + 6) % 7; // lundi = 0
+        const cells = Array.from({ length: Math.ceil((firstDow + daysInMonth) / 7) * 7 }, (_, i) => { const d = i - firstDow + 1; return d >= 1 && d <= daysInMonth ? d : null; });
+        return (
+          <View key={`${year}-${month}`} style={{ marginBottom: 18 }}>
+            <View style={s.monthHead}><Text style={[type.section, { color: T.ink }]}>{tc.months[month]}{year !== base.getFullYear() ? ` ${year}` : ''}</Text></View>
+            <View style={s.grid}>{tc.dows.map((d, i) => <Text key={i} style={s.dow}>{d}</Text>)}</View>
+            <View style={s.grid}>
+              {cells.map((d, i) => {
+                if (!d) return <View key={i} style={s.cell} />;
+                const date = new Date(year, month, d);
+                const isToday = sameDay(date, base);
+                const past = date < base && !isToday;
+                return (
+                  <View key={i} style={s.cell}>
+                    <Pressable onPress={() => router.push(`/jour?d=${date.getTime()}`)} style={[s.day, isToday && s.today, past && { opacity: 0.45 }]}>
+                      <Text style={[s.dayNum, isToday && { color: T.bg }]}>{d}</Text>
+                      <View style={{ flexDirection: 'row', gap: 5, height: 4 }}>
+                        {dotsOf(date).map((c, j) => <View key={j} style={[s.dot, { backgroundColor: isToday ? T.bg : c }]} />)}
+                      </View>
+                    </Pressable>
                   </View>
-                </Pressable>
-              </View>
-            );
-          })}
-        </View>
-      </View>
-      <Label T={T} style={{ marginTop: 8, textAlign: 'center' }}>{t.monthHint}</Label>
+                );
+              })}
+            </View>
+          </View>
+        );
+      })}
     </ScrollView>
   );
 }
@@ -294,7 +286,14 @@ export default function Planning() {
   // la liste couvre exactement les 7 jours de la bande (les retards restent en tête)
   const lastIso = localIso(addDays(base, 6));
   const allGroups = realGroups || planningGroups().map(g => ({ ...g, iso: localIso(g.date) }));
-  const shownGroups = allGroups.filter(g => g.late || (g.iso >= localIso(base) && g.iso <= lastIso));
+  const [who, setWho] = useState(0); // 0 tout · 1 moi · 2 l'autre · 3 à deux (retour Jeanne 4 nov 2026 : « je vois pas les missions de l'autre »)
+  const keep = item => { // vm réel : who = me | partner | null ; démo : assignee_id
+    if (who === 0) return true;
+    if (item.event) return who === 3;
+    const w = item.who !== undefined ? item.who : item.assignee_id === me.id ? me : item.assignee_id === partner.id ? partner : null;
+    return who === 1 ? w === me : who === 2 ? w === partner : !w;
+  };
+  const shownGroups = allGroups.filter(g => g.late || (g.iso >= localIso(base) && g.iso <= lastIso)).map(g => ({ ...g, items: g.items.filter(keep) })).filter(g => g.items.length);
   // points du semainier en mode réel : couleurs des porteurs du jour
   const dotsFor = d => {
     const iso = localIso(d);
@@ -330,7 +329,11 @@ export default function Planning() {
                 />
               ))}
             </View>
+            <View style={{ flexDirection: 'row', gap: 6, paddingHorizontal: space.screenX, paddingBottom: 10 }}>
+              {t.filters.map((lab, k) => <Pressable key={k} onPress={() => setWho(k)} style={[s.filter, who === k && s.filterOn]}><Text style={[type.label, { color: who === k ? T.bg : T.ink }]}>{lab.replace('{name}', partner.first_name)}</Text></Pressable>)}
+            </View>
             <ScrollView ref={scrollRef} onScroll={onScroll} scrollEventThrottle={48} contentContainerStyle={{ paddingHorizontal: space.screenX, paddingBottom: 16 }} showsVerticalScrollIndicator={false}>
+              {who !== 0 && !shownGroups.length ? <Text style={[type.sub, { color: T.muted, textAlign: 'center', paddingVertical: 24 }]}>{t.filterEmpty}</Text> : null}
               {realGroups
                 ? shownGroups.map((g, gi) => (
                   <Animated.View key={g.iso} entering={gi < 8 ? FadeInDown.delay(gi * 40).duration(260) : undefined} layout={LinearTransition.duration(240)} style={{ marginBottom: 11 }} onLayout={e => { groupY.current[g.iso] = e.nativeEvent.layout.y; }}>
@@ -367,7 +370,9 @@ const mk = T => StyleSheet.create({
   chip: { flex: 1, alignItems: 'center', paddingVertical: 8, borderRadius: 12, borderWidth: StyleSheet.hairlineWidth, borderColor: T.line },
   chipOn: { backgroundColor: T.ink, borderColor: T.ink },
   groupLabel: { paddingHorizontal: 4, paddingTop: 8, paddingBottom: 2 },
-  monthHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 4, paddingBottom: 8 },
+  monthHead: { paddingHorizontal: 4, paddingBottom: 8 },
+  filter: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999, borderWidth: StyleSheet.hairlineWidth, borderColor: T.line },
+  filterOn: { backgroundColor: T.ink, borderColor: T.ink },
   monthArrow: { fontSize: 22, lineHeight: 24, color: T.ink, paddingHorizontal: 8 },
   row: { paddingVertical: 12 * layout.air, paddingHorizontal: 4, flexDirection: 'row', alignItems: 'center', gap: 10, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: T.line },
   grid: { flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: -2.5, marginBottom: 6 },

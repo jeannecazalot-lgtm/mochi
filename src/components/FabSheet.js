@@ -81,11 +81,9 @@ export default function FabSheet({ open, onClose }) {
       </Animated.View>
 
       {/* réplique du FAB, tournée de 45° (+ → ×) */}
-      <Pressable onPress={onClose} style={[s.fabWrap, { bottom: Math.max(insets.bottom, 24) + 10 }]} accessibilityLabel={t.closeA11y}>
-        <Animated.View style={fabStyle}>
-          <LinearGradient {...gradients.mochi} style={[s.fab, shadows.fab]}>
-            <Icon d={ICON.plus} size={22} sw={2.4} />
-          </LinearGradient>
+      <Pressable onPress={onClose} style={[s.fabWrap, { bottom: Math.max(insets.bottom, 24) + 6 }]} accessibilityLabel={t.closeA11y}>
+        <Animated.View style={[s.fab, { backgroundColor: tk().accent }, fabStyle]}>
+          <Icon d={ICON.plus} size={20} sw={2.4} color={tk().bg} />
         </Animated.View>
       </Pressable>
     </View>
@@ -97,5 +95,5 @@ const s = v3Styles(T => StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 13, paddingVertical: 12 },
   bullet: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   fabWrap: { position: 'absolute', alignSelf: 'center' },
-  fab: { width: tabBar.fabSize, height: tabBar.fabSize, borderRadius: tabBar.fabSize / 2, alignItems: 'center', justifyContent: 'center', borderWidth: tabBar.fabRing, borderColor: T.bg },
+  fab: { width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center' },
 }));

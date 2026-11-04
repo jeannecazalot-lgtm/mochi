@@ -11,7 +11,7 @@ import { layout } from '../../theme-v3';
 const S = ({ l, r, t, b, w, h, rad = 0, c, tl, tr, bl, br, op }) => <View style={{ position: 'absolute', left: l, right: r, top: t, bottom: b, width: w, height: h, borderRadius: rad, borderTopLeftRadius: tl ?? rad, borderTopRightRadius: tr ?? rad, borderBottomLeftRadius: bl ?? rad, borderBottomRightRadius: br ?? rad, backgroundColor: c, opacity: op }} />;
 export const SIZE_BY_STAGE = { egg: 0.6, mini: 0.75, mochi: 1, maxi: 1.15, dore: 1.25 };
 
-export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height = layout.scene }) {
+export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height = layout.scene, hideMochi = false }) {
   const c = T.scene, hh = height, fl = layout.floor;
   const W = Math.round(layout.mochi * (SIZE_BY_STAGE[stage] || 1)), H = W * MOCHI_RATIO;
   // départ en balade : Mochi trottine vers la droite et sort du cadre ; retour : il rentre par la droite en ressort
@@ -52,7 +52,7 @@ export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height =
       {lvl >= 3 ? <Animated.View entering={ZoomIn.springify().damping(14).delay(200)} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} pointerEvents="none"><S l={40} b={fl - 6} w={120} h={30} rad={13} c={c.sofa} /><S l={52} b={fl + 20} w={36} h={20} rad={8} c={c.cushion} /><S l={104} b={fl + 20} w={36} h={20} rad={8} c={c.cushion} /></Animated.View> : null}
       {lvl >= 4 ? <Animated.View entering={FadeIn.delay(300)} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} pointerEvents="none"><S l={20} b={fl - 2} w={3} h={150} c={T.muted} op={0.5} /><S l={2} b={fl + 142} w={38} h={26} tl={10} tr={10} bl={4} br={4} c={c.lamp} /></Animated.View> : null}
       {/* Mochi : œuf (forme), absent (traces), ou l'image à la taille du stade */}
-      {stage === 'egg'
+      {hideMochi ? null : stage === 'egg'
         ? <><View style={{ position: 'absolute', bottom: fl - 10, alignSelf: 'center', width: 150, height: 14, borderRadius: 7, backgroundColor: c.shadow }} /><View style={{ position: 'absolute', bottom: fl - 4, alignSelf: 'center', width: 92, height: 112, borderRadius: 46, borderTopLeftRadius: 50, borderTopRightRadius: 50, backgroundColor: c.vase }} /></>
         : <>
             <Animated.View pointerEvents="none" style={[{ position: 'absolute', bottom: fl + 10, alignSelf: 'center', width: 64, height: 64, borderRadius: 32, borderWidth: 1.5, borderStyle: 'dashed', borderColor: T.muted, alignItems: 'center', justifyContent: 'center' }, traceStyle]}><Text style={{ fontSize: 22 }}>👣</Text></Animated.View>

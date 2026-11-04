@@ -126,6 +126,7 @@ export default function Profil() {
               <SettingRow emoji="⚖️" title={t.thresholds} sub={fill(t.thresholdsSub, { warn: th.warn, alert: th.alert })}
                 right={<Text style={s.value}>{fill(t.thresholdsValue, { warn: th.warn, alert: th.alert })}</Text>} onPress={() => router.push('/seuils')} />
               {/* Mochi qu'on élève (4 nov 2026) : le point hebdo laisse la place au mode nuit ; un tap fait tourner auto → toujours → jamais */}
+              <SettingRow emoji="🍡" title={t.mochiName} sub={t.mochiNameSub} onPress={() => router.push('/nom-mochi')} />
               <SettingRow emoji="🌙" title={t.nightMode} sub={t.nightModeSub} right={<Text style={s.value}>{t.nightValues[nightMode]}</Text>} onPress={() => { const order = ['auto', 'on', 'off']; setNightMode(order[(order.indexOf(nightMode) + 1) % 3]); }} />
               <SettingRow emoji="📆" title={t.bilan} sub={t.bilanSub} onPress={() => router.push('/bilan')} />
               <SettingRow emoji="💳" title={t.subscription} sub={ALL_FREE ? t.subscriptionFree : premium ? fill(t.subscriptionOn, { date: fmtDate(household.premium_until) }) : t.subscriptionOff} onPress={() => router.push('/paywall')} />

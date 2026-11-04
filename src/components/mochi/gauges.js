@@ -31,7 +31,7 @@ export function Hearts({ T, n }) {
   return <View style={{ flexDirection: 'row', gap: 8, flex: 1 }}>{[1, 2, 3, 4, 5].map(i => <Heart key={i} T={T} on={i <= n} changed={(i <= n) !== (i <= prev.current)} />)}</View>;
 }
 // deux lignes : énergie du jour, forme
-export function Gauges({ T, t, energy, hearts, formLabel }) {
+export function Gauges({ T, t, energy, hearts, formLabel, hint }) {
   const A = layout.air;
   return (
     <View style={{ marginHorizontal: layout.x, borderTopWidth: StyleSheet.hairlineWidth, borderColor: T.line }}>
@@ -40,6 +40,7 @@ export function Gauges({ T, t, energy, hearts, formLabel }) {
         <Meter T={T} n={energy.done} of={energy.total} />
         <Num T={T}>{energy.done}<Text style={{ color: T.muted, fontWeight: '500' }}> / {energy.total}</Text></Num>
       </View>
+      {hint ? <Label T={T} style={{ marginTop: -10 * A, paddingBottom: 12 * A }}>{hint}</Label> : null}
       <View style={[s.row, { paddingVertical: 18 * A, borderColor: T.line }]}>
         <Label T={T} style={{ width: 66 }}>{t.form}</Label>
         <Hearts T={T} n={hearts} />

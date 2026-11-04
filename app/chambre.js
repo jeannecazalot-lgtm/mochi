@@ -34,7 +34,10 @@ export default function Chambre() {
   const lvl = m.stage === 'egg' ? 0 : souvenirs === 0 ? 1 : m.stage === 'mini' ? 2 : m.stage === 'mochi' ? 3 : 4;
   const places = PLACES_BY_STAGE[m.stage] || [];
   const buy = async (it, kind) => {
-    if (demo) { setMsg('Démo : rien n\'est acheté.'); return; }
+    if (demo) { // démo : achat local, pour voir la pièce changer
+      if ((m.pearls || 0) < it.price) { setMsg(fill(t.notEnough, { n: it.price - (m.pearls || 0) })); return; }
+      setMsg(''); setInv(i => [...i, { item_key: it.key, kind }]); setMochi(mm => ({ ...mm, pearls: (mm.pearls || 0) - it.price })); return;
+    }
     const r = await buyItem(it, kind);
     setMsg(r.ok ? '' : r.reason === 'pearls' ? fill(t.notEnough, { n: it.price - (m.pearls || 0) }) : '');
   };

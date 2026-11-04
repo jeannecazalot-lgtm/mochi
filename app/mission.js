@@ -85,7 +85,8 @@ export default function Mission() {
       setSpent(wasDone && r.occ?.duration_min ? r.occ.duration_min : r.task.duration_min);
       if (r.expenseCents) setAmount((r.expenseCents / 100).toFixed(2).replace('.', ','));
       if (r.real) wasPartnersTask(String(occId)).then(setTheirs).catch(() => {});
-      const rl = { window_days: r.task.window_days, daily: !!r.task.daily, deadline: r.task.deadline ?? null, who: r.task.who, duration_min: r.task.duration_min, note: r.task.note, pain: r.task.pain ?? 3 };
+      // momentChosen : le moment est TOUJOURS affiché comme choisi (« n'importe quand » compris) — retour Jeanne 4 nov 2026 (« pré-rempli »)
+      const rl = { window_days: r.task.window_days, daily: !!r.task.daily, deadline: r.task.deadline ?? null, momentChosen: true, who: r.task.who, duration_min: r.task.duration_min, note: r.task.note, pain: r.task.pain ?? 3 };
       setRule(rl); initialRule.current = JSON.stringify({ ...rl, id: null });
     });
   }, []);
@@ -159,7 +160,11 @@ export default function Mission() {
   const head = (
     <View style={s.head}>
       <View style={s.titleRow}>
-        <Text style={[s.title, { flex: 1 }]} numberOfLines={2}>{task.title}</Text>
+        {/* le titre ouvre « Modifier la tâche » et le dit (retour Jeanne 4 nov 2026) */}
+        <Pressable onPress={() => { Haptics.selectionAsync().catch(() => {}); setRuleOpen(true); setAsking(false); }} style={{ flex: 1, flexDirection: 'row', alignItems: 'baseline', gap: 8 }}>
+          <Text style={[s.title, { flexShrink: 1 }]} numberOfLines={2}>{task.title}</Text>
+          {!done && !confirm ? <Text style={s.editHint}>{t.editHint}</Text> : null}
+        </Pressable>
         {m.mine ? (
           <Pressable onPress={markDone} hitSlop={12} accessibilityRole="button" accessibilityLabel={t.doneLabel}>
             <Animated.View style={pop}><CheckCircle done={done} size={26} /></Animated.View>
@@ -168,8 +173,10 @@ export default function Mission() {
       </View>
       <View style={s.meta}>
         <Avatar initial={who.initial} color={who.color} photo={who.avatar_url} size={18} />
-        <Text style={s.metaTxt}>{!m.occ?.assignee_id ? t.metaBoth : m.mine ? t.metaYou : who.first_name} · {dayLabel} · {done ? [fmtMin(spent), cents ? fmtAmount(cents) : null].filter(Boolean).join(' · ') : fill(t.metaApprox, { time: fmtMin(rule.duration_min) })}</Text>
+        <Text style={s.metaTxt}>{!m.occ?.assignee_id ? t.metaBoth : m.mine ? t.metaYou : who.first_name} · {dayLabel} · {done ? [fmtMin(spent), cents ? fmtAmount(cents) : null].filter(Boolean).join(' · ') : fill(t.metaApprox, { time: fmtMin(rule.duration_min) })}{m.pendingSwap ? ` · ${fill(t.metaPending, { name: partner.first_name })}` : ''}</Text>
       </View>
+      {/* la note se lit sans ouvrir « Modifier la tâche » (retour Jeanne 4 nov 2026) */}
+      {rule.note && !ruleOpen ? <Text style={s.note} numberOfLines={3}>{rule.note}</Text> : null}
     </View>
   );
 
@@ -296,7 +303,7 @@ export default function Mission() {
                 <Animated.View entering={FadeIn.duration(motion.micro)}>
                   {/* pas de durée ici : « Temps passé » se règle à la coche (Jeanne, 9 sept 2026) */}
                   <RuleEditor rule={rule} onPatch={patchRule} showMoment showEffort showDuration={false} first={false} onNoteOpen={setNoteOpen}
-                    onSkipOnce={m.real ? async () => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {}); await skipOccurrence(String(occId || '')).catch(() => {}); dirty.current = false; finish({ kind: 'moved', title: t.confirmSkipped, sub: t.confirmSkippedSub }); } : undefined}
+                    onSkipOnce={m.real ? async () => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {}); await skipOccurrence(String(occId || '')).catch(() => {}); dirty.current = false; finish({ kind: 'moved', title: t.confirmSkipped, sub: fill(t.confirmSkippedSub, { name: partner.first_name }) }); } : undefined}
                     onDeleteTask={m.real && task.id ? async () => { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {}); await deleteRealTask(task.id).catch(() => {}); dirty.current = false; finish({ kind: 'moved', title: fill(t.confirmDeleted, { task: task.title }), sub: fill(t.confirmDeletedSub, { name: partner.first_name }) }); } : undefined} />
                 </Animated.View>
               ) : null}
@@ -314,6 +321,8 @@ const mk = T => StyleSheet.create({
   head: { marginTop: 2, marginBottom: 12, paddingHorizontal: 2, gap: 4 },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   title: { fontSize: 20, fontWeight: '600', letterSpacing: -0.6, color: T.ink },
+  editHint: { fontSize: 13, fontWeight: '500', color: T.muted },
+  note: { fontSize: 14.5, lineHeight: 20, color: T.ink, opacity: 0.8, paddingHorizontal: 2, marginTop: 2 },
   meta: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   metaTxt: { fontSize: 13, fontWeight: '400', color: T.muted },
   block: { marginBottom: 8 },

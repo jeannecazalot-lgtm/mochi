@@ -12,6 +12,7 @@ import { setup, loadSetup, thresholdsOf } from './setup-state';
 import { getUid } from './identity';
 import { localIso, addDaysIso } from './dates';
 import { weekStartIso } from './malus-actions';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { scheduleMochiReturn } from './notifications';
 import items from './data/mochi-items.json';
 
@@ -186,3 +187,16 @@ export async function buyItem(item, kind = 'object') {
   await patch({ pearls: (m.pearls || 0) - item.price });
   return { ok: true };
 }
+
+// ── nom choisi à l'onboarding (avant tout foyer) : appliqué au premier Mochi réel vu, puis effacé ──
+const NAME_K = 'mochi:pendingName';
+export async function setPendingName(name) { try { await AsyncStorage.setItem(NAME_K, String(name || '').trim()); } catch (e) { /* ignore */ } }
+export async function applyPendingName() {
+  try {
+    const name = (await AsyncStorage.getItem(NAME_K) || '').trim(); if (!name) return false;
+    const m = await getMochi(); if (!m) return false;
+    if (!m.name || m.name === 'Mochi') await patch({ name });
+    await AsyncStorage.removeItem(NAME_K); return true;
+  } catch (e) { return false; }
+}
+export async function renameMochi(name) { const m = await getMochi(); if (!m) return false; await patch({ name: String(name || 'Mochi').trim() || 'Mochi' }); return true; }
