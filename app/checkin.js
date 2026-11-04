@@ -15,7 +15,7 @@ import { read } from '../src/store';
 import { loadSetup, inRealMode } from '../src/setup-state';
 import { getUid, getPartnerUid } from '../src/identity';
 import { localIso } from '../src/dates';
-import { checkin } from '../src/mochi-state';
+import { checkin, demoFlags, mochiStore } from '../src/mochi-state';
 import copy from '../src/data/copy.json';
 
 const fill = (s, vars) => Object.keys(vars).reduce((acc, k) => acc.replace(`{${k}}`, vars[k]), s);
@@ -53,7 +53,7 @@ export default function Checkin() {
   const save = async () => {
     if (!mood) return;
     setBurst(true); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-    checkin(mood, moment).catch(() => {});
+    checkin(mood, moment).catch(() => {}); demoFlags.checkin[moment] = true; mochiStore.bump();
     setTimeout(() => router.back(), 750);
   };
   const X = layout.x;

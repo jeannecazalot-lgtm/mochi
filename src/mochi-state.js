@@ -20,7 +20,8 @@ export const stageFor = hw => (hw >= STAGE_AT.dore ? 'dore' : hw >= STAGE_AT.max
 export const PEARLS = { mission: 3, mental: 4, together: 5, walk: 12, smallWalk: 5, checkin: 1, quest: 30 };
 export const WALK_MS = 2 * 3600e3;
 const PLACES_BY_STAGE = { egg: [], mini: ['jardin'], mochi: ['jardin', 'riviere'], maxi: ['jardin', 'riviere', 'foret', 'ville'], dore: ['jardin', 'riviere', 'foret', 'ville', 'plage', 'montagne'] };
-export const MOMENTS = ['hatch', 'walk_return', 'stage_up'];       // montrés en plein écran à chacun
+export const MOMENTS = ['hatch', 'walk_return', 'stage_up'];
+export const demoFlags = { checkin: {} }; // mode démo : mémoire de session (pas de foyer)       // montrés en plein écran à chacun
 
 let version = 0; const subs = new Set();
 export const mochiStore = {

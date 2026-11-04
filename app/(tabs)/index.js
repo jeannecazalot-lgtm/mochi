@@ -23,7 +23,7 @@ import { toggleOccurrence, isLive, skipOccurrence } from '../../src/occ-actions'
 import { clearMalusFor } from '../../src/malus-actions';
 import { groupLate, lateCaption, daysBetweenIso } from '../../src/late-groups';
 import { mochiReact } from '../../src/components/mochi-img';
-import { mochiStore, getMochi, energyOf, onMissionDone, STAGES, unseenMoments } from '../../src/mochi-state';
+import { mochiStore, getMochi, energyOf, onMissionDone, STAGES, unseenMoments, demoFlags } from '../../src/mochi-state';
 import copy from '../../src/data/copy.json';
 
 const fill = (s, vars) => Object.keys(vars).reduce((acc, k) => acc.replace(`{${k}}`, vars[k]), s);
@@ -77,7 +77,7 @@ export default function Home() {
   useEffect(() => {
     (async () => {
       await loadSetup();
-      if (!inRealMode()) { setVms(demoVms()); setMochi(DEMO_MOCHI); setLvl(2); setEnergy({ done: 0, total: 0 }); setCheckedIn(false); return; }
+      if (!inRealMode()) { setVms(demoVms()); setMochi(DEMO_MOCHI); setLvl(2); setEnergy({ done: 0, total: 0 }); setCheckedIn(!!demoFlags.checkin[T.night ? 'evening' : 'morning']); return; }
       const [occs, tasks, inv, cks] = await Promise.all([read('occurrences'), read('tasks'), read('mochi_inventory'), read('mochi_checkins')]);
       if (setup.householdId && occs.some(o => !tasks.some(tk => tk.id === o.task_id))) healMissingTasks(setup.householdId).then(ok => { if (ok) occStore.bump(); }).catch(() => {});
       const byId = Object.fromEntries(tasks.map(tk => [tk.id, tk]));
