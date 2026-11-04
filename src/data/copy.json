@@ -154,7 +154,7 @@
     "_labels": {
       "title": "Titre écran",
       "week": "Segment semaine",
-      "month": "Segment mois (Duo+)",
+      "month": "Segment mois (Mochi+)",
       "dragHint": "Indice drag & drop",
       "todaySuffix": "Suffixe du groupe du jour (MAR 7 · AUJOURD HUI)",
       "monthHint": "Indice sous la grille mois (tap sur un jour)",
@@ -296,14 +296,14 @@
     "viaTaskDesc": "en cochant « {task} »",
     "paidBy": "payé par {name}",
     "you": "toi",
-    "gateTitle": "Le budget, c'est Duo+",
-    "gateSub": "Dépenses partagées, solde du foyer et « On est à zéro » — inclus dans Duo+.",
+    "gateTitle": "Le budget, c'est Mochi+",
+    "gateSub": "Dépenses partagées, solde du foyer et « On est à zéro » — inclus dans Mochi+.",
     "gateCta": "Découvrir",
     "emptyReal": "Aucune dépense pour l'instant — elles arriveront en cochant une tâche avec dépense, ou via le ➕."
   },
   "paywall": {
     "_labels": {
-      "title": "Titre paywall Duo+",
+      "title": "Titre paywall Mochi+",
       "monthly": "Libellé abo mensuel ({price} = prix storefront RevenueCat)",
       "yearly": "Libellé abo annuel ({price})",
       "disclosure": "Divulgation complète AU-DESSUS du CTA ({name}, {price}, {period})",
@@ -311,8 +311,8 @@
       "restore": "Lien restaurer",
       "privacy": "Lien politique de confidentialité",
       "terms": "Lien conditions (EULA)",
-      "subtitle": "Sous-titre sous le titre Duo+",
-      "features": "Liste des avantages Duo+ (5 lignes)",
+      "subtitle": "Sous-titre sous le titre Mochi+",
+      "features": "Liste des avantages Mochi+ (ce qui est réellement réservé dans l’app : tenues/objets plus, vue mois, budget)",
       "planYearly": "Libellé de la carte annuelle",
       "planMonthly": "Libellé de la carte mensuelle",
       "perYear": "Suffixe prix annuel",
@@ -332,23 +332,23 @@
       "error": "Erreur générique d’achat",
       "restoreNone": "Message quand la restauration ne trouve aucun abonnement",
       "restored": "Message après restauration réussie",
-      "close": "Accessibilité du bouton fermer ×"
+      "close": "Accessibilité du bouton fermer ×",
+      "soft": "Lien sous le CTA quand le paywall est montré après l'onboarding (ferme sans acheter)"
     },
-    "title": "Duo+",
+    "title": "Mochi+",
     "monthly": "{price} / mois",
     "yearly": "{price} / an",
     "disclosure": "Abonnement {name}, {price} par {period}, renouvelé automatiquement. Annulable à tout moment dans Réglages › Apple Account › Abonnements.",
-    "cta": "Passer à Duo+",
+    "cta": "Passer à Mochi+",
     "restore": "Restaurer un achat",
     "privacy": "Politique de confidentialité",
     "terms": "Conditions d'utilisation",
-    "subtitle": "Tout l’équilibre, sans limites.",
+    "subtitle": "Sa pièce, ses tenues, et le planning sans limites.",
     "features": [
-      "Calendrier vue mois",
-      "Analyse charge mentale détaillée",
-      "Wrapped illimité + export PDF",
-      "Tricount illimité · multi-sessions",
-      "Pense-bête partagé · mood check-in"
+      "Tenues et objets Mochi+ pour sa pièce",
+      "Planning et calendrier en vue mois",
+      "Budget partagé sans limite",
+      "Partagé à deux, un seul abonnement"
     ],
     "planYearly": "Annuel",
     "planMonthly": "Mensuel",
@@ -369,7 +369,8 @@
     "error": "L’achat n’a pas abouti. Rien n’a été débité.",
     "restoreNone": "Aucun abonnement à restaurer sur ce compte.",
     "restored": "Abonnement restauré.",
-    "close": "Fermer"
+    "close": "Fermer",
+    "soft": "Plus tard"
   },
   "mission": {
     "_labels": {
@@ -988,13 +989,13 @@
       "legendMissed": "Légende carré coral : jour raté",
       "today": "Suffixe du jour sélectionné quand c’est aujourd’hui",
       "empty": "Carte du jour sans tâche",
-      "gateTitle": "Bandeau quand le foyer n’est pas Duo+ : titre",
+      "gateTitle": "Bandeau quand le foyer n’est pas Mochi+ : titre",
       "gateSub": "Bandeau gating : sous-titre",
       "gateCta": "Bandeau gating : bouton vers le paywall",
       "prev": "Accessibilité bouton mois précédent",
       "next": "Accessibilité bouton mois suivant"
     },
-    "pill": "Duo+",
+    "pill": "Mochi+",
     "months": [
       "Janvier",
       "Février",
@@ -1030,9 +1031,9 @@
     "legendMissed": "jour raté",
     "today": "Aujourd’hui",
     "empty": "Rien de prévu ce jour-là.",
-    "gateTitle": "La vue mois est une fonction Duo+",
-    "gateSub": "Aperçu — passe à Duo+ pour naviguer librement.",
-    "gateCta": "Découvrir Duo+",
+    "gateTitle": "La vue mois est une fonction Mochi+",
+    "gateSub": "Aperçu — passe à Mochi+ pour naviguer librement.",
+    "gateCta": "Découvrir Mochi+",
     "prev": "Mois précédent",
     "next": "Mois suivant",
     "prevMonth": "Mois précédent",
@@ -1056,7 +1057,7 @@
       "gateCta": "Bandeau gating : bouton"
     },
     "pill": "Charge mentale",
-    "pillPremium": "Duo+",
+    "pillPremium": "Mochi+",
     "title": "L’invisible pèse\nsur {name}.",
     "titleBalanced": "L’invisible est\nbien partagé.",
     "share": "{name} · {n}%",
@@ -1066,9 +1067,9 @@
     "suggestBody": "Transférer « {task} » à {name} → {me}/{partner} mental",
     "apply": "Appliquer",
     "applied": "Appliqué",
-    "gateTitle": "L’analyse détaillée est une fonction Duo+",
-    "gateSub": "Aperçu — passe à Duo+ pour la version complète chaque semaine.",
-    "gateCta": "Découvrir Duo+",
+    "gateTitle": "L’analyse détaillée est une fonction Mochi+",
+    "gateSub": "Aperçu — passe à Mochi+ pour la version complète chaque semaine.",
+    "gateCta": "Découvrir Mochi+",
     "titleEmpty": "Pas encore de tâche\nmentale cochée.",
     "empty": "Les tâches mentales cochées apparaîtront ici."
   },
@@ -1112,7 +1113,7 @@
     },
     "title": "Profil & réglages",
     "duoWith": "En duo avec {name} · depuis {n} jours",
-    "pillPremium": "Duo+",
+    "pillPremium": "Mochi+",
     "statStreak": "Streak",
     "statTasks": "Tâches",
     "statBalance": "Ma part",
@@ -1136,9 +1137,9 @@
     "thresholdsValue": "{warn} / {alert} %",
     "malus": "Malus",
     "malusSub": "Réglés chaque semaine au point hebdo",
-    "subscription": "Abonnement Duo+",
+    "subscription": "Abonnement Mochi+",
     "subscriptionOn": "Actif · renouvelé le {date}",
-    "subscriptionOff": "Découvrir Duo+",
+    "subscriptionOff": "Découvrir Mochi+",
     "plan": "Plan des écrans",
     "planSub": "Navigation de développement",
     "logout": "Se déconnecter",
@@ -2210,5 +2211,39 @@
     "locked": "Se débloque au palier suivant",
     "empty": "Mochi n'a encore rien ramené. La première balade part quand la jauge est pleine.",
     "rule": "Les perles sont communes au foyer : 3 par mission, 4 si mentale, 5 chacun à deux, 12 par balade."
+  },
+  "onbV3": {
+    "_labels": {
+      "_": "Onboarding v3 court (4 nov 2026) : 3 slides, l'œuf avant toute question. La scène évolue avec le slide.",
+      "skip": "Passer",
+      "next": "Bouton suivant",
+      "start": "Bouton du dernier slide",
+      "slides": "3 slides (title, body)"
+    },
+    "skip": "Passer",
+    "next": "Suivant",
+    "start": "Commencer",
+    "slides": [
+      {
+        "title": "Un œuf. Il est à vous deux.",
+        "body": "Mochi vit dans votre foyer. Il grandit quand vous prenez soin de la maison ensemble, et il le montre."
+      },
+      {
+        "title": "Chaque mission lui donne de l'énergie.",
+        "body": "Jauge pleine, il part en balade et revient avec un souvenir pour sa pièce. Une mission oubliée, il perd un cœur. Il ne meurt jamais, mais il compte sur vous deux."
+      },
+      {
+        "title": "Mochi répartit. Et voit quand ça penche.",
+        "body": "Vos tâches, vos disponibilités, vos préférences : il répartit la semaine et le dit quand la charge dérive."
+      }
+    ]
+  },
+  "mochiNotifs": {
+    "_labels": {
+      "walkReturnTitle": "Titre de la notification locale au retour de balade",
+      "walkReturnBody": "Corps"
+    },
+    "walkReturnTitle": "Mochi est rentré",
+    "walkReturnBody": "Il a ramené quelque chose de sa balade. Venez voir sa pièce."
   }
 }

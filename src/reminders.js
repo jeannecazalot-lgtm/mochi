@@ -4,7 +4,8 @@
 // synchro (« C'est parti ») et chaque déplacement de tâche.
 // Permission demandée au moment utile (08), pas au lancement.
 // ═══════════════════════════════════════════════════════════════════
-import { askNotificationPermission, scheduleAt, cancelAll } from './notifications';
+import { askNotificationPermission, scheduleAt, cancelAll, scheduleMochiReturn } from './notifications';
+import { getMochi } from './mochi-state';
 import { read } from './store';
 import { setup } from './setup-state';
 import copy from './data/copy.json';
@@ -17,6 +18,9 @@ export async function rescheduleReminders() {
     const ok = await askNotificationPermission();
     if (!ok) return false;
     await cancelAll();
+    // Mochi dehors : on remet la notification de retour que cancelAll vient d'effacer
+    const mochi = await getMochi().catch(() => null);
+    if (mochi?.walk_status === 'away' && mochi.walk_returns_at) await scheduleMochiReturn(new Date(mochi.walk_returns_at));
     const [occs, tasks, events, notes] = await Promise.all([read('occurrences'), read('tasks'), read('events').catch(() => []), read('notes').catch(() => [])]);
     // événements du jour (+ leur note) dans le récap — retour Ketley 12 sept 2026
     const evByDay = {};

@@ -1,57 +1,94 @@
-// Écrans 01-05 · Onboarding (pitch, jamais revu). Un seul pager horizontal paginé.
-// Recette : docs/recettes/01-05-onboarding.md · slides : src/components/onboarding/
-import React, { useRef, useState, useCallback } from 'react';
+// Onboarding v3 court (4 nov 2026) : trois slides, l'œuf avant toute question, jamais revu.
+// Une seule scène en haut qui évolue avec le slide (œuf → éclosion + jauge qui se remplit + balade → Mochi
+// dans sa pièce), l'instrument (énergie, forme) dessous comme sur l'Accueil, le texte en pager.
+// Fin : paywall doux (décision tableau de bord, 3 nov 2026 : « après l'onboarding, comme Finch ») puis connexion.
+// L'ancien onboarding (5 slides, 14 sept 2026) reste consultable : /onboarding/ancien
+import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { router } from 'expo-router';
-import { View, FlatList, useWindowDimensions } from 'react-native';
+import { View, Text, Pressable, FlatList, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { OnbHeader, SourceLine, CtaOnb, onb } from '../../src/components/onboarding/extra';
-import { Slide01, Slide02, Slide03, Slide04, Slide05 } from '../../src/components/onboarding/slides';
-import { Slide01A, Slide01B, Slide01C } from '../../src/components/onboarding/slide01-variants';
-import { ITERATIONS, FINAL, LayoutCtx } from '../../src/components/onboarding/iterations';
-import { useLocalSearchParams } from 'expo-router';
+import * as Haptics from 'expo-haptics';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming, FadeIn } from 'react-native-reanimated';
+import { CTAPrimary } from '../../src/components/ui';
+import { Burst } from '../../src/components/motion';
+import { Scene } from '../../src/components/mochi/scene';
+import { Gauges } from '../../src/components/mochi/gauges';
+import { useTokens, type, layout } from '../../src/theme-v3';
 import copy from '../../src/data/copy.json';
-import { colors, space } from '../../src/theme';
-import { dailyGapLabel } from '../../src/demo-onboarding';
-import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';
 
-const t = copy.onboarding;
-const SLIDES = [Slide01, Slide02, Slide03, Slide04, Slide05];
-// propositions pour la slide 01 (14 sept 2026) : ?v=a|b|c
-const VARIANTS = { a: Slide01A, b: Slide01B, c: Slide01C };
-// ligne de source affichée au-dessus du CTA (slides 01 et 03)
-const SOURCES = { 0: t.s1Source, 2: t.s3Source.replace('{daily}', dailyGapLabel()) };
+const t = copy.onbV3;
+const DEMO_TOTAL = 5; // missions du jour de la démo
+const SCENE = [{ stage: 'egg', lvl: 0 }, { stage: 'mini', lvl: 1 }, { stage: 'mochi', lvl: 3 }];
+
+function Dot({ T, on }) {
+  const w = useSharedValue(on ? 28 : 8);
+  useEffect(() => { w.value = withTiming(on ? 28 : 8, { duration: 260 }); }, [on]);
+  const st = useAnimatedStyle(() => ({ width: w.value }));
+  return <Animated.View style={[{ height: 4, borderRadius: 2, backgroundColor: on ? T.ink : T.seg }, st]} />;
+}
 
 export default function Onboarding() {
-  const { v, it, s: startAt, lay = '1' } = useLocalSearchParams(); // lay=1|2|3 : mise en page (captures) // it=a|b|c : itération complète ; s=n : slide de départ (captures)
-  // par défaut : la version finale de Jeanne (14 sept 2026) ; ?it=old pour l'ancien onboarding
-  const slides = it === 'old' ? SLIDES : ITERATIONS[it] ? ITERATIONS[it] : VARIANTS[v] ? [VARIANTS[v], ...SLIDES.slice(1)] : FINAL;
+  const T = useTokens();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const list = useRef(null);
-  const [index, setIndex] = useState(Math.max(0, Math.min(8, Number(startAt) || 0)));
-  const last = index === slides.length - 1;
+  const [index, setIndex] = useState(0);
+  const [energy, setEnergy] = useState(0);
+  const [away, setAway] = useState(false);
+  const [burst, setBurst] = useState(0);
+  const last = index === t.slides.length - 1;
 
-  const finish = useCallback(() => router.replace('/(auth)/login'), []); // compte avant le prénom (13 sept 2026)
+  // la scène joue le slide : 1 → éclosion (burst), la jauge se remplit mission par mission, puis Mochi part en balade
+  useEffect(() => {
+    if (index === 0) { setAway(false); setEnergy(0); return; }
+    if (index === 1) {
+      setAway(false); setEnergy(0); setBurst(b => b + 1);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+      let i = 0;
+      const id = setInterval(() => {
+        i += 1; setEnergy(i); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+        if (i >= DEMO_TOTAL) { clearInterval(id); setTimeout(() => setAway(true), 600); }
+      }, 420);
+      return () => clearInterval(id);
+    }
+    setAway(false); setEnergy(DEMO_TOTAL);
+  }, [index]);
+
+  const finish = useCallback(() => router.replace({ pathname: '/paywall', params: { next: '/(auth)/login' } }), []);
   const next = useCallback(() => {
     if (last) return finish();
     list.current?.scrollToIndex({ index: index + 1, animated: true });
   }, [index, last, finish]);
-
   const onMomentumScrollEnd = useCallback(e => {
     const i = Math.round(e.nativeEvent.contentOffset.x / width);
-    if (i !== index) setIndex(Math.max(0, Math.min(slides.length - 1, i)));
+    if (i !== index) setIndex(Math.max(0, Math.min(t.slides.length - 1, i)));
   }, [width, index]);
 
-  const bottom = Math.max(insets.bottom, 24);
-  const headerH = insets.top + 30; // en-tête fixe : padding 14 + barres/« Passer » ~16
-  const renderItem = useCallback(({ item: Slide, index: i }) => <Slide width={width} headerH={headerH} active={i === index} />, [width, headerH, index]);
+  const sc = SCENE[index];
+  const sceneH = layout.scene + insets.top + 40;
+  const renderItem = useCallback(({ item }) => (
+    <View style={{ width, paddingHorizontal: layout.x, paddingTop: 26 }}>
+      <Text style={[type.name, { color: T.ink }]} numberOfLines={3} adjustsFontSizeToFit minimumFontScale={0.85}>{item.title}</Text>
+      <Text style={[type.sub, { color: T.muted, marginTop: 12, maxWidth: 380 }]}>{item.body}</Text>
+    </View>
+  ), [width, T]);
 
   return (
-    <LayoutCtx.Provider value={String(lay)}>
-    <View style={{ flex: 1, backgroundColor: tk().bg }}>
+    <View style={{ flex: 1, backgroundColor: T.bg }}>
+      <View>
+        <Scene T={T} stage={sc.stage} mood={index === 2 ? 'wink' : undefined} lvl={sc.lvl} away={away} height={sceneH} />
+        {burst ? <View key={burst} pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, top: 0, height: sceneH }}><Burst count={18} colors={[T.accent, T.ok, T.scene.lamp, T.ink]} dist={150} /></View> : null}
+        {!last ? <Pressable onPress={finish} hitSlop={12} style={{ position: 'absolute', top: insets.top + 10, right: layout.x }}><Text style={[type.label, { color: T.ink, opacity: 0.7 }]}>{t.skip}</Text></Pressable> : null}
+      </View>
+      <Animated.View entering={FadeIn.duration(400)}>
+        <Gauges T={T} t={copy.homeV3} energy={{ done: energy, total: DEMO_TOTAL }} hearts={5} formLabel={copy.homeV3.formLabels[5]} />
+      </Animated.View>
+      <View style={{ flexDirection: 'row', gap: 6, paddingHorizontal: layout.x, paddingTop: 22 }}>
+        {t.slides.map((_, i) => <Dot key={i} T={T} on={i === index} />)}
+      </View>
       <FlatList
         ref={list}
-        data={slides}
+        data={t.slides}
         keyExtractor={(_, i) => String(i)}
         renderItem={renderItem}
         extraData={index}
@@ -59,27 +96,13 @@ export default function Onboarding() {
         pagingEnabled
         bounces={false}
         showsHorizontalScrollIndicator={false}
-        initialScrollIndex={Math.max(0, Math.min(slides.length - 1, Number(startAt) || 0))}
         getItemLayout={(_, i) => ({ length: width, offset: width * i, index: i })}
         onMomentumScrollEnd={onMomentumScrollEnd}
         style={{ flex: 1 }}
       />
-
-      {/* en-tête fixe : pagination (5 barres) + « Passer » sur 1-4 */}
-      <View pointerEvents="box-none" style={{ position: 'absolute', top: insets.top, left: 0, right: 0 }}>
-        <OnbHeader step={index + 1} total={slides.length} skipLabel={t.skip} onSkip={finish} showSkip={!last} />
-      </View>
-
-      {/* pied fixe : source (01, 03) + CTA */}
-      {it === 'old' && SOURCES[index] ? (
-        <View pointerEvents="none" style={{ position: 'absolute', bottom: bottom + 54, left: 22, right: 22 }}>
-          <SourceLine>{SOURCES[index]}</SourceLine>
-        </View>
-      ) : null}
-      <View style={{ position: 'absolute', bottom, left: space.screenX, right: space.screenX }}>
-        <CtaOnb label={last ? (it === 'old' ? t.start : copy.onbFinal.start) : t.next} onPress={next} />
+      <View style={{ paddingHorizontal: layout.x, paddingBottom: Math.max(insets.bottom, 16) }}>
+        <CTAPrimary big label={last ? t.start : t.next} onPress={next} />
       </View>
     </View>
-    </LayoutCtx.Provider>
   );
 }

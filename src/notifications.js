@@ -4,6 +4,7 @@
 // jamais au lancement. Phrase d'usage dans app.json.
 // ═══════════════════════════════════════════════════════════════════
 import * as Notifications from 'expo-notifications';
+import copy from './data/copy.json';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({ shouldShowBanner: true, shouldShowList: true, shouldPlaySound: false, shouldSetBadge: false }),
@@ -36,4 +37,23 @@ export async function clearOldNotifications() {
       if (ts < midnight.getTime()) await Notifications.dismissNotificationAsync(n.request.identifier);
     }
   } catch (e) { /* pas de permission ou plateforme sans centre de notifications */ }
+}
+
+// Mochi qu'on élève (4 nov 2026) : au départ en balade, une notification locale à l'heure du retour
+// (seulement si la permission a déjà été donnée au 08 — jamais de demande ici). Reprogrammée par
+// rescheduleReminders (qui annule tout) tant que Mochi est dehors.
+const WALK_ID = 'mochi-walk-return';
+export async function scheduleMochiReturn(date) {
+  try {
+    const { status } = await Notifications.getPermissionsAsync();
+    if (status !== 'granted' || !(date instanceof Date) || date <= new Date()) return false;
+    await Notifications.cancelScheduledNotificationAsync(WALK_ID).catch(() => {});
+    const t = copy.mochiNotifs;
+    await Notifications.scheduleNotificationAsync({
+      identifier: WALK_ID,
+      content: { title: t.walkReturnTitle, body: t.walkReturnBody, data: { mochi: 'walk_return' } },
+      trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date },
+    });
+    return true;
+  } catch (e) { return false; }
 }

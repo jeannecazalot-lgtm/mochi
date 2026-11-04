@@ -56,10 +56,10 @@ export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height =
         ? <><View style={{ position: 'absolute', bottom: fl - 10, alignSelf: 'center', width: 150, height: 14, borderRadius: 7, backgroundColor: c.shadow }} /><View style={{ position: 'absolute', bottom: fl - 4, alignSelf: 'center', width: 92, height: 112, borderRadius: 46, borderTopLeftRadius: 50, borderTopRightRadius: 50, backgroundColor: c.vase }} /></>
         : <>
             <Animated.View pointerEvents="none" style={[{ position: 'absolute', bottom: fl + 10, alignSelf: 'center', width: 64, height: 64, borderRadius: 32, borderWidth: 1.5, borderStyle: 'dashed', borderColor: T.muted, alignItems: 'center', justifyContent: 'center' }, traceStyle]}><Text style={{ fontSize: 22 }}>👣</Text></Animated.View>
-            <Animated.View style={[{ position: 'absolute', bottom: fl - 14, left: 0, right: 0, alignItems: 'center' }, walk]}>
+            <Animated.View entering={ZoomIn.springify().damping(12).stiffness(160)} style={{ position: 'absolute', bottom: fl - 14, left: 0, right: 0 }}><Animated.View style={[{ alignItems: 'center' }, walk]}>
               <View style={{ position: 'absolute', bottom: 2, width: Math.round(W * 1.1), height: 16, borderRadius: 8, backgroundColor: c.shadow }} />
               <LiveMochiImage size={W} lean={0} mood={mood} />
-            </Animated.View>
+            </Animated.View></Animated.View>
           </>}
     </View>
   );

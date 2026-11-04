@@ -1,17 +1,21 @@
-// Écran 37 · Paywall Duo+. Recette : docs/recettes/37-paywall.md
+// Écran 37 · Paywall Mochi+ (v3, 4 nov 2026). Recette : docs/recettes/37-paywall.md + da-v2-mochi-eleve.md
 // Règles Store (CLAUDE.md) : divulgation complète AU-DESSUS du CTA, prix storefront
 // via getOffers() (jamais un chiffre inventé), Restore · Privacy · Terms sous le CTA.
+// `?next=` : paywall doux montré après l'onboarding (fermer ou acheter → va à `next`).
 import React, { useState, useEffect } from 'react';
-import { router } from 'expo-router';
-import { View, Text, Pressable, Linking, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { GlowBg, Card, PillLabel, CTAPrimary } from '../src/components/ui';
-import { LiveMochi } from '../src/components/motion';
-import { RoundButton, CheckDot, LEGAL_URLS } from '../src/components/premium/extra';
+import { router, useLocalSearchParams } from 'expo-router';
+import { View, Text, Pressable, Linking, ScrollView, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as Haptics from 'expo-haptics';
+import Animated, { FadeInDown, useSharedValue, useAnimatedStyle, withSpring, withSequence, withTiming } from 'react-native-reanimated';
+import { CTAPrimary } from '../src/components/ui';
+import { Burst } from '../src/components/motion';
+import { Scene } from '../src/components/mochi/scene';
+import { Label, Num, Hair } from '../src/components/mochi/gauges';
+import { LEGAL_URLS } from '../src/components/premium/extra';
 import { getOffers, purchase, restore } from '../src/purchases';
+import { useTokens, type, layout } from '../src/theme-v3';
 import copy from '../src/data/copy.json';
-import { colors, space, radius, font } from '../src/theme';
-import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 
 const t = copy.paywall;
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
@@ -23,24 +27,47 @@ function trialOf(offer) {
   const unitDays = { DAY: 1, WEEK: 7, MONTH: 30, YEAR: 365 }[ip.periodUnit] || 1;
   return fill(t.trialDays, { n: ip.periodNumberOfUnits * unitDays });
 }
-// équivalent mensuel du prix annuel, dans la devise du storefront
 function perMonthOf(yearly) {
   const p = yearly?.pkg?.product;
   if (!p?.price || !p.currencyCode) return null;
   try { return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: p.currencyCode }).format(p.price / 12); } catch (e) { return null; }
 }
-// mois offerts = 12 − (annuel ÷ mensuel), uniquement si les deux prix sont connus
 function monthsFree(yearly, monthly) {
   const y = yearly?.pkg?.product?.price, m = monthly?.pkg?.product?.price;
   if (!y || !m) return 0;
   return Math.max(0, Math.round(12 - y / m));
 }
 
+// rangée de plan : rond plein quand choisi, prix tabulaire, petit ressort à l'appui
+function Plan({ T, on, label, price, suffix, hint, badge, onPress }) {
+  const sc = useSharedValue(1);
+  const st = useAnimatedStyle(() => ({ transform: [{ scale: sc.value }] }));
+  return (
+    <Pressable onPress={() => { sc.value = withSequence(withTiming(0.97, { duration: 70 }), withSpring(1, { damping: 10, stiffness: 300 })); onPress(); }}>
+      <Animated.View style={[s.plan, { borderColor: on ? T.ink : T.line }, st]}>
+        <View style={{ width: 18, height: 18, borderRadius: 9, borderWidth: 1.5, borderColor: on ? T.ink : T.muted, alignItems: 'center', justifyContent: 'center' }}>{on ? <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: T.ink }} /> : null}</View>
+        <View style={{ flex: 1 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Text style={[type.body, { color: T.ink }]}>{label}</Text>
+            {badge ? <View style={{ paddingHorizontal: 8, paddingVertical: 2, borderRadius: 999, backgroundColor: T.ok }}><Text style={[type.label, { color: T.bg, fontSize: 12 }]}>{badge}</Text></View> : null}
+          </View>
+          {hint ? <Label T={T} style={{ marginTop: 2 }}>{hint}</Label> : null}
+        </View>
+        <Num T={T} style={{ fontSize: 17 }}>{price}<Text style={{ color: T.muted, fontWeight: '500', fontSize: 13.5 }}>{suffix}</Text></Num>
+      </Animated.View>
+    </Pressable>
+  );
+}
+
 export default function Paywall() {
+  const T = useTokens();
+  const insets = useSafeAreaInsets();
+  const { next } = useLocalSearchParams();
   const [offers, setOffers] = useState(null);
   const [plan, setPlan] = useState('yearly');
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState(null);
+  const [burst, setBurst] = useState(false);
   useEffect(() => { getOffers().then(o => setOffers(o)).catch(() => {}); }, []);
 
   const yearly = offers?.find(o => o.id === 'yearly'), monthly = offers?.find(o => o.id === 'monthly');
@@ -55,89 +82,73 @@ export default function Paywall() {
     : fill(t.disclosure, { name: t.title, price: current.priceString, period });
   const ctaLabel = busy ? t.buying : trial ? fill(t.ctaTrial, { trial }) : t.cta;
 
+  const leave = () => { if (next) router.replace(String(next)); else router.back(); };
   const onBuy = async () => {
     setBusy(true); setMsg(null);
     const r = await purchase(plan);
     setBusy(false);
-    if (r.success) router.back();
+    if (r.success) { setBurst(true); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {}); setTimeout(leave, 900); }
     else if (!r.cancelled) setMsg(t.error);
   };
   const onRestore = async () => {
     setBusy(true); setMsg(null);
     const r = await restore();
     setBusy(false);
-    if (r.success) { setMsg(t.restored); setTimeout(() => router.back(), 600); } else setMsg(t.restoreNone);
+    if (r.success) { setMsg(t.restored); setTimeout(leave, 600); } else setMsg(t.restoreNone);
   };
   const open = url => { if (url) Linking.openURL(url).catch(() => {}); };
-
-  const Plan = ({ id, label, offer, suffix, hint, badge, flex }) => {
-    const on = plan === id;
-    return (
-      <Pressable onPress={() => setPlan(id)} style={{ flex }}>
-        <Card padding={0} r={radius.card} accent={on ? tk().ok : undefined} style={{ paddingVertical: 14, paddingHorizontal: 16, overflow: 'visible' }}>
-          {badge ? <View style={s.badge}><PillLabel color={tk().ok}>{badge}</PillLabel></View> : null}
-          <Text style={s.planLabel}>{label}</Text>
-          <Text style={s.price}>{offer ? offer.priceString : t.priceUnavailable}{offer ? <Text style={s.priceSuffix}>{suffix}</Text> : null}</Text>
-          {hint ? <Text style={s.hint}>{hint}</Text> : null}
-        </Card>
-      </Pressable>
-    );
-  };
+  const sceneH = 230 + insets.top;
+  const X = layout.x;
 
   return (
-    <View style={{ flex: 1 }}>
-      <GlowBg intensity="strong" />
-      <SafeAreaView style={{ flex: 1 }}>
-        <View style={s.header}><RoundButton icon="close" size={36} onPress={() => router.back()} label={t.close} /></View>
-
-        <View style={{ alignItems: 'center', marginBottom: 14 }}>
-          <View style={{ marginBottom: 6 }}><LiveMochi size={104} mood="happy" /></View>
-          <Text style={s.title}>{t.title}</Text>
-          <Text style={s.sub}>{t.subtitle}</Text>
+    <View style={{ flex: 1, backgroundColor: T.bg }}>
+      <ScrollView contentContainerStyle={{ paddingBottom: 12 }} showsVerticalScrollIndicator={false} bounces={false}>
+        <View>
+          <Scene T={T} stage="mochi" mood={burst ? 'wink' : undefined} lvl={4} height={sceneH} />
+          {burst ? <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, top: 0, height: sceneH }}><Burst count={18} colors={[T.accent, T.ok, T.scene.lamp, T.ink]} dist={150} /></View> : null}
+          {/* paywall doux (après l'onboarding) : « Plus tard » visible en haut, sinon la croix */}
+          {next
+            ? <Pressable onPress={leave} hitSlop={12} style={{ position: 'absolute', top: insets.top + 10, right: X }}><Text style={[type.label, { color: T.ink, opacity: 0.7 }]}>{t.soft}</Text></Pressable>
+            : <Pressable onPress={leave} hitSlop={12} accessibilityLabel={t.close} style={{ position: 'absolute', top: insets.top + 8, right: X, width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: T.bg, opacity: 0.9 }}><Text style={{ color: T.ink, fontSize: 16, lineHeight: 18 }}>×</Text></Pressable>}
         </View>
 
-        <View style={{ paddingHorizontal: 26, gap: 5, marginBottom: 14 }}>
-          {t.features.map(f => (
-            <View key={f} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-              <CheckDot /><Text style={[font.row, { color: tk().ink }, { color: tk().ink }]}>{f}</Text>
-            </View>
+        <Animated.View entering={FadeInDown.delay(120).duration(320)} style={{ paddingHorizontal: X, paddingTop: 24 }}>
+          <Text style={[type.name, { color: T.ink }]}>{t.title}</Text>
+          <Text style={[type.sub, { color: T.muted, marginTop: 8 }]}>{t.subtitle}</Text>
+        </Animated.View>
+
+        <View style={{ marginHorizontal: X, marginTop: 22 }}>
+          <Hair T={T} />
+          {t.features.map((f, i) => (
+            <Animated.View key={f} entering={FadeInDown.delay(200 + i * 60).duration(300)} style={[s.feature, { borderColor: T.line }]}>
+              <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: i === 0 ? T.accent : T.ok }} />
+              <Text style={[type.body, { color: T.ink, flex: 1 }]}>{f}</Text>
+            </Animated.View>
           ))}
         </View>
 
-        <View style={{ paddingHorizontal: 22, flexDirection: 'row', gap: 8, alignItems: 'stretch' }}>
-          <Plan id="yearly" flex={1.2} label={t.planYearly} offer={yearly} suffix={t.perYear} hint={perMonth ? fill(t.yearlyHint, { price: perMonth }) : null} badge={free > 0 ? fill(t.monthsFree, { n: free }) : null} />
-          <Plan id="monthly" flex={1} label={t.planMonthly} offer={monthly} suffix={t.perMonth} hint={t.monthlyHint} />
+        <View style={{ paddingHorizontal: X, marginTop: 22, gap: 10 }}>
+          <Plan T={T} on={plan === 'yearly'} onPress={() => setPlan('yearly')} label={t.planYearly} price={yearly ? yearly.priceString : t.priceUnavailable} suffix={yearly ? ` ${t.perYear}` : ''} hint={perMonth ? fill(t.yearlyHint, { price: perMonth }) : null} badge={free > 0 ? fill(t.monthsFree, { n: free }) : null} />
+          <Plan T={T} on={plan === 'monthly'} onPress={() => setPlan('monthly')} label={t.planMonthly} price={monthly ? monthly.priceString : t.priceUnavailable} suffix={monthly ? ` ${t.perMonth}` : ''} hint={t.monthlyHint} />
         </View>
 
-        <View style={s.bottom}>
-          {msg ? <Text style={[s.disclosure, { color: tk().accent }]}>{msg}</Text> : null}
-          <Text style={s.disclosure}>{disclosure}</Text>
-          <CTAPrimary label={ctaLabel} onPress={onBuy} disabled={busy} big style={{ alignSelf: 'stretch' }} />
-          <Text style={s.footnote}>{t.footnote}</Text>
-          <View style={{ flexDirection: 'row', gap: 6, alignItems: 'center' }}>
-            <Pressable onPress={onRestore} disabled={busy} hitSlop={6}><Text style={s.link}>{t.restore}</Text></Pressable>
-            <Text style={s.link}>·</Text>
-            <Pressable onPress={() => open(LEGAL_URLS.privacy)} hitSlop={6}><Text style={s.link}>{t.privacy}</Text></Pressable>
-            <Text style={s.link}>·</Text>
-            <Pressable onPress={() => open(LEGAL_URLS.eula)} hitSlop={6}><Text style={s.link}>{t.terms}</Text></Pressable>
+        {/* divulgation complète AU-DESSUS du CTA (Apple 3.1.2) */}
+        <Text style={[type.label, { color: T.muted, lineHeight: 18, paddingHorizontal: X, marginTop: 18 }]}>{disclosure}</Text>
+        <View style={{ paddingHorizontal: X, marginTop: 14 }}>
+          <CTAPrimary big label={ctaLabel} onPress={onBuy} disabled={busy} />
+          {msg ? <Text style={[type.label, { color: T.accent, textAlign: 'center', marginTop: 10 }]}>{msg}</Text> : null}
+          <View style={{ flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', gap: 14, marginTop: 14 }}>
+            <Pressable onPress={onRestore} disabled={busy} hitSlop={8}><Text style={[type.label, { color: T.muted }]}>{t.restore}</Text></Pressable>
+            <Pressable onPress={() => open(LEGAL_URLS.privacy)} hitSlop={8}><Text style={[type.label, { color: T.muted }]}>{t.privacy}</Text></Pressable>
+            <Pressable onPress={() => open(LEGAL_URLS.eula)} hitSlop={8}><Text style={[type.label, { color: T.muted }]}>{t.terms}</Text></Pressable>
           </View>
         </View>
-      </SafeAreaView>
+      </ScrollView>
     </View>
   );
 }
 
-const s = v3Styles(T => StyleSheet.create({
-  header: { paddingTop: 14, paddingHorizontal: space.headerX, alignItems: 'flex-end' },
-  title: { fontSize: 22, fontWeight: '600', letterSpacing: -1.2, lineHeight: 23, color: T.ink },
-  sub: { fontSize: 14.5, fontWeight: '400', color: T.muted, marginTop: 6 },
-  badge: { position: 'absolute', top: -9, left: 14, zIndex: 1 },
-  planLabel: { fontSize: 13, fontWeight: '500', color: T.muted, marginTop: 4 },
-  price: { fontSize: 20, fontWeight: '700', letterSpacing: -0.8, color: T.ink, marginTop: 3, fontVariant: ['tabular-nums'] },
-  priceSuffix: { fontSize: 14, fontWeight: '500', letterSpacing: 0, color: T.muted },
-  hint: { fontSize: 12, fontWeight: '400', color: T.muted },
-  bottom: { position: 'absolute', left: space.screenX, right: space.screenX, bottom: 26, alignItems: 'center', gap: 10 },
-  disclosure: { fontSize: 12, fontWeight: '400', color: T.muted, textAlign: 'center', lineHeight: 16 },
-  footnote: { fontSize: 13, fontWeight: '400', color: T.muted },
-  link: { fontSize: 12, fontWeight: '500', color: T.muted },
-}));
+const s = StyleSheet.create({
+  feature: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 13, borderBottomWidth: StyleSheet.hairlineWidth },
+  plan: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14, paddingHorizontal: 16, borderRadius: 16, borderWidth: 1.5 },
+});

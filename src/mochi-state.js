@@ -12,6 +12,7 @@ import { setup, loadSetup, thresholdsOf } from './setup-state';
 import { getUid } from './identity';
 import { localIso, addDaysIso } from './dates';
 import { weekStartIso } from './malus-actions';
+import { scheduleMochiReturn } from './notifications';
 import items from './data/mochi-items.json';
 
 export const STAGES = ['egg', 'mini', 'mochi', 'maxi', 'dore'];
@@ -92,6 +93,7 @@ export async function checkWalk() {
   await event('walk_start', { actor_id: null, payload: { kind: 'full' } });
   await event('pearls', { actor_id: null, payload: { delta: PEARLS.walk, reason: 'journee_pleine' } });
   await patch({ pearls: (m.pearls || 0) + PEARLS.walk, walk_status: 'away', walk_started_at: new Date(t).toISOString(), walk_returns_at: new Date(t + WALK_MS).toISOString() });
+  scheduleMochiReturn(new Date(t + WALK_MS)).catch(() => {});
   return true;
 }
 // ── retour : un souvenir du lieu débloqué par le stade (jamais deux fois le même) ──────────
