@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import { View, Text, StyleSheet } from 'react-native';
+import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+import { Burst } from '../src/components/motion';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CTAPrimary } from '../src/components/ui';
 import { Scene } from '../src/components/mochi/scene';
@@ -47,18 +49,18 @@ export default function Moment() {
   };
   return (
     <View style={{ flex: 1, backgroundColor: T.bg }}>
-      <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><Scene T={T} stage={stageAfter} mood={T.night ? 'sleeping' : 'wink'} lvl={lvl} height={layout.scene + 60} /></View>
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><Scene T={T} stage={stageAfter} mood={T.night ? 'sleeping' : 'wink'} lvl={lvl} height={layout.scene + 60} />{ev.type !== 'walk_return' ? <View style={{ position: 'absolute', left: 0, right: 0, top: 0, height: layout.scene + 60 }}><Burst count={18} colors={[T.accent, T.ok, T.scene.lamp, T.ink]} dist={150} delay={200} /></View> : null}</View>
       <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
         <View style={{ height: Math.max(8, layout.scene + 60 + 8 - insets.top) }} />
         <View style={{ paddingHorizontal: layout.x, paddingTop: 28 }}>
-          <Label T={T}>{fill(t.kicker, { time: fmtTime(ev.created_at) })}</Label>
+          <Animated.View entering={FadeInDown.delay(200).duration(320)}><Label T={T}>{fill(t.kicker, { time: fmtTime(ev.created_at) })}</Label>
           <Text style={[type.name, { color: T.ink, marginTop: 8 }]}>{title}</Text>
-          <Text style={[type.sub, { color: T.muted, marginTop: 10, maxWidth: 360 }]}>{sub}</Text>
+          <Text style={[type.sub, { color: T.muted, marginTop: 10, maxWidth: 360 }]}>{sub}</Text></Animated.View>
           {ev.type === 'walk_return' ? (
-            <View style={[s.pearls, { borderColor: T.line }]}>
+            <Animated.View entering={FadeInUp.delay(500).springify().damping(16)} style={[s.pearls, { borderColor: T.line }]}>
               <View style={{ flex: 1 }}>{souvenir ? <><Text style={[type.section, { color: T.ink }]}>{souvenir.label}</Text><Label T={T} style={{ marginTop: 2 }}>{items.places[souvenir.place]}</Label></> : <Label T={T}>{items.places[ev.payload?.place] || ''}</Label>}</View>
               <Num T={T} style={{ color: T.accent }}>{fill(t.pearls, { n: PEARLS.walk })}</Num>
-            </View>
+            </Animated.View>
           ) : null}
         </View>
         <View style={{ flex: 1 }} />

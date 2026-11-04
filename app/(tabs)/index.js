@@ -7,7 +7,7 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { LinearTransition, FadeInDown, Easing } from 'react-native-reanimated';
-import { Animated } from '../../src/components/motion';
+import { Animated, Confetti } from '../../src/components/motion';
 import { Avatar, CTAPrimary } from '../../src/components/ui';
 import { Icon, ICON, RoundButton } from '../../src/components/core/extra';
 import { Scene } from '../../src/components/mochi/scene';
@@ -66,6 +66,8 @@ export default function Home() {
   const [energy, setEnergy] = useState({ done: 0, total: 0 });
   const [lvl, setLvl] = useState(1);
   const [checkedIn, setCheckedIn] = useState(true); // ligne check-in masquée tant qu'on ne sait pas
+  const [party, setParty] = useState(false); // confettis quand la jauge se remplit
+  const [demoAway, setDemoAway] = useState(false); // en démo : Mochi part quand tout est coché
   const data = useRef({ occs: [], byId: {} });
   const shown = useRef(false); // moments plein écran : une seule ouverture par montage
   const [availH, setAvailH] = useState(0); const [topH, setTopH] = useState(0); const [headH, setHeadH] = useState(0); const [gh, setGh] = useState({});
@@ -125,14 +127,23 @@ export default function Home() {
   const allDone = list.length > 0 && remaining.length === 0;
   const lateLeft = late.filter(v => !missionDone.has(v.id));
   const m = mochi || DEMO_MOCHI;
-  const away = m.walk_status === 'away';
+  const away = m.walk_status === 'away' || demoAway;
   const hearts = m.hearts ?? 5;
   const day = m.hatched_at ? Math.max(1, Math.floor((Date.now() - Date.parse(m.hatched_at)) / 86400e3) + 1) : 0;
   const mood = T.night || hearts <= 1 ? 'sleeping' : hearts === 2 ? 'sad' : hearts === 3 ? 'neutral' : undefined;
   const en = real ? energy : { done: list.length - remaining.length, total: list.length };
+  const full = en.total > 0 && en.done >= en.total;
+  useEffect(() => {
+    if (!full || vms === null) return;
+    setParty(true); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+    const a = setTimeout(() => { if (!real) setDemoAway(true); }, 900);
+    const b = setTimeout(() => setParty(false), 1800);
+    return () => { clearTimeout(a); clearTimeout(b); };
+  }, [full]);
+  useEffect(() => { if (!full && demoAway) setDemoAway(false); }, [full]);
   const line = vms === null ? ' '
     : m.stage === 'egg' ? (partner?.first_name && isJoiner() === false && !anyOcc ? fill(t.eggWait, { name: partner.first_name }) : t.egg)
-    : away ? fill(t.away, { time: m.walk_returns_at ? fmtTime(m.walk_returns_at) : '…' })
+    : away ? fill(t.away, { time: fmtTime(m.walk_returns_at || new Date(Date.now() + 2 * 3600e3).toISOString()) })
     : hearts <= 1 ? t.sick
     : T.night ? t.night
     : en.total > 0 && en.done >= en.total ? t.allDone
@@ -142,7 +153,7 @@ export default function Home() {
 
   return (
     <View style={{ flex: 1, backgroundColor: T.bg }}>
-      <Pressable onPress={() => router.push('/chambre')} style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><Scene T={T} stage={m.stage} mood={mood} lvl={lvl} away={away} /></Pressable>
+      <Pressable onPress={() => router.push('/chambre')} style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><Scene T={T} stage={m.stage} mood={mood} lvl={lvl} away={away} />{party ? <Confetti count={32} colors={[T.accent, T.ok, T.scene.lamp, T.ink]} /> : null}</Pressable>
       <SafeAreaView style={{ flex: 1 }} edges={['top']} pointerEvents="box-none">
         <View style={{ flex: 1, overflow: 'hidden' }} pointerEvents="box-none" onLayout={e => setAvailH(e.nativeEvent.layout.height)}>
           <View pointerEvents="box-none" onLayout={e => setTopH(e.nativeEvent.layout.height)}>

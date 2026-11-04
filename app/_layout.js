@@ -56,7 +56,9 @@ const s = StyleSheet.create({
   badgeTxt: { color: colors.card, fontSize: 10, fontWeight: '600', letterSpacing: 0.3, fontVariant: ['tabular-nums'] },
 });
 
+import { useTokens } from '../src/theme-v3';
 export default function RootLayout() {
+  const T = useTokens(); const sheetV3 = { ...sheet, contentStyle: { backgroundColor: T.bg } }; // sheets de la DA v3 : fond jour / nuit
   // identité réelle (prénom + photo du profil Supabase) chargée dès la racine
   // le binôme (prénom/photo) se charge aussi à la racine : une arrivée directe (notification,
   // lien) sans passer par l'Accueil affichait encore le prénom de démo (audit 8 sept 2026)
@@ -87,7 +89,7 @@ export default function RootLayout() {
         <Stack.Screen name="wrapped" options={full} />
         <Stack.Screen name="celebration" options={full} />
         <Stack.Screen name="moment" options={full} />
-        <Stack.Screen name="checkin" options={full} />
+        <Stack.Screen name="checkin" options={sheetV3} />
         <Stack.Screen name="chambre" options={{ presentation: 'card' }} />{/* Mochi qu'on élève : éclosion, retour de balade, palier */}
         <Stack.Screen name="plan" />
       </Stack>
