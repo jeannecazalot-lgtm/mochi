@@ -16,6 +16,8 @@ import { read, pull, mutate, uuid } from '../../src/store';
 import { logActivity } from '../../src/activity-actions';
 import { pushToPartner } from '../../src/push';
 import * as Haptics from 'expo-haptics';
+import Animated, { FadeInDown, LinearTransition } from 'react-native-reanimated';
+import { mochiReact } from '../../src/components/mochi-img';
 import { loadSetup, setup, inRealMode } from '../../src/setup-state';
 import { getUid, getPartnerUid, loadIdentity, useIdentity } from '../../src/identity';
 import copy from '../../src/data/copy.json';
@@ -97,7 +99,7 @@ export default function Budget() {
     const puid = getPartnerUid();
     const from = owes.who === me.id ? real.uid : puid, to = owes.to === me.id ? real.uid : puid;
     if (!from || !to) return;
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {}); mochiReact();
     await mutate('settlements', { id: uuid(), household_id: real.hid, from_user: from, to_user: to, amount_cents: owes.cents, settled_at: new Date().toISOString() });
     const vars = { amount: fmtMoney(owes.cents) };
     logActivity({ type: 'ping', preset_key: 'settled', payload: vars }).catch(() => {});
@@ -159,7 +161,8 @@ export default function Budget() {
             {rows.map((e, i) => {
               const payer = byId(e.paid_by);
               return (
-                <Pressable key={e.id} onPress={real ? () => router.push(`/depense?id=${e.id}`) : undefined} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 * layout.air, borderTopWidth: i ? StyleSheet.hairlineWidth : 0, borderColor: T.line }}>
+                <Animated.View key={e.id} entering={i < 10 ? FadeInDown.delay(i * 30).duration(240) : undefined} layout={LinearTransition.duration(240)}>
+                <Pressable onPress={real ? () => router.push(`/depense?id=${e.id}`) : undefined} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 * layout.air, borderTopWidth: i ? StyleSheet.hairlineWidth : 0, borderColor: T.line }}>
                   <Text style={{ fontSize: 17 }}>{e.emoji}</Text>
                   <View style={{ flex: 1, minWidth: 0 }}>
                     <Text style={[type.body, { color: T.ink }]} numberOfLines={1}>{e.title}{e.via_task || e._viaTitle ? <Text style={{ color: T.muted }}> · {t.viaTask.toLowerCase()}</Text> : null}</Text>
@@ -168,6 +171,7 @@ export default function Budget() {
                   <Num T={T}>{fmtMoney(e.amount_cents)}</Num>
                   <Avatar initial={payer.initial} color={payer.color} photo={payer.avatar_url} size={24} />
                 </Pressable>
+                </Animated.View>
               );
             })}
             {real && rows.length === 0 ? null : <Label T={T} style={{ marginTop: 14, textAlign: 'center' }}>{t.hint}</Label>}

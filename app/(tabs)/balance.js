@@ -10,7 +10,7 @@ import { useTokens, type, layout } from '../../src/theme-v3';
 import { frameFor, MOCHI_RATIO } from '../../src/components/mochi-img';
 import { members, me, partner, taskById, fmtMin } from '../../src/demo';
 import { shares, balanceState, weekInfo, malusItems, dayMinutes } from '../../src/demo-balance';
-import { missionDone, occStore } from '../../src/demo-core';
+import { missionDone, occStore, weekDays } from '../../src/demo-core';
 import { read } from '../../src/store';
 import { loadSetup, setup, inRealMode } from '../../src/setup-state';
 import { getUid, useIdentity } from '../../src/identity';
@@ -39,10 +39,11 @@ export default function Balance() {
   const [planned, setPlanned] = useState(null);
   const [missed, setMissed] = useState([]);
   const [mochi, setMochi] = useState(null);
+  const [retain, setRetain] = useState(null); // ressenti vs réel : { pct, moods: { iso: 1|2|3 } }
   useEffect(() => {
     (async () => {
       await loadSetup();
-      if (!inRealMode()) { setMochi(DEMO_MOCHI); return; }
+      if (!inRealMode()) { setMochi(DEMO_MOCHI); const wk = weekDays(new Date()).map(localIso); setRetain({ pct: 80, moods: { [wk[0]]: 1, [wk[1]]: 2, [wk[2]]: 3, [wk[3]]: 2, [wk[4]]: 1 } }); return; }
       await sweepMissed().catch(() => {});
       const [occs, tasks] = await Promise.all([read('occurrences'), read('tasks')]);
       setReal(computeRealBalance(occs, getUid()));
@@ -53,6 +54,13 @@ export default function Balance() {
       for (const o of occs) { if (o.status === 'skipped' || o.due_date < from || o.due_date > to) continue; const min = o.duration_min || byTask[o.task_id]?.duration_min || 15; if (!o.assignee_id) pl.both += min; else if (o.assignee_id === uid) pl.me += min; else pl.partner += min; }
       setPlanned(pl);
       setMissed(await weekMalus().catch(() => []));
+      // ce que Mochi en retient : mes missions dues cette semaine (jusqu'à aujourd'hui) faites, et mon ressenti par jour
+      const today = localIso();
+      const mineDue = occs.filter(o => o.status !== 'skipped' && o.due_date >= from && o.due_date <= Math.min(to, today) && (!o.assignee_id || o.assignee_id === uid));
+      const cks = await read('mochi_checkins').catch(() => []);
+      const moods = {};
+      for (const c of cks) { if (c.user_id !== uid || c.day < from || c.day > to) continue; if (c.moment === 'morning' || !moods[c.day]) moods[c.day] = c.mood; }
+      setRetain({ pct: mineDue.length ? Math.round((mineDue.filter(o => o.status === 'done').length / mineDue.length) * 100) : null, moods });
       setMochi(await getMochi());
     })();
   }, [occV, mochiV]);
@@ -72,6 +80,10 @@ export default function Balance() {
     ? missed.filter(x => x.occurrence_id).map(x => ({ id: x.id, emoji: x.task_emoji, title: x.task_title || '…', sub: fill(t.missedSub, { who: x.user_id === getUid() ? t.missedMe : partner.first_name, n: x.due_date ? Math.max(1, Math.round((new Date(localIso()) - new Date(x.due_date)) / 86400000)) : 1 }) }))
     : malusItems.map(x => { const task = taskById(x.task_id); return { id: x.id, emoji: task?.emoji, title: task?.title, sub: fill(t.missedSub, { who: t.missedMe, n: x.times || 1 }) }; });
   const X = layout.x, A = layout.air;
+  const weekIsos = useMemo(() => weekDays(new Date()).map(localIso), []);
+  const moodColor = v => (v === 1 ? T.accent : v === 3 ? T.ok : v === 2 ? T.muted : T.seg);
+  const heavyDays = weekIsos.filter(iso => retain?.moods?.[iso] === 1).length;
+  const retainLine = retain && retain.pct != null ? fill(copy.checkin.retain, { pct: retain.pct, days: copy.checkin.days[heavyDays] }) : null;
 
   return (
     <View style={{ flex: 1, backgroundColor: T.bg }}>
@@ -119,8 +131,21 @@ export default function Balance() {
                 <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                   <Label T={T} style={{ width: 16, textAlign: 'center' }}>{d.d}</Label>
                   <View style={{ flex: 1 }}><Split T={T} height={6} parts={members.map(mm => ({ ratio: total ? (d.by[mm.id] || 0) / total : 0, color: mm.color }))} /></View>
+                  <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: moodColor(retain?.moods?.[weekIsos[i]]) }} />
                 </View>); })}
             </View>
+            <Label T={T} style={{ marginTop: 10 }}>{t.moodLegend}</Label>
+          </View>
+          {/* ressenti vs réel : ce que Mochi en retient (décision 3 nov 2026, retiré de la sheet check-in) */}
+          <View style={{ marginHorizontal: X, marginTop: 18 * A, borderTopWidth: StyleSheet.hairlineWidth, borderColor: T.line, paddingTop: 16 * A }}>
+            <Text style={[type.section, { color: T.ink }]}>{copy.checkin.retainTitle}</Text>
+            {retainLine ? (
+              <View style={{ flexDirection: 'row', gap: 13, marginTop: 12 }}>
+                <View style={{ flex: 1 }}><Label T={T}>{copy.checkin.done}</Label><CountUp value={retain.pct} format={v => `${Math.round(v)} %`} style={{ fontSize: 30, fontWeight: '600', letterSpacing: -1.2, color: T.ink, fontVariant: ['tabular-nums'], marginTop: 2 }} /></View>
+                <View style={{ flex: 1 }}><Label T={T}>{copy.checkin.felt}</Label><Text style={{ fontSize: 30, fontWeight: '600', letterSpacing: -1.2, color: heavyDays ? T.accent : T.ink, fontVariant: ['tabular-nums'], marginTop: 2 }}>{copy.checkin.days[heavyDays]}</Text></View>
+              </View>
+            ) : null}
+            <Text style={[type.sub, { color: T.muted, marginTop: 10 }]}>{retainLine || copy.checkin.subNone.replace('{name}', partner.first_name)}</Text>
           </View>
 
           {/* ratées = cœurs perdus */}

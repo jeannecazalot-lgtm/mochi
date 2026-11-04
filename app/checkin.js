@@ -53,7 +53,7 @@ export default function Checkin() {
   const save = async () => {
     if (!mood) return;
     setBurst(true); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-    checkin(mood, moment).catch(() => {}); demoFlags.checkin[moment] = true; mochiStore.bump();
+    checkin(mood, moment).catch(() => {}); demoFlags.checkin[moment] = mood; mochiStore.bump();
     setTimeout(() => router.back(), 750);
   };
   const X = layout.x;

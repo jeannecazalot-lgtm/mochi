@@ -20,6 +20,7 @@ import { deleteRealTask } from '../src/task-actions';
 import { sendPing } from '../src/activity-actions';
 import { requestSwap } from '../src/swap-actions';
 import { missionDone } from '../src/demo-core';
+import { mochiReact } from '../src/components/mochi-img';
 import { me, partner, fmtMin } from '../src/demo';
 import { fmtWeekday } from '../src/demo-task';
 import { localIso } from '../src/dates';
@@ -113,6 +114,7 @@ export default function Mission() {
     if (done) return;
     setDone(true);
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+    mochiReact(); // la créature réagit, même depuis la sheet (Accueil dessous)
     missionDone.set(m.occ.id, true);
     setTiming(true);
   };

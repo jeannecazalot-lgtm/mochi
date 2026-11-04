@@ -66,6 +66,7 @@ export default function Home() {
   const [energy, setEnergy] = useState({ done: 0, total: 0 });
   const [lvl, setLvl] = useState(1);
   const [checkedIn, setCheckedIn] = useState(true); // ligne check-in masquée tant qu'on ne sait pas
+  const [myMood, setMyMood] = useState(null); // mon check-in du jour (1 chargé·e, 2 ça va, 3 léger·ère)
   const [party, setParty] = useState(false); // confettis quand la jauge se remplit
   const [demoAway, setDemoAway] = useState(false); // en démo : Mochi part quand tout est coché
   const data = useRef({ occs: [], byId: {} });
@@ -77,7 +78,7 @@ export default function Home() {
   useEffect(() => {
     (async () => {
       await loadSetup();
-      if (!inRealMode()) { setVms(demoVms()); setMochi(DEMO_MOCHI); setLvl(2); setEnergy({ done: 0, total: 0 }); setCheckedIn(!!demoFlags.checkin[T.night ? 'evening' : 'morning']); return; }
+      if (!inRealMode()) { setVms(demoVms()); setMochi(DEMO_MOCHI); setLvl(2); setEnergy({ done: 0, total: 0 }); const dm = demoFlags.checkin[T.night ? 'evening' : 'morning']; setCheckedIn(!!dm); setMyMood(dm || null); return; }
       const [occs, tasks, inv, cks] = await Promise.all([read('occurrences'), read('tasks'), read('mochi_inventory'), read('mochi_checkins')]);
       if (setup.householdId && occs.some(o => !tasks.some(tk => tk.id === o.task_id))) healMissingTasks(setup.householdId).then(ok => { if (ok) occStore.bump(); }).catch(() => {});
       const byId = Object.fromEntries(tasks.map(tk => [tk.id, tk]));
@@ -85,7 +86,8 @@ export default function Home() {
       const today = localIso();
       await loadIdentity();
       const uid = getUid();
-      setCheckedIn(cks.some(c => c.user_id === uid && c.day === today && c.moment === (T.night ? 'evening' : 'morning')));
+      const myCk = cks.find(c => c.user_id === uid && c.day === today && c.moment === (T.night ? 'evening' : 'morning'));
+      setCheckedIn(!!myCk); setMyMood(myCk?.mood || null);
       const mine = o => !uid || !o.assignee_id || o.assignee_id === uid;
       const todays = occs.filter(o => isLive(o) && o.due_date === today && mine(o));
       setReal(true); setAnyOcc(occs.length > 0); setNoTask(tasks.length === 0);
@@ -130,7 +132,9 @@ export default function Home() {
   const away = m.walk_status === 'away' || demoAway;
   const hearts = m.hearts ?? 5;
   const day = m.hatched_at ? Math.max(1, Math.floor((Date.now() - Date.parse(m.hatched_at)) / 86400e3) + 1) : 0;
-  const mood = T.night || hearts <= 1 ? 'sleeping' : hearts === 2 ? 'sad' : hearts === 3 ? 'neutral' : undefined;
+  // quand je me sens pas bien, Mochi le montre (retour Jeanne 4 nov 2026) : tête neutre + phrase, avant tout le reste
+  const heavy = myMood === 1 && !away && hearts > 1 && m.stage !== 'egg';
+  const mood = T.night || hearts <= 1 ? 'sleeping' : hearts === 2 ? 'sad' : hearts === 3 || heavy ? 'neutral' : undefined;
   const en = real ? energy : { done: list.length - remaining.length, total: list.length };
   const full = en.total > 0 && en.done >= en.total;
   useEffect(() => {
@@ -145,6 +149,7 @@ export default function Home() {
     : m.stage === 'egg' ? (partner?.first_name && isJoiner() === false && !anyOcc ? fill(t.eggWait, { name: partner.first_name }) : t.egg)
     : away ? fill(t.away, { time: fmtTime(m.walk_returns_at || new Date(Date.now() + 2 * 3600e3).toISOString()) })
     : hearts <= 1 ? t.sick
+    : heavy ? t.heavy
     : T.night ? t.night
     : en.total > 0 && en.done >= en.total ? t.allDone
     : en.total - en.done === 1 ? t.remainingOne

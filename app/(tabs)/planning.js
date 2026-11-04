@@ -7,7 +7,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import { View, Text, Pressable, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useSharedValue, useAnimatedStyle, withSpring, withTiming, Easing } from 'react-native-reanimated';
+import { useSharedValue, useAnimatedStyle, withSpring, withTiming, Easing, FadeInDown, LinearTransition } from 'react-native-reanimated';
+import { mochiReact } from '../../src/components/mochi-img';
 import { Avatar } from '../../src/components/ui';
 import { useTokens, type, layout } from '../../src/theme-v3';
 import { Label, Check } from '../../src/components/mochi/gauges';
@@ -248,6 +249,7 @@ export default function Planning() {
     })();
   }, [occV, ident]);
   const toggleOcc = id => {
+    if (!missionDone.has(id)) mochiReact();
     const nowDone = !missionDone.has(id);
     missionDone.toggle(id);
     toggleOccurrence(String(id), nowDone).catch(() => {}); // minutes = durée estimée
@@ -330,11 +332,11 @@ export default function Planning() {
             </View>
             <ScrollView ref={scrollRef} onScroll={onScroll} scrollEventThrottle={48} contentContainerStyle={{ paddingHorizontal: space.screenX, paddingBottom: 16 }} showsVerticalScrollIndicator={false}>
               {realGroups
-                ? shownGroups.map(g => (
-                  <View key={g.iso} style={{ marginBottom: 11 }} onLayout={e => { groupY.current[g.iso] = e.nativeEvent.layout.y; }}>
+                ? shownGroups.map((g, gi) => (
+                  <Animated.View key={g.iso} entering={gi < 8 ? FadeInDown.delay(gi * 40).duration(260) : undefined} layout={LinearTransition.duration(240)} style={{ marginBottom: 11 }} onLayout={e => { groupY.current[g.iso] = e.nativeEvent.layout.y; }}>
                     <Label T={T} style={[s.groupLabel, { color: g.late ? T.accent : T.ink, fontWeight: '600' }]}>{g.late ? t.lateGroup : fmtDayLabel(g.date)}{g.iso === todayIso ? ` · ${t.todaySuffix}` : ''}</Label>
                     {g.items.map(vm => <RealRow key={vm.id} T={T} vm={vm} onToggle={() => toggleOcc(vm.id)} />)}
-                  </View>
+                  </Animated.View>
                 ))
                 : shownGroups.map(g => (
                   <View key={g.date.getTime()} style={{ marginBottom: 11 }} onLayout={e => { groupY.current[g.iso] = e.nativeEvent.layout.y; }}>

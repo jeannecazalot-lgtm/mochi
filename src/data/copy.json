@@ -2042,7 +2042,8 @@
       "metaOne": "singulier",
       "allDoneMeta": "tout fait",
       "empty": "Liste vide",
-      "roomA11y": "Accessibilité : tap sur la scène"
+      "roomA11y": "Accessibilité : tap sur la scène",
+      "heavy": "Phrase quand j'ai dit « chargé·e » au check-in du jour"
     },
     "pearls": "{n} perles",
     "stagePill": "Jour {day} · palier {k}",
@@ -2071,7 +2072,8 @@
     "metaOne": "1 restante · {time}",
     "allDoneMeta": "tout est fait",
     "empty": "Rien de prévu aujourd'hui.",
-    "roomA11y": "Ouvrir la pièce de Mochi"
+    "roomA11y": "Ouvrir la pièce de Mochi",
+    "heavy": "Tu as dit que c'était chargé. Mochi reste près de toi aujourd'hui."
   },
   "moments": {
     "_labels": {
@@ -2117,7 +2119,8 @@
       "missedSub": "({who}, {n} jours)",
       "missedMe": "Toi",
       "heartCost": "Coût d'une ratée",
-      "detail": "Lien détail"
+      "detail": "Lien détail",
+      "moodLegend": "Légende des points d'humeur sur les 7 jours"
     },
     "title": "Balance",
     "week": "Sem. {n} · {range}",
@@ -2134,7 +2137,8 @@
     "missedSub": "{who} · depuis {n} j",
     "missedMe": "Toi",
     "heartCost": "− 1 cœur",
-    "detail": "Voir le détail"
+    "detail": "Voir le détail",
+    "moodLegend": "Point à droite : ton ressenti du jour"
   },
   "checkin": {
     "_labels": {
