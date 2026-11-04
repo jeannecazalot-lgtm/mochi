@@ -36,7 +36,7 @@ export default function TabBar({ state, navigation, onFab }) {
         const c = on ? T.ink : T.muted;
         return (
           <Pressable key={name} onPress={() => navigation.navigate(name)} style={s.tab}>
-            <Svg width={21} height={21} viewBox="0 0 24 24" fill="none"><Path d={ICONS[name]} stroke={c} strokeWidth={on ? 1.9 : 1.6} strokeLinecap="round" strokeLinejoin="round" /></Svg>
+            <Svg width={21} height={21} viewBox="0 0 24 24" fill="none"><Path d={ICONS[name]} stroke={c} strokeWidth={on ? 2.1 : 1.9} strokeLinecap="round" strokeLinejoin="round" /></Svg>
             <Text style={{ fontSize: 11, color: c, fontWeight: on ? '600' : '400' }}>{LABELS[name]}</Text>
           </Pressable>
         );

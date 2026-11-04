@@ -72,7 +72,7 @@ export function CheckDot() {
 export function SettingRow({ emoji, title, sub, onPress, right, disabled }) {
   const inner = (
     <View style={s.setting}>
-      <TaskIcon emoji={emoji} size={21} />
+      <TaskIcon emoji={emoji} size={19} image={false} />
       <View style={{ flex: 1 }}>
         <Text style={s.settingTitle}>{title}</Text>
         {sub ? <Text style={s.settingSub}>{sub}</Text> : null}

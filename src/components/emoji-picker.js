@@ -15,11 +15,11 @@ export function EmojiPicker({ value, onChange, choices = TASK_EMOJIS, size = 46 
   return (
     <View>
       <Pressable onPress={() => setOpen(o => !o)} style={[s.tile, { width: size, height: size, borderRadius: size * 0.3 }, open && { borderColor: tk().ink }]}>
-        <TaskIcon emoji={value || choices[0]} size={size * 0.5} />
+        <TaskIcon emoji={value || choices[0]} size={size * 0.5} pad={false} />
       </Pressable>
       {open ? (
         <View style={s.row}>
-          {choices.map(e => <Pressable key={e} onPress={() => { onChange(e); setOpen(false); }} style={[s.btn, e === value && { backgroundColor: tk().seg }]}><TaskIcon emoji={e} size={22} /></Pressable>)}
+          {choices.map(e => <Pressable key={e} onPress={() => { onChange(e); setOpen(false); }} style={[s.btn, e === value && { backgroundColor: tk().seg }]}><TaskIcon emoji={e} size={20} pad={false} /></Pressable>)}
         </View>
       ) : null}
     </View>

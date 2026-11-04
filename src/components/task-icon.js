@@ -2,7 +2,7 @@
 // Traits fins 1,8 comme la tab bar (DA v3 « l'instrument »), couleur encre. Les données gardent la colonne
 // `emoji` (clé) : chaque emoji connu a son icône, un emoji inconnu tombe sur l'icône générique.
 import React from 'react';
-import { View } from 'react-native';
+import { View, Image } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { useTokens } from '../theme-v3';
 
@@ -61,13 +61,24 @@ const BY_EMOJI = {
   '💶': 'coins', '💸': 'coins', '💰': 'coins', '💡': 'bulb', '🔑': 'key', '📞': 'phone', '🩺': 'stetho', '🏠': 'home', '🏡': 'home', '🎂': 'cake', '✈️': 'plane', '✈': 'plane',
   '🎉': 'party', '🎓': 'grad', '💍': 'ring', '🎭': 'mask', '⚽': 'ball', '👤': 'user', '🔔': 'bell', '⚖️': 'balance', '⚖': 'balance', '🌙': 'moon', '💳': 'card', '🗺': 'map', '🗺️': 'map', '🍡': 'mochi', '☕': 'dish', '🎟️': 'party', '🎟': 'party', '✅': 'list', '📞': 'phone',
 };
+// décision Jeanne 4 nov 2026 : D = images dans la matière de Mochi (ChatGPT) pour ce qui se fait ; les clés sans image
+// tombent sur le trait (B : trait sur pastille) en attendant leur lot. Metro : pas de require dynamique → table explicite.
+export const IMG = {
+  dish: require('../../assets/icones/dish.png'), cart: require('../../assets/icones/cart.png'), basket: require('../../assets/icones/basket.png'),
+  broom: require('../../assets/icones/broom.png'), trash: require('../../assets/icones/trash.png'), calendar: require('../../assets/icones/calendar.png'),
+};
+export const keyFor = emoji => BY_EMOJI[String(emoji || '').trim()] || (ICONS[emoji] ? emoji : 'generic');
 export const iconFor = emoji => ICONS[BY_EMOJI[String(emoji || '').trim()] || (ICONS[emoji] ? emoji : 'generic')];
 
-export function TaskIcon({ emoji, icon, size = 20, color, sw = 1.7, style }) {
+// `pad` : pastille douce derrière le trait (B) ; les images n'ont pas de pastille (elles ont leur propre volume)
+export function TaskIcon({ emoji, icon, size = 20, color, sw = 1.9, style, pad = true, image = true }) {
   const T = useTokens();
-  const d = icon ? ICONS[icon] : iconFor(emoji);
+  const key = icon || keyFor(emoji);
+  if (image && IMG[key]) return <Image source={IMG[key]} style={[{ width: size + 16, height: size + 16 }, style]} resizeMode="contain" accessibilityIgnoresInvertColors />;
+  const d = ICONS[key] || ICONS.generic;
+  const box = pad ? size + 16 : size;
   return (
-    <View style={[{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }, style]}>
+    <View style={[{ width: box, height: box, borderRadius: box / 2, backgroundColor: pad ? T.seg : 'transparent', alignItems: 'center', justifyContent: 'center' }, style]}>
       <Svg width={size} height={size} viewBox="0 0 24 24" fill="none"><Path d={d} stroke={color || T.ink} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" /></Svg>
     </View>
   );
