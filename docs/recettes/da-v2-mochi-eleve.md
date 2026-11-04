@@ -174,3 +174,6 @@ Règle : un objet n'apparaît jamais sans raison ; la pièce est la mémoire vis
 - Heure de coucher du foyer : **22 h** par défaut (mode nuit automatique de 22 h à 7 h), modifiable dans les réglages. Migration 0014.
 - Paywall Mochi+ : **après l'onboarding**, comme Finch — soft paywall, tout le cœur reste gratuit, on peut passer.
 - Noms des stades : « pas fan » des étiquettes (Mini/Maxi, S/M/L/XL) → à reproposer avec l'écran de passage de stade.
+
+## 9. Nuit = bleu marine (Jeanne, 4 nov 2026 : « le fond noir est trop foncé, j'aurais fait un bleu marine »)
+bg #141B30 · ink #F2F0EB · muted #8E95AD · hairline/segments blanc 14 % · accent #F08A78 · scène : mur #1B2440, sol #243052, fenêtre #2E3B66.

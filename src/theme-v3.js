@@ -11,10 +11,10 @@ const JOUR = {
   bg: '#F7F2E9', ink: '#2B2420', muted: '#9A8F84', line: 'rgba(43,36,32,0.10)', seg: 'rgba(43,36,32,0.08)', accent: '#E0725C', ok: '#7E9463',
   scene: { wall: '#EFE3D3', floor: '#E2CFB8', window: '#FBF2E2', sofa: '#D9A98F', cushion: '#F1CDB8', plant: '#8FA985', pot: '#C27A58', rug: '#EAD9C4', lamp: '#FBE9C8', lampOn: false, frame: '#E3CBB2', shelf: '#D8C2A6', book1: '#C27A58', book2: '#8FA985', vase: '#E8D5BE', stool: '#D4B894', shadow: 'rgba(43,36,32,0.10)', sun: '#FBE9C8', moon: null },
 };
-const NUIT = {
+const NUIT = { // bleu marine, pas noir (retour Jeanne 4 nov 2026 : « fond noir trop foncé, pas très lisible »)
   night: true,
-  bg: '#0E0E10', ink: '#F2F0EB', muted: '#6F6D68', line: 'rgba(255,255,255,0.12)', seg: 'rgba(255,255,255,0.12)', accent: '#E97A6A', ok: '#8FA985',
-  scene: { wall: '#17171A', floor: '#1F1F23', window: '#2A2A40', sofa: '#3A3530', cushion: '#4A3F38', plant: '#2F4234', pot: '#5A4030', rug: '#232327', lamp: '#E0B86A', lampOn: true, frame: '#26262B', shelf: '#2C2823', book1: '#5A4030', book2: '#2F4234', vase: '#3A3530', stool: '#33302B', shadow: 'rgba(0,0,0,0.5)', sun: null, moon: '#F2F0EB' },
+  bg: '#141B30', ink: '#F2F0EB', muted: '#8E95AD', line: 'rgba(242,240,235,0.14)', seg: 'rgba(242,240,235,0.14)', accent: '#F08A78', ok: '#9DB894',
+  scene: { wall: '#1B2440', floor: '#243052', window: '#2E3B66', sofa: '#4A4048', cushion: '#5C4F55', plant: '#35584A', pot: '#6E4B38', rug: '#2B3758', lamp: '#E6BE72', lampOn: true, frame: '#33405F', shelf: '#3A4668', book1: '#6E4B38', book2: '#35584A', vase: '#4A4048', stool: '#46425A', shadow: 'rgba(0,0,0,0.45)', sun: null, moon: '#F2F0EB' },
 };
 export const TOKENS = { jour: JOUR, nuit: NUIT };
 // typo de l'instrument : étiquettes en phrase normale, chiffres tabulaires, pas de capitales espacées
