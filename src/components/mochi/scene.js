@@ -14,6 +14,7 @@ const IMG = {
   window: require('../../../assets/maison/window.png'), plant: require('../../../assets/maison/plant.png'), shelf: require('../../../assets/maison/shelf.png'),
   table: require('../../../assets/maison/table.png'), sofa: require('../../../assets/maison/sofa.png'), lamp: require('../../../assets/maison/lamp.png'),
   rug: require('../../../assets/maison/rug.png'), frame: require('../../../assets/maison/frame.png'), curtain: require('../../../assets/maison/curtain.png'),
+  egg: require('../../../assets/maison/egg.png'), eggCrack: require('../../../assets/maison/egg-crack.png'), eggOpen: require('../../../assets/maison/egg-open.png'),
 };
 const S = ({ l, r, t, b, w, h, rad = 0, c, op }) => <View style={{ position: 'absolute', left: l, right: r, top: t, bottom: b, width: w, height: h, borderRadius: rad, backgroundColor: c, opacity: op }} />;
 const Im = ({ k, l, r, t, b, w, h, op = 1 }) => <Image source={IMG[k]} style={{ position: 'absolute', left: l, right: r, top: t, bottom: b, width: w, height: h, opacity: op }} resizeMode="contain" accessibilityIgnoresInvertColors />;
@@ -72,7 +73,7 @@ export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height =
       {/* la nuit : un voile navy sur toute la pièce (les images gardent leur matière) */}
       {night ? <S l={0} r={0} t={0} b={0} c={c.wall} op={0.5} /> : null}
       {hideMochi ? null : stage === 'egg'
-        ? <><View style={{ position: 'absolute', bottom: fl - 10, alignSelf: 'center', width: 150, height: 14, borderRadius: 7, backgroundColor: c.shadow }} /><View style={{ position: 'absolute', bottom: fl - 4, alignSelf: 'center', width: 92, height: 112, borderRadius: 46, borderTopLeftRadius: 50, borderTopRightRadius: 50, backgroundColor: c.vase }} /></>
+        ? <><View style={{ position: 'absolute', bottom: fl - 10, alignSelf: 'center', width: 150, height: 14, borderRadius: 7, backgroundColor: c.shadow }} /><Animated.View entering={ZoomIn.springify().damping(12)} style={{ position: 'absolute', bottom: fl - 6, left: 0, right: 0, alignItems: 'center' }}><Image source={IMG.egg} style={{ width: 96, height: 120 }} resizeMode="contain" accessibilityIgnoresInvertColors /></Animated.View></>
         : <Animated.View entering={ZoomIn.springify().damping(12).stiffness(160)} style={{ position: 'absolute', bottom: fl - 14, left: 0, right: 0 }}><Animated.View style={[{ alignItems: 'center' }, walk]}>
               <View style={{ position: 'absolute', bottom: 2, width: Math.round(W * 1.1), height: 16, borderRadius: 8, backgroundColor: c.shadow }} />
               <LiveMochiImage size={W} lean={0} mood={mood} />
@@ -86,7 +87,7 @@ export function Egg({ T, size = 56 }) {
   return (
     <View style={{ width: size * 1.3, height: size + 10, alignItems: 'center', justifyContent: 'flex-end' }}>
       <View style={{ position: 'absolute', bottom: 0, width: size * 1.3, height: 10, borderRadius: 5, backgroundColor: T.scene.shadow }} />
-      <View style={{ width: size * 0.82, height: size, borderRadius: size * 0.41, borderTopLeftRadius: size * 0.45, borderTopRightRadius: size * 0.45, backgroundColor: T.scene.vase, marginBottom: 4 }} />
+      <Image source={IMG.egg} style={{ width: size * 0.85, height: size, marginBottom: 4 }} resizeMode="contain" accessibilityIgnoresInvertColors />
     </View>
   );
 }
