@@ -1,3 +1,4 @@
+// Écran 19 (DA v3 « l'instrument », 4 nov 2026 : fond jour/nuit, chips plates, rangées hairline, Mois en onglet)
 // Écran 19 · Planning. Recette : docs/recettes/19-planning.md
 // Retour Jeanne (1er sept 2026) : le segment Semaine/Mois ne pousse plus un nouvel
 // écran — les deux vues glissent l'une vers l'autre dans la page (slide 320 ms),
@@ -7,9 +8,11 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { View, Text, Pressable, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSharedValue, useAnimatedStyle, withSpring, withTiming, Easing } from 'react-native-reanimated';
-import { GlowBg, ScreenTitle, Micro, Avatar } from '../../src/components/ui';
+import { Avatar } from '../../src/components/ui';
+import { useTokens, type, layout } from '../../src/theme-v3';
+import { Label, Check } from '../../src/components/mochi/gauges';
 import { Animated } from '../../src/components/motion';
-import { Icon, ICON, Segment, AvatarPair, Hint, CheckCircle } from '../../src/components/core/extra';
+import { Icon, ICON, AvatarPair } from '../../src/components/core/extra';
 import { members, byId, taskById, today, me, partner, fmtMin } from '../../src/demo';
 import { weekDays, addDays, dayDots, planningGroups, sameDay, fmtDayLabel, weekdayShort, MENTAL_COEF, fmtCoef, missionDone, occStore } from '../../src/demo-core';
 import { addDaysIso } from '../../src/dates';
@@ -22,7 +25,8 @@ import { toggleOccurrence, isLive } from '../../src/occ-actions';
 import { isPremium } from '../../src/demo-premium';
 import copy from '../../src/data/copy.json';
 import { groupLate, lateCaption, daysBetweenIso } from '../../src/late-groups';
-import { colors, space, font, motion, radius } from '../../src/theme';
+import { space, motion, radius } from '../../src/theme';
+const EVENT_DOT = '#9A7BC8'; // point lavande des événements / pense-bêtes dans les semainiers
 
 const t = copy.planning;
 
@@ -36,31 +40,33 @@ function subtitle(occ, task) {
 }
 
 // tap sur un jour → la liste défile jusqu'à ce jour (retour Jeanne, 2 sept 2026)
-function DayChip({ date, on, dots, onPress }) {
+function DayChip({ T, date, on, dots, onPress }) {
+  const s = mk(T);
   return (
     <Pressable onPress={onPress} style={[s.chip, on && s.chipOn]}>
-      <Text style={{ fontSize: 10.5, fontWeight: '600', opacity: 0.6, color: on ? colors.card : colors.ink }}>{weekdayShort(date)[0]}</Text>
-      <Text style={[font.tabular, { fontSize: 15, fontWeight: '700', color: on ? colors.card : colors.ink }]}>{date.getDate()}</Text>
+      <Text style={{ fontSize: 10.5, fontWeight: '600', opacity: 0.6, color: on ? T.bg : T.ink }}>{weekdayShort(date)[0]}</Text>
+      <Text style={{ fontSize: 15, fontWeight: '700', fontVariant: ['tabular-nums'], color: on ? T.bg : T.ink }}>{date.getDate()}</Text>
       <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 5, marginTop: 3, height: 4 }}>
-        {dots.map((c, j) => <View key={j} style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: on ? colors.butterLight : c }} />)}
+        {dots.map((c, j) => <View key={j} style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: on ? T.bg : c }} />)}
       </View>
     </Pressable>
   );
 }
 
-function TaskRow({ occ, onGrab }) {
+function TaskRow({ T, occ, onGrab }) {
+  const s = mk(T);
   const task = taskById(occ.task_id);
   const g = useSharedValue(0);
-  const st = useAnimatedStyle(() => ({ transform: [{ scale: 1 + g.value * 0.02 }], borderColor: g.value ? colors.lavender : colors.hairline, borderWidth: g.value ? 1.5 : StyleSheet.hairlineWidth }));
+  const st = useAnimatedStyle(() => ({ transform: [{ scale: 1 + g.value * 0.02 }], opacity: 1 - g.value * 0.15 }));
   const grab = v => { g.value = withSpring(v, motion.spring); onGrab(v === 1); };
   return (
     <Pressable onLongPress={() => grab(1)} onPressOut={() => grab(0)} delayLongPress={300}>
       <Animated.View style={[s.row, st]}>
-        <Icon d={ICON.grip} size={13} color={colors.checkRing} sw={2.4} />
+        <Icon d={ICON.grip} size={13} color={T.muted} sw={2.4} />
         <Text style={{ fontSize: 18 }}>{task.emoji}</Text>
         <View style={{ flex: 1 }}>
-          <Text style={{ fontSize: 15.5, fontWeight: '500', color: colors.ink }} numberOfLines={1}>{task.title}</Text>
-          <Text style={[font.caption, { marginTop: 3 }]}>{subtitle(occ, task)}</Text>
+          <Text style={[type.body, { color: T.ink }]} numberOfLines={1}>{task.title}</Text>
+          <Label T={T} style={{ marginTop: 3 }}>{subtitle(occ, task)}</Label>
         </View>
         {occ.assignee_id
           ? <Avatar initial={byId(occ.assignee_id).initial} color={byId(occ.assignee_id).color} size={24} />
@@ -73,7 +79,8 @@ function TaskRow({ occ, onGrab }) {
 // Vue mois : grille calendrier (même recette que l'écran 35), tap sur un jour →
 // sheet /jour. Réel (retour Jeanne 6 sept 2026 : « on est en juillet », « je vois le 7 ») :
 // mois COURANT, points réels, et on glisse d'un mois à l'autre (ou flèches ‹ ›).
-function MonthPane({ real, dots }) {
+function MonthPane({ T, real, dots }) {
+  const s = mk(T);
   const tc = copy.calendar;
   const base = real ? new Date() : today;
   const [offset, setOffset] = useState(0);
@@ -96,7 +103,7 @@ function MonthPane({ real, dots }) {
       <View onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
         <View style={s.monthHead}>
           <Pressable onPress={() => setOffset(o => o - 1)} hitSlop={10} accessibilityLabel={tc.prevMonth}><Text style={s.monthArrow}>‹</Text></Pressable>
-          <Micro>{tc.months[month].toUpperCase()}{year !== base.getFullYear() ? ` ${year}` : ''}</Micro>
+          <Text style={[type.section, { color: T.ink }]}>{tc.months[month]}{year !== base.getFullYear() ? ` ${year}` : ''}</Text>
           <Pressable onPress={() => setOffset(o => o + 1)} hitSlop={10} accessibilityLabel={tc.nextMonth}><Text style={s.monthArrow}>›</Text></Pressable>
         </View>
         <View style={s.grid}>{tc.dows.map((d, i) => <Text key={i} style={s.dow}>{d}</Text>)}</View>
@@ -108,9 +115,9 @@ function MonthPane({ real, dots }) {
             return (
               <View key={i} style={s.cell}>
                 <Pressable onPress={() => router.push(`/jour?d=${date.getTime()}`)} style={[s.day, isToday && s.today]}>
-                  <Text style={[s.dayNum, isToday && { color: colors.card }]}>{d}</Text>
+                  <Text style={[s.dayNum, isToday && { color: T.bg }]}>{d}</Text>
                   <View style={{ flexDirection: 'row', gap: 5, height: 4 }}>
-                    {dotsOf(date).map((c, j) => <View key={j} style={[s.dot, { backgroundColor: isToday ? colors.butterLight : c }]} />)}
+                    {dotsOf(date).map((c, j) => <View key={j} style={[s.dot, { backgroundColor: isToday ? T.bg : c }]} />)}
                   </View>
                 </Pressable>
               </View>
@@ -118,14 +125,15 @@ function MonthPane({ real, dots }) {
           })}
         </View>
       </View>
-      <Hint style={{ marginTop: 8 }}>{t.monthHint}</Hint>
+      <Label T={T} style={{ marginTop: 8, textAlign: 'center' }}>{t.monthHint}</Label>
     </ScrollView>
   );
 }
 
 // rangée RÉELLE : tap → sheet Mission (avec « Déplacer ») ; rond de coche pour
 // mes tâches et les communes ; encadré corail si en retard (retour Jeanne, 2 sept 2026)
-function RealRow({ vm, onToggle }) {
+function RealRow({ T, vm, onToggle }) {
+  const s = mk(T);
   // la coche vit HORS du Pressable de navigation : plus de conflit de tap
   // (retour Jeanne, 2 sept : « le rond ne marche pas »)
   return (
@@ -133,8 +141,8 @@ function RealRow({ vm, onToggle }) {
       <Pressable onPress={() => router.push(vm.href)} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 }}>
         <Text style={{ fontSize: 18 }}>{vm.emoji}</Text>
         <View style={{ flex: 1 }}>
-          <Text style={{ fontSize: 15.5, fontWeight: '500', color: colors.ink, textDecorationLine: vm.done ? 'line-through' : 'none', opacity: vm.done ? 0.5 : 1 }} numberOfLines={1}>{vm.title}</Text>
-          <Text style={[font.caption, { marginTop: 3 }, vm.late && { color: colors.coralDeep, fontWeight: '600' }]}>{vm.sub}</Text>
+          <Text style={[type.body, { color: T.ink, textDecorationLine: vm.done ? 'line-through' : 'none', opacity: vm.done ? 0.45 : 1 }]} numberOfLines={1}>{vm.title}</Text>
+          <Label T={T} style={[{ marginTop: 3 }, vm.late && { color: T.accent, fontWeight: '600' }]}>{vm.sub}</Label>
         </View>
         {vm.event ? (vm.whoList?.length > 1 ? <AvatarPair members={vm.whoList} size={24} /> : vm.whoList?.length === 1 ? <Avatar initial={vm.whoList[0].initial} color={vm.whoList[0].color} photo={vm.whoList[0].avatar_url} size={24} /> : null) : vm.who
           ? <Avatar initial={vm.who.initial} color={vm.who.color} photo={vm.who.avatar_url} size={24} />
@@ -146,13 +154,15 @@ function RealRow({ vm, onToggle }) {
           )}
       </Pressable>
       {vm.checkable ? (
-        <Pressable onPress={onToggle} hitSlop={12}><CheckCircle done={vm.done} /></Pressable>
+        <Pressable onPress={onToggle} hitSlop={12}><Check T={T} done={vm.done} /></Pressable>
       ) : null}
     </View>
   );
 }
 
 export default function Planning() {
+  const T = useTokens();
+  const s = mk(T);
   const [grabbed, setGrabbed] = useState(false);
   // ?view=month : ouvrir directement la vue mois (lien, notification, test)
   const { view } = useLocalSearchParams();
@@ -213,13 +223,13 @@ export default function Planning() {
         // porteurs (retour Ketley 12 sept 2026 : « dans le planning on ne voit pas à qui il est attribué »)
         const evWho = (ev.who || []).map(id => (id === uid ? me : partner));
         (byDate[iso] ||= []).push({ id: ev.id, emoji: ev.emoji || '📅', title: ev.title, sub: [d.time, d.place].filter(Boolean).join(' · ') || t2.eventSub, who: null, whoList: evWho, event: true, checkable: false, done: false, late: false, href: `/event?id=${ev.id}` });
-        (dotMap[iso] ||= new Set()).add(colors.lavenderDeep);
+        (dotMap[iso] ||= new Set()).add(EVENT_DOT);
       }
       // pense-bêtes datés (13 sept 2026) : une rangée 📌 le jour dit, tap → la note
       for (const n of notes || []) {
         if (n.deleted_at || n.done || !n.due_date || n.due_date < todayIso) continue;
         (byDate[n.due_date] ||= []).push({ id: n.id, emoji: n.emoji || '📌', title: n.title || n.body, sub: n.title && n.body ? n.body : t2.noteSub, who: null, event: true, checkable: false, done: false, late: false, href: `/note?id=${n.id}` });
-        (dotMap[n.due_date] ||= new Set()).add(colors.lavenderDeep);
+        (dotMap[n.due_date] ||= new Set()).add(EVENT_DOT);
       }
       const groups = Object.keys(byDate).sort().map(d => ({ iso: d, date: new Date(d + 'T12:00:00'), items: byDate[d] }));
       // retour Jeanne 6 sept : les retards forment UNE section en tête, la semaine commence à aujourd'hui
@@ -296,12 +306,13 @@ export default function Planning() {
   const weekStyle = useAnimatedStyle(() => ({ transform: [{ translateX: -slide.value * W }] }));
   const monthStyle = useAnimatedStyle(() => ({ transform: [{ translateX: (1 - slide.value) * W }] }));
   return (
-    <View style={{ flex: 1 }}>
-      <GlowBg intensity="strong" />
+    <View style={{ flex: 1, backgroundColor: T.bg }}>
       <SafeAreaView style={{ flex: 1 }} edges={['top']}>
         <View style={s.header}>
-          <ScreenTitle style={{ letterSpacing: -1.1 }}>{t.title}</ScreenTitle>
-          <Segment value={mode} onChange={onSegment} options={[{ value: 'week', label: t.week }, { value: 'month', label: t.month }]} />
+          <Text style={[type.name, { color: T.ink }]}>{t.title}</Text>
+          <View style={{ flexDirection: 'row', gap: 18 }}>
+            {[['week', t.week], ['month', t.month]].map(([v, lab]) => <Pressable key={v} onPress={() => onSegment(v)} hitSlop={8} style={{ paddingBottom: 6, borderBottomWidth: 2, borderColor: mode === v ? T.ink : 'transparent' }}><Text style={[type.label, { color: mode === v ? T.ink : T.muted, fontWeight: '600' }]}>{lab}</Text></Pressable>)}
+          </View>
         </View>
 
         <View style={{ flex: 1 }}>
@@ -310,7 +321,7 @@ export default function Planning() {
             <View style={s.week}>
               {rolling.map(d => (
                 <DayChip
-                  key={d.getTime()} date={d}
+                  T={T} key={d.getTime()} date={d}
                   on={localIso(d) === sel}
                   dots={realGroups ? dotsFor(d) : dayDots(d)}
                   onPress={() => jumpTo(d)}
@@ -321,26 +332,26 @@ export default function Planning() {
               {realGroups
                 ? shownGroups.map(g => (
                   <View key={g.iso} style={{ marginBottom: 11 }} onLayout={e => { groupY.current[g.iso] = e.nativeEvent.layout.y; }}>
-                    <Micro style={[s.groupLabel, g.late && { color: colors.coralDeep }]}>{g.late ? t.lateGroup : fmtDayLabel(g.date)}{g.iso === todayIso ? ` · ${t.todaySuffix}` : ''}</Micro>
-                    {g.items.map(vm => <RealRow key={vm.id} vm={vm} onToggle={() => toggleOcc(vm.id)} />)}
+                    <Label T={T} style={[s.groupLabel, { color: g.late ? T.accent : T.ink, fontWeight: '600' }]}>{g.late ? t.lateGroup : fmtDayLabel(g.date)}{g.iso === todayIso ? ` · ${t.todaySuffix}` : ''}</Label>
+                    {g.items.map(vm => <RealRow key={vm.id} T={T} vm={vm} onToggle={() => toggleOcc(vm.id)} />)}
                   </View>
                 ))
                 : shownGroups.map(g => (
                   <View key={g.date.getTime()} style={{ marginBottom: 11 }} onLayout={e => { groupY.current[g.iso] = e.nativeEvent.layout.y; }}>
-                    <Micro style={s.groupLabel}>{fmtDayLabel(g.date)}{sameDay(g.date, today) ? ` · ${t.todaySuffix}` : ''}</Micro>
-                    {g.items.map(o => <TaskRow key={o.id} occ={o} onGrab={setGrabbed} />)}
+                    <Label T={T} style={[s.groupLabel, { color: T.ink, fontWeight: '600' }]}>{fmtDayLabel(g.date)}{sameDay(g.date, today) ? ` · ${t.todaySuffix}` : ''}</Label>
+                    {g.items.map(o => <TaskRow key={o.id} T={T} occ={o} onGrab={setGrabbed} />)}
                   </View>
                 ))}
               {realGroups && realGroups.length === 0
-                ? <Text style={[font.secondary, { textAlign: 'center', paddingVertical: 24 }]}>{t.emptyReal}</Text> : null}
-              <Hint>{realGroups ? (realGroups.length ? t.realHint : '') : grabbed ? t.grabbed : t.dragHint}</Hint>
-              {__DEV__ && dbg ? <Text style={[font.caption, { textAlign: 'center', opacity: 0.5 }]}>{dbg}</Text> : null}
+                ? <Text style={[type.sub, { color: T.muted, textAlign: 'center', paddingVertical: 24 }]}>{t.emptyReal}</Text> : null}
+              <Label T={T} style={{ textAlign: 'center', marginTop: 8 }}>{realGroups ? (realGroups.length ? t.realHint : '') : grabbed ? t.grabbed : t.dragHint}</Label>
+              {__DEV__ && dbg ? <Label T={T} style={{ textAlign: 'center', opacity: 0.5 }}>{dbg}</Label> : null}
             </ScrollView>
           </Animated.View>
 
           {/* vue mois */}
           <Animated.View style={[StyleSheet.absoluteFill, monthStyle]}>
-            <MonthPane real={!!realGroups} dots={realDots} />
+            <MonthPane T={T} real={!!realGroups} dots={realDots} />
           </Animated.View>
         </View>
       </SafeAreaView>
@@ -348,21 +359,20 @@ export default function Planning() {
   );
 }
 
-const s = StyleSheet.create({
-  header: { paddingTop: 14, paddingHorizontal: space.headerX, marginBottom: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+const mk = T => StyleSheet.create({
+  header: { paddingTop: 14, paddingHorizontal: layout.x, marginBottom: 12, flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' },
   week: { paddingHorizontal: space.screenX, paddingBottom: 12, flexDirection: 'row', gap: 5 },
-  chip: { flex: 1, alignItems: 'center', paddingVertical: 8, borderRadius: 12, backgroundColor: colors.card, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
-  chipOn: { backgroundColor: colors.ink, borderColor: colors.ink, shadowColor: colors.ink, shadowOpacity: 0.25, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 4 },
-  groupLabel: { paddingHorizontal: 4, paddingBottom: 7 },
+  chip: { flex: 1, alignItems: 'center', paddingVertical: 8, borderRadius: 12, borderWidth: StyleSheet.hairlineWidth, borderColor: T.line },
+  chipOn: { backgroundColor: T.ink, borderColor: T.ink },
+  groupLabel: { paddingHorizontal: 4, paddingTop: 8, paddingBottom: 2 },
   monthHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 4, paddingBottom: 8 },
-  monthArrow: { fontSize: 22, lineHeight: 24, color: colors.ink, paddingHorizontal: 8 },
-  row: { backgroundColor: colors.card, borderRadius: radius.row, paddingVertical: 10, paddingHorizontal: 13, marginBottom: 6, flexDirection: 'row', alignItems: 'center', gap: 10, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
-  // grille mois — même recette que l'écran 35 (7 colonnes 1/7, gouttière 5)
+  monthArrow: { fontSize: 22, lineHeight: 24, color: T.ink, paddingHorizontal: 8 },
+  row: { paddingVertical: 12 * layout.air, paddingHorizontal: 4, flexDirection: 'row', alignItems: 'center', gap: 10, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: T.line },
   grid: { flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: -2.5, marginBottom: 6 },
-  dow: { width: '14.2857%', textAlign: 'center', fontSize: 10.5, letterSpacing: 1, fontWeight: '600', color: colors.muted },
+  dow: { width: '14.2857%', textAlign: 'center', fontSize: 10.5, letterSpacing: 1, fontWeight: '600', color: T.muted },
   cell: { width: '14.2857%', height: 44, paddingHorizontal: 2.5, marginBottom: 5 },
-  day: { flex: 1, borderRadius: 10, backgroundColor: colors.card, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline, alignItems: 'center', justifyContent: 'center', gap: 5 },
-  today: { backgroundColor: colors.ink, borderWidth: 0 },
-  dayNum: { fontSize: 14, fontWeight: '600', color: colors.ink, fontVariant: ['tabular-nums'] },
+  day: { flex: 1, borderRadius: 10, borderWidth: StyleSheet.hairlineWidth, borderColor: T.line, alignItems: 'center', justifyContent: 'center', gap: 5 },
+  today: { backgroundColor: T.ink, borderWidth: 0 },
+  dayNum: { fontSize: 14, fontWeight: '600', color: T.ink, fontVariant: ['tabular-nums'] },
   dot: { width: 4, height: 4, borderRadius: 2 },
 });
