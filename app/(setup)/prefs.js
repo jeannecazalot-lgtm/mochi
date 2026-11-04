@@ -17,6 +17,7 @@ import { askNotificationPermission } from '../../src/notifications';
 import { registerPushToken } from '../../src/push';
 import copy from '../../src/data/copy.json';
 import { colors, space, alpha } from '../../src/theme';
+import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';
 
 const t = copy.setup;
 
@@ -78,8 +79,8 @@ export default function Prefs() {
                 <Text style={s.remTitle}>{t.reminderTitle}</Text>
                 <Text style={s.remSub}>{t.reminderSub}</Text>
               </View>
-              <Pressable onPress={() => setTimeOpen(o => !o)} style={[s.time, timeOpen && { backgroundColor: colors.ink }]}>
-                <Text style={[s.timeTxt, timeOpen && { color: colors.card }]}>{time}</Text>
+              <Pressable onPress={() => setTimeOpen(o => !o)} style={[s.time, timeOpen && { backgroundColor: tk().ink }]}>
+                <Text style={[s.timeTxt, timeOpen && { color: tk().bg }]}>{time}</Text>
               </Pressable>
             </View>
             {timeOpen ? <TimeStepper time={time} onChange={setTime} /> : null}
@@ -103,17 +104,17 @@ export default function Prefs() {
   );
 }
 
-const s = StyleSheet.create({
+const s = v3Styles(T => StyleSheet.create({
   remRow: { flexDirection: 'row', alignItems: 'center', gap: 13, paddingVertical: 14, paddingHorizontal: 18 },
-  remTitle: { fontSize: 15.5, fontWeight: '600', color: colors.ink },
-  remSub: { fontSize: 13, fontWeight: '400', color: colors.muted, marginTop: 3 },
-  time: { backgroundColor: alpha(colors.ink, 0.06), borderRadius: 10, paddingVertical: 8, paddingHorizontal: 14 },
-  timeTxt: { fontSize: 17, fontWeight: '600', color: colors.ink, fontVariant: ['tabular-nums'] },
-  timePicker: { borderTopWidth: 1, borderTopColor: colors.line, paddingHorizontal: 18, paddingVertical: 6 },
+  remTitle: { fontSize: 15.5, fontWeight: '600', color: T.ink },
+  remSub: { fontSize: 13, fontWeight: '400', color: T.muted, marginTop: 3 },
+  time: { backgroundColor: T.seg, borderRadius: 10, paddingVertical: 8, paddingHorizontal: 14 },
+  timeTxt: { fontSize: 17, fontWeight: '600', color: T.ink, fontVariant: ['tabular-nums'] },
+  timePicker: { borderTopWidth: 1, borderTopColor: T.line, paddingHorizontal: 18, paddingVertical: 6 },
   timeRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 8 },
-  timeLabel: { fontSize: 14, fontWeight: '500', color: colors.muted },
-  stepBtn: { width: 28, height: 28, borderRadius: 14, backgroundColor: alpha(colors.ink, 0.06), alignItems: 'center', justifyContent: 'center' },
-  stepTxt: { fontSize: 16, fontWeight: '600', color: colors.ink, lineHeight: 18 },
-  stepVal: { fontSize: 16, fontWeight: '600', color: colors.ink, minWidth: 44, textAlign: 'center', fontVariant: ['tabular-nums'] },
+  timeLabel: { fontSize: 14, fontWeight: '500', color: T.muted },
+  stepBtn: { width: 28, height: 28, borderRadius: 14, backgroundColor: T.seg, alignItems: 'center', justifyContent: 'center' },
+  stepTxt: { fontSize: 16, fontWeight: '600', color: T.ink, lineHeight: 18 },
+  stepVal: { fontSize: 16, fontWeight: '600', color: T.ink, minWidth: 44, textAlign: 'center', fontVariant: ['tabular-nums'] },
   ctaWrap: { position: 'absolute', left: space.screenX, right: space.screenX, bottom: 26 },
-});
+}));

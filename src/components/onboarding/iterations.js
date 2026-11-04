@@ -13,6 +13,7 @@ import { CheckCircle } from '../social/extra';
 import copy from '../../data/copy.json';
 import { colors, alpha, font, slotColors } from '../../theme';
 import * as pitch from '../../demo-onboarding';
+import { styles as v3Styles, currentTokens as tk } from '../../theme-v3';
 
 const t = copy.onb2;
 const daily = pitch.dailyGapLabel();
@@ -66,7 +67,7 @@ function Frame({ width, headerH, title, body, children, intensity = 'strong' }) 
   );
 }
 
-const Pill = ({ children, color = colors.coral }) => <View style={{ marginTop: 14 }}><PillLabel color={color}>{children}</PillLabel></View>;
+const Pill = ({ children, color = tk().accent }) => <View style={{ marginTop: 14 }}><PillLabel color={color}>{children}</PillLabel></View>;
 
 // Textes de Jeanne pour 01 · 02 · 03 (« plus explicatifs »), puis ce que propose mochi (14 sept 2026).
 const o = copy.onboarding;
@@ -80,10 +81,10 @@ const alts = o.s3Alt.map((label, i) => ({ n: fill(o.s3Times, { n: pitch.yearlyAl
 
 // ─── a · Mochi raconte ───
 const A1 = p => <Frame {...p} title={T1} body={B1txt}><LiveMochi size={150} mood="sad" /><Pill>{fill(t.s1Pill, { daily })}</Pill></Frame>;
-const A2 = p => <Frame {...p} title={T2} body={B2txt} intensity="soft"><LiveMochi size={150} mood="sad" /><Pill color={colors.lavender}>{t.s2Pill}</Pill></Frame>;
-const A3 = p => <Frame {...p} title={T3} body={B3txt}><LiveMochi size={150} mood="neutral" /><Pill color={colors.butter}>{`${pitch.fmtHours(pitch.yearlyHours)} ${o.s3Unit}`}</Pill></Frame>;
-const A4 = p => <Frame {...p} title={t.s3Title} body={t.s3Body} intensity="soft"><LiveMochi size={150} mood="happy" /><Pill color={colors.sage}>{t.s3Pill}</Pill></Frame>;
-const A5 = p => <Frame {...p} title={t.s4Title} body={t.s4Body}><LiveMochi size={150} mood="happy" /><Pill color={colors.butter}>{t.s4Pill}</Pill></Frame>;
+const A2 = p => <Frame {...p} title={T2} body={B2txt} intensity="soft"><LiveMochi size={150} mood="sad" /><Pill color={'#9A7BC8'}>{t.s2Pill}</Pill></Frame>;
+const A3 = p => <Frame {...p} title={T3} body={B3txt}><LiveMochi size={150} mood="neutral" /><Pill color={tk().scene.lamp}>{`${pitch.fmtHours(pitch.yearlyHours)} ${o.s3Unit}`}</Pill></Frame>;
+const A4 = p => <Frame {...p} title={t.s3Title} body={t.s3Body} intensity="soft"><LiveMochi size={150} mood="happy" /><Pill color={tk().ok}>{t.s3Pill}</Pill></Frame>;
+const A5 = p => <Frame {...p} title={t.s4Title} body={t.s4Body}><LiveMochi size={150} mood="happy" /><Pill color={tk().scene.lamp}>{t.s4Pill}</Pill></Frame>;
 
 // ─── b · cartes (DA des sheets) ───
 const Bar = ({ left }) => <View style={s.bar}><View style={{ flex: left, backgroundColor: A.color }} /><View style={{ flex: 1 - left, backgroundColor: B.color }} /></View>;
@@ -92,7 +93,7 @@ const B1 = p => (
     <Card r={16} padding={0} style={s.card}>
       <Row first label={t.b1Row1} sub={t.b1Row1Sub} right={<Text style={s.num}>{daily}</Text>} />
       <Row label={t.b1Row2} sub={t.b1Row2Sub} right={<Text style={s.num}>{pitch.fmtHours(pitch.weeklyGapHours)}</Text>} />
-      <Row label={t.b1Row3} sub={t.b1Row3Sub} right={<Text style={[s.num, { color: colors.coralDeep }]}>{t.b1Row3Value}</Text>} />
+      <Row label={t.b1Row3} sub={t.b1Row3Sub} right={<Text style={[s.num, { color: tk().accent }]}>{t.b1Row3Value}</Text>} />
     </Card>
   </Frame>
 );
@@ -106,7 +107,7 @@ const B2 = p => (
 const B3 = p => (
   <Frame {...p} title={T3} body={B3txt}>
     <Card r={16} padding={0} style={s.card}>
-      <Row first label={`${pitch.fmtHours(pitch.yearlyHours)} ${o.s3Unit}`} sub={o.s3Breakdown} right={<Text style={[s.num, { color: colors.coralDeep }]}>{fill(o.s3SubAccent, { n: pitch.yearlyFullDays }).replace(',', '')}</Text>} />
+      <Row first label={`${pitch.fmtHours(pitch.yearlyHours)} ${o.s3Unit}`} sub={o.s3Breakdown} right={<Text style={[s.num, { color: tk().accent }]}>{fill(o.s3SubAccent, { n: pitch.yearlyFullDays }).replace(',', '')}</Text>} />
       {alts.map((al, i) => <Row key={i} label={al.label} right={<Text style={s.num}>{al.n}</Text>} />)}
     </Card>
   </Frame>
@@ -126,7 +127,7 @@ const B5 = p => (
         <View style={{ alignItems: 'flex-end' }}><Text style={[s.heroName, { color: B.deep }]}>{t.other}</Text><Text style={s.heroNum}>48%</Text></View>
       </View>
       <Bar left={0.52} />
-      <View style={{ alignItems: 'center', marginTop: 12 }}><PillLabel color={colors.sage}>{t.balancedPill}</PillLabel></View>
+      <View style={{ alignItems: 'center', marginTop: 12 }}><PillLabel color={tk().ok}>{t.balancedPill}</PillLabel></View>
     </Card>
   </Frame>
 );
@@ -135,7 +136,7 @@ const B5 = p => (
 const ListRow = ({ emoji, title, who, done, last, pair }) => (
   <View style={[s.row, !last && s.rowLine]}>
     <Text style={{ fontSize: 19 }}>{emoji}</Text>
-    <Text style={[font.body, { flex: 1 }, done && { textDecorationLine: 'line-through', opacity: 0.5 }]} numberOfLines={1}>{title}</Text>
+    <Text style={[font.body, { color: tk().ink }, { flex: 1 }, done && { textDecorationLine: 'line-through', opacity: 0.5 }]} numberOfLines={1}>{title}</Text>
     {pair ? <View style={{ flexDirection: 'row' }}><Avatar initial={A.initial} color={A.color} size={22} ring /><View style={{ marginLeft: -7 }}><Avatar initial={B.initial} color={B.color} size={22} ring /></View></View> : who ? <Avatar initial={who.initial} color={who.color} size={22} /> : null}
     <CheckCircle done={!!done} />
   </View>
@@ -143,7 +144,7 @@ const ListRow = ({ emoji, title, who, done, last, pair }) => (
 const Mini = ({ label, meta, children }) => (
   <View style={s.card}>
     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-      <Text style={font.sectionTitle}>{label}</Text>{meta ? <Text style={{ fontSize: 13, fontWeight: '500', color: colors.muted }}>{meta}</Text> : null}
+      <Text style={[font.sectionTitle, { color: tk().ink }, { color: tk().ink }]}>{label}</Text>{meta ? <Text style={{ fontSize: 13, fontWeight: '500', color: tk().muted }}>{meta}</Text> : null}
     </View>
     <Card padding={0} style={{ paddingVertical: 4, paddingHorizontal: 14 }}>{children}</Card>
   </View>
@@ -159,7 +160,7 @@ const C2 = p => (
   <Frame {...p} title={T2} body={B2txt} intensity="soft">
     <View style={[s.card, { flexDirection: 'row', flexWrap: 'wrap', gap: 8 }]}>
       {o.s2Items.slice(0, 4).map((it, i) => (
-        <View key={i} style={[s.note, { backgroundColor: [alpha(colors.butter, 0.7), alpha(colors.sky, 0.6), alpha(colors.lavender, 0.55), alpha(colors.sage, 0.55)][i], transform: [{ rotate: i % 2 ? '-0.8deg' : '0.6deg' }] }]}>
+        <View key={i} style={[s.note, { backgroundColor: [tk().scene.lamp, alpha('#7DB3D5', 0.6), '#9A7BC8', tk().ok][i], transform: [{ rotate: i % 2 ? '-0.8deg' : '0.6deg' }] }]}>
           <Text style={s.noteTitle}>{it.c} {it.t}</Text><Text style={s.noteSub}>{it.s}</Text>
         </View>
       ))}
@@ -170,7 +171,7 @@ const C3 = p => (
   <Frame {...p} title={T3} body={B3txt}>
     <View style={[s.card, { flexDirection: 'row', flexWrap: 'wrap', gap: 8 }]}>
       {alts.map((al, i) => (
-        <View key={i} style={[s.note, { width: i === 2 ? '100%' : '47%', backgroundColor: [alpha(colors.butter, 0.7), alpha(colors.sky, 0.6), alpha(colors.sage, 0.55)][i] }]}>
+        <View key={i} style={[s.note, { width: i === 2 ? '100%' : '47%', backgroundColor: [tk().scene.lamp, alpha('#7DB3D5', 0.6), tk().ok][i] }]}>
           <Text style={[s.noteTitle, { fontSize: 22 }]}>{al.n}</Text><Text style={s.noteSub}>{al.label}</Text>
         </View>
       ))}
@@ -190,7 +191,7 @@ const C4 = p => (
 const C5 = p => (
   <Frame {...p} title={t.s4Title} body={t.s4Body}>
     <View style={s.card}>
-      <View style={{ alignItems: 'center', marginBottom: 8 }}><PillLabel color={colors.sage}>{t.balancedPill}</PillLabel></View>
+      <View style={{ alignItems: 'center', marginBottom: 8 }}><PillLabel color={tk().ok}>{t.balancedPill}</PillLabel></View>
       <Card r={18} padding={16}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
           <View><Text style={[s.heroName, { color: A.deep }]}>Léa</Text><Text style={s.heroNum}>2h10</Text><Text style={s.heroSub}>52% · 6 tâches</Text></View>
@@ -207,8 +208,8 @@ const C5 = p => (
 const B4b = p => (
   <Frame {...p} title={`${o.s4Title1}${o.s4TitleAccent} ${o.s4Title2}`} body={o.s4Note} intensity="soft">
     <Card r={16} padding={0} style={s.card}>
-      {o.s4Rows.map((label, i) => <Row key={i} first={i === 0} label={label} right={<Text style={[s.num, pitch.avoidedPerYear[i].accent && { color: colors.coralDeep }]}>{pitch.avoidedPerYear[i].value ? `×${pitch.avoidedPerYear[i].value}` : '0'}</Text>} />)}
-      <Row strong label={o.s4Total} right={<Text style={[s.num, { color: colors.sageDeep }]}>{fill(o.s4TotalValue, { n: pitch.coupleBreathing })}</Text>} />
+      {o.s4Rows.map((label, i) => <Row key={i} first={i === 0} label={label} right={<Text style={[s.num, pitch.avoidedPerYear[i].accent && { color: tk().accent }]}>{pitch.avoidedPerYear[i].value ? `×${pitch.avoidedPerYear[i].value}` : '0'}</Text>} />)}
+      <Row strong label={o.s4Total} right={<Text style={[s.num, { color: tk().ok }]}>{fill(o.s4TotalValue, { n: pitch.coupleBreathing })}</Text>} />
     </Card>
   </Frame>
 );
@@ -243,7 +244,7 @@ const Src = ({ children }) => <Text style={s.src}>{children}</Text>;
 const J1 = p => (
   <Frame {...p} title={j.s1Title} body={j.s1Body}>
     <Card r={16} padding={0} style={s.card}>
-      {j.s1Rows.map((r, i) => <Row key={i} first={i === 0} label={r.t} right={<Text style={[s.num, i === 2 && { color: colors.coralDeep }]}>{r.v}</Text>} />)}
+      {j.s1Rows.map((r, i) => <Row key={i} first={i === 0} label={r.t} right={<Text style={[s.num, i === 2 && { color: tk().accent }]}>{r.v}</Text>} />)}
     </Card>
     <Src>{j.s1Source}</Src>
   </Frame>
@@ -258,8 +259,8 @@ const J2 = p => (
 const J3 = p => (
   <Frame {...p} title={j.s3Title} body={j.s3Body}>
     <Card r={16} padding={0} style={s.card}>
-      {o.s4Rows.map((label, i) => <Row key={i} first={i === 0} label={label} right={<Text style={[s.num, pitch.avoidedPerYear[i].accent && { color: colors.coralDeep }]}>{pitch.avoidedPerYear[i].value ? `×${pitch.avoidedPerYear[i].value}` : '0'}</Text>} />)}
-      <Row strong label={o.s4Total} right={<Text style={[s.num, { color: colors.sageDeep }]}>{fill(o.s4TotalValue, { n: pitch.coupleBreathing })}</Text>} />
+      {o.s4Rows.map((label, i) => <Row key={i} first={i === 0} label={label} right={<Text style={[s.num, pitch.avoidedPerYear[i].accent && { color: tk().accent }]}>{pitch.avoidedPerYear[i].value ? `×${pitch.avoidedPerYear[i].value}` : '0'}</Text>} />)}
+      <Row strong label={o.s4Total} right={<Text style={[s.num, { color: tk().ok }]}>{fill(o.s4TotalValue, { n: pitch.coupleBreathing })}</Text>} />
     </Card>
     <Src>{j.s3Source}</Src>
   </Frame>
@@ -270,7 +271,7 @@ const J4 = p => (
       <View style={{ paddingHorizontal: 14, paddingTop: 14, paddingBottom: 12 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
           <View><Text style={[s.heroName, { color: A.deep }]}>{t.one}</Text><Text style={[s.heroNum, { fontSize: 24, lineHeight: 26 }]}>52%</Text></View>
-          <PillLabel color={colors.sage}>{t.balancedPill}</PillLabel>
+          <PillLabel color={tk().ok}>{t.balancedPill}</PillLabel>
           <View style={{ alignItems: 'flex-end' }}><Text style={[s.heroName, { color: B.deep }]}>{t.other}</Text><Text style={[s.heroNum, { fontSize: 24, lineHeight: 26 }]}>48%</Text></View>
         </View>
         <Bar left={0.52} />
@@ -289,7 +290,7 @@ const J5 = p => (
         <LiveMochi size={168} mood="happy" />
         <View style={{ marginTop: 40 }}><Avatar initial={B.initial} color={B.color} size={56} ring /></View>
       </View>
-      <View style={{ marginTop: 22 }}><PillLabel color={colors.sage}>{j.s5Pill}</PillLabel></View>
+      <View style={{ marginTop: 22 }}><PillLabel color={tk().ok}>{j.s5Pill}</PillLabel></View>
     </View>
   </Frame>
 );
@@ -298,22 +299,22 @@ export const FINAL = [J1, J2, J3, J4, J5];
 // 5 slides maximum (Jeanne 14 sept) : ses trois, puis « Mochi répartit » (avec chacun sa journée) et la balance
 export const ITERATIONS = { a: [A1, A2, A3, A4, A5], b: [B1, B2, B3, B4, B6, B5], b5: [B1, B2, B3, B4, B5], b9: [B1, B2, B3, B4b, B4, B6, B5, B8, B9], c: [C1, C2, C3, C4, C5] };
 
-const s = StyleSheet.create({
-  title: { fontSize: 32, fontWeight: '700', letterSpacing: -1.3, lineHeight: 37, color: colors.ink },
+const s = v3Styles(T => StyleSheet.create({
+  title: { fontSize: 32, fontWeight: '700', letterSpacing: -1.3, lineHeight: 37, color: T.ink },
   visual: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingVertical: 18 },
-  body: { fontSize: 18, lineHeight: 26, fontWeight: '500', color: colors.ink, textAlign: 'center', marginBottom: 10 },
+  body: { fontSize: 18, lineHeight: 26, fontWeight: '500', color: T.ink, textAlign: 'center', marginBottom: 10 },
   card: { alignSelf: 'stretch' },
-  num: { fontSize: 17, fontWeight: '700', color: colors.ink, fontVariant: ['tabular-nums'] },
-  stepNum: { width: 26, height: 26, borderRadius: 13, backgroundColor: colors.ink, alignItems: 'center', justifyContent: 'center' },
-  stepTxt: { fontSize: 13, fontWeight: '700', color: colors.card },
+  num: { fontSize: 17, fontWeight: '700', color: T.ink, fontVariant: ['tabular-nums'] },
+  stepNum: { width: 26, height: 26, borderRadius: 13, backgroundColor: T.ink, alignItems: 'center', justifyContent: 'center' },
+  stepTxt: { fontSize: 13, fontWeight: '700', color: T.bg },
   heroName: { fontSize: 12, fontWeight: '700', letterSpacing: 0.6, textTransform: 'uppercase' },
-  heroNum: { fontSize: 30, fontWeight: '600', letterSpacing: -1.2, lineHeight: 32, color: colors.ink, fontVariant: ['tabular-nums'], marginTop: 2 },
-  heroSub: { ...font.caption, marginTop: 2 },
+  heroNum: { fontSize: 30, fontWeight: '600', letterSpacing: -1.2, lineHeight: 32, color: T.ink, fontVariant: ['tabular-nums'], marginTop: 2 },
+  heroSub: { ...font.caption, color: T.muted, marginTop: 2 },
   bar: { flexDirection: 'row', height: 8, borderRadius: 4, overflow: 'hidden', marginTop: 14 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 11 },
-  rowLine: { borderBottomWidth: 1, borderBottomColor: colors.line },
-  note: { width: '47%', borderRadius: 14, paddingVertical: 12, paddingHorizontal: 13, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline, minHeight: 80 },
-  src: { ...font.caption, textAlign: 'center', marginTop: 10 },
-  noteTitle: { fontSize: 14.5, fontWeight: '600', color: colors.ink },
-  noteSub: { ...font.caption, marginTop: 4 },
-});
+  rowLine: { borderBottomWidth: 1, borderBottomColor: T.line },
+  note: { width: '47%', borderRadius: 14, paddingVertical: 12, paddingHorizontal: 13, borderWidth: StyleSheet.hairlineWidth, borderColor: T.line, minHeight: 80 },
+  src: { ...font.caption, color: T.muted, textAlign: 'center', marginTop: 10 },
+  noteTitle: { fontSize: 14.5, fontWeight: '600', color: T.ink },
+  noteSub: { ...font.caption, color: T.muted, marginTop: 4 },
+}));

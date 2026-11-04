@@ -17,13 +17,13 @@ const MOUTH = {
 };
 
 function Face({ mood, dx }) {
-  const closed = (cx) => <Path d={`M${cx - 8} 118 Q${cx} 125 ${cx + 8} 118`} stroke={colors.ink} strokeWidth="3" fill="none" strokeLinecap="round" />;
-  const open = (cx) => <Circle cx={cx} cy="118" r="4.6" fill={colors.ink} />;
+  const closed = (cx) => <Path d={`M${cx - 8} 118 Q${cx} 125 ${cx + 8} 118`} stroke={tk().ink} strokeWidth="3" fill="none" strokeLinecap="round" />;
+  const open = (cx) => <Circle cx={cx} cy="118" r="4.6" fill={tk().ink} />;
   return (
     <G x={dx}>
       {mood === 'sleeping' ? closed(90) : open(90)}
       {mood === 'sleeping' || mood === 'wink' ? closed(130) : open(130)}
-      <Path d={MOUTH[mood] || MOUTH.happy} stroke={colors.ink} strokeWidth="3.4" fill="none" strokeLinecap="round" />
+      <Path d={MOUTH[mood] || MOUTH.happy} stroke={tk().ink} strokeWidth="3.4" fill="none" strokeLinecap="round" />
     </G>
   );
 }
@@ -86,6 +86,7 @@ export function MochiV2({ variant = 'A', size = 140, mood = 'happy', lean = 0 })
 import { Pressable } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, withSpring, withSequence, Easing } from 'react-native-reanimated';
 import { useEffect, useState } from 'react';
+import { styles as v3Styles, currentTokens as tk } from '../theme-v3';
 
 const DOME = 'M22 170 C24 118 62 86 110 86 C158 86 196 118 198 170 C199 184 188 192 172 192 L48 192 C32 192 21 184 22 170 Z'; // flancs bombés, coins du bas arrondis (r ≈ 16), base plate
 const DOME_BASE = { x: 110, y: 192 };
@@ -97,8 +98,8 @@ const MOUTH_D = {
 
 export function MochiGalet({ size = 140, mood = 'happy', lean = 0 }) {
   const id = 'mg';
-  const eye = (cx) => <Circle cx={cx} cy="158" r="4.4" fill={colors.ink} />;
-  const shut = (cx) => <Path d={`M${cx - 6} 158 Q${cx} 154 ${cx + 6} 158`} stroke={colors.ink} strokeWidth="2.8" fill="none" strokeLinecap="round" />;
+  const eye = (cx) => <Circle cx={cx} cy="158" r="4.4" fill={tk().ink} />;
+  const shut = (cx) => <Path d={`M${cx - 6} 158 Q${cx} 154 ${cx + 6} 158`} stroke={tk().ink} strokeWidth="2.8" fill="none" strokeLinecap="round" />;
   return (
     <View>
       <Svg width={size} height={size * VIEW.h / 220} viewBox={`0 ${VIEW.y} 220 ${VIEW.h}`}>
@@ -110,7 +111,7 @@ export function MochiGalet({ size = 140, mood = 'happy', lean = 0 }) {
             <Stop offset="0" stopColor="#FFFFFF" stopOpacity="0.55" /><Stop offset="1" stopColor="#FFFFFF" stopOpacity="0" />
           </RadialGradient>
           <LinearGradient id={`${id}Rim`} x1="0" y1="1" x2="1" y2="0">
-            <Stop offset="0" stopColor={colors.sage} stopOpacity="0.55" /><Stop offset="0.5" stopColor={colors.butterLight} stopOpacity="0.8" /><Stop offset="1" stopColor="#F5A89A" stopOpacity="0.5" />
+            <Stop offset="0" stopColor={tk().ok} stopOpacity="0.55" /><Stop offset="0.5" stopColor={tk().scene.lamp} stopOpacity="0.8" /><Stop offset="1" stopColor="#F5A89A" stopOpacity="0.5" />
           </LinearGradient>
         </Defs>
         <G skewX={-lean * 10} rotation={lean * 3} originX={DOME_BASE.x} originY={DOME_BASE.y}>
@@ -121,7 +122,7 @@ export function MochiGalet({ size = 140, mood = 'happy', lean = 0 }) {
           <G x={lean * 5}>
             {mood === 'sleeping' ? shut(92) : eye(92)}
             {mood === 'sleeping' || mood === 'wink' ? shut(128) : eye(128)}
-            <Path d={MOUTH_D[mood] || MOUTH_D.happy} stroke={colors.ink} strokeWidth="3.4" fill="none" strokeLinecap="round" />
+            <Path d={MOUTH_D[mood] || MOUTH_D.happy} stroke={tk().ink} strokeWidth="3.4" fill="none" strokeLinecap="round" />
           </G>
         </G>
       </Svg>

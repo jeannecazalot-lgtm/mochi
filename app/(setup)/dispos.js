@@ -15,6 +15,7 @@ import { DisposEditor } from '../../src/components/setup/editors';
 import { disposEmpty, cycleSlot } from '../../src/demo-setup';
 import copy from '../../src/data/copy.json';
 import { colors, space } from '../../src/theme';
+import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';
 
 const t = copy.setup;
 // Démo pédagogique (spec Jeanne, 23 août 2026) : case LUN/MATIN, première visite seulement.
@@ -92,7 +93,7 @@ export default function Dispos() {
   );
 }
 
-const s = StyleSheet.create({
-  tapHint: { textAlign: 'center', fontSize: 12, fontWeight: '400', color: colors.muted, marginBottom: 12 },
+const s = v3Styles(T => StyleSheet.create({
+  tapHint: { textAlign: 'center', fontSize: 12, fontWeight: '400', color: T.muted, marginBottom: 12 },
   ctaWrap: { position: 'absolute', left: space.screenX, right: space.screenX, bottom: 26 },
-});
+}));

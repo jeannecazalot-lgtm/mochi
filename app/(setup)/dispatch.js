@@ -20,6 +20,7 @@ import { rescheduleReminders } from '../../src/reminders';
 import { useIdentity } from '../../src/identity';
 import copy from '../../src/data/copy.json';
 import { colors, space, alpha, motion } from '../../src/theme';
+import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';
 
 const t = copy.setup;
 const fmtMinRound = v => fmtMin(Math.round(v));
@@ -64,7 +65,7 @@ function Row({ it, index, onToggle, onFreq, onOpen }) {
   const pair = both || alt;
   const who = pair ? me : byId(it.assignee_id);
   const pairLabel = alt ? t.alternate : t.both;
-  const pop = usePopOnChange(it.assignee_id, pair ? colors.ink : who.color);
+  const pop = usePopOnChange(it.assignee_id, pair ? tk().ink : who.color);
   return (
     <Animated.View entering={prefersReducedMotion() ? undefined : FadeInDown.delay(index * 45).duration(motion.screen)}>
       <Card padding={0} r={12} style={{ marginBottom: 6 }}>
@@ -82,13 +83,13 @@ function Row({ it, index, onToggle, onFreq, onOpen }) {
                 <Pressable onPress={() => onFreq(1)} hitSlop={8} style={s.stepBtn}><Text style={s.stepTxt}>+</Text></Pressable>
               </View>
               {/* les jours que la tâche occupera cette semaine (tap sur la rangée pour les changer) */}
-              <Text style={[s.daysTxt, it.window_days?.length && { color: colors.ink }]}>{dayLabels(it, index)}</Text>
+              <Text style={[s.daysTxt, it.window_days?.length && { color: tk().ink }]}>{dayLabels(it, index)}</Text>
             </View>
           </Pressable>
           {/* porteur explicite : avatar + prénom, tap = bascule
               (cycle moi → binôme → alterné → les deux, retour Jeanne 1er sept 2026) */}
           <Pressable onPress={onToggle} hitSlop={8} accessibilityLabel={`${it.label} · ${pair ? pairLabel : who.first_name}`}>
-            <Animated.View style={[pop, s.whoChip, { borderColor: pair ? colors.ink : who.color }]}>
+            <Animated.View style={[pop, s.whoChip, { borderColor: pair ? tk().ink : who.color }]}>
               {pair ? (
                 <View style={{ flexDirection: 'row' }}>
                   <Avatar initial={me.initial} color={me.color} photo={me.avatar_url} size={22} ring />
@@ -183,7 +184,7 @@ export default function Dispatch() {
         <View style={{ paddingHorizontal: space.headerX, paddingTop: 18 }}>
           <Animated.View entering={prefersReducedMotion() ? undefined : FadeInDown.duration(motion.screen)}>
             {/* Retour Jeanne (1er sept 2026) : encadré vert si équilibré, rouge sinon */}
-            <Card padding={0} r={20} accent={state === 'balanced' ? colors.sage : colors.coral} style={{ marginBottom: 14 }}>
+            <Card padding={0} r={20} accent={state === 'balanced' ? tk().ok : tk().accent} style={{ marginBottom: 14 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, height: 96, paddingHorizontal: 18 }}>
                 <View style={{ flex: 1 }}>
                   <Text style={s.state} numberOfLines={1}>{t[state]}</Text>
@@ -212,19 +213,19 @@ export default function Dispatch() {
   );
 }
 
-const s = StyleSheet.create({
-  shared: { fontSize: 12.5, color: colors.muted, textAlign: 'center', marginTop: -4, marginBottom: 10, paddingHorizontal: 8 },
-  state: { fontSize: 21, fontWeight: '600', letterSpacing: -0.6, lineHeight: 26, color: colors.ink }, // 26 : l'accent de « Équilibré » était rogné (audit 8 sept)
-  loads: { fontSize: 13, fontWeight: '400', color: colors.muted, marginTop: 6 },
-  strong: { fontSize: 13, color: colors.ink, fontWeight: '600', fontVariant: ['tabular-nums'] },
-  bar: { height: 8, width: 80, borderRadius: 4, overflow: 'hidden', flexDirection: 'row', backgroundColor: alpha(colors.ink, 0.10) },
+const s = v3Styles(T => StyleSheet.create({
+  shared: { fontSize: 12.5, color: T.muted, textAlign: 'center', marginTop: -4, marginBottom: 10, paddingHorizontal: 8 },
+  state: { fontSize: 21, fontWeight: '600', letterSpacing: -0.6, lineHeight: 26, color: T.ink }, // 26 : l'accent de « Équilibré » était rogné (audit 8 sept)
+  loads: { fontSize: 13, fontWeight: '400', color: T.muted, marginTop: 6 },
+  strong: { fontSize: 13, color: T.ink, fontWeight: '600', fontVariant: ['tabular-nums'] },
+  bar: { height: 8, width: 80, borderRadius: 4, overflow: 'hidden', flexDirection: 'row', backgroundColor: T.seg },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 11, paddingHorizontal: 14 },
-  title: { fontSize: 16, fontWeight: '500', color: colors.ink },
+  title: { fontSize: 16, fontWeight: '500', color: T.ink },
   freqRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6 },
-  stepBtn: { width: 24, height: 24, borderRadius: 12, backgroundColor: alpha(colors.ink, 0.06), alignItems: 'center', justifyContent: 'center' },
-  stepTxt: { fontSize: 15, fontWeight: '600', color: colors.ink, lineHeight: 17 },
-  daysTxt: { fontSize: 12, fontWeight: '500', color: colors.muted, marginTop: 4 },
-  freqTxt: { fontSize: 13, fontWeight: '500', color: colors.muted, fontVariant: ['tabular-nums'], minWidth: 52, textAlign: 'center' },
-  whoChip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 4, paddingLeft: 4, paddingRight: 10, borderRadius: 999, borderWidth: 1.5, backgroundColor: colors.card },
-  whoTxt: { fontSize: 13, fontWeight: '600', color: colors.ink },
-});
+  stepBtn: { width: 24, height: 24, borderRadius: 12, backgroundColor: T.seg, alignItems: 'center', justifyContent: 'center' },
+  stepTxt: { fontSize: 15, fontWeight: '600', color: T.ink, lineHeight: 17 },
+  daysTxt: { fontSize: 12, fontWeight: '500', color: T.muted, marginTop: 4 },
+  freqTxt: { fontSize: 13, fontWeight: '500', color: T.muted, fontVariant: ['tabular-nums'], minWidth: 52, textAlign: 'center' },
+  whoChip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 4, paddingLeft: 4, paddingRight: 10, borderRadius: 999, borderWidth: 1.5, backgroundColor: T.bg },
+  whoTxt: { fontSize: 13, fontWeight: '600', color: T.ink },
+}));

@@ -9,25 +9,26 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path } from 'react-native-svg';
 import { colors, alpha, radius, gradients, shadows, font } from '../../theme';
 import { Card, Micro } from '../ui';
+import { styles as v3Styles, currentTokens as tk } from '../../theme-v3';
 
 export const taskTokens = {
-  chipBg: alpha(colors.ink, 0.05),
-  circleBg: alpha(colors.ink, 0.06),
-  toggleOff: alpha(colors.ink, 0.12),
-  linkLine: alpha(colors.ink, 0.15),
-  coralChipBg: alpha(colors.coral, 0.12),
-  coralChipSoft: alpha(colors.coral, 0.10),
+  chipBg: tk().seg,
+  circleBg: tk().seg,
+  toggleOff: tk().seg,
+  linkLine: tk().seg,
+  coralChipBg: tk().accent,
+  coralChipSoft: tk().accent,
   contentX: 22,
   headerX: 16,
 };
 
 // ─── icônes outline (paths de l'artboard) ───────────────────────────
-export const ChevronLeft = ({ size = 18, color = colors.ink }) => (
+export const ChevronLeft = ({ size = 18, color = tk().ink }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none"><Path d="M15 5l-7 7 7 7" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" /></Svg>
 );
-export const ChevronRight = ({ color = colors.muted }) => <Text style={{ fontSize: 16, color }}>›</Text>;
+export const ChevronRight = ({ color = tk().muted }) => <Text style={{ fontSize: 16, color }}>›</Text>;
 export const CheckMark = ({ size = 9 }) => (
-  <Svg width={size} height={size} viewBox="0 0 12 12"><Path d="M2 6l3 3 5-6" stroke={colors.white} strokeWidth={2.4} fill="none" strokeLinecap="round" strokeLinejoin="round" /></Svg>
+  <Svg width={size} height={size} viewBox="0 0 12 12"><Path d="M2 6l3 3 5-6" stroke={tk().bg} strokeWidth={2.4} fill="none" strokeLinecap="round" strokeLinejoin="round" /></Svg>
 );
 
 // ─── bouton rond 36 crème + hairline ────────────────────────────────
@@ -62,7 +63,7 @@ export const Section = ({ label, children, gap = 7 }) => (
 export function Toggle({ on, onChange }) {
   return (
     <Pressable onPress={() => onChange && onChange(!on)} accessibilityRole="switch" accessibilityState={{ checked: !!on }} hitSlop={6}
-      style={[s.toggle, { backgroundColor: on ? colors.sage : taskTokens.toggleOff }]}>
+      style={[s.toggle, { backgroundColor: on ? tk().ok : taskTokens.toggleOff }]}>
       <View style={[s.knob, { left: on ? 18 : 2 }]} />
     </Pressable>
   );
@@ -71,8 +72,8 @@ export function Toggle({ on, onChange }) {
 // ─── chip valeur (fréquence, fenêtre, tags) ─────────────────────────
 export function Chip({ children, tone = 'ink', onPress, small, selected }) {
   const coral = tone === 'coral' || tone === 'coralSoft';
-  const bg = tone === 'coral' ? taskTokens.coralChipBg : tone === 'coralSoft' ? taskTokens.coralChipSoft : selected ? colors.ink : taskTokens.chipBg;
-  const color = coral ? colors.coralDeep : tone === 'muted' ? colors.muted : selected ? colors.card : colors.ink;
+  const bg = tone === 'coral' ? taskTokens.coralChipBg : tone === 'coralSoft' ? taskTokens.coralChipSoft : selected ? tk().ink : taskTokens.chipBg;
+  const color = coral ? tk().accent : tone === 'muted' ? tk().muted : selected ? tk().bg : tk().ink;
   const inner = (
     <View style={[s.chip, small && s.chipSmall, { backgroundColor: bg }]}>
       <Text style={[small ? s.chipTextSmall : s.chipText, { color }, font.tabular]}>{children}</Text>
@@ -85,7 +86,7 @@ export function Chip({ children, tone = 'ink', onPress, small, selected }) {
 export function StatTile({ label, value, hint, onPress, active }) {
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.8 : 1 }]}>
-      <Card r={13} padding={0} style={[s.tile, active && { borderColor: colors.ink }]}>
+      <Card r={13} padding={0} style={[s.tile, active && { borderColor: tk().ink }]}>
         <Text style={s.tileLabel}>{label}</Text>
         <Text style={[s.tileValue, font.tabular]}>{value}</Text>
         {hint ? <Text style={s.tileHint}>{hint}</Text> : null}
@@ -95,7 +96,7 @@ export function StatTile({ label, value, hint, onPress, active }) {
 }
 
 // ─── rangée d'étoiles 1→5 ───────────────────────────────────────────
-export function Stars({ value, onChange, color = colors.ink }) {
+export function Stars({ value, onChange, color = tk().ink }) {
   return (
     <View style={{ flexDirection: 'row', gap: 6 }}>
       {[1, 2, 3, 4, 5].map(n => (
@@ -114,9 +115,9 @@ export function Segmented({ options, value, onChange }) {
       {options.map(o => {
         const on = o.k === value;
         return (
-          <Pressable key={o.k} onPress={() => onChange(o.k)} style={[s.seg, on && { backgroundColor: colors.ink }]}>
-            <Text style={[s.segTitle, { color: on ? colors.card : colors.ink }]}>{o.l}</Text>
-            <Text style={[s.segSub, { color: on ? colors.card : colors.ink }]}>{o.s}</Text>
+          <Pressable key={o.k} onPress={() => onChange(o.k)} style={[s.seg, on && { backgroundColor: tk().ink }]}>
+            <Text style={[s.segTitle, { color: on ? tk().bg : tk().ink }]}>{o.l}</Text>
+            <Text style={[s.segSub, { color: on ? tk().bg : tk().ink }]}>{o.s}</Text>
           </Pressable>
         );
       })}
@@ -154,28 +155,28 @@ export function TaskFooter({ children, bottom = 19 }) {
   return <View style={[s.footer, { paddingBottom: bottom }]}>{children}</View>;
 }
 
-const s = StyleSheet.create({
-  round: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.card, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline, alignItems: 'center', justifyContent: 'center' },
+const s = v3Styles(T => StyleSheet.create({
+  round: { width: 36, height: 36, borderRadius: 18, backgroundColor: T.bg, borderWidth: StyleSheet.hairlineWidth, borderColor: T.line, alignItems: 'center', justifyContent: 'center' },
   header: { paddingTop: 10, paddingHorizontal: taskTokens.headerX, marginBottom: 8, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  headerTitle: { fontSize: 11.5, letterSpacing: 1.6, fontWeight: '600', color: colors.ink, textTransform: 'uppercase' },
+  headerTitle: { fontSize: 11.5, letterSpacing: 1.6, fontWeight: '600', color: T.ink, textTransform: 'uppercase' },
   toggle: { width: 40, height: 24, borderRadius: radius.pill },
-  knob: { position: 'absolute', top: 2, width: 20, height: 20, borderRadius: 10, backgroundColor: colors.card, shadowColor: colors.ink, shadowOpacity: 0.2, shadowRadius: 3, shadowOffset: { width: 0, height: 1 }, elevation: 2 },
+  knob: { position: 'absolute', top: 2, width: 20, height: 20, borderRadius: 10, backgroundColor: T.bg, shadowColor: T.ink, shadowOpacity: 0.2, shadowRadius: 3, shadowOffset: { width: 0, height: 1 }, elevation: 2 },
   chip: { paddingVertical: 6, paddingHorizontal: 9, borderRadius: radius.pill, alignSelf: 'flex-start' },
   chipSmall: { paddingHorizontal: 8 },
   chipText: { fontSize: 14.5, fontWeight: '600' },
   chipTextSmall: { fontSize: 11, fontWeight: '600' },
   tile: { paddingVertical: 6, paddingHorizontal: 10 },
-  tileLabel: { fontSize: 9.5, letterSpacing: 1, color: colors.muted, fontWeight: '600', marginBottom: 4, textTransform: 'uppercase' },
-  tileValue: { fontSize: 19, fontWeight: '700', letterSpacing: -0.4, color: colors.ink },
-  tileHint: { fontSize: 9.5, color: colors.lavenderDeep, fontWeight: '500', marginTop: 2 },
+  tileLabel: { fontSize: 9.5, letterSpacing: 1, color: T.muted, fontWeight: '600', marginBottom: 4, textTransform: 'uppercase' },
+  tileValue: { fontSize: 19, fontWeight: '700', letterSpacing: -0.4, color: T.ink },
+  tileHint: { fontSize: 9.5, color: '#9A7BC8', fontWeight: '500', marginTop: 2 },
   seg: { flex: 1, borderRadius: 10, paddingVertical: 6, paddingHorizontal: 8, alignItems: 'center' },
   segTitle: { fontSize: 14.5, fontWeight: '600' },
   segSub: { fontSize: 10.5, fontWeight: '400', opacity: 0.6, marginTop: 2 },
   optRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 5 },
-  optRowLine: { borderTopWidth: 1, borderTopColor: colors.line },
-  optTitle: { fontSize: 15, fontWeight: '500', color: colors.ink },
-  optSub: { fontSize: 12, color: colors.muted, fontWeight: '400', marginTop: 2 },
+  optRowLine: { borderTopWidth: 1, borderTopColor: T.line },
+  optTitle: { fontSize: 15, fontWeight: '500', color: T.ink },
+  optSub: { fontSize: 12, color: T.muted, fontWeight: '400', marginTop: 2 },
   cta: { borderRadius: radius.row, paddingVertical: 11, paddingHorizontal: 16, alignItems: 'center' },
-  ctaText: { fontSize: 16, fontWeight: '600', color: colors.ink },
-  footer: { backgroundColor: colors.white, borderTopWidth: 1, borderTopColor: colors.footerLine, paddingTop: 9, paddingHorizontal: 14 },
-});
+  ctaText: { fontSize: 16, fontWeight: '600', color: T.ink },
+  footer: { backgroundColor: T.bg, borderTopWidth: 1, borderTopColor: T.line, paddingTop: 9, paddingHorizontal: 14 },
+}));

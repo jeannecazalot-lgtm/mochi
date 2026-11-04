@@ -6,6 +6,7 @@ import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GlowBg, ScreenTitle, Card, Divider, Micro, Secondary } from '../src/components/ui';
 import { colors, space, font } from '../src/theme';
+import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 
 const GROUPS = [
   ['Onboarding', [['01-05 · Onboarding', '/onboarding']]],
@@ -45,8 +46,8 @@ export default function Plan() {
                         router.push(href);
                       }}
                       style={({ pressed }) => ({ paddingVertical: 12, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', opacity: pressed ? 0.6 : 1 })}>
-                      <Text style={[font.row, { flex: 1 }]}>{label}</Text>
-                      <Text style={{ color: colors.muted, fontSize: 16 }}>›</Text>
+                      <Text style={[font.row, { color: tk().ink }, { flex: 1 }]}>{label}</Text>
+                      <Text style={{ color: tk().muted, fontSize: 16 }}>›</Text>
                     </Pressable>
                   </View>
                 ))}

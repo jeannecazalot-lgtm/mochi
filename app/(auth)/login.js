@@ -15,11 +15,12 @@ import { loadIdentity, getUid } from '../../src/identity';
 import { loadSetup, bindSetupToUser } from '../../src/setup-state';
 import copy from '../../src/data/copy.json';
 import { colors, font, radius, alpha } from '../../src/theme';
+import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';
 
 const t = copy.auth;
 
 const MailIcon = () => (
-  <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke={colors.ink} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+  <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke={tk().ink} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
     <Rect x="3" y="5" width="18" height="14" rx="2.5" /><Path d="M3.5 7l8.5 6 8.5-6" />
   </Svg>
 );
@@ -93,9 +94,9 @@ export default function Login() {
             ) : mode === 'email' ? (
               <View style={{ marginTop: 28 }}>
                 <Card padding={0} style={{ marginBottom: 12 }}>
-                  <TextInput value={email} onChangeText={setEmail} placeholder={t.emailPlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)}
+                  <TextInput value={email} onChangeText={setEmail} placeholder={t.emailPlaceholder} placeholderTextColor={tk().seg}
                     autoCapitalize="none" autoCorrect={false} keyboardType="email-address" textContentType="emailAddress" returnKeyType="go" onSubmitEditing={onSend}
-                    cursorColor={colors.coral} selectionColor={colors.coral} style={s.input} />
+                    cursorColor={tk().accent} selectionColor={tk().accent} style={s.input} />
                 </Card>
                 {note ? <Secondary style={{ marginBottom: 12, textAlign: 'center' }}>{note}</Secondary> : null}
                 <CTAPrimary label={t.sendCode} disabled={!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim()) || busy} big onPress={onSend} />
@@ -105,7 +106,7 @@ export default function Login() {
               <View style={{ marginTop: 28 }}>
                 <Card padding={0} style={{ paddingVertical: 18, paddingHorizontal: 18, alignItems: 'center', marginBottom: 12 }}>
                   <Text style={{ fontSize: 34 }}>📬</Text>
-                  <Text style={[font.secondary, { textAlign: 'center', marginTop: 8, lineHeight: 20 }]}>{t.sentHint}</Text>
+                  <Text style={[font.secondary, { color: tk().muted }, { textAlign: 'center', marginTop: 8, lineHeight: 20 }]}>{t.sentHint}</Text>
                 </Card>
                 {note ? <Secondary style={{ marginBottom: 12, textAlign: 'center' }}>{note}</Secondary> : null}
                 <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 22, marginTop: 8 }}>
@@ -116,9 +117,9 @@ export default function Login() {
             ) : (
               <View style={{ marginTop: 28 }}>
                 <Card padding={0} style={{ marginBottom: 12 }}>
-                  <TextInput value={code} onChangeText={v => setCode(v.replace(/\D/g, '').slice(0, 6))} placeholder={t.codePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)}
+                  <TextInput value={code} onChangeText={v => setCode(v.replace(/\D/g, '').slice(0, 6))} placeholder={t.codePlaceholder} placeholderTextColor={tk().seg}
                     keyboardType="number-pad" textContentType="oneTimeCode" returnKeyType="go" onSubmitEditing={onVerify}
-                    cursorColor={colors.coral} selectionColor={colors.coral} style={[s.input, s.code]} />
+                    cursorColor={tk().accent} selectionColor={tk().accent} style={[s.input, s.code]} />
                 </Card>
                 {note ? <Secondary style={{ marginBottom: 12, textAlign: 'center' }}>{note}</Secondary> : null}
                 <CTAPrimary label={copy.common.continue} disabled={code.length !== 6 || busy} big onPress={onVerify} />
@@ -135,12 +136,12 @@ export default function Login() {
   );
 }
 
-const s = StyleSheet.create({
-  title: { fontSize: 30, fontWeight: '700', letterSpacing: -1.2, lineHeight: 36, color: colors.ink, textAlign: 'center', marginTop: 22 },
-  emailBtn: { height: 56, borderRadius: radius.row, backgroundColor: colors.card, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 },
-  emailTxt: { fontSize: 16, fontWeight: '600', color: colors.ink },
-  legal: { ...font.caption, textAlign: 'center', marginTop: 8, lineHeight: 17 },
-  input: { paddingVertical: 17, paddingHorizontal: 18, fontSize: 17, fontWeight: '500', color: colors.ink },
+const s = v3Styles(T => StyleSheet.create({
+  title: { fontSize: 30, fontWeight: '700', letterSpacing: -1.2, lineHeight: 36, color: T.ink, textAlign: 'center', marginTop: 22 },
+  emailBtn: { height: 56, borderRadius: radius.row, backgroundColor: T.bg, borderWidth: StyleSheet.hairlineWidth, borderColor: T.line, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 },
+  emailTxt: { fontSize: 16, fontWeight: '600', color: T.ink },
+  legal: { ...font.caption, color: T.muted, textAlign: 'center', marginTop: 8, lineHeight: 17 },
+  input: { paddingVertical: 17, paddingHorizontal: 18, fontSize: 17, fontWeight: '500', color: T.ink },
   code: { textAlign: 'center', fontSize: 26, fontWeight: '700', letterSpacing: 8, fontVariant: ['tabular-nums'] },
-  back: { fontSize: 13.5, fontWeight: '500', color: colors.muted },
-});
+  back: { fontSize: 13.5, fontWeight: '500', color: T.muted },
+}));

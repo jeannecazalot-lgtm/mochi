@@ -12,6 +12,7 @@ import { loadSetup, setup } from '../src/setup-state';
 import { getUid, getPartnerUid } from '../src/identity';
 import { addDaysIso } from '../src/dates';
 import { occStore } from '../src/demo-core';
+import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 
 // `?late=1` : trois occurrences d'HIER (une à moi, une à l'autre, une commune) sur des tâches
 // existantes du foyer → section « En retard » du Planning à vérifier (Jeanne, 10 sept 2026)

@@ -9,6 +9,7 @@ import { onb, StepPill, Kicker, AccentCard, onbStyles as o } from './extra';
 import copy from '../../data/copy.json';
 import { colors, radius, alpha } from '../../theme';
 import * as pitch from '../../demo-onboarding';
+import { styles as v3Styles, currentTokens as tk } from '../../theme-v3';
 
 const t = copy.onboarding;
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => String(vars[k]));
@@ -16,7 +17,7 @@ const daily = pitch.dailyGapLabel();
 
 // gros chiffre héros : remonté (key) à chaque fois que la slide devient courante → count-up 500 ms
 function Hero({ value, size, tracking, unit, active }) {
-  const style = { fontSize: size, fontWeight: '700', letterSpacing: tracking, lineHeight: Math.round(size * 0.88), color: colors.ink, fontVariant: ['tabular-nums'] };
+  const style = { fontSize: size, fontWeight: '700', letterSpacing: tracking, lineHeight: Math.round(size * 0.88), color: tk().ink, fontVariant: ['tabular-nums'] };
   return (
     <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
       {active ? <CountUp value={value} format={pitch.fmtHours} style={style} /> : <Text style={style}>{pitch.fmtHours(value)}</Text>}
@@ -46,8 +47,8 @@ export function Slide01({ width, headerH, active }) {
           <Hero value={pitch.weeklyGapHours} size={92} tracking={-5} unit={{ size: 20, label: t.s1Unit }} active={active} />
           <View style={s.barRow}>
             <View style={s.track}>
-              <LinearGradient colors={[onb.salmon, colors.coral]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ flex: pitch.gapShare }} />
-              <View style={{ flex: 1 - pitch.gapShare, backgroundColor: alpha(colors.ink, 0.12) }} />
+              <LinearGradient colors={[onb.salmon, tk().accent]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ flex: pitch.gapShare }} />
+              <View style={{ flex: 1 - pitch.gapShare, backgroundColor: tk().seg }} />
             </View>
             <Text style={s.barLabel}>{fill(t.s1PerDay, { daily })}</Text>
           </View>
@@ -90,12 +91,12 @@ export function Slide02({ width, headerH }) {
 }
 
 // ── 03 · à un an ────────────────────────────────────────────────────
-const ALT_ACCENTS = [colors.butter, colors.lavender, colors.sky];
+const ALT_ACCENTS = [tk().scene.lamp, '#9A7BC8', '#7DB3D5'];
 export function Slide03({ width, headerH, active }) {
   return (
     <Page intensity="strong" width={width} headerH={headerH} top={22}>
       <StepPill>{t.s3Pill}</StepPill>
-      <AccentCard accent={colors.sage} dx={-5} dy={7} r={22} padding={0} style={{ marginBottom: 14 }}>
+      <AccentCard accent={tk().ok} dx={-5} dy={7} r={22} padding={0} style={{ marginBottom: 14 }}>
         <View style={s.heroPad}>
           <Kicker>{t.s3Kicker}</Kicker>
           <Hero value={pitch.yearlyHours} size={80} tracking={-4} unit={{ size: 21, label: t.s3Unit }} active={active} />
@@ -156,7 +157,7 @@ export function Slide05({ width, headerH }) {
       <View style={{ alignItems: 'center', marginBottom: 29 }}><LiveMochi size={210} mood="happy" /></View>
       <Card r={22} padding={24} style={{ marginHorizontal: -1 }}>
         <View style={{ alignItems: 'center' }}>
-          <View style={{ marginBottom: 14 }}><PillLabel color={colors.coral}>{t.s5Pill}</PillLabel></View>
+          <View style={{ marginBottom: 14 }}><PillLabel color={tk().accent}>{t.s5Pill}</PillLabel></View>
           <Text style={s.welcomeTitle}>{t.s5Title}</Text>
           <Text style={s.welcomeBody}>{t.s5Body}</Text>
         </View>
@@ -165,38 +166,38 @@ export function Slide05({ width, headerH }) {
   );
 }
 
-const s = StyleSheet.create({
+const s = v3Styles(T => StyleSheet.create({
   heroPad: { paddingTop: 22, paddingHorizontal: 23, paddingBottom: 18 },
-  barRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 14, paddingTop: 12, borderTopWidth: 1, borderTopColor: colors.line },
-  track: { flex: 1, height: 6, borderRadius: 3, overflow: 'hidden', flexDirection: 'row', backgroundColor: alpha(colors.ink, 0.05) },
-  barLabel: { fontSize: 11.5, fontWeight: '500', color: colors.muted, fontVariant: ['tabular-nums'] },
-  h20: { fontSize: 20, fontWeight: '600', letterSpacing: -0.8, lineHeight: 24, color: colors.ink, marginBottom: 10 },
+  barRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 14, paddingTop: 12, borderTopWidth: 1, borderTopColor: T.line },
+  track: { flex: 1, height: 6, borderRadius: 3, overflow: 'hidden', flexDirection: 'row', backgroundColor: T.seg },
+  barLabel: { fontSize: 11.5, fontWeight: '500', color: T.muted, fontVariant: ['tabular-nums'] },
+  h20: { fontSize: 20, fontWeight: '600', letterSpacing: -0.8, lineHeight: 24, color: T.ink, marginBottom: 10 },
   thought: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 11, paddingHorizontal: 13 },
-  thoughtTitle: { flex: 1, fontSize: 15, fontWeight: '500', letterSpacing: -0.1, color: colors.ink },
-  thoughtSub: { fontSize: 12, fontWeight: '400', color: colors.muted, fontVariant: ['tabular-nums'] },
-  faded: { backgroundColor: alpha(colors.card, 0.55), borderRadius: 12, paddingVertical: 8, paddingHorizontal: 13, flexDirection: 'row', alignItems: 'center', gap: 10 },
-  fadedText: { fontSize: 14, fontWeight: '400', color: colors.muted },
-  dots: { fontSize: 19, fontWeight: '600', letterSpacing: 4, textAlign: 'center', color: alpha(colors.muted, 0.55), marginTop: -2 },
-  outro: { fontSize: 15, fontWeight: '400', fontStyle: 'italic', color: colors.inkSoft, marginTop: 11 },
-  outroStrong: { fontStyle: 'normal', fontWeight: '600', color: colors.ink },
-  heroSub: { fontSize: 15, fontWeight: '400', lineHeight: 20, color: colors.inkSoft, marginTop: 11 },
+  thoughtTitle: { flex: 1, fontSize: 15, fontWeight: '500', letterSpacing: -0.1, color: T.ink },
+  thoughtSub: { fontSize: 12, fontWeight: '400', color: T.muted, fontVariant: ['tabular-nums'] },
+  faded: { backgroundColor: alpha(T.bg, 0.55), borderRadius: 12, paddingVertical: 8, paddingHorizontal: 13, flexDirection: 'row', alignItems: 'center', gap: 10 },
+  fadedText: { fontSize: 14, fontWeight: '400', color: T.muted },
+  dots: { fontSize: 19, fontWeight: '600', letterSpacing: 4, textAlign: 'center', color: alpha(T.muted, 0.55), marginTop: -2 },
+  outro: { fontSize: 15, fontWeight: '400', fontStyle: 'italic', color: T.ink, marginTop: 11 },
+  outroStrong: { fontStyle: 'normal', fontWeight: '600', color: T.ink },
+  heroSub: { fontSize: 15, fontWeight: '400', lineHeight: 20, color: T.ink, marginTop: 11 },
   altRow: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 11, paddingHorizontal: 14 },
-  altN: { minWidth: 56, fontSize: 20, fontWeight: '700', fontStyle: 'italic', letterSpacing: -0.8, color: colors.coral, fontVariant: ['tabular-nums'] },
-  altLabel: { flex: 1, fontSize: 14.5, fontWeight: '500', lineHeight: 19, color: colors.ink },
+  altN: { minWidth: 56, fontSize: 20, fontWeight: '700', fontStyle: 'italic', letterSpacing: -0.8, color: T.accent, fontVariant: ['tabular-nums'] },
+  altLabel: { flex: 1, fontSize: 14.5, fontWeight: '500', lineHeight: 19, color: T.ink },
   ledgerPad: { paddingTop: 14, paddingHorizontal: 16, paddingBottom: 13 },
-  ledgerHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', paddingBottom: 8, borderBottomWidth: 1.5, borderBottomColor: colors.ink, marginBottom: 6 },
-  ledgerCol: { fontSize: 10.5, fontWeight: '600', letterSpacing: 1.4, color: colors.ink },
+  ledgerHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', paddingBottom: 8, borderBottomWidth: 1.5, borderBottomColor: T.ink, marginBottom: 6 },
+  ledgerCol: { fontSize: 10.5, fontWeight: '600', letterSpacing: 1.4, color: T.ink },
   ledgerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', paddingVertical: 9 },
-  ledgerLine: { borderBottomWidth: 1, borderBottomColor: colors.sheetLine },
-  ledgerLast: { borderBottomWidth: 1.5, borderBottomColor: colors.ink },
-  ledgerLabel: { fontSize: 14.5, fontWeight: '400', lineHeight: 19, color: colors.ink },
+  ledgerLine: { borderBottomWidth: 1, borderBottomColor: T.line },
+  ledgerLast: { borderBottomWidth: 1.5, borderBottomColor: T.ink },
+  ledgerLabel: { fontSize: 14.5, fontWeight: '400', lineHeight: 19, color: T.ink },
   ledgerVal: { fontSize: 19, letterSpacing: -0.4, fontVariant: ['tabular-nums'] },
-  ledgerValAccent: { fontWeight: '700', fontStyle: 'italic', color: colors.coral },
-  ledgerValMuted: { fontWeight: '500', color: colors.muted },
+  ledgerValAccent: { fontWeight: '700', fontStyle: 'italic', color: T.accent },
+  ledgerValMuted: { fontWeight: '500', color: T.muted },
   ledgerTotal: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', paddingTop: 12 },
-  totalLabel: { fontSize: 15, fontWeight: '600', fontStyle: 'italic', color: colors.ink },
-  totalVal: { fontSize: 22, fontWeight: '700', letterSpacing: -1, color: colors.sage, fontVariant: ['tabular-nums'] },
-  note: { fontSize: 11, fontWeight: '400', letterSpacing: 0.4, lineHeight: 16, color: colors.muted, marginTop: 10 },
-  welcomeTitle: { fontSize: 22, fontWeight: '600', letterSpacing: -1.2, lineHeight: 23, textAlign: 'center', color: colors.ink, marginBottom: 11 },
-  welcomeBody: { fontSize: 15.5, fontWeight: '400', lineHeight: 23, textAlign: 'center', color: colors.inkSoft },
-});
+  totalLabel: { fontSize: 15, fontWeight: '600', fontStyle: 'italic', color: T.ink },
+  totalVal: { fontSize: 22, fontWeight: '700', letterSpacing: -1, color: T.ok, fontVariant: ['tabular-nums'] },
+  note: { fontSize: 11, fontWeight: '400', letterSpacing: 0.4, lineHeight: 16, color: T.muted, marginTop: 10 },
+  welcomeTitle: { fontSize: 22, fontWeight: '600', letterSpacing: -1.2, lineHeight: 23, textAlign: 'center', color: T.ink, marginBottom: 11 },
+  welcomeBody: { fontSize: 15.5, fontWeight: '400', lineHeight: 23, textAlign: 'center', color: T.ink },
+}));

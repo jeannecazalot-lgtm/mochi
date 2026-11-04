@@ -11,6 +11,7 @@ import { me, partner, fmtMin } from '../src/demo';
 import { wrappedSolo, wrappedCouple, weekNumber, taskTitle } from '../src/demo-moments';
 import copy from '../src/data/copy.json';
 import { colors, font, space, motion } from '../src/theme';
+import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 
 const t = copy.wrapped;
 const SLIDES = ['solo', 'couple', 'share'];
@@ -67,7 +68,7 @@ function Solo() {
   return (
     <View style={{ flex: 1 }} pointerEvents="none">
       <View style={{ paddingTop: 26, paddingHorizontal: 26, alignItems: 'center' }}>
-        <View style={{ marginBottom: 11 }}><PillLabel color={colors.butter}>{fill(t.pillSolo, { n: weekNumber() })}</PillLabel></View>
+        <View style={{ marginBottom: 11 }}><PillLabel color={tk().scene.lamp}>{fill(t.pillSolo, { n: weekNumber() })}</PillLabel></View>
         <View style={{ marginBottom: 9 }}><Mochi size={110} mood="wink" /></View>
         <CountUp value={w.minutes} format={v => fmtMin(Math.round(v))} style={s.heroSolo} />
         <Text style={[s.sub, { marginTop: 6, marginBottom: 21 }]}>{t.hoursSub}</Text>
@@ -91,7 +92,7 @@ function Couple() {
   return (
     <View style={{ flex: 1 }} pointerEvents="none">
       <View style={{ paddingTop: 31, paddingHorizontal: 26, alignItems: 'center' }}>
-        <View style={{ marginBottom: 19 }}><PillLabel color={colors.lavender}>{t.pillCouple}</PillLabel></View>
+        <View style={{ marginBottom: 19 }}><PillLabel color={'#9A7BC8'}>{t.pillCouple}</PillLabel></View>
         <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
           <CountUp value={w.me_pct} style={[s.heroCouple, { color: me.color }]} />
           <Text style={s.heroSlash}> / </Text>
@@ -129,17 +130,17 @@ function Share() {
   );
 }
 
-const s = StyleSheet.create({
+const s = v3Styles(T => StyleSheet.create({
   heroSolo: { fontSize: 56, fontWeight: '700', letterSpacing: -2.5, lineHeight: 58, color: moments.heroPeach, fontVariant: ['tabular-nums'] },
   heroCouple: { fontSize: 54, fontWeight: '700', letterSpacing: -2.5, lineHeight: 56, fontVariant: ['tabular-nums'] },
   heroSlash: { fontSize: 54, fontWeight: '400', lineHeight: 56, color: moments.cream40 },
   sub: { fontSize: 16, fontWeight: '400', color: moments.cream70, textAlign: 'center' },
   legend: { fontSize: 13, fontWeight: '600' },
-  hlTitle: { fontSize: 18, fontWeight: '600', letterSpacing: -0.3, color: colors.ink },
-  hlSub: { fontSize: 13.5, fontWeight: '400', color: colors.muted, marginTop: 3 },
+  hlTitle: { fontSize: 18, fontWeight: '600', letterSpacing: -0.3, color: T.ink },
+  hlSub: { fontSize: 13.5, fontWeight: '400', color: T.muted, marginTop: 3 },
   rows: { paddingHorizontal: 22, gap: 6 },
   foot: { position: 'absolute', left: 22, right: 22, alignItems: 'center' },
   next: { fontSize: 13, fontWeight: '500', color: moments.cream50 },
-  shareTitle: { ...font.screenTitle, color: moments.cream, marginTop: space.xl, textAlign: 'center' },
+  shareTitle: { ...font.screenTitle, color: T.ink, color: moments.cream, marginTop: space.xl, textAlign: 'center' },
   close: { fontSize: 14, fontWeight: '500', color: moments.cream60 },
-});
+}));

@@ -12,6 +12,7 @@ import { useLocalSearchParams } from 'expo-router';
 import copy from '../../src/data/copy.json';
 import { colors, space } from '../../src/theme';
 import { dailyGapLabel } from '../../src/demo-onboarding';
+import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';
 
 const t = copy.onboarding;
 const SLIDES = [Slide01, Slide02, Slide03, Slide04, Slide05];
@@ -47,7 +48,7 @@ export default function Onboarding() {
 
   return (
     <LayoutCtx.Provider value={String(lay)}>
-    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+    <View style={{ flex: 1, backgroundColor: tk().bg }}>
       <FlatList
         ref={list}
         data={slides}

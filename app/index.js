@@ -10,6 +10,7 @@ import { useSession, isRealUser } from '../src/auth';
 import { loadProfile } from '../src/profile';
 import { SUPABASE_READY } from '../src/supabase';
 import { colors } from '../src/theme';
+import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 
 export default function Index() {
   const session = useSession();
@@ -25,7 +26,7 @@ export default function Index() {
   if (__DEV__) return <Redirect href="/plan" />;
   if (!SUPABASE_READY) return <Redirect href="/(setup)/identite" />;
   if (session === undefined || profile === undefined) {
-    return <View style={{ flex: 1, backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator /></View>;
+    return <View style={{ flex: 1, backgroundColor: tk().bg, alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator /></View>;
   }
   // compte d'abord (13 sept 2026) : sans session vraie (nulle ou anonyme) → connexion ; puis prénom ; puis l'app
   if (!isRealUser(session)) return <Redirect href="/(auth)/login" />;

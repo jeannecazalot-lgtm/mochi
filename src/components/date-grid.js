@@ -9,6 +9,7 @@ import { Micro } from './ui';
 import { localIso } from '../dates';
 import copy from '../data/copy.json';
 import { colors } from '../theme';
+import { styles as v3Styles, currentTokens as tk } from '../theme-v3';
 
 export function DateGrid({ value, onChange, allowPast = false }) {
   const tc = copy.calendar;
@@ -36,7 +37,7 @@ export function DateGrid({ value, onChange, allowPast = false }) {
           return (
             <View key={i} style={s.cell}>
               <Pressable disabled={off} onPress={() => onChange(iso)} style={[s.day, on && s.dayOn, off && { opacity: 0.3 }]}>
-                <Text style={[s.dayNum, on && { color: colors.card }]}>{d}</Text>
+                <Text style={[s.dayNum, on && { color: tk().bg }]}>{d}</Text>
               </Pressable>
             </View>
           );
@@ -46,14 +47,14 @@ export function DateGrid({ value, onChange, allowPast = false }) {
   );
 }
 
-const s = StyleSheet.create({
+const s = v3Styles(T => StyleSheet.create({
   grid: { paddingHorizontal: 12, paddingBottom: 12 },
   monthHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 4, paddingBottom: 6 },
-  monthArrow: { fontSize: 22, lineHeight: 24, color: colors.ink, paddingHorizontal: 8 },
+  monthArrow: { fontSize: 22, lineHeight: 24, color: T.ink, paddingHorizontal: 8 },
   gridRow: { flexDirection: 'row', flexWrap: 'wrap' },
-  dow: { width: '14.2857%', textAlign: 'center', fontSize: 10.5, letterSpacing: 1, fontWeight: '600', color: colors.muted, marginBottom: 4 },
+  dow: { width: '14.2857%', textAlign: 'center', fontSize: 10.5, letterSpacing: 1, fontWeight: '600', color: T.muted, marginBottom: 4 },
   cell: { width: '14.2857%', height: 36, padding: 2 },
   day: { flex: 1, borderRadius: 9, alignItems: 'center', justifyContent: 'center' },
-  dayOn: { backgroundColor: colors.ink },
-  dayNum: { fontSize: 13.5, fontWeight: '600', color: colors.ink, fontVariant: ['tabular-nums'] },
-});
+  dayOn: { backgroundColor: T.ink },
+  dayNum: { fontSize: 13.5, fontWeight: '600', color: T.ink, fontVariant: ['tabular-nums'] },
+}));

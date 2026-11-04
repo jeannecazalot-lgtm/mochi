@@ -12,6 +12,7 @@ import { partner } from '../../src/demo';
 import { useIdentity } from '../../src/identity';
 import copy from '../../src/data/copy.json';
 import { colors, space, font } from '../../src/theme';
+import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';
 
 const t = copy.setup;
 
@@ -33,9 +34,9 @@ export default function AvantTaches() {
   );
 }
 
-const s = StyleSheet.create({
+const s = v3Styles(T => StyleSheet.create({
   body: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: space.headerX, gap: 18 },
-  title: { ...font.screenTitle, textAlign: 'center' },
-  sub: { ...font.secondary, textAlign: 'center', lineHeight: 22, maxWidth: 320 },
+  title: { ...font.screenTitle, color: T.ink, textAlign: 'center' },
+  sub: { ...font.secondary, color: T.muted, textAlign: 'center', lineHeight: 22, maxWidth: 320 },
   bottom: { position: 'absolute', left: space.screenX, right: space.screenX, bottom: 26 },
-});
+}));

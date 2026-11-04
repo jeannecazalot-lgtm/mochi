@@ -19,9 +19,10 @@ import { syncJoinerPrefs } from '../../src/sync-setup';
 import { useIdentity } from '../../src/identity';
 import copy from '../../src/data/copy.json';
 import { colors, space, motion } from '../../src/theme';
+import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';
 
 const t = copy.setup;
-const confettiPalette = [colors.coral, colors.butter, colors.sage, colors.lavender, colors.sky];
+const confettiPalette = [tk().accent, tk().scene.lamp, tk().ok, '#9A7BC8', '#7DB3D5'];
 
 export default function DuoForme() {
   const reduced = prefersReducedMotion();
@@ -60,7 +61,7 @@ export default function DuoForme() {
             </Animated.View>
             <Animated.View style={[s.ring, right]}><Avatar initial={partner.initial} color={partner.color} size={62} /></Animated.View>
           </View>
-          <View style={{ marginBottom: 11 }}><PillLabel color={colors.sageDeep}>{t.duoPill}</PillLabel></View>
+          <View style={{ marginBottom: 11 }}><PillLabel color={tk().ok}>{t.duoPill}</PillLabel></View>
           {/* celui qui rejoint lit « Tu as rejoint le foyer de X » (décision Jeanne, 5 sept) */}
           <Text style={s.title}>{fill(joiner ? t.duoTitleJoiner : t.duoTitle, { name: partner.first_name })}</Text>
           <Text style={s.sub}>{fill(joiner ? (filled ? t.duoSubJoinerReady : t.duoSubJoiner) : t.duoSub, { name: partner.first_name })}</Text>
@@ -86,10 +87,10 @@ export default function DuoForme() {
   );
 }
 
-const s = StyleSheet.create({
+const s = v3Styles(T => StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: 60, paddingHorizontal: 26 },
-  ring: { borderWidth: 3, borderColor: colors.bg, borderRadius: 34 },
-  title: { fontSize: 22, fontWeight: '600', letterSpacing: -1.2, lineHeight: 24, textAlign: 'center', color: colors.ink },
-  sub: { fontSize: 14.5, fontWeight: '400', color: colors.muted, marginTop: 10, lineHeight: 22, maxWidth: 240, textAlign: 'center' },
+  ring: { borderWidth: 3, borderColor: T.bg, borderRadius: 34 },
+  title: { fontSize: 22, fontWeight: '600', letterSpacing: -1.2, lineHeight: 24, textAlign: 'center', color: T.ink },
+  sub: { fontSize: 14.5, fontWeight: '400', color: T.muted, marginTop: 10, lineHeight: 22, maxWidth: 240, textAlign: 'center' },
   ctaWrap: { position: 'absolute', left: space.screenX, right: space.screenX, bottom: 26 },
-});
+}));

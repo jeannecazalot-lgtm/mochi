@@ -13,6 +13,7 @@ import { useTogglePop, LegendChip, setupTokens } from './extra';
 import { prefsPool, prefsMax } from '../../demo-setup';
 import copy from '../../data/copy.json';
 import { colors, alpha } from '../../theme';
+import { styles as v3Styles, currentTokens as tk } from '../../theme-v3';
 
 const t = copy.setup;
 
@@ -21,7 +22,7 @@ function Cell({ v, onPress }) {
   return (
     <Animated.View style={[{ flex: 1 }, pop]}>
       <Pressable onPress={onPress} style={[s.cell, v === 2 ? s.cellFull : v === 1 ? s.cellLight : s.cellEmpty]}>
-        <Text style={[s.cellTxt, { color: v === 2 ? colors.ink : colors.sageDeep }]}>{v === 2 ? '●' : v === 1 ? '○' : ''}</Text>
+        <Text style={[s.cellTxt, { color: v === 2 ? tk().ink : tk().ok }]}>{v === 2 ? '●' : v === 1 ? '○' : ''}</Text>
       </Pressable>
     </Animated.View>
   );
@@ -42,7 +43,7 @@ export function DisposEditor({ grid, onTap, demoV = null, demoCell = null, hint 
           {hint || <Text style={s.tapHint}>{t.tapHint}</Text>}
           <View style={s.row}>
             <View style={s.rowLabel} />
-            {t.days.map((d, i) => <Text key={i} style={[s.day, { color: i >= 5 ? colors.ink : colors.muted }]}>{d}</Text>)}
+            {t.days.map((d, i) => <Text key={i} style={[s.day, { color: i >= 5 ? tk().ink : tk().muted }]}>{d}</Text>)}
           </View>
           {['morning', 'evening'].map(row => (
             <View key={row} style={[s.row, { marginTop: 5 }]}>
@@ -81,7 +82,7 @@ const onColor = { like: setupTokens.chipLike, hate: setupTokens.chipHate };
 function Chip({ c, state, onPress }) {
   const bg = state === 'like' ? onColor.like : state === 'hate' ? onColor.hate : null;
   return (
-    <Pressable onPress={onPress} style={[s.chip, bg ? { backgroundColor: bg, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline } : s.chipOff]}>
+    <Pressable onPress={onPress} style={[s.chip, bg ? { backgroundColor: bg, borderWidth: StyleSheet.hairlineWidth, borderColor: tk().line } : s.chipOff]}>
       <Text style={s.chipTxt}>{c.emoji} {c.label}</Text>
     </Pressable>
   );
@@ -107,25 +108,25 @@ export function PrefsEditor({ prefs, onChange }) {
   );
 }
 
-const s = StyleSheet.create({
+const s = v3Styles(T => StyleSheet.create({
   legendTop: { flexDirection: 'row', justifyContent: 'center', gap: 6, marginBottom: 8 },
-  tapHint: { textAlign: 'center', fontSize: 12, fontWeight: '400', color: colors.muted, marginBottom: 12 },
-  sliderValue: { fontSize: 22, fontWeight: '700', letterSpacing: -0.5, color: colors.ink, textAlign: 'center', fontVariant: ['tabular-nums'] },
-  sliderUnit: { fontSize: 13, fontWeight: '400', color: colors.muted, letterSpacing: 0 },
+  tapHint: { textAlign: 'center', fontSize: 12, fontWeight: '400', color: T.muted, marginBottom: 12 },
+  sliderValue: { fontSize: 22, fontWeight: '700', letterSpacing: -0.5, color: T.ink, textAlign: 'center', fontVariant: ['tabular-nums'] },
+  sliderUnit: { fontSize: 13, fontWeight: '400', color: T.muted, letterSpacing: 0 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   rowLabel: { width: 44 },
-  rowTxt: { fontSize: 11, letterSpacing: 0.8, fontWeight: '600', color: colors.muted },
+  rowTxt: { fontSize: 11, letterSpacing: 0.8, fontWeight: '600', color: T.muted },
   day: { flex: 1, textAlign: 'center', fontSize: 10.5, letterSpacing: 1, fontWeight: '600' },
   cell: { height: 34, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-  cellFull: { backgroundColor: colors.sage, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
-  cellLight: { backgroundColor: alpha(colors.sage, 0.35), borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
-  cellEmpty: { backgroundColor: colors.card, borderWidth: 1.5, borderColor: alpha(colors.ink, 0.10) },
+  cellFull: { backgroundColor: T.ok, borderWidth: StyleSheet.hairlineWidth, borderColor: T.line },
+  cellLight: { backgroundColor: T.ok, borderWidth: StyleSheet.hairlineWidth, borderColor: T.line },
+  cellEmpty: { backgroundColor: T.bg, borderWidth: 1.5, borderColor: T.seg },
   cellTxt: { fontSize: 14, fontWeight: '700' },
   legendPrefs: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8, marginBottom: 18 },
-  legendPill: { paddingVertical: 7, paddingHorizontal: 11, borderRadius: 999, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
-  legendPillTxt: { fontSize: 12.5, fontWeight: '500', color: colors.ink },
+  legendPill: { paddingVertical: 7, paddingHorizontal: 11, borderRadius: 999, borderWidth: StyleSheet.hairlineWidth, borderColor: T.line },
+  legendPillTxt: { fontSize: 12.5, fontWeight: '500', color: T.ink },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 9 },
   chip: { paddingVertical: 10, paddingHorizontal: 15, borderRadius: 999 },
-  chipOff: { backgroundColor: colors.card, borderWidth: 1.5, borderColor: alpha(colors.ink, 0.10) },
-  chipTxt: { fontSize: 14, fontWeight: '500', color: colors.ink },
-});
+  chipOff: { backgroundColor: T.bg, borderWidth: 1.5, borderColor: T.seg },
+  chipTxt: { fontSize: 14, fontWeight: '500', color: T.ink },
+}));

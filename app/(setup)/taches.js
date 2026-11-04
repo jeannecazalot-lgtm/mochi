@@ -21,6 +21,7 @@ import { Avatar } from '../../src/components/ui';
 import { read } from '../../src/store';
 import copy from '../../src/data/copy.json';
 import { colors, space, motion } from '../../src/theme';
+import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';
 
 const t = copy.setup;
 const next = () => router.push('/(setup)/calcul');
@@ -30,7 +31,7 @@ function Row({ c, index, active, onToggle, who }) {
   return (
     <Animated.View entering={prefersReducedMotion() ? undefined : FadeInDown.delay(index * 45).duration(motion.screen)}>
       <Pressable onPress={onToggle}>
-        <Card padding={0} r={14} style={{ marginBottom: 6 }} accent={active ? colors.sage : undefined}>
+        <Card padding={0} r={14} style={{ marginBottom: 6 }} accent={active ? tk().ok : undefined}>
           <View style={s.row}>
             <Text style={{ fontSize: 19 }}>{c.emoji}</Text>
             <Text style={[s.title, { flex: 1 }]}>{c.label}</Text>
@@ -126,10 +127,10 @@ export default function Taches() {
         </View>
         <ScrollView ref={scrollRef} {...scrollProps} contentContainerStyle={{ paddingHorizontal: space.screenX, paddingTop: 30, paddingBottom: 110 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
           {adding ? (
-            <Card padding={0} r={14} style={{ marginBottom: 6 }} accent={colors.sage}>
+            <Card padding={0} r={14} style={{ marginBottom: 6 }} accent={tk().ok}>
               <View style={s.row}>
                 <TextInput
-                  value={draft} onChangeText={onDraft} placeholder={t.addTaskPlaceholder} placeholderTextColor={colors.muted}
+                  value={draft} onChangeText={onDraft} placeholder={t.addTaskPlaceholder} placeholderTextColor={tk().muted}
                   autoCapitalize="sentences" returnKeyType="done" onSubmitEditing={addCustom} onBlur={addCustom}
                   style={[s.title, { flex: 1, paddingVertical: 0 }]} />
               </View>
@@ -150,9 +151,9 @@ export default function Taches() {
   );
 }
 
-const s = StyleSheet.create({
+const s = v3Styles(T => StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 13, paddingVertical: 13, paddingHorizontal: 16 },
-  title: { fontSize: 16, fontWeight: '500', color: colors.ink },
-  mental: { fontSize: 11, fontWeight: '600', letterSpacing: 0.8, textTransform: 'uppercase', color: colors.lavenderDeep },
+  title: { fontSize: 16, fontWeight: '500', color: T.ink },
+  mental: { fontSize: 11, fontWeight: '600', letterSpacing: 0.8, textTransform: 'uppercase', color: '#9A7BC8' },
   bottom: { position: 'absolute', left: 24, right: 24, bottom: 24 },
-});
+}));

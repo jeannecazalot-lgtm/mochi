@@ -17,6 +17,7 @@ import { loadPartner, useIdentity } from '../../src/identity';
 import QRCode from 'react-native-qrcode-svg';
 import copy from '../../src/data/copy.json';
 import { colors, space } from '../../src/theme';
+import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';
 
 const t = copy.setup;
 
@@ -128,7 +129,7 @@ export default function Invite() {
             <View style={s.qrBox}>
               <Text style={s.qrTitle}>{t.qrTitle}</Text>
               <View style={s.qrFrame}>
-                <QRCode value={realCode ? inviteUrl(realCode) : `https://${inviteLink}`} size={180} backgroundColor="#FFFFFF" color={colors.ink} />
+                <QRCode value={realCode ? inviteUrl(realCode) : `https://${inviteLink}`} size={180} backgroundColor="#FFFFFF" color={tk().ink} />
               </View>
               {realCode ? <Text style={s.qrCode}>{realCode}</Text> : null}
               <Text style={s.qrHint}>{t.qrHint}</Text>
@@ -141,18 +142,18 @@ export default function Invite() {
   );
 }
 
-const s = StyleSheet.create({
-  cardTitle: { fontSize: 17, fontWeight: '600', letterSpacing: -0.3, color: colors.ink },
-  cardSub: { fontSize: 13.5, fontWeight: '400', color: colors.muted, marginTop: 3, textAlign: 'center' },
-  later: { fontSize: 13.5, fontWeight: '500', color: colors.muted, paddingHorizontal: 6 },
+const s = v3Styles(T => StyleSheet.create({
+  cardTitle: { fontSize: 17, fontWeight: '600', letterSpacing: -0.3, color: T.ink },
+  cardSub: { fontSize: 13.5, fontWeight: '400', color: T.muted, marginTop: 3, textAlign: 'center' },
+  later: { fontSize: 13.5, fontWeight: '500', color: T.muted, paddingHorizontal: 6 },
   bottom: { position: 'absolute', left: space.screenX, right: space.screenX, bottom: 26 },
-  codePill: { marginTop: 14, backgroundColor: colors.bg, borderRadius: 12, paddingVertical: 9, paddingHorizontal: 22, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
-  codeTxt: { fontSize: 22, fontWeight: '700', letterSpacing: 6, color: colors.ink, fontVariant: ['tabular-nums'] },
+  codePill: { marginTop: 14, backgroundColor: T.bg, borderRadius: 12, paddingVertical: 9, paddingHorizontal: 22, borderWidth: StyleSheet.hairlineWidth, borderColor: T.line },
+  codeTxt: { fontSize: 22, fontWeight: '700', letterSpacing: 6, color: T.ink, fontVariant: ['tabular-nums'] },
   qrScrim: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(35,32,28,0.5)', alignItems: 'center', justifyContent: 'center' },
-  qrBox: { backgroundColor: colors.card, borderRadius: 26, paddingVertical: 24, paddingHorizontal: 28, alignItems: 'center', gap: 13, marginHorizontal: 40, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 24, shadowOffset: { width: 0, height: 10 } },
-  qrTitle: { fontSize: 17, fontWeight: '600', letterSpacing: -0.4, color: colors.ink },
-  qrFrame: { backgroundColor: '#FFFFFF', borderRadius: 18, padding: 14, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
-  qrCode: { fontSize: 22, fontWeight: '700', letterSpacing: 6, color: colors.ink, fontVariant: ['tabular-nums'] },
-  qrHint: { fontSize: 12.5, fontWeight: '400', color: colors.muted, textAlign: 'center', maxWidth: 210, lineHeight: 17 },
-  qrClose: { fontSize: 12.5, fontWeight: '500', color: colors.muted, marginTop: 2 },
-});
+  qrBox: { backgroundColor: T.bg, borderRadius: 26, paddingVertical: 24, paddingHorizontal: 28, alignItems: 'center', gap: 13, marginHorizontal: 40, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 24, shadowOffset: { width: 0, height: 10 } },
+  qrTitle: { fontSize: 17, fontWeight: '600', letterSpacing: -0.4, color: T.ink },
+  qrFrame: { backgroundColor: '#FFFFFF', borderRadius: 18, padding: 14, borderWidth: StyleSheet.hairlineWidth, borderColor: T.line },
+  qrCode: { fontSize: 22, fontWeight: '700', letterSpacing: 6, color: T.ink, fontVariant: ['tabular-nums'] },
+  qrHint: { fontSize: 12.5, fontWeight: '400', color: T.muted, textAlign: 'center', maxWidth: 210, lineHeight: 17 },
+  qrClose: { fontSize: 12.5, fontWeight: '500', color: T.muted, marginTop: 2 },
+}));

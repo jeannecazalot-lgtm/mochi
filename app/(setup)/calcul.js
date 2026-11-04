@@ -14,6 +14,7 @@ import { computeDispatch } from '../../src/dispatch';
 import { loadSetup, setup, saveResult } from '../../src/setup-state';
 import copy from '../../src/data/copy.json';
 import { colors, alpha } from '../../src/theme';
+import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';
 
 const t = copy.setup;
 const STEPS = ['calcStep1', 'calcStep2', 'calcStep3'];
@@ -90,8 +91,8 @@ export default function Calcul() {
         <View style={{ paddingTop: 90, paddingHorizontal: 24, alignItems: 'center' }}>
           <View style={{ width: SIZE, height: SIZE, marginBottom: 29, alignItems: 'center', justifyContent: 'center' }}>
             {/* arcs décoratifs retirés le 14 sept 2026 : avec Mochi qui tourne, ils faisaient trois signaux de chargement (revue ChatGPT) */}
-            <Animated.View pointerEvents="none" style={[s.burst, { borderColor: colors.butter }, ring1]} />
-            <Animated.View pointerEvents="none" style={[s.burst, { borderColor: colors.sage }, ring2]} />
+            <Animated.View pointerEvents="none" style={[s.burst, { borderColor: tk().scene.lamp }, ring1]} />
+            <Animated.View pointerEvents="none" style={[s.burst, { borderColor: tk().ok }, ring2]} />
             <Animated.View style={mochiStyle}><LiveMochi size={150} mood={done ? 'wink' : 'happy'} lean={0} float={false} /></Animated.View>
           </View>
 
@@ -107,11 +108,11 @@ export default function Calcul() {
                 const doing = i === step && !reduced && !done;
                 return (
                   <Animated.View key={k} entering={reduced ? undefined : FadeInDown.duration(240)}>
-                    <Text style={[s.log, doing && { color: colors.coral, fontWeight: '500' }]}>{doing ? '→ ' : '✓ '}{t[k]}</Text>
+                    <Text style={[s.log, doing && { color: tk().accent, fontWeight: '500' }]}>{doing ? '→ ' : '✓ '}{t[k]}</Text>
                   </Animated.View>
                 );
               })}
-              <SetupProgress duration={HOLD - 400} color={colors.coral} track={alpha(colors.ink, 0.08)} height={4} style={{ marginTop: 4 }} />
+              <SetupProgress duration={HOLD - 400} color={tk().accent} track={tk().seg} height={4} style={{ marginTop: 4 }} />
             </View>
           </Card>
         </View>
@@ -120,9 +121,9 @@ export default function Calcul() {
   );
 }
 
-const s = StyleSheet.create({
+const s = v3Styles(T => StyleSheet.create({
   burst: { position: 'absolute', width: 224, height: 224, borderRadius: 112, borderWidth: 2, alignSelf: 'center', top: 3 },
-  title: { fontSize: 22, fontWeight: '600', letterSpacing: -1, lineHeight: 22, textAlign: 'center', color: colors.ink },
-  sub: { fontSize: 15, fontWeight: '400', color: colors.muted, marginTop: 10, textAlign: 'center', maxWidth: 240, lineHeight: 22 },
-  log: { fontSize: 13, color: colors.inkSoft, fontVariant: ['tabular-nums'] },
-});
+  title: { fontSize: 22, fontWeight: '600', letterSpacing: -1, lineHeight: 22, textAlign: 'center', color: T.ink },
+  sub: { fontSize: 15, fontWeight: '400', color: T.muted, marginTop: 10, textAlign: 'center', maxWidth: 240, lineHeight: 22 },
+  log: { fontSize: 13, color: T.ink, fontVariant: ['tabular-nums'] },
+}));

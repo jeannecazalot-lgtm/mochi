@@ -15,7 +15,7 @@ export function StepPillHeader({ step, total = 4, onSkip, pill }) {
   const label = pill ?? fill(copy.setup.stepOf, { n: step, total });
   return (
     <View style={s.pillHeader}>
-      <PillLabel color={colors.coral}>{label}</PillLabel>
+      <PillLabel color={tk().accent}>{label}</PillLabel>
       {onSkip ? <Pressable onPress={onSkip} hitSlop={10}><Text style={s.skip}>{copy.setup.skip}</Text></Pressable> : <View />}
     </View>
   );
@@ -25,8 +25,8 @@ export function StepPillHeader({ step, total = 4, onSkip, pill }) {
 export function StepTitle({ title, sub }) {
   return (
     <View style={{ paddingHorizontal: space.headerX, paddingTop: 14 }}>
-      <Text style={[font.screenTitle, { letterSpacing: -1.1, lineHeight: 23 }]}>{title}</Text>
-      {sub ? <Text style={[font.secondary, { fontSize: 14, marginTop: 6, lineHeight: 20 }]}>{sub}</Text> : null}
+      <Text style={[font.screenTitle, { color: tk().ink }, { letterSpacing: -1.1, lineHeight: 23 }]}>{title}</Text>
+      {sub ? <Text style={[font.secondary, { color: tk().muted }, { fontSize: 14, marginTop: 6, lineHeight: 20 }]}>{sub}</Text> : null}
     </View>
   );
 }
@@ -47,7 +47,7 @@ export function BottomCTA({ primary, onPrimary, secondary, onSecondary, bottom =
 // ─── interrupteur 42×24 (10) ────────────────────────────────────────
 export function Toggle({ on, onPress }) {
   return (
-    <Pressable onPress={onPress} hitSlop={8} style={[s.toggle, { backgroundColor: on ? colors.darkPill : alpha(colors.ink, 0.10) }]}>
+    <Pressable onPress={onPress} hitSlop={8} style={[s.toggle, { backgroundColor: on ? tk().ink : tk().seg }]}>
       <View style={[s.knob, { left: on ? 20 : 2 }]} />
     </Pressable>
   );
@@ -56,24 +56,24 @@ export function Toggle({ on, onPress }) {
 // ─── place vide en pointillés « ? » (09) ────────────────────────────
 export function AvatarPlaceholder({ size = 54 }) {
   return (
-    <View style={{ width: size, height: size, borderRadius: size / 2, borderWidth: 2, borderStyle: 'dashed', borderColor: alpha(colors.ink, 0.25), backgroundColor: alpha(colors.ink, 0.03), alignItems: 'center', justifyContent: 'center' }}>
-      <Text style={{ color: colors.muted, fontSize: size * 0.39, fontWeight: '600' }}>?</Text>
+    <View style={{ width: size, height: size, borderRadius: size / 2, borderWidth: 2, borderStyle: 'dashed', borderColor: tk().seg, backgroundColor: tk().seg, alignItems: 'center', justifyContent: 'center' }}>
+      <Text style={{ color: tk().muted, fontSize: size * 0.39, fontWeight: '600' }}>?</Text>
     </View>
   );
 }
 
 // ─── micro-label de section avec couleur optionnelle ────────────────
-export const SectionLabel = ({ children, color = colors.muted, style }) => (
-  <Text style={[font.micro, { color, marginBottom: 9 }, style]}>{children}</Text>
+export const SectionLabel = ({ children, color = tk().muted, style }) => (
+  <Text style={[font.micro, { color: tk().muted }, { color, marginBottom: 9 }, style]}>{children}</Text>
 );
 
-const s = StyleSheet.create({
+const s = v3Styles(T => StyleSheet.create({
   pillHeader: { paddingHorizontal: space.headerX, paddingTop: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  skip: { fontSize: 13, fontWeight: '500', color: colors.muted },
+  skip: { fontSize: 13, fontWeight: '500', color: T.muted },
   bottom: { position: 'absolute', left: 24, right: 24 },
   toggle: { width: 42, height: 24, borderRadius: 12 },
-  knob: { position: 'absolute', top: 2, width: 20, height: 20, borderRadius: 10, backgroundColor: colors.card, shadowColor: colors.ink, shadowOpacity: 0.18, shadowRadius: 3, shadowOffset: { width: 0, height: 1 }, elevation: 2 },
-});
+  knob: { position: 'absolute', top: 2, width: 20, height: 20, borderRadius: 10, backgroundColor: T.bg, shadowColor: T.ink, shadowOpacity: 0.18, shadowRadius: 3, shadowOffset: { width: 0, height: 1 }, elevation: 2 },
+}));
 
 // ─── tokens manquants dans theme.js (à y déplacer par l'intégrateur) ─
 // teintes « on » des chips de préférences (08) : sage clair / pêche de l'artboard
@@ -140,7 +140,7 @@ export function SkipLink({ onPress, label }) {
 }
 
 // ─── icône partage système iOS (flèche qui sort de la boîte), outline 1.8 ─
-export const ShareIcon = ({ size = 18, color = colors.ink }) => (
+export const ShareIcon = ({ size = 18, color = tk().ink }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
     <Path d="M4 11v9a2 2 0 002 2h12a2 2 0 002-2v-9" />
     <Path d="M16 6l-4-4-4 4" />
@@ -149,7 +149,7 @@ export const ShareIcon = ({ size = 18, color = colors.ink }) => (
 );
 
 // ─── icône QR code, outline 1.8 ─────────────────────────────────────
-export const QRIcon = ({ size = 18, color = colors.ink }) => (
+export const QRIcon = ({ size = 18, color = tk().ink }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
     <Path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4z" />
     <Path d="M14 14h3v3h-3zM17 17h3v3h-3z" />
@@ -166,24 +166,25 @@ export function ActionPill({ icon, label, onPress, accessibilityLabel, round }) 
         round
           ? { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center' }
           : { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 15, paddingHorizontal: 20, borderRadius: 999 },
-        { backgroundColor: colors.card, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline, opacity: pressed ? 0.7 : 1 },
+        { backgroundColor: tk().bg, borderWidth: StyleSheet.hairlineWidth, borderColor: tk().line, opacity: pressed ? 0.7 : 1 },
       ]}>
       {icon}
-      {!round && label ? <Text style={{ fontSize: 14.5, fontWeight: '500', color: colors.ink }}>{label}</Text> : null}
+      {!round && label ? <Text style={{ fontSize: 14.5, fontWeight: '500', color: tk().ink }}>{label}</Text> : null}
     </Pressable>
   );
 }
 
 const s2 = StyleSheet.create({
   skipLink: { position: 'absolute', right: space.screenX, top: 4, height: 30, justifyContent: 'center', zIndex: 2 },
-  actionPill: { backgroundColor: colors.glass, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.line, borderRadius: radius.pill, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
-  actionPillTxt: { fontSize: 14.5, fontWeight: '500', color: colors.ink },
+  actionPill: { backgroundColor: tk().bg, borderWidth: StyleSheet.hairlineWidth, borderColor: tk().line, borderRadius: radius.pill, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
+  actionPillTxt: { fontSize: 14.5, fontWeight: '500', color: tk().ink },
 });
 
 // ═══ Retours Jeanne 22 août 2026 — fin de setup (10-12) ═══
 // (imports hoistés par Babel ; durées locales à déplacer dans theme.motion par l'intégrateur)
 import { useCheckPop } from '../motion';
 import { withTiming as wTiming, Easing as REasing } from 'react-native-reanimated';
+import { styles as v3Styles, currentTokens as tk } from '../../theme-v3';
 
 // ─── rond de sélection 26 (10) : anneau `checkRing` off, plein `darkPill` + ✓ crème on.
 // Pop via useCheckPop au cochage ; l'haptique légère est déclenchée par l'écran.
@@ -191,9 +192,9 @@ export function CheckDot({ on, onPress, size = 26 }) {
   const pop = useCheckPop(on);
   return (
     <Pressable onPress={onPress} hitSlop={10} accessibilityRole="checkbox" accessibilityState={{ checked: !!on }}>
-      <Animated.View style={[{ width: size, height: size, borderRadius: size / 2, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? colors.darkPill : 'transparent', borderWidth: 1.5, borderColor: on ? colors.darkPill : colors.checkRing }, pop]}>
+      <Animated.View style={[{ width: size, height: size, borderRadius: size / 2, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? tk().ink : 'transparent', borderWidth: 1.5, borderColor: on ? tk().ink : tk().muted }, pop]}>
         {on ? (
-          <Svg width={size * 0.54} height={size * 0.54} viewBox="0 0 24 24" fill="none" stroke={colors.card} strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
+          <Svg width={size * 0.54} height={size * 0.54} viewBox="0 0 24 24" fill="none" stroke={tk().bg} strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
             <Path d="M4 12.5l5.5 5.5L20 6.5" />
           </Svg>
         ) : null}
@@ -207,7 +208,7 @@ export function CheckDot({ on, onPress, size = 26 }) {
 export function AddButton({ label, onPress, style }) {
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [s3.add, pressed && s3.addPressed, style, pressed && { transform: [{ scale: 0.97 }] }]}>
-      <Text style={font.ctaSecondary}>{label}</Text>
+      <Text style={[font.ctaSecondary, { color: tk().ink }, { color: tk().ink }]}>{label}</Text>
     </Pressable>
   );
 }
@@ -250,8 +251,8 @@ export function LiveCount({ value, format = v => String(Math.round(v)), style, d
 }
 
 const s3 = StyleSheet.create({
-  add: { backgroundColor: colors.card, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline, borderRadius: radius.row, paddingVertical: 14, alignItems: 'center', justifyContent: 'center' },
-  addPressed: { backgroundColor: alpha(colors.ink, 0.06), borderColor: alpha(colors.ink, 0.18) },
+  add: { backgroundColor: tk().bg, borderWidth: StyleSheet.hairlineWidth, borderColor: tk().line, borderRadius: radius.row, paddingVertical: 14, alignItems: 'center', justifyContent: 'center' },
+  addPressed: { backgroundColor: tk().seg, borderColor: tk().seg },
 });
 
 // ─── Retours Jeanne 22 août 2026 — écran 07 v2 (proposition A + slider) ───
@@ -275,9 +276,9 @@ export function HourSlider({ min = 2, max = 8, step = 0.5, value, onChange }) {
       onResponderMove={move}
       style={{ height: 44, justifyContent: 'center' }}
     >
-      <View style={{ height: 6, borderRadius: 999, backgroundColor: alpha(colors.ink, 0.08) }} />
-      <View pointerEvents="none" style={{ position: 'absolute', left: 0, height: 6, borderRadius: 999, backgroundColor: colors.sage, width: KNOB / 2 + ratio * Math.max(0, w - KNOB) }} />
-      <View pointerEvents="none" style={{ position: 'absolute', left: ratio * Math.max(0, w - KNOB), width: KNOB, height: KNOB, borderRadius: KNOB / 2, backgroundColor: colors.card, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline, shadowColor: colors.ink, shadowOpacity: 0.15, shadowRadius: 4, shadowOffset: { width: 0, height: 1 } }} />
+      <View style={{ height: 6, borderRadius: 999, backgroundColor: tk().seg }} />
+      <View pointerEvents="none" style={{ position: 'absolute', left: 0, height: 6, borderRadius: 999, backgroundColor: tk().ok, width: KNOB / 2 + ratio * Math.max(0, w - KNOB) }} />
+      <View pointerEvents="none" style={{ position: 'absolute', left: ratio * Math.max(0, w - KNOB), width: KNOB, height: KNOB, borderRadius: KNOB / 2, backgroundColor: tk().bg, borderWidth: StyleSheet.hairlineWidth, borderColor: tk().line, shadowColor: tk().ink, shadowOpacity: 0.15, shadowRadius: 4, shadowOffset: { width: 0, height: 1 } }} />
     </View>
   );
 }
@@ -285,11 +286,11 @@ export function HourSlider({ min = 2, max = 8, step = 0.5, value, onChange }) {
 // chip de légende (proposition A) : mini-case + libellé ; `on` = surlignée par la démo
 export function LegendChip({ state, label, on }) {
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, paddingVertical: 7, paddingHorizontal: 11, borderRadius: 999, backgroundColor: on ? alpha(colors.sage, 0.35) : alpha(colors.ink, 0.04) }}>
-      <View style={{ width: 22, height: 22, borderRadius: 7, alignItems: 'center', justifyContent: 'center', backgroundColor: state === 2 ? colors.sage : state === 1 ? alpha(colors.sage, 0.35) : colors.card, borderWidth: state === 0 ? 1.5 : StyleSheet.hairlineWidth, borderColor: state === 0 ? alpha(colors.ink, 0.10) : colors.hairline }}>
-        <Text style={{ fontSize: 11, fontWeight: '700', color: state === 2 ? colors.ink : colors.sageDeep }}>{state === 2 ? '●' : state === 1 ? '○' : ''}</Text>
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, paddingVertical: 7, paddingHorizontal: 11, borderRadius: 999, backgroundColor: on ? tk().ok : tk().seg }}>
+      <View style={{ width: 22, height: 22, borderRadius: 7, alignItems: 'center', justifyContent: 'center', backgroundColor: state === 2 ? tk().ok : state === 1 ? tk().ok : tk().bg, borderWidth: state === 0 ? 1.5 : StyleSheet.hairlineWidth, borderColor: state === 0 ? tk().seg : tk().line }}>
+        <Text style={{ fontSize: 11, fontWeight: '700', color: state === 2 ? tk().ink : tk().ok }}>{state === 2 ? '●' : state === 1 ? '○' : ''}</Text>
       </View>
-      <Text style={{ fontSize: 12.5, fontWeight: on ? '600' : '500', color: colors.ink }}>{label}</Text>
+      <Text style={{ fontSize: 12.5, fontWeight: on ? '600' : '500', color: tk().ink }}>{label}</Text>
     </View>
   );
 }
