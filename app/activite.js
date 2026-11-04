@@ -1,11 +1,14 @@
 // Écran 22 · Activité — fil du duo (pings, événements, moments Mochi). Recette : docs/recettes/22-activite.md
+// DA v3 (4 nov 2026) : une colonne, un filet à gauche (sauge = moi, gris = l'autre, corail = à répondre), jour/nuit.
 import React, { useState, useEffect } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
-import { GlowBg, Card, Avatar, Mochi } from '../src/components/ui';
-import { CenterHeader, ReplyChip } from '../src/components/social/extra';
+import { Avatar } from '../src/components/ui';
+import { LiveMochiImage } from '../src/components/mochi-img';
+import { useTokens, type, layout } from '../src/theme-v3';
+import { Label } from '../src/components/mochi/gauges';
 import { taskById, byId, occurrences, me, streak, today } from '../src/demo';
 import { activityFeed, replyPresets } from '../src/demo-social';
 import { react } from '../src/activity-actions';
@@ -17,7 +20,7 @@ import { useIdentity, getUid } from '../src/identity';
 import { mySwaps, resolveSwap } from '../src/swap-actions';
 import { partner } from '../src/demo';
 import copy from '../src/data/copy.json';
-import { colors, space, radius, alpha, font } from '../src/theme';
+import { radius } from '../src/theme';
 
 const t = copy.activity;
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
@@ -41,10 +44,11 @@ const dayLabel = (date, now = today) => {
   return new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }).format(date);
 };
 
-function Replies({ item, keys, chosen, onChoose, name }) {
+function Replies({ T, item, keys, chosen, onChoose, name }) {
+  const s = mk(T);
   return (
     <View style={s.replies}>
-      {keys.map(k => <ReplyChip key={k} label={fill(t.replies[k], { name })} selected={chosen === k} onPress={() => onChoose(item.id, k)} />)}
+      {keys.map(k => <Pressable key={k} onPress={() => onChoose(item.id, k)} style={[s.chip, chosen === k && { backgroundColor: T.ink, borderColor: T.ink }]}><Text style={[type.label, { color: chosen === k ? T.bg : T.ink }]}>{fill(t.replies[k], { name })}</Text></Pressable>)}
     </View>
   );
 }
@@ -55,39 +59,32 @@ const HIGHLIGHT = new Set(['reminder', 'budgetRemind', 'tookOver', 'gaveBack', '
 // Variantes de présentation proposées à Jeanne (13 sept 2026, « j'aime pas la présentation ») :
 //   a · cartes alignées (moi à droite, l'autre à gauche)   b · bulles façon messagerie, sans carte
 //   c · une colonne pleine largeur, filet corail à gauche pour rappels / reprises
-function Wrap({ variant, mine, highlight, children, style }) {
-  if (variant === 'b') return <View style={[s.bub, mine ? s.bubMine : s.bubTheirs, highlight && s.bubHi, style]}>{children}</View>;
-  // C colorée (choix Jeanne 14 sept 2026) : une colonne, cartes teintées — moi sauge, l'autre crème, corail quand ça demande une réponse
-  if (variant === 'c') return <View style={[s.card, s.cCard, mine ? s.cMine : s.cTheirs, highlight && s.cHi, style]}>{children}</View>;
-  return <Card r={radius.card} padding={0} style={[s.card, highlight && s.highlight, style]}>{children}</Card>;
+function Wrap({ T, mine, highlight, children, style }) {
+  const s = mk(T);
+  return <View style={[s.card, { borderLeftColor: highlight ? T.accent : mine ? T.ok : T.line }, style]}>{children}</View>;
 }
-function Item({ item, chosen, onChoose, variant = 'a' }) {
+function Item({ T, item, chosen, onChoose, variant = 'c' }) {
+  const s = mk(T);
   const actor = item.actor_id ? byId(item.actor_id) : null;
   const mine = actor?.id === me.id;
   const hi = item.type === 'info' ? HIGHLIGHT.has(item.preset) : item.type === 'swap_proposed';
   const task = item.task_title ? { title: item.task_title } : item.task_id ? taskById(item.task_id) : null;
-  const head = (content) => (variant === 'b' || variant === 'c' ? (
+  const head = (content) => (
     <View>
       {hi ? <Text style={s.bubTag}>{item.type === 'swap_proposed' ? t.tagSwap : item.preset === 'tookOver' || item.preset === 'gaveBack' ? t.tagTake : t.tagReminder}</Text> : null}
       <View style={s.head}>
         {actor && !mine ? <Avatar initial={actor.initial} color={actor.color} photo={actor.avatar_url} size={24} /> : null}
         <View style={{ flex: 1 }}>{content}</View>
+        <Text style={s.time}>{item.time}</Text>
       </View>
-      <Text style={[s.time, { alignSelf: 'flex-end', marginTop: 4 }]}>{item.time}</Text>
     </View>
-  ) : (
-    <View style={s.head}>
-      {actor ? <Avatar initial={actor.initial} color={actor.color} photo={actor.avatar_url} size={28} /> : null}
-      <View style={{ flex: 1 }}>{content}</View>
-      <Text style={s.time}>{item.time}</Text>
-    </View>
-  ));
+  );
 
   if (item.type === 'task_done') {
     return (
-      <Wrap variant={variant} mine={mine} highlight={hi}>
+      <Wrap T={T} mine={mine} highlight={hi}>
         {head(<RichText template={mine ? t.taskDoneMe : t.taskDone} vars={{ name: actor.first_name, task: task.title.toLowerCase() }} style={s.body} />)}
-        {actor.id !== me.id ? <Replies item={item} keys={replyPresets.task_done} chosen={chosen} onChoose={onChoose} name={actor.first_name} /> : null}
+        {actor.id !== me.id ? <Replies T={T} item={item} keys={replyPresets.task_done} chosen={chosen} onChoose={onChoose} name={actor.first_name} /> : null}
         {/* la réaction de l'autre sous MA mission terminée (fil réel) */}
         {item.reaction ? <Text style={s.debt}>{fill(t.reactionFrom, { name: item.reaction.name, reply: fill(t.replies[item.reaction.key] || item.reaction.key, { name: me.first_name }) })}</Text> : null}
       </Wrap>
@@ -97,16 +94,16 @@ function Item({ item, chosen, onChoose, variant = 'a' }) {
     const occ = occurrences.find(o => o.task_id === item.task_id && o.assignee_id === item.target_id);
     const when = occ?.time || occ?.badge || null;
     return (
-      <Wrap variant={variant} mine={mine} highlight={hi}>
+      <Wrap T={T} mine={mine} highlight={hi}>
         {head(<RichText template={copy.pings[item.preset_key] || ''} vars={{ task: task.title.toLowerCase() + (when ? ` · ${when}` : '') }} style={s.body} />)}
-        {item.target_id === me.id ? <Replies item={item} keys={replyPresets.ping} chosen={chosen} onChoose={onChoose} /> : null}
+        {item.target_id === me.id ? <Replies T={T} item={item} keys={replyPresets.ping} chosen={chosen} onChoose={onChoose} /> : null}
       </Wrap>
     );
   }
   if (item.type === 'swap_proposed' || item.type === 'swap_accepted') {
     const proposed = item.type === 'swap_proposed';
     return (
-      <Wrap variant={variant} mine={mine} highlight={hi} style={proposed && variant === 'a' ? { borderColor: colors.lavender, borderWidth: 1.5 } : null}>
+      <Wrap T={T} mine={mine} highlight={hi}>
         {head(<RichText template={proposed ? t.swapProposed : mine ? t.swapAcceptedMe : t.swapAccepted} vars={{ name: actor.first_name, task: task.title.toLowerCase() }} style={s.body} />)}
         {proposed ? (
           <>
@@ -122,22 +119,26 @@ function Item({ item, chosen, onChoose, variant = 'a' }) {
   // info préformatée (je m'en occupe, règle changée, tâche ajoutée — 7 sept 2026)
   if (item.type === 'info') {
     return (
-      <Wrap variant={variant} mine={mine} highlight={hi}>
+      <Wrap T={T} mine={mine} highlight={hi}>
         {head(<Text style={s.body}>{item.text}</Text>)}
       </Wrap>
     );
   }
   // mochi_moment
   return (
-    <Card r={radius.row} padding={0} style={s.moment} accent={colors.butter}>
-      <View style={{ alignItems: 'center', marginBottom: 6 }}><Mochi size={34} mood="happy" /></View>
-      <Text style={s.momentTitle}>{t.mochiRebalance}</Text>
-      <Text style={s.momentSub}>{fill(t.mochiStreak, { n: item.streak ?? streak.days })}</Text>
-    </Card>
+    <View style={s.moment}>
+      <LiveMochiImage size={44} lean={0} />
+      <View style={{ flex: 1 }}>
+        <Text style={s.momentTitle}>{t.mochiRebalance}</Text>
+        <Label T={T} style={{ marginTop: 2 }}>{fill(t.mochiStreak, { n: item.streak ?? streak.days })}</Label>
+      </View>
+    </View>
   );
 }
 
 export default function Activite() {
+  const T = useTokens();
+  const s = mk(T);
   const { v: variant = 'c', demo: demoParam } = useLocalSearchParams();
   const [chosen, setChosen] = useState({});
   const choose = (id, key) => {
@@ -218,19 +219,21 @@ export default function Activite() {
   });
 
   return (
-    <View style={{ flex: 1 }}>
-      <GlowBg intensity="strong" />
+    <View style={{ flex: 1, backgroundColor: T.bg }}>
       <SafeAreaView style={{ flex: 1 }} edges={['top']}>
-        <CenterHeader title={t.title} onBack={() => router.back()} />
+        <View style={{ paddingTop: 12, paddingHorizontal: layout.x, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <Pressable onPress={() => router.back()} hitSlop={12}><Text style={[type.name, { color: T.ink, fontSize: 28 }]}>‹</Text></Pressable>
+          <Text style={[type.name, { color: T.ink, flex: 1 }]}>{t.title}</Text>
+        </View>
         <ScrollView contentContainerStyle={s.list} showsVerticalScrollIndicator={false}>
           {real && groups.length === 0
-            ? <Text style={[font.secondary, { textAlign: 'center', paddingVertical: 24 }]}>{t.emptyReal}</Text>
+            ? <Text style={[type.sub, { color: T.muted, textAlign: 'center', paddingVertical: 24 }]}>{t.emptyReal}</Text>
             : groups.map((g, gi) => (
               <React.Fragment key={g.label}>
-                <Text style={s.day}>{g.label}</Text>
+                <Label T={T} style={s.day}>{g.label}</Label>
                 {g.items.map(it => (
-                  <View key={it.id} style={[it.type === 'mochi_moment' || variant === 'c' ? null : [s.bubble, it.actor_id === me.id ? s.bubbleMine : s.bubbleTheirs], (chosen[it.id] || gi > 0) && { opacity: chosen[it.id] ? 0.45 : 0.7 }]}>
-                    <Item item={it} chosen={chosen[it.id]} onChoose={choose} variant={variant} />
+                  <View key={it.id} style={[(chosen[it.id] || gi > 0) && { opacity: chosen[it.id] ? 0.45 : 0.7 }]}>
+                    <Item T={T} item={it} chosen={chosen[it.id]} onChoose={choose} variant={variant} />
                   </View>
                 ))}
               </React.Fragment>
@@ -241,39 +244,23 @@ export default function Activite() {
   );
 }
 
-const s = StyleSheet.create({
-  list: { paddingTop: 10, paddingHorizontal: space.screenX, paddingBottom: 40, gap: 8 },
-  day: { alignSelf: 'center', fontSize: 10.5, fontWeight: '500', letterSpacing: 1.4, textTransform: 'uppercase', color: colors.muted },
-  card: { paddingVertical: 13, paddingHorizontal: 14 },
-  highlight: { borderColor: colors.coral, borderWidth: 1.5 },
-  bubble: { width: '86%' },
-  bub: { paddingVertical: 10, paddingHorizontal: 13, borderRadius: 18 },
-  bubMine: { backgroundColor: alpha(colors.sage, 0.35), borderBottomRightRadius: 6 },
-  bubTheirs: { backgroundColor: colors.card, borderBottomLeftRadius: 6, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
-  bubHi: { backgroundColor: alpha(colors.coral, 0.16) },
-  cCard: { borderRadius: radius.card, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
-  cMine: { backgroundColor: alpha(colors.sage, 0.3) },
-  cTheirs: { backgroundColor: colors.card },
-  cHi: { backgroundColor: alpha(colors.coral, 0.16), borderColor: alpha(colors.coral, 0.5) },
-  bubTag: { fontSize: 10.5, fontWeight: '700', letterSpacing: 1, textTransform: 'uppercase', color: colors.coralDeep, marginBottom: 4 },
-  bubbleMine: { alignSelf: 'flex-end' },
-  bubbleTheirs: { alignSelf: 'flex-start' },
+const mk = T => StyleSheet.create({
+  list: { paddingTop: 16, paddingHorizontal: layout.x, paddingBottom: 40, gap: 10 },
+  day: { alignSelf: 'center', marginTop: 10, marginBottom: 2 },
+  card: { paddingVertical: 10, paddingLeft: 14, paddingRight: 4, borderLeftWidth: 3 },
+  bubTag: { fontSize: 11, fontWeight: '700', letterSpacing: 0.4, color: T.accent, marginBottom: 4 },
   head: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  body: { fontSize: 15, fontWeight: '500', color: colors.ink },
-  bodyQuote: { fontSize: 15.5, fontWeight: '500', color: colors.ink },
-  time: { fontSize: 11, fontWeight: '500', color: colors.muted, ...font.tabular },
-  replies: { flexDirection: 'row', gap: 5, marginTop: 9, marginLeft: 38, flexWrap: 'wrap' },
-  attach: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 9, marginLeft: 38, backgroundColor: alpha(colors.ink, 0.04), borderRadius: 10, paddingVertical: 8, paddingHorizontal: 10 },
-  attachText: { flex: 1, fontSize: 13.5, fontWeight: '500', color: colors.ink },
-  view: { fontSize: 12, fontWeight: '600', color: colors.sageDeep },
-  debt: { ...font.caption, marginTop: 4, marginLeft: 38 },
-  actions: { flexDirection: 'row', gap: 6, marginTop: 9, marginLeft: 38 },
-  btn: { flex: 1, borderRadius: radius.pill, paddingVertical: 8, paddingHorizontal: 13, alignItems: 'center' },
-  btnDark: { backgroundColor: colors.ink },
-  btnDarkText: { fontSize: 14, fontWeight: '600', color: colors.card },
-  btnLight: { backgroundColor: alpha(colors.ink, 0.05) },
-  btnLightText: { fontSize: 14, fontWeight: '500', color: colors.ink },
-  moment: { alignSelf: 'center', minWidth: 230, alignItems: 'center', paddingVertical: 11, paddingHorizontal: 16 },
-  momentTitle: { fontSize: 14.5, fontWeight: '600', letterSpacing: -0.2, color: colors.ink },
-  momentSub: { ...font.caption, marginTop: 3 },
+  body: { fontSize: 15.5, fontWeight: '500', color: T.ink, lineHeight: 21 },
+  time: { fontSize: 11, fontWeight: '500', color: T.muted, fontVariant: ['tabular-nums'] },
+  replies: { flexDirection: 'row', gap: 6, marginTop: 10, flexWrap: 'wrap' },
+  chip: { borderWidth: 1.5, borderColor: T.line, borderRadius: 999, paddingVertical: 6, paddingHorizontal: 12 },
+  debt: { fontSize: 13.5, color: T.muted, marginTop: 6 },
+  actions: { flexDirection: 'row', gap: 6, marginTop: 10 },
+  btn: { flex: 1, borderRadius: radius.pill, paddingVertical: 9, paddingHorizontal: 13, alignItems: 'center', borderWidth: 1.5, borderColor: T.ink },
+  btnDark: { backgroundColor: T.ink },
+  btnDarkText: { fontSize: 14, fontWeight: '600', color: T.bg },
+  btnLight: { backgroundColor: 'transparent' },
+  btnLightText: { fontSize: 14, fontWeight: '500', color: T.ink },
+  moment: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 10, paddingHorizontal: 4 },
+  momentTitle: { fontSize: 15, fontWeight: '600', letterSpacing: -0.2, color: T.ink },
 });
