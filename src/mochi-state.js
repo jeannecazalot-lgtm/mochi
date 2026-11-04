@@ -71,13 +71,12 @@ export async function onMissionDone(occ, task, { wasMissed = false } = {}) {
   await checkHatch(); await checkWalk();
 }
 
-// ── éclosion : chaque membre a coché sa première mission ────────────────────────────────
+// ── éclosion : la première mission cochée dans le foyer, par l'un ou l'autre (retour Jeanne 4 nov 2026 :
+// « y a pas le Mochi » — attendre que CHACUN ait coché laissait l'œuf des jours ; « à deux » reste pour les cœurs et la balade)
 export async function checkHatch() {
   const m = await getMochi(); if (!m || m.stage !== 'egg') return false;
-  const [occs, members] = await Promise.all([read('occurrences'), read('household_members')]);
-  const uids = members.filter(x => x.household_id === hid()).map(x => x.user_id);
-  if (uids.length < 2) return false;
-  if (!uids.every(u => occs.some(o => o.status === 'done' && o.assignee_id === u))) return false;
+  const occs = await read('occurrences');
+  if (!occs.some(o => o.status === 'done')) return false;
   await event('hatch', { actor_id: null });
   await patch({ stage: 'mini', hatched_at: nowIso() });
   return true;
