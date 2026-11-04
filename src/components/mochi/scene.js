@@ -1,17 +1,22 @@
-// Scène de Mochi (DA v3, recette §7) : l'appartement en formes plates sans contour, pleine largeur.
-// Refonte 4 nov 2026 (retour Jeanne : « un peu triste », « plus de choses autour ») : la pièce est PLEINE dès le
-// jour 1 (fenêtre avec le ciel et la colline, rideau, tapis, table, plante, étagère, cadre), les paliers ajoutent
-// (lampe, banquette, deuxième plante, cadres) ; micro-mouvements permanents : la plante se balance, la lampe
-// respire la nuit, les étoiles scintillent. Mochi = l'image actuelle, taille selon le stade.
-// Positions ancrées gauche/droite (à passer en largeur relative quand on fera les petits écrans).
+// Scène de Mochi — version « images » (4 nov 2026, décision Jeanne : même matière que Mochi et les pictos).
+// Les meubles sont les images ChatGPT (assets/maison, découpées depuis planche-chatgpt.png), posés sur un mur et
+// un sol plats, aux mêmes positions et paliers que la version en formes : jour 1 = fenêtre, rideau, étagère,
+// table, plante, tapis, cadre ; palier 2 lampe ; palier 3 banquette (remplace la table). Micro-mouvements :
+// la plante se balance, la lampe respire la nuit. La nuit : voile navy sur la pièce, lune et étoiles dans la fenêtre.
 import React, { useEffect } from 'react';
-import { View } from 'react-native';
+import { View, Image } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming, withDelay, withSequence, withRepeat, Easing, ZoomIn, FadeIn } from 'react-native-reanimated';
 import { LiveMochiImage, MOCHI_RATIO } from '../mochi-img';
 import { prefersReducedMotion } from '../motion';
 import { layout } from '../../theme-v3';
 
-const S = ({ l, r, t, b, w, h, rad = 0, c, tl, tr, bl, br, op }) => <View style={{ position: 'absolute', left: l, right: r, top: t, bottom: b, width: w, height: h, borderRadius: rad, borderTopLeftRadius: tl ?? rad, borderTopRightRadius: tr ?? rad, borderBottomLeftRadius: bl ?? rad, borderBottomRightRadius: br ?? rad, backgroundColor: c, opacity: op }} />;
+const IMG = {
+  window: require('../../../assets/maison/window.png'), plant: require('../../../assets/maison/plant.png'), shelf: require('../../../assets/maison/shelf.png'),
+  table: require('../../../assets/maison/table.png'), sofa: require('../../../assets/maison/sofa.png'), lamp: require('../../../assets/maison/lamp.png'),
+  rug: require('../../../assets/maison/rug.png'), frame: require('../../../assets/maison/frame.png'), curtain: require('../../../assets/maison/curtain.png'),
+};
+const S = ({ l, r, t, b, w, h, rad = 0, c, op }) => <View style={{ position: 'absolute', left: l, right: r, top: t, bottom: b, width: w, height: h, borderRadius: rad, backgroundColor: c, opacity: op }} />;
+const Im = ({ k, l, r, t, b, w, h, op = 1 }) => <Image source={IMG[k]} style={{ position: 'absolute', left: l, right: r, top: t, bottom: b, width: w, height: h, opacity: op }} resizeMode="contain" accessibilityIgnoresInvertColors />;
 export const SIZE_BY_STAGE = { egg: 0.6, mini: 0.75, mochi: 1, maxi: 1.15, dore: 1.25 };
 
 // la plante se balance très lentement (±1,5°, 2,8 s), depuis sa base
@@ -31,9 +36,8 @@ function Glow({ style, from = 0.35, to = 0.6, period = 2600, delay = 0 }) {
 const Layer = ({ children, delay = 0, fade }) => <Animated.View entering={fade ? FadeIn.delay(delay) : ZoomIn.springify().damping(14).delay(delay)} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} pointerEvents="none">{children}</Animated.View>;
 
 export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height = layout.scene, hideMochi = false }) {
-  const c = T.scene, hh = height, fl = layout.floor;
+  const c = T.scene, hh = height, fl = layout.floor, night = !!c.moon;
   const W = Math.round(layout.mochi * (SIZE_BY_STAGE[stage] || 1)), H = W * MOCHI_RATIO;
-  // départ en balade : Mochi trottine vers la droite et sort du cadre ; retour : il rentre par la droite en ressort
   const tx = useSharedValue(away ? 420 : 0), hop = useSharedValue(0);
   useEffect(() => {
     const rm = prefersReducedMotion();
@@ -46,44 +50,27 @@ export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height =
     }
   }, [away]);
   const walk = useAnimatedStyle(() => ({ transform: [{ translateX: tx.value }, { translateY: hop.value }] }));
-  const winT = hh - 214;
+  const winT = hh - 232;
   return (
     <View style={{ height: hh, backgroundColor: c.wall, overflow: 'hidden' }}>
       <S l={0} r={0} b={0} h={fl} c={c.floor} />
-      {/* tapis, dès le jour 1 */}
-      <S l={70} r={70} b={12} h={28} rad={14} c={c.rug} />
-      {/* la grande arche : le ciel, la colline, le soleil le jour, la lune et les étoiles la nuit */}
-      <S l={36} t={winT} w={156} h={160} tl={78} tr={78} bl={12} br={12} c={c.window} />
-      <S l={36} t={winT + 112} w={156} h={48} bl={12} br={12} tl={60} tr={60} c={c.hill} />
-      {c.moon
-        ? <><S l={126} t={winT + 30} w={14} h={14} rad={7} c={c.moon} op={0.9} />{c.stars ? <><Glow style={{ position: 'absolute', left: 70, top: winT + 46, width: 3, height: 3, borderRadius: 2, backgroundColor: c.moon }} from={0.2} to={0.9} period={1900} /><Glow style={{ position: 'absolute', left: 96, top: winT + 28, width: 2, height: 2, borderRadius: 1, backgroundColor: c.moon }} from={0.3} to={0.9} period={2300} delay={400} /><Glow style={{ position: 'absolute', left: 160, top: winT + 58, width: 3, height: 3, borderRadius: 2, backgroundColor: c.moon }} from={0.2} to={0.8} period={2100} delay={900} /></> : null}</>
-        : <S l={66} t={winT + 34} w={48} h={48} rad={24} c={c.sun} op={0.95} />}
-      {/* rideau à droite de l'arche, étagère et cadre : dès le jour 1 */}
-      <S l={190} t={winT - 6} w={12} h={176} rad={6} c={c.curtain} />
-      <S r={40} t={hh - 162} w={120} h={8} rad={4} c={c.shelf} />
-      <S r={126} t={hh - 190} w={26} h={28} rad={13} c={c.vase} />
-      <S r={100} t={hh - 188} w={12} h={26} rad={3} c={c.book1} />
-      <S r={86} t={hh - 184} w={10} h={22} rad={3} c={c.book2} />
-      <S r={52} t={hh - 196} w={26} h={30} rad={5} c={c.frame} />
-      {/* table basse à gauche (remplacée par la banquette au palier 3), plante à droite : dès le jour 1 */}
-      {lvl < 3 ? <><S l={60} b={fl - 2} w={5} h={30} c={c.stool} /><S l={109} b={fl - 2} w={5} h={30} c={c.stool} /><S l={52} b={fl + 26} w={70} h={10} rad={5} c={c.stool} /><S l={74} b={fl + 36} w={26} h={12} rad={6} c={c.vase} /></> : null}
-      <Sway style={{ position: 'absolute', right: 20, bottom: fl - 6, width: 74, height: 110 }}>
-        <S l={20} b={0} w={34} h={32} rad={8} c={c.pot} />
-        <S l={4} b={28} w={66} h={76} rad={34} c={c.plant} />
-        <S l={40} b={66} w={34} h={44} rad={18} c={c.book2} />
-      </Sway>
-      {/* palier 2 : lampe (allumée la nuit) et petite plante sur l'étagère */}
+      <Im k="rug" l={60} r={60} b={6} h={46} />
+      {/* fenêtre en arche à gauche ; la nuit : lune et étoiles par-dessus le ciel */}
+      <Im k="window" l={28} t={winT} w={180} h={200} />
+      {night ? <><S l={118} t={winT + 46} w={34} h={34} rad={17} c={c.window} /><S l={128} t={winT + 50} w={14} h={14} rad={7} c={c.moon} op={0.95} /><Glow style={{ position: 'absolute', left: 78, top: winT + 64, width: 3, height: 3, borderRadius: 2, backgroundColor: c.moon }} from={0.2} to={0.9} period={1900} /><Glow style={{ position: 'absolute', left: 100, top: winT + 40, width: 2, height: 2, borderRadius: 1, backgroundColor: c.moon }} from={0.3} to={0.9} period={2300} delay={400} /><Glow style={{ position: 'absolute', left: 168, top: winT + 70, width: 3, height: 3, borderRadius: 2, backgroundColor: c.moon }} from={0.2} to={0.8} period={2100} delay={900} /></> : null}
+      <Im k="curtain" l={192} t={winT - 14} w={60} h={190} />
+      <Im k="shelf" r={28} t={hh - 212} w={130} h={74} />
+      <Im k="frame" r={70} t={hh - 128} w={34} h={40} />
+      {lvl < 3 ? <Im k="table" l={46} b={fl - 10} w={110} h={76} /> : null}
+      <Sway style={{ position: 'absolute', right: 16, bottom: fl - 8, width: 96, height: 128 }}><Image source={IMG.plant} style={{ width: 96, height: 128 }} resizeMode="contain" /></Sway>
       {lvl >= 2 ? <Layer delay={120}>
-        <S l={20} b={fl - 2} w={3} h={150} c={T.muted} op={0.5} />
-        <S l={2} b={fl + 142} w={38} h={26} tl={10} tr={10} bl={4} br={4} c={c.lamp} />
-        {c.lampOn ? <Glow style={{ position: 'absolute', left: -24, bottom: fl + 60, width: 90, height: 90, borderRadius: 45, backgroundColor: c.lamp }} from={0.1} to={0.22} /> : null}
-        <Sway style={{ position: 'absolute', right: 150, top: hh - 190, width: 24, height: 30 }} deg={2} period={3300} delay={600}><S l={0} t={0} w={22} h={24} rad={11} c={c.plant} /><S l={6} t={20} w={10} h={8} rad={2} c={c.pot} /></Sway>
+        <Im k="lamp" l={2} b={fl - 6} w={54} h={146} />
+        {night ? <Glow style={{ position: 'absolute', left: -22, bottom: fl + 70, width: 100, height: 100, borderRadius: 50, backgroundColor: c.lamp }} from={0.12} to={0.26} /> : null}
       </Layer> : null}
-      {/* palier 3 : la banquette et ses coussins */}
-      {lvl >= 3 ? <Layer delay={200}><S l={40} b={fl - 6} w={120} h={30} rad={13} c={c.sofa} /><S l={52} b={fl + 20} w={36} h={20} rad={8} c={c.cushion} /><S l={104} b={fl + 20} w={36} h={20} rad={8} c={c.cushion} /></Layer> : null}
-      {/* palier 4 : un deuxième cadre, une guirlande de livres */}
-      {lvl >= 4 ? <Layer delay={300} fade><S r={86} t={hh - 236} w={22} h={22} rad={5} c={c.frame} /><S r={116} t={hh - 232} w={16} h={16} rad={4} c={c.sofa} /></Layer> : null}
-      {/* Mochi : œuf (forme), parti (hors cadre, la phrase de l'Accueil le dit), ou l'image à la taille du stade */}
+      {lvl >= 3 ? <Layer delay={200}><Im k="sofa" l={34} b={fl - 10} w={140} h={88} /></Layer> : null}
+      {lvl >= 4 ? <Layer delay={300} fade><Im k="frame" r={120} t={hh - 236} w={28} h={32} /></Layer> : null}
+      {/* la nuit : un voile navy sur toute la pièce (les images gardent leur matière) */}
+      {night ? <S l={0} r={0} t={0} b={0} c={c.wall} op={0.5} /> : null}
       {hideMochi ? null : stage === 'egg'
         ? <><View style={{ position: 'absolute', bottom: fl - 10, alignSelf: 'center', width: 150, height: 14, borderRadius: 7, backgroundColor: c.shadow }} /><View style={{ position: 'absolute', bottom: fl - 4, alignSelf: 'center', width: 92, height: 112, borderRadius: 46, borderTopLeftRadius: 50, borderTopRightRadius: 50, backgroundColor: c.vase }} /></>
         : <Animated.View entering={ZoomIn.springify().damping(12).stiffness(160)} style={{ position: 'absolute', bottom: fl - 14, left: 0, right: 0 }}><Animated.View style={[{ alignItems: 'center' }, walk]}>
