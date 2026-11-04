@@ -59,6 +59,7 @@ const s = StyleSheet.create({
 import { useTokens } from '../src/theme-v3';
 export default function RootLayout() {
   const T = useTokens(); const sheetV3 = { ...sheet, contentStyle: { backgroundColor: T.bg } }; // sheets de la DA v3 : fond jour / nuit
+  const tallV3 = { ...tallSheet, contentStyle: { backgroundColor: T.bg } }, createV3 = { ...createSheet, contentStyle: { backgroundColor: T.bg } }, baseV3 = { ...base, contentStyle: { backgroundColor: T.bg } };
   // identité réelle (prénom + photo du profil Supabase) chargée dès la racine
   // le binôme (prénom/photo) se charge aussi à la racine : une arrivée directe (notification,
   // lien) sans passer par l'Accueil affichait encore le prénom de démo (audit 8 sept 2026)
@@ -66,26 +67,26 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.bg }}>
       <StatusBar style="dark" />
-      <Stack screenOptions={base}>
+      <Stack screenOptions={baseV3}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="(setup)" />
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="onboarding/index" options={{ animation: 'fade' }} />
-        <Stack.Screen name="ping" options={sheet} />
-        <Stack.Screen name="mission" options={sheet} />
-        <Stack.Screen name="proto-mission" options={sheet} />
-        <Stack.Screen name="jour" options={sheet} />
-        <Stack.Screen name="retard" options={sheet} />
-        <Stack.Screen name="rejoindre" options={sheet} />
-        <Stack.Screen name="seuils" options={sheet} />
+        <Stack.Screen name="ping" options={sheetV3} />
+        <Stack.Screen name="mission" options={sheetV3} />
+        <Stack.Screen name="proto-mission" options={sheetV3} />
+        <Stack.Screen name="jour" options={sheetV3} />
+        <Stack.Screen name="retard" options={sheetV3} />
+        <Stack.Screen name="rejoindre" options={sheetV3} />
+        <Stack.Screen name="seuils" options={sheetV3} />
         {/* Retour Jeanne (1er sept 2026) : la fiche tâche monte en pop-up, comme sa maquette */}
-        <Stack.Screen name="task/edit" options={createSheet} />
-        <Stack.Screen name="note" options={createSheet} />
-        <Stack.Screen name="moi" options={sheet} />
+        <Stack.Screen name="task/edit" options={createV3} />
+        <Stack.Screen name="note" options={createV3} />
+        <Stack.Screen name="moi" options={sheetV3} />
         <Stack.Screen name="task/page" options={{ presentation: 'card' }} />
-        <Stack.Screen name="event" options={createSheet} />
-        <Stack.Screen name="depense" options={createSheet} />
-        <Stack.Screen name="mood" options={sheet} />
+        <Stack.Screen name="event" options={createV3} />
+        <Stack.Screen name="depense" options={createV3} />
+        <Stack.Screen name="mood" options={sheetV3} />
         <Stack.Screen name="wrapped" options={full} />
         <Stack.Screen name="celebration" options={full} />
         <Stack.Screen name="moment" options={full} />

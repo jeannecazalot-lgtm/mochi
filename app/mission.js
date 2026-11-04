@@ -24,7 +24,8 @@ import { me, partner, fmtMin } from '../src/demo';
 import { fmtWeekday } from '../src/demo-task';
 import { localIso } from '../src/dates';
 import copy from '../src/data/copy.json';
-import { colors, space, font, alpha, motion } from '../src/theme';
+import { space, alpha, motion } from '../src/theme';
+import { useTokens } from '../src/theme-v3';
 
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
 const fmtAmount = cents => `${(cents / 100).toFixed(2).replace('.', ',')} €`;
@@ -35,6 +36,7 @@ const CLOSE_AFTER_SLOW = 1700; // proposé / déplacé : le temps de lire (« be
 const layout = LinearTransition.duration(260);
 
 export default function Mission() {
+  const T = useTokens(); const s = mk(T);
   // rule=1 : règle dépliée d'entrée ; conf=swap|moved : confirmation figée (captures)
   const { occ: occId, tid, title, mins, rule: ruleParam, conf: confParam, other: otherParam } = useLocalSearchParams(); // other=1 : sheet « tâche de l'autre » (captures)
   const insets = useSafeAreaInsets();
@@ -236,7 +238,7 @@ export default function Mission() {
   //   · après la coche : temps passé + dépense + « C'est noté »
   //   · « Modifier la tâche » : sous-page avec retour ‹ en tête (on sait où on est)
   const expenseRight = expenseOpen
-    ? <View style={s.amountBox}><TextInput value={amount} onChangeText={setAmount} placeholder={t.expensePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)} keyboardType="decimal-pad" style={s.amountInput} /><Text style={s.amountUnit}>€</Text></View>
+    ? <View style={s.amountBox}><TextInput value={amount} onChangeText={setAmount} placeholder={t.expensePlaceholder} placeholderTextColor={alpha(T.ink, 0.3)} keyboardType="decimal-pad" style={s.amountInput} /><Text style={s.amountUnit}>€</Text></View>
     : <PillChip label={cents ? fmtAmount(cents) : t.expenseAdd} selected={!!cents} onPress={() => setExpenseOpen(true)} />;
   return (
     <KeyboardAvoidingView behavior="padding" style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 31) }]} onLayout={onGrowLayout}>
@@ -305,21 +307,21 @@ export default function Mission() {
   );
 }
 
-const s = StyleSheet.create({
-  sheet: { backgroundColor: colors.card, paddingTop: 10, paddingHorizontal: space.screenX },
+const mk = T => StyleSheet.create({
+  sheet: { backgroundColor: T.bg, paddingTop: 10, paddingHorizontal: space.screenX },
   head: { marginTop: 2, marginBottom: 12, paddingHorizontal: 2, gap: 4 },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  title: { ...font.cardTitle },
+  title: { fontSize: 20, fontWeight: '600', letterSpacing: -0.6, color: T.ink },
   meta: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  metaTxt: { fontSize: 13, fontWeight: '400', color: colors.muted },
+  metaTxt: { fontSize: 13, fontWeight: '400', color: T.muted },
   block: { marginBottom: 8 },
-  back: { fontSize: 24, lineHeight: 26, color: colors.muted, marginRight: 10, marginTop: -2 },
-  chevDown: { fontSize: 16, color: colors.muted, transform: [{ rotate: '90deg' }] },
-  moveBox: { paddingVertical: 12, paddingHorizontal: 14, gap: 9, borderTopWidth: 1, borderTopColor: colors.line },
+  back: { fontSize: 24, lineHeight: 26, color: T.muted, marginRight: 10, marginTop: -2 },
+  chevDown: { fontSize: 16, color: T.muted, transform: [{ rotate: '90deg' }] },
+  moveBox: { paddingVertical: 12, paddingHorizontal: 14, gap: 9, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: T.line },
   days: { flexDirection: 'row', gap: 6 },
-  amountBox: { flexDirection: 'row', alignItems: 'center', gap: 4, borderBottomWidth: 1.5, borderBottomColor: colors.ink, paddingBottom: 2 },
-  amountInput: { fontSize: 15, fontWeight: '600', color: colors.ink, minWidth: 56, textAlign: 'right', padding: 0, fontVariant: ['tabular-nums'] },
-  amountUnit: { fontSize: 15, fontWeight: '600', color: colors.ink },
-  noteBox: { paddingVertical: 10, paddingHorizontal: 14, borderTopWidth: 1, borderTopColor: colors.line },
-  noteInput: { fontSize: 15, fontWeight: '400', color: colors.ink, minHeight: 44, padding: 0 },
+  amountBox: { flexDirection: 'row', alignItems: 'center', gap: 4, borderBottomWidth: 1.5, borderBottomColor: T.ink, paddingBottom: 2 },
+  amountInput: { fontSize: 15, fontWeight: '600', color: T.ink, minWidth: 56, textAlign: 'right', padding: 0, fontVariant: ['tabular-nums'] },
+  amountUnit: { fontSize: 15, fontWeight: '600', color: T.ink },
+  noteBox: { paddingVertical: 10, paddingHorizontal: 14, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: T.line },
+  noteInput: { fontSize: 15, fontWeight: '400', color: T.ink, minHeight: 44, padding: 0 },
 });
