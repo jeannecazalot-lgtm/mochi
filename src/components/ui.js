@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════════
 // ui.js — composants canoniques (design/handoff/README.md §Composants)
-// Créés une fois, réutilisés partout. Tout style passe par theme.js.
+// Créés une fois, réutilisés partout. DA v3 (4 nov 2026) : fond plat jour/nuit, cartes = hairline, couleurs par useTokens.
 // ═══════════════════════════════════════════════════════════════════
 import React, { useState, useRef, useEffect } from 'react';
 import { router, usePathname } from 'expo-router';
@@ -8,22 +8,15 @@ import { View, Text, Pressable, Image, StyleSheet, Linking } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, withSpring, Easing } from 'react-native-reanimated';
 import Svg, { Defs, RadialGradient, Stop, Rect, Circle, Ellipse, Path, LinearGradient as SvgLinear } from 'react-native-svg';
-import { colors, glow, gradients, radius, space, font, shadows, alpha, ctaSpec } from '../theme';
+import { colors, gradients, radius, space, font, shadows, alpha, ctaSpec } from '../theme';
+import { useTokens } from '../theme-v3';
 import { MochiImage } from './mochi-img';
 // ─── fond app : crème + 4 halos radiaux ─────────────────────────────
 export function GlowBg({ intensity = 'normal' }) {
-  const o = glow.opacity[intensity] ?? glow.opacity.normal;
+  // v3 : plus de halos — un fond uni qui suit le mode jour / nuit (les anciens écrans en profitent sans changement)
+  const T = useTokens();
   return (
-    <View pointerEvents="box-none" style={[StyleSheet.absoluteFill, { backgroundColor: colors.bg }]}>
-      <Svg width="100%" height="100%" style={{ opacity: o }}>
-        <Defs>
-          <RadialGradient id="g1" cx="18%" cy="12%" rx="60%" ry="40%"><Stop offset="0" stopColor={glow.coral} /><Stop offset="0.7" stopColor={glow.coral} stopOpacity="0" /></RadialGradient>
-          <RadialGradient id="g2" cx="88%" cy="22%" rx="50%" ry="35%"><Stop offset="0" stopColor={glow.butter} /><Stop offset="0.72" stopColor={glow.butter} stopOpacity="0" /></RadialGradient>
-          <RadialGradient id="g3" cx="80%" cy="90%" rx="70%" ry="50%"><Stop offset="0" stopColor={glow.sage} /><Stop offset="0.72" stopColor={glow.sage} stopOpacity="0" /></RadialGradient>
-          <RadialGradient id="g4" cx="10%" cy="88%" rx="55%" ry="40%"><Stop offset="0" stopColor={glow.lavender} /><Stop offset="0.72" stopColor={glow.lavender} stopOpacity="0" /></RadialGradient>
-        </Defs>
-        {['g1', 'g2', 'g3', 'g4'].map(id => <Rect key={id} width="100%" height="100%" fill={`url(#${id})`} />)}
-      </Svg>
+    <View pointerEvents="box-none" style={[StyleSheet.absoluteFill, { backgroundColor: T.bg }]}>
       <PlanFab />
     </View>
   );
@@ -45,6 +38,7 @@ function PlanFab() {
 }
 // ─── Card crème + hairline (AUCUNE ombre). accent = bordure 1.5 d'action ─
 export function Card({ children, style, padding = space.md, r = radius.card, accent }) {
+  const s = mk(useTokens());
   return (
     <View style={[s.card, { padding, borderRadius: r }, accent && { borderWidth: 1.5, borderColor: accent }, style]}>
       {children}
@@ -53,27 +47,30 @@ export function Card({ children, style, padding = space.md, r = radius.card, acc
 }
 // ─── rangée glass (liste secondaire) ────────────────────────────────
 export function GlassRow({ children, style, onPress }) {
+  const s = mk(useTokens());
   const inner = <View style={[s.glass, style]}>{children}</View>;
   return onPress ? <Pressable onPress={onPress}>{inner}</Pressable> : inner;
 }
 // ─── séparateur 1px entre rangées d'une même card ───────────────────
-export const Divider = () => <View style={s.divider} />;
+export const Divider = () => { const s = mk(useTokens()); return <View style={s.divider} />; };
 // ─── LinkText : texte dont les adresses web deviennent cliquables (notes de tâche, 7 sept 2026) ──
 // À utiliser DANS un <Text> parent (retourne des <Text> imbriqués) ou seul.
 const URL_RE = /((?:https?:\/\/|www\.)[^\s<>"']+)/gi;
 export function LinkText({ children, style }) {
+  const T = useTokens();
   const str = String(children ?? '');
   const parts = str.split(URL_RE);
   return (
     <Text style={style}>
       {parts.map((p, i) => URL_RE.test(p) && (URL_RE.lastIndex = 0, true)
-        ? <Text key={i} style={{ color: colors.sageDeep, textDecorationLine: 'underline' }} onPress={() => Linking.openURL(p.startsWith('http') ? p : `https://${p}`).catch(() => {})}>{p}</Text>
+        ? <Text key={i} style={{ color: T.ok, textDecorationLine: 'underline' }} onPress={() => Linking.openURL(p.startsWith('http') ? p : `https://${p}`).catch(() => {})}>{p}</Text>
         : <Text key={i}>{p}</Text>)}
     </Text>
   );
 }
 // ─── PillLabel : uppercase 9.5/600, fond couleur à 16 % ─────────────
-export function PillLabel({ children, color = colors.ink, tint }) {
+export function PillLabel({ children, color, tint }) {
+  const T = useTokens(); const s = mk(T); color = color || T.ink;
   return (
     <View style={[s.pill, { backgroundColor: alpha(tint || color, 0.16) }]}>
       <Text style={[font.pill, { color }]}>{children}</Text>
@@ -82,6 +79,7 @@ export function PillLabel({ children, color = colors.ink, tint }) {
 }
 // ─── CTA primaire : gradient Mochi, radius 14 ───────────────────────
 export function CTAPrimary({ label, onPress, disabled, style, big, pill }) {
+  const s = mk(useTokens());
   // à l'appui, une bande claire traverse le bouton : le dégradé « avance » (retour Jeanne, 22 août 2026)
   // Recette (retour Jeanne, 1er sept 2026 : plus fluide, plus lent) : bande 60 % de large,
   // blanc 0→0,4→0, traversée 800 ms easing inOut(cubic) — accélère et ralentit en douceur.
@@ -101,45 +99,48 @@ export function CTAPrimary({ label, onPress, disabled, style, big, pill }) {
 }
 // ─── CTA secondaire : card crème, texte 14/500 ──────────────────────
 export function CTASecondary({ label, onPress, style }) {
+  const T = useTokens(); const s = mk(T);
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [s.cta, s.card, { opacity: pressed ? 0.85 : 1 }, style]}>
-      <Text style={font.ctaSecondary}>{label}</Text>
+      <Text style={[font.ctaSecondary, { color: T.ink }]}>{label}</Text>
     </Pressable>
   );
 }
 // ─── footer blanc qui porte le CTA ──────────────────────────────────
 export function Footer({ children, bottom = space.footerBottom }) {
+  const s = mk(useTokens());
   return <View style={[s.footer, { paddingBottom: bottom }]}>{children}</View>;
 }
 // ─── avatar : photo réelle (profil Supabase) ou initiale sur couleur de slot ─
 export function Avatar({ initial = '?', color = colors.sky, size = 36, ring, photo }) {
+  const T = useTokens();
   if (photo) {
-    return <Image source={{ uri: photo }} style={{ width: size, height: size, borderRadius: size / 2, borderWidth: ring ? 2 : 0, borderColor: colors.card, backgroundColor: color }} />;
+    return <Image source={{ uri: photo }} style={{ width: size, height: size, borderRadius: size / 2, borderWidth: ring ? 2 : 0, borderColor: T.bg, backgroundColor: color }} />;
   }
   return (
-    <View style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: color, alignItems: 'center', justifyContent: 'center', borderWidth: ring ? 2 : 0, borderColor: colors.card }}>
+    <View style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: color, alignItems: 'center', justifyContent: 'center', borderWidth: ring ? 2 : 0, borderColor: T.bg }}>
       <Text style={{ color: colors.white, fontWeight: '600', fontSize: size * 0.42 }}>{initial}</Text>
     </View>
   );
 }
 // ─── titres ─────────────────────────────────────────────────────────
-export const ScreenTitle = ({ children, style }) => <Text style={[font.screenTitle, style]}>{children}</Text>;
-export const Micro = ({ children, style }) => <Text style={[font.micro, style]}>{children}</Text>;
-export const Secondary = ({ children, style }) => <Text style={[font.secondary, style]}>{children}</Text>;
+export const ScreenTitle = ({ children, style }) => { const T = useTokens(); return <Text style={[font.screenTitle, { color: T.ink }, style]}>{children}</Text>; };
+export const Micro = ({ children, style }) => { const T = useTokens(); return <Text style={[font.micro, { color: T.muted }, style]}>{children}</Text>; };
+export const Secondary = ({ children, style }) => { const T = useTokens(); return <Text style={[font.secondary, { color: T.muted }, style]}>{children}</Text>; };
 // ─── Mochi : images ChatGPT (14 sept 2026), voir mochi-img.js ; `size` = largeur ────────────
 export function Mochi({ size = 140, mood = 'happy', lean = 0 }) {
   return <MochiImage size={size} lean={lean} mood={mood} />;
 }
-const s = StyleSheet.create({
-  card: { backgroundColor: colors.card, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
-  glass: { backgroundColor: colors.glass, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.line, borderRadius: radius.row, paddingVertical: 11, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 13 },
-  divider: { height: 1, backgroundColor: colors.line },
+const mk = T => StyleSheet.create({
+  card: { backgroundColor: T.bg, borderWidth: StyleSheet.hairlineWidth, borderColor: T.line },
+  glass: { borderWidth: StyleSheet.hairlineWidth, borderColor: T.line, borderRadius: radius.row, paddingVertical: 11, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 13 },
+  divider: { height: StyleSheet.hairlineWidth, backgroundColor: T.line },
   pill: { alignSelf: 'flex-start', paddingVertical: 8, paddingHorizontal: 10, borderRadius: radius.pill },
   cta: { borderRadius: radius.row, paddingVertical: 15, alignItems: 'center', justifyContent: 'center' },
-  footer: { backgroundColor: colors.white, borderTopWidth: 1, borderTopColor: colors.footerLine, paddingTop: space.footerTop, paddingHorizontal: space.screenX },
+  footer: { backgroundColor: T.bg, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: T.line, paddingTop: space.footerTop, paddingHorizontal: space.screenX },
 });
-// ─── en-tête des écrans Setup (06-08) : points d'étape + titre + sous-titre ─
 export function SetupHeader({ step, total = 3, title, sub, hero, backFallback }) {
+  const T = useTokens();
   // backFallback : chevron affiché même sans historique (ex. 06 → onboarding,
   // retour Jeanne du 2 sept « pas de retour en arrière sur le 06 »)
   const canBack = router.canGoBack() || !!backFallback;
@@ -150,17 +151,17 @@ export function SetupHeader({ step, total = 3, title, sub, hero, backFallback })
       {step ? (
         <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 5, paddingTop: 14 }}>
           {Array.from({ length: total }, (_, i) => i + 1).map(i => (
-            <View key={i} style={{ width: i === step ? 18 : 6, height: 6, borderRadius: radius.pill, backgroundColor: i <= step ? colors.ink : alpha(colors.ink, 0.15) }} />
+            <View key={i} style={{ width: i === step ? 18 : 6, height: 6, borderRadius: radius.pill, backgroundColor: i <= step ? T.ink : T.seg }} />
           ))}
         </View>
       ) : <View style={{ height: 20 }} />}
       <View style={{ paddingHorizontal: space.headerX, paddingTop: canBack ? 22 : 14 }}>
-        <Text style={[font.screenTitle, { letterSpacing: -1.1, lineHeight: 23 }]}>{title}</Text>
-        {sub ? <Text style={[font.secondary, { fontSize: 14, marginTop: 6, lineHeight: 20 }]}>{sub}</Text> : null}
+        <Text style={[font.screenTitle, { letterSpacing: -1.1, lineHeight: 23, color: T.ink }]}>{title}</Text>
+        {sub ? <Text style={[font.secondary, { fontSize: 14, marginTop: 6, lineHeight: 20, color: T.muted }]}>{sub}</Text> : null}
       </View>
       {canBack ? (
-        <Pressable onPress={goBack} hitSlop={12} style={{ position: 'absolute', left: space.screenX, top: 4, zIndex: 2, width: 30, height: 30, borderRadius: 15, backgroundColor: colors.card, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline, alignItems: 'center', justifyContent: 'center' }}>
-          <Svg width={18} height={18} viewBox="0 0 24 24" fill="none"><Path d="M15 5l-7 7 7 7" stroke={colors.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" /></Svg>
+        <Pressable onPress={goBack} hitSlop={12} style={{ position: 'absolute', left: space.screenX, top: 4, zIndex: 2, width: 30, height: 30, borderRadius: 15, borderWidth: 1.5, borderColor: T.line, alignItems: 'center', justifyContent: 'center' }}>
+          <Svg width={18} height={18} viewBox="0 0 24 24" fill="none"><Path d="M15 5l-7 7 7 7" stroke={T.ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" /></Svg>
         </Pressable>
       ) : null}
     </View>

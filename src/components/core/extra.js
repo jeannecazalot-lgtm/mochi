@@ -8,10 +8,12 @@ import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { Avatar } from '../ui';
+import { useTokens } from '../../theme-v3';
 import { colors, radius, alpha, font } from '../../theme';
 
 // ─── icône outline à partir d'un path de l'artboard ─────────────────
-export function Icon({ d, size = 21, color = colors.ink, sw = 1.8 }) {
+export function Icon({ d, size = 21, color, sw = 1.8 }) {
+  const T = useTokens(); color = color || T.ink;
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path d={d} stroke={color} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" />
@@ -33,6 +35,7 @@ export const ICON = {
 
 // ─── badge de mission : 11/700 tracking 0,6 uppercase, padding 8 10 ──
 export function BadgePill({ children, color, tint = color, a = 0.16, size = 11 }) {
+  const s = mk(useTokens());
   return (
     <View style={[s.badge, { backgroundColor: alpha(tint, a) }]}>
       <Text style={{ fontSize: size, fontWeight: '700', letterSpacing: 0.6, textTransform: 'uppercase', color }}>{children}</Text>
@@ -42,25 +45,27 @@ export function BadgePill({ children, color, tint = color, a = 0.16, size = 11 }
 
 // ─── cercle de check 24 : anneau 2 encre 22 % → rempli sage + ✓ blanc ─
 export function CheckCircle({ done, size = 24 }) {
+  const T = useTokens();
   // coche animée (ChatGPT n°1, validée 14 sept 2026) : disque qui se remplit, ✓ en ressort
   const { fillStyle, checkStyle } = useCheckFill(done);
   return (
-    <View style={{ width: size, height: size, borderRadius: size / 2, borderWidth: 2, borderColor: done ? colors.sage : colors.checkRing, alignItems: 'center', justifyContent: 'center' }}>
-      <Animated.View style={[{ position: 'absolute', left: -2, top: -2, width: size, height: size, borderRadius: size / 2, backgroundColor: colors.sage }, fillStyle]} />
-      <Animated.View style={checkStyle}><Svg width={11} height={11} viewBox="0 0 12 12"><Path d={ICON.check} stroke={colors.white} strokeWidth={2.4} fill="none" strokeLinecap="round" strokeLinejoin="round" /></Svg></Animated.View>
+    <View style={{ width: size, height: size, borderRadius: size / 2, borderWidth: 1.5, borderColor: done ? T.ink : T.muted, alignItems: 'center', justifyContent: 'center' }}>
+      <Animated.View style={[{ position: 'absolute', left: -2, top: -2, width: size, height: size, borderRadius: size / 2, backgroundColor: T.ink }, fillStyle]} />
+      <Animated.View style={checkStyle}><Svg width={11} height={11} viewBox="0 0 12 12"><Path d={ICON.check} stroke={T.bg} strokeWidth={2.4} fill="none" strokeLinecap="round" strokeLinejoin="round" /></Svg></Animated.View>
     </View>
   );
 }
 
 // ─── segment pill (Semaine / Mois) : crème + hairline, actif = encre ──
 export function Segment({ options, value, onChange }) {
+  const T = useTokens(); const s = mk(T);
   return (
     <View style={s.segment}>
       {options.map(o => {
         const on = o.value === value;
         return (
-          <Pressable key={o.value} onPress={() => onChange(o.value)} style={[s.segmentOpt, on && { backgroundColor: colors.ink }]}>
-            <Text style={{ fontSize: 13, fontWeight: on ? '600' : '500', color: on ? colors.card : colors.muted }}>{o.label}</Text>
+          <Pressable key={o.value} onPress={() => onChange(o.value)} style={[s.segmentOpt, on && { backgroundColor: T.ink }]}>
+            <Text style={{ fontSize: 13, fontWeight: on ? '600' : '500', color: on ? T.bg : T.muted }}>{o.label}</Text>
           </Pressable>
         );
       })}
@@ -70,18 +75,20 @@ export function Segment({ options, value, onChange }) {
 
 // ─── boutons pill : dark (encre) / ghost (encre 5 %) ────────────────
 export function PillButton({ label, onPress, dark, style }) {
+  const T = useTokens(); const s = mk(T);
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [s.pillBtn, dark ? { backgroundColor: colors.ink } : { backgroundColor: alpha(colors.ink, 0.05) }, { opacity: pressed ? 0.85 : 1 }, style]}>
-      <Text style={{ fontSize: 14.5, fontWeight: dark ? '600' : '500', color: dark ? colors.card : colors.ink }}>{label}</Text>
+    <Pressable onPress={onPress} style={({ pressed }) => [s.pillBtn, dark ? { backgroundColor: T.ink, borderColor: T.ink } : { borderColor: T.ink }, { opacity: pressed ? 0.85 : 1 }, style]}>
+      <Text style={{ fontSize: 14.5, fontWeight: dark ? '600' : '500', color: dark ? T.bg : T.ink }}>{label}</Text>
     </Pressable>
   );
 }
 
 // ─── chip de formulaire : crème + hairline, actif = encre ───────────
 export function Chip({ label, on, onPress, style }) {
+  const T = useTokens(); const s = mk(T);
   return (
-    <Pressable onPress={onPress} style={[s.chip, on && { backgroundColor: colors.ink, borderColor: colors.ink }, style]}>
-      <Text style={{ fontSize: 13.5, fontWeight: '500', color: on ? colors.card : colors.ink }}>{label}</Text>
+    <Pressable onPress={onPress} style={[s.chip, on && { backgroundColor: T.ink, borderColor: T.ink }, style]}>
+      <Text style={{ fontSize: 13.5, fontWeight: '500', color: on ? T.bg : T.ink }}>{label}</Text>
     </Pressable>
   );
 }
@@ -99,6 +106,7 @@ export function AvatarPair({ members, size = 24 }) {
 
 // ─── bouton rond 36 crème + hairline (bulle activité, fermer) ───────
 export function RoundButton({ children, onPress, size = 36, style, accessibilityLabel }) {
+  const s = mk(useTokens());
   return (
     <Pressable onPress={onPress} accessibilityLabel={accessibilityLabel} style={({ pressed }) => [s.round, { width: size, height: size, borderRadius: size / 2, opacity: pressed ? 0.7 : 1 }, style]}>
       {children}
@@ -107,17 +115,17 @@ export function RoundButton({ children, onPress, size = 36, style, accessibility
 }
 
 // ─── poignée de sheet ───────────────────────────────────────────────
-export const SheetHandle = () => <View style={s.handle} />;
+export const SheetHandle = () => { const s = mk(useTokens()); return <View style={s.handle} />; };
 
 // ─── indice centré sous une liste ───────────────────────────────────
-export const Hint = ({ children, size = 11.5, style }) => <Text style={[font.caption, { fontSize: size, textAlign: 'center' }, style]}>{children}</Text>;
+export const Hint = ({ children, size = 11.5, style }) => { const T = useTokens(); return <Text style={[font.caption, { fontSize: size, textAlign: 'center', color: T.muted }, style]}>{children}</Text>; };
 
-const s = StyleSheet.create({
+const mk = T => StyleSheet.create({
   badge: { paddingVertical: 8, paddingHorizontal: 10, borderRadius: radius.pill },
-  segment: { flexDirection: 'row', backgroundColor: colors.card, borderRadius: radius.pill, padding: 11, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
+  segment: { flexDirection: 'row', borderRadius: radius.pill, padding: 4, borderWidth: 1.5, borderColor: T.line },
   segmentOpt: { paddingVertical: 8, paddingHorizontal: 13, borderRadius: radius.pill },
-  pillBtn: { flex: 1, borderRadius: radius.pill, paddingVertical: 11, paddingHorizontal: 14, alignItems: 'center' },
-  chip: { backgroundColor: colors.card, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline, borderRadius: radius.pill, paddingVertical: 9, paddingHorizontal: 13 },
-  round: { backgroundColor: colors.card, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline, alignItems: 'center', justifyContent: 'center' },
-  handle: { width: 36, height: 5, borderRadius: radius.pill, backgroundColor: alpha(colors.ink, 0.15), alignSelf: 'center', marginBottom: 14 },
+  pillBtn: { flex: 1, borderRadius: radius.pill, paddingVertical: 11, paddingHorizontal: 14, alignItems: 'center', borderWidth: 1.5 },
+  chip: { borderWidth: 1.5, borderColor: T.line, borderRadius: radius.pill, paddingVertical: 9, paddingHorizontal: 13 },
+  round: { borderWidth: 1.5, borderColor: T.line, alignItems: 'center', justifyContent: 'center' },
+  handle: { width: 36, height: 5, borderRadius: radius.pill, backgroundColor: T.seg, alignSelf: 'center', marginBottom: 14 },
 });

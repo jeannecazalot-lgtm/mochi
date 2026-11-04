@@ -12,7 +12,7 @@ import { Row, Stepper, PillChip, RuleGroup, Arrow, TrashButton } from './proto';
 import { Stars } from './extra';
 import { me, partner, fmtMin } from '../../demo';
 import copy from '../../data/copy.json';
-import { colors, alpha, font } from '../../theme';
+import { useTokens } from '../../theme-v3';
 
 const t = copy.mission;
 const tt = copy.task;
@@ -21,6 +21,7 @@ export const momentLabel = dl => (dl == null ? tt.anytime : dl === 'morning' ? t
 
 // rule = { window_days: [0-6], deadline, who: 'me'|'partner'|'alt'|'auto', duration_min, note, pain?, importance? }
 export function RuleEditor({ rule, onPatch, showMoment = false, showEffort = false, showDuration = true, first = true, mochiDays = null, onNoteOpen, onSkipOnce, onDeleteTask }) {
+  const T = useTokens(); const s = mk(T);
   const [noteOpen, setNoteOpenRaw] = useState(false);
   const setNoteOpen = v => { setNoteOpenRaw(v); onNoteOpen?.(v); if (!v) Keyboard.dismiss(); };
   // un choix fait avant reste visible (Jeanne 15 sept) : 7 jours cochés = 7 jours noirs ; seule une tâche
@@ -51,7 +52,7 @@ export function RuleEditor({ rule, onPatch, showMoment = false, showEffort = fal
       {noteOpen
         ? (
           <View style={s.noteBox}>
-            <TextInput value={rule.note || ''} onChangeText={v => onPatch({ note: v })} placeholder={t.notePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)} multiline autoFocus returnKeyType="done" blurOnSubmit onSubmitEditing={() => setNoteOpen(false)} style={s.noteInput} />
+            <TextInput value={rule.note || ''} onChangeText={v => onPatch({ note: v })} placeholder={t.notePlaceholder} placeholderTextColor={T.muted} multiline autoFocus returnKeyType="done" blurOnSubmit onSubmitEditing={() => setNoteOpen(false)} style={s.noteInput} />
             <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}><PillChip label={t.noteDone} selected onPress={() => setNoteOpen(false)} /></View>
           </View>
         )
@@ -62,9 +63,9 @@ export function RuleEditor({ rule, onPatch, showMoment = false, showEffort = fal
   );
 }
 
-const s = StyleSheet.create({
-  danger: { color: colors.coralDeep },
-  hint: { ...font.caption, paddingHorizontal: 14, paddingBottom: 10, marginTop: -4 },
-  noteBox: { paddingHorizontal: 14, paddingVertical: 10, borderTopWidth: 1, borderTopColor: colors.line },
-  noteInput: { fontSize: 15, color: colors.ink, minHeight: 60, textAlignVertical: 'top' },
+const mk = T => StyleSheet.create({
+  danger: { color: T.accent },
+  hint: { fontSize: 12.5, color: T.muted, paddingHorizontal: 14, paddingBottom: 10, marginTop: -4 },
+  noteBox: { paddingHorizontal: 14, paddingVertical: 10, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: T.line },
+  noteInput: { fontSize: 15, color: T.ink, minHeight: 60, textAlignVertical: 'top' },
 });
