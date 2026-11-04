@@ -14,6 +14,9 @@ import { useSharedValue, useAnimatedStyle, withSequence, withTiming } from 'reac
 import { DisposEditor } from '../../src/components/setup/editors';
 import { disposEmpty, cycleSlot } from '../../src/demo-setup';
 import copy from '../../src/data/copy.json';
+import { Egg } from '../../src/components/mochi/scene';
+import { useTokens as useT3 } from '../../src/theme-v3';
+const EggHero = () => <Egg T={useT3()} />;
 import { colors, space } from '../../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';
 
@@ -70,7 +73,7 @@ export default function Dispos() {
     <View style={{ flex: 1 }}>
       <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }}>
-        <SetupHeader hero={<LiveMochi size={96} />} step={settings ? undefined : 2} total={settings ? undefined : 4} title={t.disposTitle} sub={t.disposSub2} />
+        <SetupHeader hero={<EggHero />} why={t.whyDispos} step={settings ? undefined : 2} total={settings ? undefined : 4} title={t.disposTitle} sub={t.disposSub2} />
 
         <Animated.View entering={prefersReducedMotion() ? undefined : FadeInDown.duration(350).withInitialValues({ opacity: 0, transform: [{ translateY: 10 }] })} onTouchStart={stopDemo} style={{ paddingHorizontal: space.headerX, paddingTop: 18 }}>
           <DisposEditor

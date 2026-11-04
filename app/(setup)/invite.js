@@ -16,6 +16,9 @@ import { loadSetup, setup } from '../../src/setup-state';
 import { loadPartner, useIdentity } from '../../src/identity';
 import QRCode from 'react-native-qrcode-svg';
 import copy from '../../src/data/copy.json';
+import { Egg } from '../../src/components/mochi/scene';
+import { useTokens as useT3 } from '../../src/theme-v3';
+const EggHero = () => <Egg T={useT3()} />;
 import { colors, space } from '../../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';
 
@@ -73,7 +76,7 @@ export default function Invite() {
       <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }}>
         <View>
-          <SetupHeader hero={<LiveMochi size={96} />} step={4} total={4} title={fill(t.inviteTitle, { partner: copy.common.partner })} sub={t.inviteSub} />
+          <SetupHeader hero={<EggHero />} why={t.whyInvite} step={4} total={4} title={fill(t.inviteTitle, { partner: copy.common.partner })} sub={t.inviteSub} />
           {/* « Passer » retiré (9 sept 2026) : même porte de sortie qu'« Inviter plus tard » */}
         </View>
 

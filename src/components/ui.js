@@ -11,6 +11,7 @@ import Svg, { Defs, RadialGradient, Stop, Rect, Circle, Ellipse, Path, LinearGra
 import { colors, gradients, radius, space, font, shadows, alpha, ctaSpec } from '../theme';
 import { useTokens } from '../theme-v3';
 import { MochiImage } from './mochi-img';
+import copy from '../data/copy.json';
 // ─── fond app : crème + 4 halos radiaux ─────────────────────────────
 export function GlowBg({ intensity = 'normal' }) {
   // v3 : plus de halos — un fond uni qui suit le mode jour / nuit (les anciens écrans en profitent sans changement)
@@ -139,8 +140,9 @@ const mk = T => StyleSheet.create({
   cta: { borderRadius: radius.row, paddingVertical: 15, alignItems: 'center', justifyContent: 'center' },
   footer: { backgroundColor: T.bg, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: T.line, paddingTop: space.footerTop, paddingHorizontal: space.screenX },
 });
-export function SetupHeader({ step, total = 3, title, sub, hero, backFallback }) {
+export function SetupHeader({ step, total = 3, title, sub, hero, backFallback, why }) {
   const T = useTokens();
+  const kicker = [step ? copy.setup.stepOf.replace('{n}', step).replace('{total}', total) : null, why].filter(Boolean).join(' · ');
   // backFallback : chevron affiché même sans historique (ex. 06 → onboarding,
   // retour Jeanne du 2 sept « pas de retour en arrière sur le 06 »)
   const canBack = router.canGoBack() || !!backFallback;
@@ -156,8 +158,9 @@ export function SetupHeader({ step, total = 3, title, sub, hero, backFallback })
         </View>
       ) : <View style={{ height: 20 }} />}
       <View style={{ paddingHorizontal: space.headerX, paddingTop: canBack ? 22 : 14 }}>
-        <Text style={[font.screenTitle, { letterSpacing: -1.1, lineHeight: 23, color: T.ink }]}>{title}</Text>
-        {sub ? <Text style={[font.secondary, { fontSize: 14, marginTop: 6, lineHeight: 20, color: T.muted }]}>{sub}</Text> : null}
+        {kicker ? <Text style={{ fontSize: 13.5, fontWeight: '500', color: T.muted, marginBottom: 8 }}>{kicker}</Text> : null}
+        <Text style={{ fontSize: 28, fontWeight: '600', letterSpacing: -0.9, lineHeight: 32, color: T.ink }}>{title}</Text>
+        {sub ? <Text style={{ fontSize: 15.5, marginTop: 8, lineHeight: 21, color: T.muted }}>{sub}</Text> : null}
       </View>
       {canBack ? (
         <Pressable onPress={goBack} hitSlop={12} style={{ position: 'absolute', left: space.screenX, top: 4, zIndex: 2, width: 30, height: 30, borderRadius: 15, borderWidth: 1.5, borderColor: T.line, alignItems: 'center', justifyContent: 'center' }}>

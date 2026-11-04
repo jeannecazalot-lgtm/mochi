@@ -595,7 +595,8 @@
       "alternate": "Libellé du porteur alterné (écran 12, zigzag un jour chacun)",
       "perWeekSlash": "Suffixe des totaux de l écran 12",
       "beforeTasksSub": "Écran 09c (choix partagé en direct, 15 sept 2026) — {name} = prénom du binôme",
-      "duoSay": "Bulle de Mochi (œuf) sur Duo formé"
+      "duoSay": "Bulle de Mochi (œuf) sur Duo formé",
+      "why": "Ligne « Étape n sur N · pourquoi » en tête de chaque écran setup (4 nov 2026)"
     },
     "identityTitle": "C'est toi.",
     "firstNameLabel": "Ton prénom",
@@ -603,7 +604,7 @@
     "photoLabel": "Ta photo",
     "photoButton": "Ajouter",
     "skip": "Passer",
-    "stepOf": "Étape {n}/{total}",
+    "stepOf": "Étape {n} sur {total}",
     "disposTitle": "Tes dispos & ton énergie.",
     "disposSub": "Tape un créneau pour cycler : 1 tap = dispo léger, 2 taps = à fond, rien = pas ce jour-là.",
     "days": [
@@ -720,7 +721,13 @@
     "beforeTasksSub": "Ce que tu coches, {name} le voit en direct, et inversement. Chacun peut ajouter les siennes. Quand vous validez, Mochi répartit.",
     "beforeTasksCta": "Choisir nos tâches",
     "tasksSubDuo": "À deux : ce que {name} coche apparaît ici en direct, et inversement.",
-    "duoSay": "Vous êtes deux. Maintenant, j'existe."
+    "duoSay": "Vous êtes deux. Maintenant, j'existe.",
+    "whyIdentity": "Pour que Mochi sache qui parle.",
+    "whyDispos": "Pour placer tes missions quand tu es là.",
+    "whyPrefs": "Ce qui te pèse n'est pas ce qui pèse à l'autre.",
+    "whyInvite": "Mochi n'existe qu'à deux.",
+    "whyTasks": "Ce que le foyer doit faire chaque semaine.",
+    "whyDispatch": "Tout se change ici, puis dans le Planning."
   },
   "event": {
     "_labels": {

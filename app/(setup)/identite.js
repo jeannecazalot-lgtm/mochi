@@ -10,6 +10,9 @@ import { LiveMochi } from '../../src/components/motion';
 import { saveIdentity, loadProfile } from '../../src/profile';
 import { setLocalIdentity } from '../../src/identity';
 import copy from '../../src/data/copy.json';
+import { Egg } from '../../src/components/mochi/scene';
+import { useTokens as useT3 } from '../../src/theme-v3';
+const EggHero = () => <Egg T={useT3()} />;
 import { colors, space, radius, alpha, font } from '../../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';
 
@@ -42,7 +45,7 @@ export default function Identite() {
     <View style={{ flex: 1 }}>
       <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }}>
-        <SetupHeader hero={<LiveMochi size={96} mood="happy" />} step={1} total={4} title={t.identityTitle} backFallback="/onboarding" />
+        <SetupHeader hero={<EggHero />} why={t.whyIdentity} step={1} total={4} title={t.identityTitle} backFallback="/onboarding" />
 
         <View style={{ paddingHorizontal: space.headerX, paddingTop: 24 }}>
           <Micro style={s.label}>{t.firstNameLabel}</Micro>

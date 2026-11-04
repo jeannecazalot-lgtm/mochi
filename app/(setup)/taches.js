@@ -20,6 +20,9 @@ import { me, partner } from '../../src/demo';
 import { Avatar } from '../../src/components/ui';
 import { read } from '../../src/store';
 import copy from '../../src/data/copy.json';
+import { Egg } from '../../src/components/mochi/scene';
+import { useTokens as useT3 } from '../../src/theme-v3';
+const EggHero = () => <Egg T={useT3()} />;
 import { colors, space, motion } from '../../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';
 import { TaskIcon } from '../../src/components/task-icon';
@@ -124,7 +127,7 @@ export default function Taches() {
       <SafeAreaView style={{ flex: 1 }}>
         {/* Retour Jeanne (1er sept 2026) : minimum 3 tâches pour continuer — pas de « Passer » ici. */}
         <View>
-          <SetupHeader hero={<LiveMochi size={96} />} title={t.tasksTitle} sub={shared && getPartnerUid() ? t.tasksSubDuo.replace('{name}', partner.first_name) : t.tasksSub} />
+          <SetupHeader hero={<EggHero />} why={t.whyTasks} title={t.tasksTitle} sub={shared && getPartnerUid() ? t.tasksSubDuo.replace('{name}', partner.first_name) : t.tasksSub} />
         </View>
         <ScrollView ref={scrollRef} {...scrollProps} contentContainerStyle={{ paddingHorizontal: space.screenX, paddingTop: 30, paddingBottom: 110 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
           {adding ? (

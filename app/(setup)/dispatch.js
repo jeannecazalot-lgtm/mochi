@@ -19,6 +19,9 @@ import { pushDraft } from '../../src/draft-sync';
 import { rescheduleReminders } from '../../src/reminders';
 import { useIdentity } from '../../src/identity';
 import copy from '../../src/data/copy.json';
+import { Egg } from '../../src/components/mochi/scene';
+import { useTokens as useT3 } from '../../src/theme-v3';
+const EggHero = () => <Egg T={useT3()} />;
 import { colors, space, alpha, motion } from '../../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';
 import { TaskIcon } from '../../src/components/task-icon';
@@ -180,7 +183,7 @@ export default function Dispatch() {
     <View style={{ flex: 1 }}>
       <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }}>
-        <SetupHeader hero={<LiveMochi size={96} />} title={t.dispatchTitle} sub={t.dispatchSubTap} />
+        <SetupHeader hero={<EggHero />} why={t.whyDispatch} title={t.dispatchTitle} sub={t.dispatchSubTap} />
 
         <View style={{ paddingHorizontal: space.headerX, paddingTop: 18 }}>
           <Animated.View entering={prefersReducedMotion() ? undefined : FadeInDown.duration(motion.screen)}>

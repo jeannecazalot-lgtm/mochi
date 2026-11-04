@@ -93,3 +93,13 @@ export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height =
     </View>
   );
 }
+
+// l'œuf seul, en petit (setup : Mochi n'existe pas encore)
+export function Egg({ T, size = 56 }) {
+  return (
+    <View style={{ width: size * 1.3, height: size + 10, alignItems: 'center', justifyContent: 'flex-end' }}>
+      <View style={{ position: 'absolute', bottom: 0, width: size * 1.3, height: 10, borderRadius: 5, backgroundColor: T.scene.shadow }} />
+      <View style={{ width: size * 0.82, height: size, borderRadius: size * 0.41, borderTopLeftRadius: size * 0.45, borderTopRightRadius: size * 0.45, backgroundColor: T.scene.vase, marginBottom: 4 }} />
+    </View>
+  );
+}

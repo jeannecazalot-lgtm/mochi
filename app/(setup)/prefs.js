@@ -16,6 +16,9 @@ import { syncJoinerPrefs, syncMyPains } from '../../src/sync-setup';
 import { askNotificationPermission } from '../../src/notifications';
 import { registerPushToken } from '../../src/push';
 import copy from '../../src/data/copy.json';
+import { Egg } from '../../src/components/mochi/scene';
+import { useTokens as useT3 } from '../../src/theme-v3';
+const EggHero = () => <Egg T={useT3()} />;
 import { colors, space, alpha } from '../../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';
 
@@ -66,7 +69,7 @@ export default function Prefs() {
       <SafeAreaView style={{ flex: 1 }}>
         {/* Retour Jeanne (1er sept 2026) : plus de sous-titre ni de phrase d'aide —
             la légende porte tout (code couleur + « 1 tap / 2 taps »), écran aéré. */}
-        <SetupHeader hero={<LiveMochi size={96} />} step={settings ? undefined : 3} total={settings ? undefined : 4} title={t.prefsTitle} />
+        <SetupHeader hero={<EggHero />} why={t.whyPrefs} step={settings ? undefined : 3} total={settings ? undefined : 4} title={t.prefsTitle} />
 
         <View style={{ paddingHorizontal: space.headerX, paddingTop: 26 }}>
           <PrefsEditor prefs={prefs} onChange={setPrefs} />
