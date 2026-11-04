@@ -2064,7 +2064,9 @@
       "heavy": "Phrase quand j'ai dit « chargé·e » au check-in du jour",
       "energyHint": "Ligne sous la jauge d'énergie (tant qu'elle n'est pas pleine)",
       "pearlsHint": "Ligne sous le compteur de perles (démo et réel), tap → la pièce",
-      "pending": "Ligne sous une mission proposée à l'autre ({name})"
+      "pending": "Ligne sous une mission proposée à l'autre ({name})",
+      "walkLeft": "Bande de balade, gauche ({time} = départ)",
+      "walkRight": "Bande de balade, droite ({time} = retour)"
     },
     "pearls": "{n} perles",
     "stagePill": "Jour {day} · palier {k}",
@@ -2097,7 +2099,9 @@
     "heavy": "Tu as dit que c'était chargé. Mochi reste près de toi aujourd'hui.",
     "energyHint": "Une mission cochée = un cran. Jauge pleine, il part en balade.",
     "pearlsHint": "3 par mission, 12 par balade · tap pour sa pièce",
-    "pending": "Proposée à {name}, en attente de sa réponse"
+    "pending": "Proposée à {name}, en attente de sa réponse",
+    "walkLeft": "Parti à {time}",
+    "walkRight": "Retour vers {time}"
   },
   "moments": {
     "_labels": {

@@ -48,6 +48,26 @@ function Row({ T, vm, first, done, onToggle }) {
   );
 }
 
+// bande de balade : une ligne de progression entre le départ et le retour, le point avance en direct
+function WalkBand({ T, t, started, returns }) {
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => { const id = setInterval(() => setNow(Date.now()), 30 * 1000); return () => clearInterval(id); }, []);
+  const s0 = started ? Date.parse(started) : now - 30 * 60e3, s1 = returns ? Date.parse(returns) : s0 + 2 * 3600e3;
+  const ratio = Math.max(0.02, Math.min(1, (now - s0) / Math.max(1, s1 - s0)));
+  return (
+    <View style={{ marginHorizontal: layout.x, marginTop: 14 }}>
+      <View style={{ height: 3, borderRadius: 2, backgroundColor: T.seg }}>
+        <View style={{ width: `${ratio * 100}%`, height: 3, borderRadius: 2, backgroundColor: T.accent }} />
+        <View style={{ position: 'absolute', left: `${ratio * 100}%`, top: -5, marginLeft: -7, width: 13, height: 13, borderRadius: 7, backgroundColor: T.accent, borderWidth: 2, borderColor: T.bg }} />
+      </View>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>
+        <Label T={T}>{fill(t.walkLeft, { time: fmtTime(new Date(s0).toISOString()) })}</Label>
+        <Label T={T}>{fill(t.walkRight, { time: fmtTime(new Date(s1).toISOString()) })}</Label>
+      </View>
+    </View>
+  );
+}
+
 const demoVms = () => myToday().map(o => { const task = taskById(o.task_id); return { id: o.id, emoji: task.emoji, title: task.title, mental: task.mental_load || o.kind === 'plan', mins: task.duration_min || 0, href: `/mission?occ=${o.id}` }; });
 
 export default function Home() {
@@ -182,6 +202,7 @@ export default function Home() {
               <Label T={T}>{m.stage === 'egg' ? t.eggPill : fill(t.stagePill, { day, k: Math.max(1, STAGES.indexOf(m.stage)) })}</Label>
             </View>
             <Text style={[type.sub, { paddingHorizontal: layout.x, marginTop: 6, color: T.muted }]}>{line}</Text>
+            {away ? <WalkBand T={T} t={t} started={m.walk_started_at} returns={m.walk_returns_at} /> : null}
             {!checkedIn ? <Pressable onPress={() => router.push('/checkin')} style={{ marginHorizontal: layout.x, marginTop: 14, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 10 }}><View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: T.accent }} /><Text style={[type.label, { color: T.ink, flex: 1 }]}>{T.night ? copy.checkin.homeRowEvening : copy.checkin.homeRow}</Text><Label T={T}>›</Label></Pressable> : null}
             <View style={{ marginTop: (checkedIn ? 24 : 10) * layout.air }}><Gauges T={T} t={t} energy={en} hearts={hearts} formLabel={t.formLabels[hearts] || ''} hint={m.stage !== 'egg' && !away && !full ? t.energyHint : null} /></View>
             <View style={s.sectionHead}>

@@ -9,12 +9,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const JOUR = {
   night: false,
   bg: '#F7F2E9', ink: '#2B2420', muted: '#9A8F84', line: 'rgba(43,36,32,0.10)', seg: 'rgba(43,36,32,0.08)', accent: '#E0725C', ok: '#7E9463',
-  scene: { wall: '#EFE3D3', floor: '#E2CFB8', window: '#FBF2E2', sofa: '#D9A98F', cushion: '#F1CDB8', plant: '#8FA985', pot: '#C27A58', rug: '#EAD9C4', lamp: '#FBE9C8', lampOn: false, frame: '#E3CBB2', shelf: '#D8C2A6', book1: '#C27A58', book2: '#8FA985', vase: '#E8D5BE', stool: '#D4B894', shadow: 'rgba(43,36,32,0.10)', sun: '#FBE9C8', moon: null },
+  scene: { wall: '#F2E4D0', floor: '#DCC2A3', window: '#DCEAF0', hill: '#A9C49A', sofa: '#E29C80', cushion: '#F3CDB6', plant: '#7FA574', pot: '#C7784F', rug: '#E7CDB0', lamp: '#F7DFA8', lampOn: false, frame: '#D7B68F', shelf: '#CFB08C', book1: '#C7784F', book2: '#7FA574', vase: '#EAD6BC', stool: '#CFB08C', curtain: '#E7B9A2', shadow: 'rgba(43,36,32,0.10)', sun: '#F7DFA8', moon: null, stars: false }, // plus chaud et plus franc (retour Jeanne 4 nov 2026 : « un peu triste »)
 };
 const NUIT = { // bleu marine, pas noir (retour Jeanne 4 nov 2026 : « fond noir trop foncé, pas très lisible »)
   night: true,
   bg: '#141B30', ink: '#F2F0EB', muted: '#8E95AD', line: 'rgba(242,240,235,0.14)', seg: 'rgba(242,240,235,0.14)', accent: '#F08A78', ok: '#9DB894',
-  scene: { wall: '#1B2440', floor: '#243052', window: '#2E3B66', sofa: '#4A4048', cushion: '#5C4F55', plant: '#35584A', pot: '#6E4B38', rug: '#2B3758', lamp: '#E6BE72', lampOn: true, frame: '#33405F', shelf: '#3A4668', book1: '#6E4B38', book2: '#35584A', vase: '#4A4048', stool: '#46425A', shadow: 'rgba(0,0,0,0.45)', sun: null, moon: '#F2F0EB' },
+  scene: { wall: '#1B2440', floor: '#243052', window: '#17224A', hill: '#2B4A46', sofa: '#4E4250', cushion: '#60525A', plant: '#35584A', pot: '#6E4B38', rug: '#2B3758', lamp: '#F2C878', lampOn: true, frame: '#33405F', shelf: '#3A4668', book1: '#6E4B38', book2: '#35584A', vase: '#4A4048', stool: '#46425A', curtain: '#4A3A52', shadow: 'rgba(0,0,0,0.45)', sun: null, moon: '#F2F0EB', stars: true },
 };
 export const TOKENS = { jour: JOUR, nuit: NUIT };
 // typo de l'instrument : étiquettes en phrase normale, chiffres tabulaires, pas de capitales espacées
