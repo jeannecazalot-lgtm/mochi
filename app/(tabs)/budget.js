@@ -1,11 +1,13 @@
-// Écran 23 · Budget. Recette : docs/recettes/23-budget.md
+// Écran 23 · Budget. Recette : docs/recettes/23-budget.md — DA v3 « l'instrument » (4 nov 2026) : solde en gros chiffre, hairlines, jour/nuit
 import React, { useEffect, useState } from 'react';
 import { router } from 'expo-router';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { GlowBg, ScreenTitle, Secondary, Card, PillLabel, Micro, GlassRow, Avatar } from '../../src/components/ui';
+import { Avatar } from '../../src/components/ui';
+import { useTokens, type, layout } from '../../src/theme-v3';
+import { Label, Num } from '../../src/components/mochi/gauges';
 import { CountUp } from '../../src/components/motion';
-import { PillButton, BadgePill, Hint } from '../../src/components/core/extra';
+import { Pressable } from 'react-native';
 import { PremiumGate } from '../../src/components/premium/extra';
 import { isPremium } from '../../src/demo-premium';
 import { me, partner, byId, taskById, expenses, budget, fmtMoney, today } from '../../src/demo';
@@ -17,19 +19,20 @@ import * as Haptics from 'expo-haptics';
 import { loadSetup, setup, inRealMode } from '../../src/setup-state';
 import { getUid, getPartnerUid, loadIdentity, useIdentity } from '../../src/identity';
 import copy from '../../src/data/copy.json';
-import { colors, space, font } from '../../src/theme';
+import { space } from '../../src/theme';
 
 const t = copy.budget;
 const fill = (s, vars) => Object.keys(vars).reduce((acc, k) => acc.replace(`{${k}}`, vars[k]), s);
 
 // « Jeanne te doit {amount} » avec le montant en CountUp, ou « Vous êtes à zéro »
-function Solde({ owes = budget.owes }) {
+function Solde({ T, owes = budget.owes }) {
+  const hero = { fontSize: 30, fontWeight: '600', letterSpacing: -1.2, lineHeight: 36, color: T.ink, textAlign: 'center', fontVariant: ['tabular-nums'] };
   const { who, to, cents } = owes;
-  if (!cents) return <Text style={s.hero}>{t.settled}</Text>;
+  if (!cents) return <Text style={hero}>{t.settled}</Text>;
   const iAmOwed = to === me.id;
   const tpl = fill(iAmOwed ? t.owes : t.youOwe, { name: byId(iAmOwed ? who : to).first_name });
   const [before, after] = tpl.split('{amount}');
-  return <Text style={s.hero}>{before}<CountUp value={cents} format={c => fmtMoney(c)} style={s.hero} />{after}</Text>;
+  return <Text style={hero}>{before}<CountUp value={cents} format={c => fmtMoney(c)} style={hero} />{after}</Text>;
 }
 
 function relDay(d, now = today) {
@@ -76,6 +79,7 @@ async function loadRealBudget() {
 }
 
 export default function Budget() {
+  const T = useTokens();
   // Décision Jeanne (1er sept 2026) : le Budget est une fonctionnalité Duo+ —
   // sans abonnement, l'onglet montre sa promesse verrouillée + l'accès au paywall (37).
   // 5 sept 2026 : « mets-le gratuit pour le moment » — verrou désactivé le temps
@@ -111,11 +115,10 @@ export default function Budget() {
   const now = real ? real.now : today;
   if (!BUDGET_FREE && !isPremium()) {
     return (
-      <View style={{ flex: 1 }}>
-        <GlowBg intensity="strong" />
+      <View style={{ flex: 1, backgroundColor: T.bg }}>
         <SafeAreaView style={{ flex: 1 }} edges={['top']}>
           <View style={s.header}>
-            <ScreenTitle style={{ letterSpacing: -1.1 }}>{t.title}</ScreenTitle>
+            <Text style={[type.name, { color: T.ink }]}>{t.title}</Text>
           </View>
           <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: space.headerX, paddingBottom: 90 }}>
             <View style={{ alignItems: 'center', marginBottom: 18 }}>
@@ -127,53 +130,47 @@ export default function Budget() {
       </View>
     );
   }
+  const Btn = ({ label, dark, onPress }) => <Pressable onPress={onPress} style={{ paddingVertical: 10, paddingHorizontal: 18, borderRadius: 999, borderWidth: 1.5, borderColor: T.ink, backgroundColor: dark ? T.ink : 'transparent' }}><Text style={[type.label, { color: dark ? T.bg : T.ink, fontWeight: '600' }]}>{label}</Text></Pressable>;
   return (
-    <View style={{ flex: 1 }}>
-      <GlowBg intensity="strong" />
+    <View style={{ flex: 1, backgroundColor: T.bg }}>
       <SafeAreaView style={{ flex: 1 }} edges={['top']}>
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 16 }}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 24 }}>
           <View style={s.header}>
-            <ScreenTitle style={{ letterSpacing: -1.1 }}>{t.title}</ScreenTitle>
-            <Secondary style={{ marginTop: 4 }}>{fill(t.subtitle, { month: monthLong(now) })}</Secondary>
+            <Text style={[type.name, { color: T.ink }]}>{t.title}</Text>
+            <Label T={T} style={{ marginTop: 4 }}>{fill(t.subtitle, { month: monthLong(now) })}</Label>
           </View>
 
-          <View style={{ paddingHorizontal: 22, marginBottom: 11 }}>
-            <Card r={20} style={{ paddingVertical: 18, paddingHorizontal: 20 }}>
-              <View style={{ alignItems: 'center' }}>
-                <View style={{ marginBottom: 9 }}><PillLabel color={colors.lavender}>{t.balancePill}</PillLabel></View>
-                <Solde owes={real ? real.owes : budget.owes} />
-                <Secondary style={{ marginTop: 6 }}>{fill(t.spent, { amount: fmtMoney(real ? real.total_cents : budget.total_cents) })}</Secondary>
+          {/* le solde : gros chiffre, pas de carte */}
+          <View style={{ marginHorizontal: layout.x, paddingVertical: 22 * layout.air, borderTopWidth: StyleSheet.hairlineWidth, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: T.line, alignItems: 'center' }}>
+            <Label T={T} style={{ marginBottom: 10 }}>{t.balancePill}</Label>
+            <Solde T={T} owes={real ? real.owes : budget.owes} />
+            <Label T={T} style={{ marginTop: 8 }}>{fill(t.spent, { amount: fmtMoney(real ? real.total_cents : budget.total_cents) })}</Label>
+            {owes.cents ? (
+              <View style={{ flexDirection: 'row', gap: 8, marginTop: 16 }}>
+                <Btn dark label={t.settleBtn} onPress={settle} />
+                {owes.to === me.id ? <Btn label={t.remindBtn} onPress={remind} /> : null}
               </View>
-              {owes.cents ? (
-                <View style={{ flexDirection: 'row', gap: 8, marginTop: 14 }}>
-                  <PillButton dark label={t.settleBtn} onPress={settle} />
-                  {owes.to === me.id ? <PillButton label={t.remindBtn} onPress={remind} /> : null}
-                </View>
-              ) : null}
-            </Card>
+            ) : null}
           </View>
 
-          <Micro style={{ paddingHorizontal: 22, paddingBottom: 8 }}>{t.recent}</Micro>
-          <View style={{ paddingHorizontal: space.screenX }}>
-            {real && rows.length === 0 ? <Text style={[font.secondary, { textAlign: 'center', paddingVertical: 18 }]}>{t.emptyReal}</Text> : null}
-            {rows.map(e => {
+          <View style={{ paddingHorizontal: layout.x, paddingTop: 22 * layout.air, paddingBottom: 4 }}><Text style={[type.section, { color: T.ink }]}>{t.recent}</Text></View>
+          <View style={{ paddingHorizontal: layout.x }}>
+            {real && rows.length === 0 ? <Text style={[type.sub, { color: T.muted, textAlign: 'center', paddingVertical: 18 }]}>{t.emptyReal}</Text> : null}
+            {rows.map((e, i) => {
               const payer = byId(e.paid_by);
               return (
-                <GlassRow key={e.id} style={{ marginBottom: 6 }} onPress={real ? () => router.push(`/depense?id=${e.id}`) : undefined}>
-                  <Text style={{ fontSize: 19 }}>{e.emoji}</Text>
-                  <View style={{ flex: 1 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                      <Text style={{ fontSize: 15.5, fontWeight: '500', color: colors.ink }} numberOfLines={1}>{e.title}</Text>
-                      {e.via_task || e._viaTitle ? <BadgePill color={colors.sageDeep} tint={colors.sage} a={0.25} size={9.5}>{t.viaTask}</BadgePill> : null}
-                    </View>
-                    <Text style={[font.caption, { marginTop: 3 }]}>{desc(e, now)}</Text>
+                <Pressable key={e.id} onPress={real ? () => router.push(`/depense?id=${e.id}`) : undefined} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 * layout.air, borderTopWidth: i ? StyleSheet.hairlineWidth : 0, borderColor: T.line }}>
+                  <Text style={{ fontSize: 17 }}>{e.emoji}</Text>
+                  <View style={{ flex: 1, minWidth: 0 }}>
+                    <Text style={[type.body, { color: T.ink }]} numberOfLines={1}>{e.title}{e.via_task || e._viaTitle ? <Text style={{ color: T.muted }}> · {t.viaTask.toLowerCase()}</Text> : null}</Text>
+                    <Label T={T} style={{ marginTop: 2 }}>{desc(e, now)}</Label>
                   </View>
-                  <Text style={[font.tabular, { fontSize: 15, fontWeight: '600', color: colors.ink }]}>{fmtMoney(e.amount_cents)}</Text>
-                  <Avatar initial={payer.initial} color={payer.color} size={24} />
-                </GlassRow>
+                  <Num T={T}>{fmtMoney(e.amount_cents)}</Num>
+                  <Avatar initial={payer.initial} color={payer.color} photo={payer.avatar_url} size={24} />
+                </Pressable>
               );
             })}
-            {real && rows.length === 0 ? null : <Hint size={12} style={{ marginTop: 4 }}>{t.hint}</Hint>}
+            {real && rows.length === 0 ? null : <Label T={T} style={{ marginTop: 14, textAlign: 'center' }}>{t.hint}</Label>}
           </View>
         </ScrollView>
       </SafeAreaView>
@@ -182,6 +179,5 @@ export default function Budget() {
 }
 
 const s = StyleSheet.create({
-  header: { paddingTop: 14, paddingHorizontal: space.headerX, marginBottom: 11 },
-  hero: { ...font.hero, textAlign: 'center', lineHeight: 28 },
+  header: { paddingTop: 14, paddingHorizontal: layout.x, marginBottom: 18 },
 });
