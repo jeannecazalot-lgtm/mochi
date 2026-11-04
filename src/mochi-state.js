@@ -71,12 +71,12 @@ export async function onMissionDone(occ, task, { wasMissed = false } = {}) {
   await checkHatch(); await checkWalk();
 }
 
-// ── éclosion : la première mission cochée dans le foyer, par l'un ou l'autre (retour Jeanne 4 nov 2026 :
-// « y a pas le Mochi » — attendre que CHACUN ait coché laissait l'œuf des jours ; « à deux » reste pour les cœurs et la balade)
+// ── éclosion : quand le duo est formé, c'est-à-dire dès que le foyer a deux membres (décision Jeanne 4 nov 2026 :
+// « il éclot quand ils créent leur session à deux »). L'écran Duo formé est le moment de l'éclosion.
 export async function checkHatch() {
   const m = await getMochi(); if (!m || m.stage !== 'egg') return false;
-  const occs = await read('occurrences');
-  if (!occs.some(o => o.status === 'done')) return false;
+  const members = await read('household_members');
+  if (members.filter(x => x.household_id === hid()).length < 2) return false;
   await event('hatch', { actor_id: null });
   await patch({ stage: 'mini', hatched_at: nowIso() });
   return true;

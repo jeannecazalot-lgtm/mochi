@@ -36,7 +36,7 @@ function Glow({ style, from = 0.35, to = 0.6, period = 2600, delay = 0 }) {
 }
 const Layer = ({ children, delay = 0, fade }) => <Animated.View entering={fade ? FadeIn.delay(delay) : ZoomIn.springify().damping(14).delay(delay)} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} pointerEvents="none">{children}</Animated.View>;
 
-export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height = layout.scene, hideMochi = false }) {
+export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height = layout.scene, hideMochi = false, cracking = false }) {
   const c = T.scene, hh = height, fl = layout.floor, night = !!c.moon;
   const W = Math.round(layout.mochi * (SIZE_BY_STAGE[stage] || 1)), H = W * MOCHI_RATIO;
   const tx = useSharedValue(away ? 420 : 0), hop = useSharedValue(0);
@@ -73,7 +73,7 @@ export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height =
       {/* la nuit : un voile navy sur toute la pièce (les images gardent leur matière) */}
       {night ? <S l={0} r={0} t={0} b={0} c={c.wall} op={0.5} /> : null}
       {hideMochi ? null : stage === 'egg'
-        ? <><View style={{ position: 'absolute', bottom: fl - 10, alignSelf: 'center', width: 150, height: 14, borderRadius: 7, backgroundColor: c.shadow }} /><Animated.View entering={ZoomIn.springify().damping(12)} style={{ position: 'absolute', bottom: fl - 6, left: 0, right: 0, alignItems: 'center' }}><Image source={IMG.egg} style={{ width: 96, height: 120 }} resizeMode="contain" accessibilityIgnoresInvertColors /></Animated.View></>
+        ? <><View style={{ position: 'absolute', bottom: fl - 10, alignSelf: 'center', width: 150, height: 14, borderRadius: 7, backgroundColor: c.shadow }} /><Animated.View entering={ZoomIn.springify().damping(12)} style={{ position: 'absolute', bottom: fl - 6, left: 0, right: 0, alignItems: 'center' }}><Image source={cracking ? IMG.eggCrack : IMG.egg} style={{ width: 96, height: 120 }} resizeMode="contain" accessibilityIgnoresInvertColors /></Animated.View></>
         : <Animated.View entering={ZoomIn.springify().damping(12).stiffness(160)} style={{ position: 'absolute', bottom: fl - 14, left: 0, right: 0 }}><Animated.View style={[{ alignItems: 'center' }, walk]}>
               <View style={{ position: 'absolute', bottom: 2, width: Math.round(W * 1.1), height: 16, borderRadius: 8, backgroundColor: c.shadow }} />
               <LiveMochiImage size={W} lean={0} mood={mood} />

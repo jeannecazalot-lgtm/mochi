@@ -8,6 +8,7 @@ import * as Haptics from 'expo-haptics';
 import Animated, { FadeInDown, FadeIn } from 'react-native-reanimated';
 import { Avatar, CTAPrimary } from '../../src/components/ui';
 import { Scene } from '../../src/components/mochi/scene';
+import { tick } from '../../src/mochi-state';
 import { Bubble } from '../../src/components/mochi/bubble';
 import { Label } from '../../src/components/mochi/gauges';
 import { fill } from '../../src/components/setup/extra';
@@ -26,7 +27,12 @@ export default function DuoForme() {
   const realMe = useIdentity();
   const [joiner, setJoiner] = useState(false);
   const [ready, setReady] = useState(false);
-  useEffect(() => { loadSetup().then(() => { setJoiner(isJoiner()); setReady(true); }); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {}); }, []);
+  const [hatched, setHatched] = useState(false); // l'œuf se fêle 1,2 s après l'arrivée, puis Mochi apparaît (éclosion = duo formé)
+  useEffect(() => {
+    loadSetup().then(() => { setJoiner(isJoiner()); setReady(true); });
+    const id = setTimeout(() => { setHatched(true); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {}); tick().catch(() => {}); }, 1400);
+    return () => clearTimeout(id);
+  }, []);
   const prefilled = !!(realMe?.first_name && setup.availability && setup.prefs);
   const title = fill(joiner ? t.duoTitleJoiner : t.duoTitle, { name: partner.first_name }).replace('\n', ' ');
   const sub = fill(joiner ? (prefilled ? t.duoSubJoinerReady : t.duoSubJoiner) : t.duoSub, { name: partner.first_name });
@@ -38,8 +44,8 @@ export default function DuoForme() {
   return (
     <View style={{ flex: 1, backgroundColor: T.bg }}>
       <View>
-        <Scene T={T} stage="egg" lvl={1} height={sceneH} />
-        <Bubble T={T} style={{ top: insets.top + 54 }}>{t.duoSay}</Bubble>
+        <Scene T={T} stage={hatched ? 'mini' : 'egg'} cracking={!hatched} mood={hatched ? 'wink' : undefined} lvl={1} height={sceneH} />
+        {hatched ? <Bubble T={T} style={{ top: insets.top + 54 }}>{t.duoSay}</Bubble> : null}
       </View>
       <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
         <Animated.View entering={FadeInDown.delay(200).duration(320)} style={{ paddingHorizontal: layout.x, paddingTop: 22, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
