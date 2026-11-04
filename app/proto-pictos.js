@@ -1,10 +1,11 @@
 // Proto « pictos » (4 nov 2026, Jeanne : « réfléchir ensemble, il faut une corrélation partout ») : trois langages
 // d'icônes appliqués aux MÊMES éléments (tab bar, missions, réglages, +). /proto-pictos
 import React from 'react';
-import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { ICONS } from '../src/components/task-icon';
+import { useLocalSearchParams } from 'expo-router';
 import { useTokens, type, layout } from '../src/theme-v3';
 
 const TABS = [['index', 'Accueil'], ['planning', 'Planning'], ['balance', 'Balance'], ['budget', 'Budget']];
@@ -13,14 +14,17 @@ const TASKS = [['dish', 'Vaisselle', '15 min'], ['cart', 'Courses de la semaine'
 const SETTINGS = [['bell', 'Notifications', 'Récap chaque jour à 19 h 30'], ['moon', 'Mode nuit', 'Automatique de 22 h à 7 h'], ['mochi', 'Nom de Mochi', 'Comme vous l’appelez à la maison']];
 
 // les trois langages
+const IMG = { dish: require('../assets/icones-test/dish.png'), cart: require('../assets/icones-test/cart.png'), basket: require('../assets/icones-test/basket.png'), broom: require('../assets/icones-test/broom.png'), trash: require('../assets/icones-test/trash.png'), calendar: require('../assets/icones-test/calendar.png') };
 const STYLES = {
   a: { name: 'A · Trait fin', sub: 'Comme la tab bar aujourd’hui : trait 1,7, encre, pas de fond.', sw: 1.7, pad: false, color: 'ink' },
   b: { name: 'B · Trait sur pastille', sub: 'Trait 2, sur une pastille douce : plus lisible, plus « app ».', sw: 2, pad: true, color: 'ink' },
   c: { name: 'C · Trait épais, couleur', sub: 'Trait 2,6 arrondi, corail pour les missions, encre pour le reste.', sw: 2.6, pad: false, color: 'accent' },
+  d: { name: 'D · Images, comme Mochi', sub: 'Rendu ChatGPT dans la matière de Mochi (test : 6 icônes) ; tab bar et réglages restent en trait.', sw: 1.9, pad: false, color: 'ink', img: true },
 };
 
-function Ico({ T, d, v, size = 22, tint }) {
+function Ico({ T, d, v, size = 22, tint, k }) {
   const st = STYLES[v]; const color = tint || (st.color === 'accent' ? T.accent : T.ink);
+  if (st.img && k && IMG[k]) return <Image source={IMG[k]} style={{ width: size + 14, height: size + 14 }} resizeMode="contain" />;
   const box = st.pad ? size + 16 : size;
   return (
     <View style={{ width: box, height: box, borderRadius: box / 2, backgroundColor: st.pad ? T.seg : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
@@ -45,7 +49,7 @@ function Block({ T, v }) {
       <View style={{ marginHorizontal: layout.x }}>
         {TASKS.map(([k, title, sub], i) => (
           <View key={k} style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 13, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: T.line }}>
-            <Ico T={T} d={ICONS[k]} v={v} size={st.pad ? 20 : 22} />
+            <Ico T={T} d={ICONS[k]} v={v} size={st.pad ? 20 : 22} k={k} />
             <View style={{ flex: 1 }}><Text style={[type.body, { color: T.ink }]}>{title}</Text><Text style={[type.label, { color: T.muted, marginTop: 2 }]}>{sub}</Text></View>
             <Svg width={22} height={22} viewBox="0 0 24 24" fill="none"><Circle cx={12} cy={12} r={10} stroke={i === 0 ? T.ink : T.line} strokeWidth={1.5} fill={i === 0 ? T.ink : 'none'} />{i === 0 ? <Path d="M8 12.5l2.5 2.5L16 9.5" stroke={T.bg} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" /> : null}</Svg>
           </View>
@@ -67,12 +71,13 @@ function Block({ T, v }) {
 
 export default function ProtoPictos() {
   const T = useTokens();
+  const { v } = useLocalSearchParams(); // ?v=a|b|c : une seule version (planche)
   return (
     <View style={{ flex: 1, backgroundColor: T.bg }}>
       <SafeAreaView style={{ flex: 1 }} edges={['top']}>
         <ScrollView contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
           <Text style={[type.name, { color: T.ink, paddingHorizontal: layout.x, paddingTop: 14, marginBottom: 18 }]}>Pictos</Text>
-          {['a', 'b', 'c'].map(v => <Block key={v} T={T} v={v} />)}
+          {(STYLES[v] ? [v] : ['a', 'b', 'c', 'd']).map(k => <Block key={k} T={T} v={k} />)}
         </ScrollView>
       </SafeAreaView>
     </View>
