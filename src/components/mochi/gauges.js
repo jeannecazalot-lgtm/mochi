@@ -10,25 +10,26 @@ export const Num = ({ T, children, style }) => <Text style={[type.num, { color: 
 export const Hair = ({ T, style }) => <View style={[{ height: StyleSheet.hairlineWidth, backgroundColor: T.line }, style]} />;
 
 function Seg({ T, on, i, prevLit }) {
-  const sc = useSharedValue(1);
-  useEffect(() => { if (on && i >= prevLit) sc.value = withDelay((i - prevLit) * 28, withSequence(withTiming(1.35, { duration: 90 }), withSpring(1, { damping: 12, stiffness: 260 }))); }, [on]);
-  const st = useAnimatedStyle(() => ({ transform: [{ scaleY: sc.value }] }));
-  return <Animated.View style={[{ flex: 1, height: 14, borderRadius: 2, backgroundColor: on ? T.ink : T.seg }, st]} />;
+  // un cran s'allume en fondu, en cascade (28 ms par cran) — sans pulsation (retour Jeanne 4 nov 2026)
+  const op = useSharedValue(on ? 1 : 0);
+  useEffect(() => { op.value = on ? withDelay(i >= prevLit ? (i - prevLit) * 28 : 0, withTiming(1, { duration: 180 })) : withTiming(0, { duration: 160 }); }, [on]);
+  const st = useAnimatedStyle(() => ({ opacity: op.value }));
+  return <View style={{ flex: 1, height: 14, borderRadius: 2, backgroundColor: T.seg }}><Animated.View style={[{ flex: 1, borderRadius: 2, backgroundColor: T.ink }, st]} /></View>;
 }
 export function Meter({ T, n, of, segs = 20 }) {
   const lit = of ? Math.round((n / of) * segs) : 0;
   const prev = useRef(lit); useEffect(() => { prev.current = lit; }, [lit]);
   return <View style={{ flexDirection: 'row', gap: 3, flex: 1 }}>{Array.from({ length: segs }).map((_, i) => <Seg key={i} T={T} on={i < lit} i={i} prevLit={Math.min(prev.current, lit)} />)}</View>;
 }
-function Heart({ T, on, changed }) {
-  const sc = useSharedValue(1);
-  useEffect(() => { if (changed) sc.value = withSequence(withTiming(1.8, { duration: 120 }), withSpring(1, { damping: 10, stiffness: 220 })); }, [on]);
-  const st = useAnimatedStyle(() => ({ transform: [{ scale: sc.value }] }));
-  return <Animated.View style={[{ width: 10, height: 10, borderRadius: 5, backgroundColor: on ? T.accent : T.seg }, st]} />;
+function Heart({ T, on }) {
+  const op = useSharedValue(on ? 1 : 0);
+  useEffect(() => { op.value = withTiming(on ? 1 : 0, { duration: 220 }); }, [on]);
+  const st = useAnimatedStyle(() => ({ opacity: op.value }));
+  return <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: T.seg }}><Animated.View style={[{ flex: 1, borderRadius: 5, backgroundColor: T.accent }, st]} /></View>;
 }
 export function Hearts({ T, n }) {
   const prev = useRef(n); useEffect(() => { prev.current = n; }, [n]);
-  return <View style={{ flexDirection: 'row', gap: 8, flex: 1 }}>{[1, 2, 3, 4, 5].map(i => <Heart key={i} T={T} on={i <= n} changed={(i <= n) !== (i <= prev.current)} />)}</View>;
+  return <View style={{ flexDirection: 'row', gap: 8, flex: 1 }}>{[1, 2, 3, 4, 5].map(i => <Heart key={i} T={T} on={i <= n} />)}</View>;
 }
 // deux lignes : énergie du jour, forme
 export function Gauges({ T, t, energy, hearts, formLabel, hint }) {

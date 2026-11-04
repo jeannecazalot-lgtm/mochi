@@ -35,8 +35,8 @@ export function LiveMochiImage({ size = 140, lean = 0, mood, breathe = true }) {
   const sx = useSharedValue(1), sy = useSharedValue(1), tx = useSharedValue(lean * 6), ty = useSharedValue(0);
   useEffect(() => {
     if (!breathe) return;
-    sx.value = withRepeat(withTiming(1.02, { duration: 1700, easing: Easing.inOut(Easing.ease) }), -1, true);
-    sy.value = withRepeat(withTiming(0.965, { duration: 1700, easing: Easing.inOut(Easing.ease) }), -1, true);
+    sx.value = withRepeat(withTiming(1.008, { duration: 2400, easing: Easing.inOut(Easing.ease) }), -1, true); // respiration discrète (retour Jeanne 4 nov 2026)
+    sy.value = withRepeat(withTiming(0.985, { duration: 2400, easing: Easing.inOut(Easing.ease) }), -1, true);
   }, [breathe]);
   // réaction : il s'écrase, bondit (−18 px) et retombe en ressort (4 nov 2026 : « il ne s'anime pas assez »)
   const wobble = () => {
