@@ -8,6 +8,7 @@ import { partner } from '../src/demo';
 import { moodLevels, moodTags } from '../src/demo-modaux';
 import copy from '../src/data/copy.json';
 import { colors, font, radius, alpha } from '../src/theme';
+import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 
 export default function Mood() {
   const t = copy.mood;
@@ -19,8 +20,8 @@ export default function Mood() {
   return (
     <ModalSheet>
         <ScrollView contentInsetAdjustmentBehavior="never" automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled" contentContainerStyle={s.body} showsVerticalScrollIndicator={false}>
-          <View style={{ marginBottom: 6 }}><PillLabel color={colors.coral}>{t.eyebrow}</PillLabel></View>
-          <Text style={[font.screenTitle, { lineHeight: 23 }]}>{t.title}</Text>
+          <View style={{ marginBottom: 6 }}><PillLabel color={tk().accent}>{t.eyebrow}</PillLabel></View>
+          <Text style={[font.screenTitle, { color: tk().ink }, { lineHeight: 23 }]}>{t.title}</Text>
           <Text style={s.sub}>{t.sub.replace('{partner}', partner.first_name)}</Text>
 
           <View style={s.faces}>
@@ -29,7 +30,7 @@ export default function Mood() {
               return (
                 <Pressable key={m.key} onPress={() => setLevel(m.key)} style={{ alignItems: 'center', gap: 6 }}>
                   <View style={[s.face, on && { backgroundColor: extraColors.peach }]}><Text style={{ fontSize: 22 }}>{m.emoji}</Text></View>
-                  <Text style={[s.faceLabel, on && { color: colors.ink, fontWeight: '600' }]}>{t.levels[m.key]}</Text>
+                  <Text style={[s.faceLabel, on && { color: tk().ink, fontWeight: '600' }]}>{t.levels[m.key]}</Text>
                 </Pressable>
               );
             })}
@@ -42,7 +43,7 @@ export default function Mood() {
 
           <SectionLabel>{t.noteLabel}</SectionLabel>
           <View style={s.noteCard}>
-            <TextInput value={note} onChangeText={setNote} placeholder={t.notePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)} multiline style={s.noteInput} cursorColor={colors.coral} selectionColor={colors.coral} />
+            <TextInput value={note} onChangeText={setNote} placeholder={t.notePlaceholder} placeholderTextColor={tk().seg} multiline style={s.noteInput} cursorColor={tk().accent} selectionColor={tk().accent} />
           </View>
 
           <CtaModal label={t.cta} disabled={!level} onPress={() => router.back()} />
@@ -51,13 +52,13 @@ export default function Mood() {
   );
 }
 
-const s = StyleSheet.create({
+const s = v3Styles(T => StyleSheet.create({
   body: { paddingHorizontal: 22 },
-  sub: { fontSize: 14, fontWeight: '400', color: colors.muted, lineHeight: 20, marginTop: 6, marginBottom: 16 },
+  sub: { fontSize: 14, fontWeight: '400', color: T.muted, lineHeight: 20, marginTop: 6, marginBottom: 16 },
   faces: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 19 },
-  face: { width: 52, height: 52, borderRadius: 26, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center', borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
-  faceLabel: { fontSize: 12, fontWeight: '400', color: colors.muted },
+  face: { width: 52, height: 52, borderRadius: 26, backgroundColor: T.bg, alignItems: 'center', justifyContent: 'center', borderWidth: StyleSheet.hairlineWidth, borderColor: T.line },
+  faceLabel: { fontSize: 12, fontWeight: '400', color: T.muted },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 5, marginBottom: 19 },
-  noteCard: { backgroundColor: colors.card, borderRadius: radius.row, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline, paddingVertical: 14, paddingHorizontal: 16, marginBottom: 16 },
-  noteInput: { fontSize: 16, fontWeight: '400', fontStyle: 'italic', color: colors.inkSoft, lineHeight: 22, minHeight: 44, padding: 0, textAlignVertical: 'top' },
-});
+  noteCard: { backgroundColor: T.bg, borderRadius: radius.row, borderWidth: StyleSheet.hairlineWidth, borderColor: T.line, paddingVertical: 14, paddingHorizontal: 16, marginBottom: 16 },
+  noteInput: { fontSize: 16, fontWeight: '400', fontStyle: 'italic', color: T.ink, lineHeight: 22, minHeight: 44, padding: 0, textAlignVertical: 'top' },
+}));

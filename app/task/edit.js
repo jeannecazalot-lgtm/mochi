@@ -22,6 +22,7 @@ import { daysForTask } from '../../src/dispatch';
 import { catalogue } from '../../src/demo-setup';
 import copy from '../../src/data/copy.json';
 import { colors, alpha, font, space } from '../../src/theme';
+import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';
 
 const t = copy.task;
 const todayDow = () => (new Date().getDay() + 6) % 7;
@@ -92,8 +93,8 @@ export function TaskEditBody({ page = false }) {
         <View style={[s.head, { flexDirection: 'row', alignItems: 'center', gap: 12 }]}>
           <EmojiPicker value={f.emoji} onChange={e => patch({ emoji: e })} />
           <TextInput
-            value={f.title} onChangeText={v => patch({ title: v })} placeholder={t.titlePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)}
-            autoCorrect={false} returnKeyType="done" cursorColor={colors.coral} selectionColor={colors.coral} style={[s.title, { flex: 1 }]}
+            value={f.title} onChangeText={v => patch({ title: v })} placeholder={t.titlePlaceholder} placeholderTextColor={tk().seg}
+            autoCorrect={false} returnKeyType="done" cursorColor={tk().accent} selectionColor={tk().accent} style={[s.title, { flex: 1 }]}
           />
         </View>
         <Card r={16} padding={0} style={s.block}>
@@ -108,11 +109,11 @@ export function TaskEditBody({ page = false }) {
 }
 export default function TaskEdit() { return <TaskEditBody />; }
 
-const s = StyleSheet.create({
-  sheet: { backgroundColor: colors.card, paddingTop: 10, paddingHorizontal: space.screenX },
+const s = v3Styles(T => StyleSheet.create({
+  sheet: { backgroundColor: T.bg, paddingTop: 10, paddingHorizontal: space.screenX },
   page: { flex: 1, paddingTop: 0, backgroundColor: 'transparent' },
   head: { marginTop: 2, marginBottom: 12, paddingHorizontal: 2 },
-  title: { ...font.cardTitle, padding: 0 },
+  title: { ...font.cardTitle, color: T.ink, padding: 0 },
   block: { marginBottom: 8 },
-  hint: { ...font.caption, textAlign: 'center', marginBottom: 8, color: colors.coralDeep },
-});
+  hint: { ...font.caption, color: T.muted, textAlign: 'center', marginBottom: 8, color: T.accent },
+}));

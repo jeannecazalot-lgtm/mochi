@@ -18,6 +18,7 @@ import { isLive } from '../src/occ-actions';
 import { localIso } from '../src/dates';
 import copy from '../src/data/copy.json';
 import { colors, space, font } from '../src/theme';
+import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 
 export default function Jour() {
   const { d } = useLocalSearchParams();
@@ -49,7 +50,7 @@ export default function Jour() {
     <View style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 31) }]}>
       <SheetHandle />
       <Micro style={{ marginBottom: 11 }}>{label}</Micro>
-      {items.length === 0 ? <Text style={font.secondary}>{copy.calendar.empty}</Text> : items.map((o, i) => (
+      {items.length === 0 ? <Text style={[font.secondary, { color: tk().muted }, { color: tk().muted }]}>{copy.calendar.empty}</Text> : items.map((o, i) => (
         <View key={o.id}>
           {i > 0 ? <Divider /> : null}
           <Pressable disabled={!o.href} onPress={() => router.push(o.href)} style={({ pressed }) => [s.row, pressed && { opacity: 0.7 }]}>
@@ -63,9 +64,9 @@ export default function Jour() {
   );
 }
 
-const s = StyleSheet.create({
-  sheet: { backgroundColor: colors.card, paddingTop: 10, paddingHorizontal: space.screenX },
+const s = v3Styles(T => StyleSheet.create({
+  sheet: { backgroundColor: T.bg, paddingTop: 10, paddingHorizontal: space.screenX },
   // même taille que les rangées de l'Accueil et du Planning (Jeanne 13 sept 2026)
   row: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 11 },
-  rowLabel: { flex: 1, fontSize: 15.5, fontWeight: '500', color: colors.ink },
-});
+  rowLabel: { flex: 1, fontSize: 15.5, fontWeight: '500', color: T.ink },
+}));

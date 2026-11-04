@@ -12,6 +12,7 @@ import { loadSetup, thresholdsOf } from '../src/setup-state';
 import { saveThresholdsEverywhere } from '../src/thresholds';
 import copy from '../src/data/copy.json';
 import { colors, space, radius, font, alpha } from '../src/theme';
+import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 
 const t = copy.seuils;
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
@@ -52,14 +53,14 @@ export default function Seuils() {
   );
 }
 
-const s = StyleSheet.create({
-  sheet: { backgroundColor: colors.card, paddingTop: 10, paddingHorizontal: space.screenX },
-  title: { fontSize: 19, fontWeight: '600', letterSpacing: -0.5, color: colors.ink, marginTop: 6 },
-  sub: { ...font.secondary, marginTop: 4 },
+const s = v3Styles(T => StyleSheet.create({
+  sheet: { backgroundColor: T.bg, paddingTop: 10, paddingHorizontal: space.screenX },
+  title: { fontSize: 19, fontWeight: '600', letterSpacing: -0.5, color: T.ink, marginTop: 6 },
+  sub: { ...font.secondary, color: T.muted, marginTop: 4 },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 13, paddingHorizontal: 16 },
-  rowLine: { borderTopWidth: 1, borderTopColor: colors.line },
-  label: { fontSize: 15, fontWeight: '500', color: colors.ink },
-  val: { fontSize: 16, fontWeight: '600', color: colors.ink, minWidth: 52, textAlign: 'center', fontVariant: ['tabular-nums'] },
-  stepBtn: { width: 28, height: 28, borderRadius: 14, backgroundColor: alpha(colors.ink, 0.06), alignItems: 'center', justifyContent: 'center' },
-  stepTxt: { fontSize: 16, fontWeight: '600', color: colors.ink, lineHeight: 18 },
-});
+  rowLine: { borderTopWidth: 1, borderTopColor: T.line },
+  label: { fontSize: 15, fontWeight: '500', color: T.ink },
+  val: { fontSize: 16, fontWeight: '600', color: T.ink, minWidth: 52, textAlign: 'center', fontVariant: ['tabular-nums'] },
+  stepBtn: { width: 28, height: 28, borderRadius: 14, backgroundColor: T.seg, alignItems: 'center', justifyContent: 'center' },
+  stepTxt: { fontSize: 16, fontWeight: '600', color: T.ink, lineHeight: 18 },
+}));

@@ -13,6 +13,7 @@ import { getUid, loadIdentity } from '../src/identity';
 import { me, partner } from '../src/demo';
 import copy from '../src/data/copy.json';
 import { colors, space } from '../src/theme';
+import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 
 const t = copy.bilan;
 
@@ -29,7 +30,7 @@ export default function Bilan() {
       <SafeAreaView style={{ flex: 1 }}>
         <View style={s.header}>
           <BackButton onPress={() => router.back()} style={{ marginBottom: 12 }} />
-          <View style={{ marginBottom: 6 }}><PillLabel color={colors.butter}>{fill(t.pill, { month })}</PillLabel></View>
+          <View style={{ marginBottom: 6 }}><PillLabel color={tk().scene.lamp}>{fill(t.pill, { month })}</PillLabel></View>
           <ScreenTitle style={{ letterSpacing: -1.2, lineHeight: 22 }}>{t.title}</ScreenTitle>
         </View>
 
@@ -62,7 +63,7 @@ export default function Bilan() {
         <Micro style={s.label}>{t.malusLabel}</Micro>
         <View style={{ paddingHorizontal: 22 }}>
           <Card r={16} style={{ paddingVertical: 14, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 13 }}>
-            <Text style={{ fontSize: 20, color: colors.ink }}>✓</Text>
+            <Text style={{ fontSize: 20, color: tk().ink }}>✓</Text>
             <View style={{ flex: 1 }}>
               <Text style={s.malusTitle}>{real ? (bilan.malus_total ? fill(t.malusRealTitle, { n: String(bilan.malus_total).replace('.', ',') }) : t.malusNone) : t.malusSettled}</Text>
               <Text style={s.malusSub}>{real ? fill(t.malusRealSub, { n: String(bilan.malus_settled_points).replace('.', ',') }) : fill(t.malusSettledSub, { n: bilan.malus_settled_points })}</Text>
@@ -78,17 +79,17 @@ export default function Bilan() {
   );
 }
 
-const s = StyleSheet.create({
+const s = v3Styles(T => StyleSheet.create({
   header: { paddingTop: 14, paddingHorizontal: space.headerX, marginBottom: 14 },
-  verdict: { fontSize: 20, fontWeight: '600', letterSpacing: -0.9, lineHeight: 21, color: colors.ink, textAlign: 'center' },
-  verdictSub: { fontSize: 14, fontWeight: '400', color: colors.muted, marginTop: 6, marginBottom: 11, textAlign: 'center', fontVariant: ['tabular-nums'] },
+  verdict: { fontSize: 20, fontWeight: '600', letterSpacing: -0.9, lineHeight: 21, color: T.ink, textAlign: 'center' },
+  verdictSub: { fontSize: 14, fontWeight: '400', color: T.muted, marginTop: 6, marginBottom: 11, textAlign: 'center', fontVariant: ['tabular-nums'] },
   label: { paddingHorizontal: 22, letterSpacing: 1.5, marginBottom: 8 },
   grid: { paddingHorizontal: 22, flexDirection: 'row', gap: 8, marginBottom: 14 },
   badge: { flex: 1, paddingVertical: 13, paddingHorizontal: 14 },
   locked: { backgroundColor: moments.lockedBg, borderWidth: 1, borderStyle: 'dashed', borderColor: moments.lockedBorder, borderRadius: 14, opacity: 0.7 },
-  badgeTitle: { fontSize: 15, fontWeight: '600', color: colors.ink },
-  badgeSub: { fontSize: 12, fontWeight: '400', color: colors.muted, marginTop: 3, fontVariant: ['tabular-nums'] },
-  malusTitle: { fontSize: 16, fontWeight: '600', color: colors.ink },
-  malusSub: { fontSize: 13, fontWeight: '400', color: colors.muted, marginTop: 3 },
+  badgeTitle: { fontSize: 15, fontWeight: '600', color: T.ink },
+  badgeSub: { fontSize: 12, fontWeight: '400', color: T.muted, marginTop: 3, fontVariant: ['tabular-nums'] },
+  malusTitle: { fontSize: 16, fontWeight: '600', color: T.ink },
+  malusSub: { fontSize: 13, fontWeight: '400', color: T.muted, marginTop: 3 },
   ctaWrap: { position: 'absolute', left: space.screenX, right: space.screenX, bottom: 24 },
-});
+}));

@@ -17,6 +17,7 @@ import { computeRealBalance } from '../src/balance-real';
 import { getNightMode, setNightMode, useTokens } from '../src/theme-v3';
 import copy from '../src/data/copy.json';
 import { colors, space, radius, font, slotColors, alpha } from '../src/theme';
+import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 
 const t = copy.profil;
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
@@ -92,12 +93,12 @@ export default function Profil() {
             {/* tap → nom et photo en pop-up (Jeanne 13 sept 2026) */}
             <Pressable onPress={() => router.push('/moi')} hitSlop={6}><Avatar initial={me.initial} color={me.color} photo={me.avatar_url} size={58} /></Pressable>
             <View style={{ flex: 1 }}>
-              <Pressable onPress={() => router.push('/moi')} hitSlop={6}><Text style={font.cardTitle}>{me.first_name}</Text></Pressable>
-              <Text style={[font.secondary, { marginTop: 3 }]}>
+              <Pressable onPress={() => router.push('/moi')} hitSlop={6}><Text style={[font.cardTitle, { color: tk().ink }, { color: tk().ink }]}>{me.first_name}</Text></Pressable>
+              <Text style={[font.secondary, { color: tk().muted }, { marginTop: 3 }]}>
                 {duoParts[0]}<Text style={{ color: slotColors[partner.slot].deep, fontWeight: '600' }}>{partner.first_name}</Text>{duoParts[1]}
               </Text>
             </View>
-            {premium && !ALL_FREE ? <PillLabel color={colors.butter}>{t.pillPremium}</PillLabel> : null}
+            {premium && !ALL_FREE ? <PillLabel color={tk().scene.lamp}>{t.pillPremium}</PillLabel> : null}
           </View>
 
           <View style={{ paddingHorizontal: 22, flexDirection: 'row', gap: 8, marginBottom: 16 }}>
@@ -147,11 +148,11 @@ export default function Profil() {
   );
 }
 
-const s = StyleSheet.create({
+const s = v3Styles(T => StyleSheet.create({
   header: { paddingTop: 19, paddingHorizontal: space.headerX, marginBottom: 14, flexDirection: 'row', alignItems: 'center', gap: 14 },
-  statKey: { fontSize: 10.5, letterSpacing: 1.2, fontWeight: '500', textTransform: 'uppercase', color: colors.muted, marginBottom: 6 },
-  statVal: { fontSize: 21, fontWeight: '600', letterSpacing: -0.6, color: colors.ink, fontVariant: ['tabular-nums'] },
-  value: { fontSize: 13.5, fontWeight: '600', color: colors.ink, fontVariant: ['tabular-nums'] },
-  logout: { fontSize: 14.5, fontWeight: '600', color: colors.coralDeep },
-  leave: { fontSize: 14.5, fontWeight: '600', color: colors.muted },
-});
+  statKey: { fontSize: 10.5, letterSpacing: 1.2, fontWeight: '500', textTransform: 'uppercase', color: T.muted, marginBottom: 6 },
+  statVal: { fontSize: 21, fontWeight: '600', letterSpacing: -0.6, color: T.ink, fontVariant: ['tabular-nums'] },
+  value: { fontSize: 13.5, fontWeight: '600', color: T.ink, fontVariant: ['tabular-nums'] },
+  logout: { fontSize: 14.5, fontWeight: '600', color: T.accent },
+  leave: { fontSize: 14.5, fontWeight: '600', color: T.muted },
+}));

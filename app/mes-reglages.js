@@ -14,6 +14,7 @@ import { saveDispos, savePrefs, loadSetup, setup } from '../src/setup-state';
 import { syncMyAvailability, syncMyPains } from '../src/sync-setup';
 import copy from '../src/data/copy.json';
 import { space } from '../src/theme';
+import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 
 const t = copy.mesReglages;
 
@@ -51,6 +52,6 @@ export default function MesReglages() {
   );
 }
 
-const s = StyleSheet.create({
+const s = v3Styles(T => StyleSheet.create({
   ctaWrap: { position: 'absolute', left: space.screenX, right: space.screenX, bottom: 26 },
-});
+}));

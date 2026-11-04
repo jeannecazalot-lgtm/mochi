@@ -18,6 +18,7 @@ import { askNotificationPermission } from '../src/notifications';
 import { registerPushToken } from '../src/push';
 import copy from '../src/data/copy.json';
 import { colors, space, font, alpha } from '../src/theme';
+import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 
 const t = copy.notifSettings;
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
@@ -49,8 +50,8 @@ export default function Notifs() {
                 <Text style={s.title}>{t.dailyTitle}</Text>
                 <Text style={s.sub}>{t.dailySub}</Text>
               </View>
-              <Pressable onPress={() => setOpen(o => !o)} style={[s.time, open && { backgroundColor: colors.ink }]}>
-                <Text style={[s.timeTxt, open && { color: colors.card }]}>{time}</Text>
+              <Pressable onPress={() => setOpen(o => !o)} style={[s.time, open && { backgroundColor: tk().ink }]}>
+                <Text style={[s.timeTxt, open && { color: tk().bg }]}>{time}</Text>
               </Pressable>
             </View>
             {open ? <TimeStepper time={time} onChange={changeTime} /> : null}
@@ -63,7 +64,7 @@ export default function Notifs() {
                 <Text style={s.title}>{fill(t.pushTitle, { name: partner.first_name })}</Text>
                 <Text style={s.sub}>{fill(t.pushSub, { name: partner.first_name })}</Text>
               </View>
-              {granted ? <PillLabel color={colors.sageDeep}>{t.pushOn}</PillLabel>
+              {granted ? <PillLabel color={tk().ok}>{t.pushOn}</PillLabel>
                 : <Pressable onPress={allow} style={s.allow}><Text style={s.allowTxt}>{t.pushAsk}</Text></Pressable>}
             </View>
             <View style={[s.row, s.rowLine]}>
@@ -71,7 +72,7 @@ export default function Notifs() {
                 <Text style={s.title}>{t.crossTitle}</Text>
                 <Text style={s.sub}>{fill(t.crossSub, { name: partner.first_name })}</Text>
               </View>
-              <Switch value={cross} onValueChange={toggleCross} trackColor={{ true: colors.sage, false: alpha(colors.ink, 0.12) }} ios_backgroundColor={alpha(colors.ink, 0.12)} />
+              <Switch value={cross} onValueChange={toggleCross} trackColor={{ true: tk().ok, false: tk().seg }} ios_backgroundColor={tk().seg} />
             </View>
           </Card>
           <Text style={s.note}>{t.note}</Text>
@@ -81,14 +82,14 @@ export default function Notifs() {
   );
 }
 
-const s = StyleSheet.create({
+const s = v3Styles(T => StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 13, paddingVertical: 14, paddingHorizontal: 18 },
-  rowLine: { borderTopWidth: 1, borderTopColor: colors.line },
-  title: { fontSize: 15.5, fontWeight: '600', color: colors.ink },
-  sub: { fontSize: 13, fontWeight: '400', color: colors.muted, marginTop: 3 },
-  time: { backgroundColor: alpha(colors.ink, 0.06), borderRadius: 10, paddingVertical: 8, paddingHorizontal: 14 },
-  timeTxt: { fontSize: 17, fontWeight: '600', color: colors.ink, fontVariant: ['tabular-nums'] },
-  allow: { backgroundColor: colors.ink, borderRadius: 999, paddingVertical: 8, paddingHorizontal: 14 },
-  allowTxt: { fontSize: 13.5, fontWeight: '600', color: colors.card },
-  note: { ...font.caption, textAlign: 'center', marginTop: 16, paddingHorizontal: 12 },
-});
+  rowLine: { borderTopWidth: 1, borderTopColor: T.line },
+  title: { fontSize: 15.5, fontWeight: '600', color: T.ink },
+  sub: { fontSize: 13, fontWeight: '400', color: T.muted, marginTop: 3 },
+  time: { backgroundColor: T.seg, borderRadius: 10, paddingVertical: 8, paddingHorizontal: 14 },
+  timeTxt: { fontSize: 17, fontWeight: '600', color: T.ink, fontVariant: ['tabular-nums'] },
+  allow: { backgroundColor: T.ink, borderRadius: 999, paddingVertical: 8, paddingHorizontal: 14 },
+  allowTxt: { fontSize: 13.5, fontWeight: '600', color: T.bg },
+  note: { ...font.caption, color: T.muted, textAlign: 'center', marginTop: 16, paddingHorizontal: 12 },
+}));

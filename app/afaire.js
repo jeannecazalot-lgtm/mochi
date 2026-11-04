@@ -21,6 +21,7 @@ import { localIso } from '../src/dates';
 import { groupLate, lateCaption } from '../src/late-groups';
 import copy from '../src/data/copy.json';
 import { colors, space, radius, font, motion } from '../src/theme';
+import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 
 const t = copy.afaire;
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
@@ -59,7 +60,7 @@ function Row({ occ, done, onToggle }) {
   };
 
   const renderCheck = () => (
-    <Pressable onPress={() => { onToggle(occ.id); ref.current?.close(); }} style={[s.action, { backgroundColor: colors.sage, width: SWIPE_W }]}>
+    <Pressable onPress={() => { onToggle(occ.id); ref.current?.close(); }} style={[s.action, { backgroundColor: tk().ok, width: SWIPE_W }]}>
       <CheckCircle done size={22} />
     </Pressable>
   );
@@ -74,7 +75,7 @@ function Row({ occ, done, onToggle }) {
     </View>
   );
 
-  const accent = !done && !late && occ.urgent ? colors.sage : null; // plus d'encadré corail (passe « rouge »)
+  const accent = !done && !late && occ.urgent ? tk().ok : null; // plus d'encadré corail (passe « rouge »)
   const inner = (
     <View style={s.rowInner}>
       {/* le rond coche/décoche directement, comme sur l'Accueil (test du 6 sept 2026) */}
@@ -226,26 +227,26 @@ export default function AFaire() {
   );
 }
 
-const s = StyleSheet.create({
+const s = v3Styles(T => StyleSheet.create({
   undoWrap: { position: 'absolute', left: 0, right: 0, bottom: 28, alignItems: 'center' },
-  undo: { flexDirection: 'row', alignItems: 'center', gap: 14, backgroundColor: colors.ink, borderRadius: 999, paddingVertical: 11, paddingHorizontal: 18, maxWidth: '86%' },
-  undoTxt: { color: colors.card, fontSize: 14, fontWeight: '500', flexShrink: 1 },
-  undoBtn: { color: colors.butter, fontSize: 14, fontWeight: '700' },
+  undo: { flexDirection: 'row', alignItems: 'center', gap: 14, backgroundColor: T.ink, borderRadius: 999, paddingVertical: 11, paddingHorizontal: 18, maxWidth: '86%' },
+  undoTxt: { color: T.bg, fontSize: 14, fontWeight: '500', flexShrink: 1 },
+  undoBtn: { color: T.scene.lamp, fontSize: 14, fontWeight: '700' },
   header: { paddingTop: 10, paddingHorizontal: space.screenX, flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 7 },
-  h1: { fontSize: 22, fontWeight: '600', letterSpacing: -1.2, lineHeight: 24, color: colors.ink },
-  h2: { fontSize: 13, fontWeight: '400', color: colors.muted, marginTop: 3, ...font.tabular },
+  h1: { fontSize: 22, fontWeight: '600', letterSpacing: -1.2, lineHeight: 24, color: T.ink },
+  h2: { fontSize: 13, fontWeight: '400', color: T.muted, marginTop: 3, ...font.tabular, color: T.ink },
   filters: { paddingTop: 6, paddingHorizontal: 14, paddingBottom: 10, gap: 5, flexDirection: 'row' },
   list: { paddingHorizontal: space.screenX, paddingBottom: 40 },
   groupHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 4, paddingBottom: 8 },
-  groupLabel: { ...font.micro, textTransform: 'uppercase' },
-  groupCount: { fontSize: 11.5, fontWeight: '500', color: colors.muted, ...font.tabular },
-  glass: { backgroundColor: colors.glass, borderWidth: 0.5, borderColor: social.rowBorder, borderRadius: radius.row, paddingVertical: 7, paddingHorizontal: 11 },
+  groupLabel: { ...font.micro, color: T.muted, textTransform: 'uppercase' },
+  groupCount: { fontSize: 11.5, fontWeight: '500', color: T.muted, ...font.tabular, color: T.ink },
+  glass: { backgroundColor: T.bg, borderWidth: 0.5, borderColor: social.rowBorder, borderRadius: radius.row, paddingVertical: 7, paddingHorizontal: 11 },
   rowInner: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  title: { fontSize: 16, fontWeight: '500', color: colors.ink },
-  titleDone: { textDecorationLine: 'line-through', color: colors.muted },
-  sub: { fontSize: 13, fontWeight: '400', color: colors.muted, ...font.tabular },
-  subLate: { color: colors.coralDeep, fontWeight: '600' },
+  title: { fontSize: 16, fontWeight: '500', color: T.ink },
+  titleDone: { textDecorationLine: 'line-through', color: T.muted },
+  sub: { fontSize: 13, fontWeight: '400', color: T.muted, ...font.tabular, color: T.ink },
+  subLate: { color: T.accent, fontWeight: '600' },
   action: { alignItems: 'center', justifyContent: 'center', gap: 2 },
-  actionIcon: { fontSize: 18, color: colors.ink },
-  actionLabel: { fontSize: 11, fontWeight: '600', color: colors.ink },
-});
+  actionIcon: { fontSize: 18, color: T.ink },
+  actionLabel: { fontSize: 11, fontWeight: '600', color: T.ink },
+}));

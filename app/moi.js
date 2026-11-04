@@ -14,6 +14,7 @@ import { setLocalIdentity, useIdentity } from '../src/identity';
 import { saveIdentity } from '../src/profile';
 import copy from '../src/data/copy.json';
 import { colors, space, font, alpha } from '../src/theme';
+import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 
 const t = copy.moi;
 
@@ -42,7 +43,7 @@ export default function Moi() {
         <View style={s.head}>
           <Pressable onPress={pickPhoto} hitSlop={8}><Avatar initial={(firstName || me.initial || '?')[0].toUpperCase()} color={me.color} photo={photo} size={64} ring /></Pressable>
           <View style={{ flex: 1 }}>
-            <TextInput value={firstName} onChangeText={setFirstName} placeholder={copy.setup.firstNamePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)} autoCorrect={false} returnKeyType="done" onSubmitEditing={Keyboard.dismiss} cursorColor={colors.coral} selectionColor={colors.coral} style={s.name} />
+            <TextInput value={firstName} onChangeText={setFirstName} placeholder={copy.setup.firstNamePlaceholder} placeholderTextColor={tk().seg} autoCorrect={false} returnKeyType="done" onSubmitEditing={Keyboard.dismiss} cursorColor={tk().accent} selectionColor={tk().accent} style={s.name} />
             <Pressable onPress={pickPhoto} hitSlop={6}><Text style={s.link}>{t.changePhoto}</Text></Pressable>
           </View>
         </View>
@@ -54,9 +55,9 @@ export default function Moi() {
   );
 }
 
-const s = StyleSheet.create({
-  sheet: { backgroundColor: colors.card, paddingTop: 10, paddingHorizontal: space.screenX },
+const s = v3Styles(T => StyleSheet.create({
+  sheet: { backgroundColor: T.bg, paddingTop: 10, paddingHorizontal: space.screenX },
   head: { flexDirection: 'row', alignItems: 'center', gap: 14, marginTop: 4, marginBottom: 14, paddingHorizontal: 2 },
-  name: { ...font.cardTitle, padding: 0 },
-  link: { fontSize: 13, fontWeight: '600', color: colors.muted, marginTop: 4 },
-});
+  name: { ...font.cardTitle, color: T.ink, padding: 0 },
+  link: { fontSize: 13, fontWeight: '600', color: T.muted, marginTop: 4 },
+}));

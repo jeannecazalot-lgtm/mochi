@@ -16,6 +16,7 @@ import { useSheetGrow, CREATE_SHEET_MIN } from '../src/components/sheet-grow';
 import { loadNotes, saveNote, deleteNote } from '../src/notes-actions';
 import copy from '../src/data/copy.json';
 import { colors, space, font, alpha } from '../src/theme';
+import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 
 const t = copy.notes;
 const NOTE_EMOJIS = ['📌', '💡', '🔑', '📞', '🎁', '🩺', '🏠', '🚗', '🧾', '🎂', '✈️', '📝'];
@@ -54,11 +55,11 @@ export default function NoteSheet() {
         <SheetHandle />
         <View style={[s.head, { flexDirection: 'row', alignItems: 'center', gap: 12 }]}>
           <EmojiPicker value={emoji} onChange={setEmoji} choices={NOTE_EMOJIS} />
-          <TextInput value={title} onChangeText={setTitle} placeholder={t.newTitlePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)} autoCorrect={false} returnKeyType="done" cursorColor={colors.coral} selectionColor={colors.coral} style={[s.title, { flex: 1 }]} />
+          <TextInput value={title} onChangeText={setTitle} placeholder={t.newTitlePlaceholder} placeholderTextColor={tk().seg} autoCorrect={false} returnKeyType="done" cursorColor={tk().accent} selectionColor={tk().accent} style={[s.title, { flex: 1 }]} />
         </View>
         <Card r={16} padding={0} style={s.block}>
           {bodyOpen
-            ? <View style={s.bodyBox}><TextInput value={body} onChangeText={setBody} placeholder={t.newDetailPlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)} multiline autoFocus returnKeyType="done" blurOnSubmit onSubmitEditing={() => { setBodyOpen(false); Keyboard.dismiss(); }} style={s.bodyInput} /><View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}><PillChip label={copy.mission.noteDone} selected onPress={() => { setBodyOpen(false); Keyboard.dismiss(); }} /></View></View>
+            ? <View style={s.bodyBox}><TextInput value={body} onChangeText={setBody} placeholder={t.newDetailPlaceholder} placeholderTextColor={tk().seg} multiline autoFocus returnKeyType="done" blurOnSubmit onSubmitEditing={() => { setBodyOpen(false); Keyboard.dismiss(); }} style={s.bodyInput} /><View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}><PillChip label={copy.mission.noteDone} selected onPress={() => { setBodyOpen(false); Keyboard.dismiss(); }} /></View></View>
             : <Row first label={t.detailLabel} sub={body || t.newDetailPlaceholder} right={<Arrow />} onPress={() => setBodyOpen(true)} />}
           <Row label={t.dateLabel} sub={date ? fmtDate(date) : t.noDate} right={<PillChip label={date ? fmtDate(date) : t.pickDate} selected={!!date} onPress={() => setDateOpen(o => !o)} />} onPress={() => setDateOpen(o => !o)} />
           {dateOpen ? (
@@ -82,12 +83,12 @@ export default function NoteSheet() {
   );
 }
 
-const s = StyleSheet.create({
-  sheet: { backgroundColor: colors.card, paddingTop: 10, paddingHorizontal: space.screenX },
+const s = v3Styles(T => StyleSheet.create({
+  sheet: { backgroundColor: T.bg, paddingTop: 10, paddingHorizontal: space.screenX },
   head: { marginTop: 2, marginBottom: 12, paddingHorizontal: 2 },
-  title: { ...font.cardTitle, padding: 0 },
+  title: { ...font.cardTitle, color: T.ink, padding: 0 },
   block: { marginBottom: 8 },
   bodyBox: { paddingHorizontal: 14, paddingVertical: 10, gap: 8 },
-  bodyInput: { fontSize: 15, color: colors.ink, minHeight: 60, textAlignVertical: 'top' },
-  link: { fontSize: 13, fontWeight: '600', color: colors.muted },
-});
+  bodyInput: { fontSize: 15, color: T.ink, minHeight: 60, textAlignVertical: 'top' },
+  link: { fontSize: 13, fontWeight: '600', color: T.muted },
+}));

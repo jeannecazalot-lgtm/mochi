@@ -15,11 +15,12 @@ import { weekMalus } from '../src/malus-actions';
 import { occStore, weekDays } from '../src/demo-core';
 import copy from '../src/data/copy.json';
 import { colors, space, radius, font, slotColors } from '../src/theme';
+import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 
 const t = copy.pointHebdo;
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
 const fmtPts = n => String(Math.round(n * 10) / 10).replace('.', ',');
-const deep = m => slotColors[m.slot]?.deep ?? colors.ink;
+const deep = m => slotColors[m.slot]?.deep ?? tk().ink;
 
 export default function PointHebdo() {
   useIdentity();
@@ -48,7 +49,7 @@ export default function PointHebdo() {
       <SafeAreaView style={{ flex: 1 }}>
         <ScreenHeader title={t.title} onBack={() => router.back()} />
         <ScrollView contentContainerStyle={{ paddingHorizontal: space.headerX, paddingTop: 6, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
-          <View style={{ alignSelf: 'flex-start', marginBottom: 10 }}><PillLabel color={colors.coralDeep} tint={colors.coral}>{fill(t.pill, { day: dayLabel })}</PillLabel></View>
+          <View style={{ alignSelf: 'flex-start', marginBottom: 10 }}><PillLabel color={tk().accent} tint={tk().accent}>{fill(t.pill, { day: dayLabel })}</PillLabel></View>
           <Text style={s.intro}>{t.intro}</Text>
 
           {/* deux tuiles : mes points, ses points */}
@@ -69,7 +70,7 @@ export default function PointHebdo() {
             {items === null ? null : list.length === 0 ? (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16 }}>
                 <LiveMochi size={40} mood="happy" float={false} />
-                <Text style={[font.secondary, { flex: 1 }]}>{t.none}</Text>
+                <Text style={[font.secondary, { color: tk().muted }, { flex: 1 }]}>{t.none}</Text>
               </View>
             ) : list.map((m, i) => {
               const who = m.user_id === uid ? me : partner;
@@ -96,14 +97,14 @@ export default function PointHebdo() {
   );
 }
 
-const s = StyleSheet.create({
-  intro: { ...font.secondary, lineHeight: 20 },
+const s = v3Styles(T => StyleSheet.create({
+  intro: { ...font.secondary, color: T.muted, lineHeight: 20 },
   tileName: { fontSize: 11.5, fontWeight: '600', letterSpacing: 0.4, textTransform: 'uppercase' },
-  tileNum: { fontSize: 24, fontWeight: '600', letterSpacing: -0.8, color: colors.ink, fontVariant: ['tabular-nums'] },
-  tileUnit: { fontSize: 13, fontWeight: '500', color: colors.muted, letterSpacing: 0 },
+  tileNum: { fontSize: 24, fontWeight: '600', letterSpacing: -0.8, color: T.ink, fontVariant: ['tabular-nums'] },
+  tileUnit: { fontSize: 13, fontWeight: '500', color: T.muted, letterSpacing: 0 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingHorizontal: 14 },
-  rowTitle: { fontSize: 15, fontWeight: '500', color: colors.ink },
-  rowSub: { ...font.caption, marginTop: 2 },
-  rowPts: { fontSize: 14, fontWeight: '600', color: colors.coralDeep, fontVariant: ['tabular-nums'] },
-  note: { ...font.caption, textAlign: 'center', marginTop: 14, paddingHorizontal: 12 },
-});
+  rowTitle: { fontSize: 15, fontWeight: '500', color: T.ink },
+  rowSub: { ...font.caption, color: T.muted, marginTop: 2 },
+  rowPts: { fontSize: 14, fontWeight: '600', color: T.accent, fontVariant: ['tabular-nums'] },
+  note: { ...font.caption, color: T.muted, textAlign: 'center', marginTop: 14, paddingHorizontal: 12 },
+}));

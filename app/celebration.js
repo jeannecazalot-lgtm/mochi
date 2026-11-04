@@ -9,6 +9,7 @@ import { moments, fill } from '../src/components/moments/extra';
 import { celebration, badgeById } from '../src/demo-moments';
 import copy from '../src/data/copy.json';
 import { colors, space, motion } from '../src/theme';
+import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 
 const t = copy.celebration;
 
@@ -25,7 +26,7 @@ export default function Celebration() {
           <Animated.View entering={ZoomIn.springify().damping(motion.spring.damping)} style={{ marginBottom: 19 }}>
             <LiveMochi size={180} mood="happy" />
           </Animated.View>
-          <View style={{ marginBottom: 11 }}><PillLabel color={colors.sageDeep}>{t.pill}</PillLabel></View>
+          <View style={{ marginBottom: 11 }}><PillLabel color={tk().ok}>{t.pill}</PillLabel></View>
           <Text style={s.title}>
             {before}<CountUp value={celebration.days} style={s.title} />{after}
           </Text>
@@ -33,7 +34,7 @@ export default function Celebration() {
         </View>
 
         <View style={{ paddingHorizontal: 22, marginTop: 21 }}>
-          <Card r={18} accent={colors.butter} style={{ paddingVertical: 17, paddingHorizontal: 18 }}>
+          <Card r={18} accent={tk().scene.lamp} style={{ paddingVertical: 17, paddingHorizontal: 18 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
               <Text style={{ fontSize: 24 }}>{badge.emoji}</Text>
               <View style={{ flex: 1 }}>
@@ -53,10 +54,10 @@ export default function Celebration() {
   );
 }
 
-const s = StyleSheet.create({
-  title: { fontSize: 34, fontWeight: '600', letterSpacing: -1.5, lineHeight: 36, color: colors.ink, textAlign: 'center', fontVariant: ['tabular-nums'] },
-  sub: { fontSize: 15, fontWeight: '400', color: colors.muted, marginTop: 10, textAlign: 'center' },
+const s = v3Styles(T => StyleSheet.create({
+  title: { fontSize: 34, fontWeight: '600', letterSpacing: -1.5, lineHeight: 36, color: T.ink, textAlign: 'center', fontVariant: ['tabular-nums'] },
+  sub: { fontSize: 15, fontWeight: '400', color: T.muted, marginTop: 10, textAlign: 'center' },
   badgeLabel: { fontSize: 10.5, fontWeight: '600', letterSpacing: 1.4, textTransform: 'uppercase', color: moments.gold, marginBottom: 6 },
-  badgeTitle: { fontSize: 19, fontWeight: '600', letterSpacing: -0.4, color: colors.ink },
+  badgeTitle: { fontSize: 19, fontWeight: '600', letterSpacing: -0.4, color: T.ink },
   foot: { position: 'absolute', left: space.screenX, right: space.screenX, bottom: 24, gap: 13, alignItems: 'center' },
-});
+}));

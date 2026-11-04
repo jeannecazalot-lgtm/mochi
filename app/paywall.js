@@ -11,6 +11,7 @@ import { RoundButton, CheckDot, LEGAL_URLS } from '../src/components/premium/ext
 import { getOffers, purchase, restore } from '../src/purchases';
 import copy from '../src/data/copy.json';
 import { colors, space, radius, font } from '../src/theme';
+import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 
 const t = copy.paywall;
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
@@ -73,8 +74,8 @@ export default function Paywall() {
     const on = plan === id;
     return (
       <Pressable onPress={() => setPlan(id)} style={{ flex }}>
-        <Card padding={0} r={radius.card} accent={on ? colors.sage : undefined} style={{ paddingVertical: 14, paddingHorizontal: 16, overflow: 'visible' }}>
-          {badge ? <View style={s.badge}><PillLabel color={colors.sageDeep}>{badge}</PillLabel></View> : null}
+        <Card padding={0} r={radius.card} accent={on ? tk().ok : undefined} style={{ paddingVertical: 14, paddingHorizontal: 16, overflow: 'visible' }}>
+          {badge ? <View style={s.badge}><PillLabel color={tk().ok}>{badge}</PillLabel></View> : null}
           <Text style={s.planLabel}>{label}</Text>
           <Text style={s.price}>{offer ? offer.priceString : t.priceUnavailable}{offer ? <Text style={s.priceSuffix}>{suffix}</Text> : null}</Text>
           {hint ? <Text style={s.hint}>{hint}</Text> : null}
@@ -98,7 +99,7 @@ export default function Paywall() {
         <View style={{ paddingHorizontal: 26, gap: 5, marginBottom: 14 }}>
           {t.features.map(f => (
             <View key={f} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-              <CheckDot /><Text style={font.row}>{f}</Text>
+              <CheckDot /><Text style={[font.row, { color: tk().ink }, { color: tk().ink }]}>{f}</Text>
             </View>
           ))}
         </View>
@@ -109,7 +110,7 @@ export default function Paywall() {
         </View>
 
         <View style={s.bottom}>
-          {msg ? <Text style={[s.disclosure, { color: colors.coralDeep }]}>{msg}</Text> : null}
+          {msg ? <Text style={[s.disclosure, { color: tk().accent }]}>{msg}</Text> : null}
           <Text style={s.disclosure}>{disclosure}</Text>
           <CTAPrimary label={ctaLabel} onPress={onBuy} disabled={busy} big style={{ alignSelf: 'stretch' }} />
           <Text style={s.footnote}>{t.footnote}</Text>
@@ -126,17 +127,17 @@ export default function Paywall() {
   );
 }
 
-const s = StyleSheet.create({
+const s = v3Styles(T => StyleSheet.create({
   header: { paddingTop: 14, paddingHorizontal: space.headerX, alignItems: 'flex-end' },
-  title: { fontSize: 22, fontWeight: '600', letterSpacing: -1.2, lineHeight: 23, color: colors.ink },
-  sub: { fontSize: 14.5, fontWeight: '400', color: colors.muted, marginTop: 6 },
+  title: { fontSize: 22, fontWeight: '600', letterSpacing: -1.2, lineHeight: 23, color: T.ink },
+  sub: { fontSize: 14.5, fontWeight: '400', color: T.muted, marginTop: 6 },
   badge: { position: 'absolute', top: -9, left: 14, zIndex: 1 },
-  planLabel: { fontSize: 13, fontWeight: '500', color: colors.muted, marginTop: 4 },
-  price: { fontSize: 20, fontWeight: '700', letterSpacing: -0.8, color: colors.ink, marginTop: 3, fontVariant: ['tabular-nums'] },
-  priceSuffix: { fontSize: 14, fontWeight: '500', letterSpacing: 0, color: colors.muted },
-  hint: { fontSize: 12, fontWeight: '400', color: colors.muted },
+  planLabel: { fontSize: 13, fontWeight: '500', color: T.muted, marginTop: 4 },
+  price: { fontSize: 20, fontWeight: '700', letterSpacing: -0.8, color: T.ink, marginTop: 3, fontVariant: ['tabular-nums'] },
+  priceSuffix: { fontSize: 14, fontWeight: '500', letterSpacing: 0, color: T.muted },
+  hint: { fontSize: 12, fontWeight: '400', color: T.muted },
   bottom: { position: 'absolute', left: space.screenX, right: space.screenX, bottom: 26, alignItems: 'center', gap: 10 },
-  disclosure: { fontSize: 12, fontWeight: '400', color: colors.muted, textAlign: 'center', lineHeight: 16 },
-  footnote: { fontSize: 13, fontWeight: '400', color: colors.muted },
-  link: { fontSize: 12, fontWeight: '500', color: colors.muted },
-});
+  disclosure: { fontSize: 12, fontWeight: '400', color: T.muted, textAlign: 'center', lineHeight: 16 },
+  footnote: { fontSize: 13, fontWeight: '400', color: T.muted },
+  link: { fontSize: 12, fontWeight: '500', color: T.muted },
+}));

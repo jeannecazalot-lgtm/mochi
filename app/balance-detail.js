@@ -16,10 +16,11 @@ import { getUid, loadIdentity, useIdentity } from '../src/identity';
 import { computeRealBalance, realContributors } from '../src/balance-real';
 import copy from '../src/data/copy.json';
 import { colors, space, radius, gradients, shadows, slotColors } from '../src/theme';
+import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
-const deep = m => slotColors[m.slot]?.deep ?? colors.ink;
-const PILL = { balanced: { key: 'detailPillBalanced', color: colors.sageDeep }, leaning: { key: 'detailPillLeaning', color: colors.coral }, unbalanced: { key: 'detailPillUnbalanced', color: colors.coral } };
+const deep = m => slotColors[m.slot]?.deep ?? tk().ink;
+const PILL = { balanced: { key: 'detailPillBalanced', color: tk().ok }, leaning: { key: 'detailPillLeaning', color: tk().accent }, unbalanced: { key: 'detailPillUnbalanced', color: tk().accent } };
 
 export default function BalanceDetail() {
   const t = copy.balance;
@@ -130,26 +131,26 @@ export default function BalanceDetail() {
   );
 }
 
-const s = StyleSheet.create({
+const s = v3Styles(T => StyleSheet.create({
   scroll: { paddingBottom: 110 },
   head: { paddingTop: 14, paddingHorizontal: space.headerX },
-  title: { fontSize: 22, fontWeight: '600', letterSpacing: -1, lineHeight: 22, color: colors.ink },
+  title: { fontSize: 22, fontWeight: '600', letterSpacing: -1, lineHeight: 22, color: T.ink },
   block: { paddingHorizontal: space.screenX, marginBottom: 11 },
   heroRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 10, marginBottom: 14 },
   heroName: { fontSize: 11.5, fontWeight: '600', letterSpacing: 0.4, textTransform: 'uppercase', marginBottom: 6 },
-  heroNum: { fontSize: 22, fontWeight: '600', letterSpacing: -1.2, lineHeight: 22, color: colors.ink, fontVariant: ['tabular-nums'] },
-  heroSub: { fontSize: 13, fontWeight: '400', color: colors.muted, marginTop: 4, fontVariant: ['tabular-nums'] },
-  barRing: { borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
+  heroNum: { fontSize: 22, fontWeight: '600', letterSpacing: -1.2, lineHeight: 22, color: T.ink, fontVariant: ['tabular-nums'] },
+  heroSub: { fontSize: 13, fontWeight: '400', color: T.muted, marginTop: 4, fontVariant: ['tabular-nums'] },
+  barRing: { borderWidth: StyleSheet.hairlineWidth, borderColor: T.line },
   chartHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', paddingHorizontal: 4, paddingBottom: 8 },
-  chartUnit: { fontSize: 11.5, fontWeight: '500', color: colors.muted },
+  chartUnit: { fontSize: 11.5, fontWeight: '500', color: T.muted },
   chart: { flexDirection: 'row', alignItems: 'flex-end', gap: 8, height: 90 },
   chartCol: { flex: 1, alignItems: 'center', gap: 5 },
   chartBars: { flexDirection: 'row', alignItems: 'flex-end', gap: 5, height: 70 },
-  dayLabel: { fontSize: 11.5, fontWeight: '600', color: colors.muted },
+  dayLabel: { fontSize: 11.5, fontWeight: '600', color: T.muted },
   section: { paddingHorizontal: space.headerX, paddingTop: 8, paddingBottom: 8 },
-  delta: { fontSize: 13, fontWeight: '600', color: colors.coralDeep, fontVariant: ['tabular-nums'] },
-  weighsNone: { fontSize: 13.5, fontWeight: '400', color: colors.muted, paddingHorizontal: 4, paddingBottom: 8 },
+  delta: { fontSize: 13, fontWeight: '600', color: T.accent, fontVariant: ['tabular-nums'] },
+  weighsNone: { fontSize: 13.5, fontWeight: '400', color: T.muted, paddingHorizontal: 4, paddingBottom: 8 },
   ctaWrap: { position: 'absolute', left: space.screenX, right: space.screenX, bottom: 26 },
   cta: { borderRadius: radius.row, paddingVertical: 14, paddingHorizontal: 18, flexDirection: 'row', alignItems: 'center', gap: 10 },
-  ctaText: { flex: 1, fontSize: 15, fontWeight: '600', color: colors.ink },
-});
+  ctaText: { flex: 1, fontSize: 15, fontWeight: '600', color: T.ink },
+}));

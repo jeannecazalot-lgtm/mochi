@@ -9,6 +9,7 @@ import { TaskHeader, Chip, ChevronRight, TaskCTA, TaskFooter, taskTokens } from 
 import { loadTask, me, partner, byId, fmtMin } from '../../src/demo-task';
 import copy from '../../src/data/copy.json';
 import { colors, alpha } from '../../src/theme';
+import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';
 
 const f = (s, vars) => s.replace(/\{(\w+)\}/g, (_, k) => (vars[k] ?? ''));
 const DEFAULT_ID = 't-pediatre';
@@ -36,8 +37,8 @@ export default function TaskMentale() {
         <TaskHeader title={t.headerMental} backLabel={t.back} />
 
         <ScrollView contentContainerStyle={s.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-          <Card r={18} padding={0} accent={colors.lavender} style={s.hero}>
-            <View style={{ flexDirection: 'row', gap: 5, marginBottom: 6 }}><PillLabel color={colors.lavenderDeep}>{t.catMental}</PillLabel></View>
+          <Card r={18} padding={0} accent={'#9A7BC8'} style={s.hero}>
+            <View style={{ flexDirection: 'row', gap: 5, marginBottom: 6 }}><PillLabel color={'#9A7BC8'}>{t.catMental}</PillLabel></View>
             <Text style={s.heroTitle}>{task.title}</Text>
             <Text style={s.heroSub}>{t.mentalIntro}</Text>
           </Card>
@@ -72,7 +73,7 @@ export default function TaskMentale() {
             <View style={{ flex: 1 }}>
               <Text style={s.noteTitle}>{t.noteAttached}</Text>
               {editNote
-                ? <TextInput value={note} onChangeText={setNote} placeholder={t.notePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)} multiline cursorColor={colors.coral} selectionColor={colors.coral} style={s.noteInput} />
+                ? <TextInput value={note} onChangeText={setNote} placeholder={t.notePlaceholder} placeholderTextColor={tk().seg} multiline cursorColor={tk().accent} selectionColor={tk().accent} style={s.noteInput} />
                 : <Text style={s.noteSub}>{note ? `« ${note} »` : t.optNoteEmpty}</Text>}
             </View>
             <ChevronRight />
@@ -87,20 +88,20 @@ export default function TaskMentale() {
   );
 }
 
-const s = StyleSheet.create({
+const s = v3Styles(T => StyleSheet.create({
   content: { paddingHorizontal: taskTokens.contentX, paddingBottom: 16 },
   hero: { paddingVertical: 12, paddingHorizontal: 14, marginBottom: 10 },
-  heroTitle: { fontSize: 20, fontWeight: '600', letterSpacing: -0.8, lineHeight: 22, color: colors.ink },
-  heroSub: { fontSize: 13, color: colors.muted, fontWeight: '400', marginTop: 3 },
+  heroTitle: { fontSize: 20, fontWeight: '600', letterSpacing: -0.8, lineHeight: 22, color: T.ink },
+  heroSub: { fontSize: 13, color: T.muted, fontWeight: '400', marginTop: 3 },
   half: { paddingVertical: 9, paddingHorizontal: 11 },
   num: { width: 26, height: 26, borderRadius: 13, backgroundColor: taskTokens.circleBg, alignItems: 'center', justifyContent: 'center' },
-  numText: { fontSize: 14, fontWeight: '600', color: colors.ink },
-  halfTitle: { fontSize: 16.5, fontWeight: '600', color: colors.ink },
-  halfSub: { fontSize: 12, color: colors.muted, fontWeight: '400', marginTop: 2 },
+  numText: { fontSize: 14, fontWeight: '600', color: T.ink },
+  halfTitle: { fontSize: 16.5, fontWeight: '600', color: T.ink },
+  halfSub: { fontSize: 12, color: T.muted, fontWeight: '400', marginTop: 2 },
   link: { alignItems: 'center', marginBottom: 4 },
   linkLine: { width: 1.5, height: 10, backgroundColor: taskTokens.linkLine },
-  noteRow: { backgroundColor: colors.glass, borderWidth: 0.5, borderColor: colors.line, borderRadius: 14, paddingVertical: 8, paddingHorizontal: 11, flexDirection: 'row', alignItems: 'center', gap: 8 },
-  noteTitle: { fontSize: 14.5, fontWeight: '500', color: colors.ink },
-  noteSub: { fontSize: 12, color: colors.muted, fontWeight: '400', marginTop: 2 },
-  noteInput: { fontSize: 13, color: colors.ink, marginTop: 2, padding: 0, minHeight: 36 },
-});
+  noteRow: { backgroundColor: T.bg, borderWidth: 0.5, borderColor: T.line, borderRadius: 14, paddingVertical: 8, paddingHorizontal: 11, flexDirection: 'row', alignItems: 'center', gap: 8 },
+  noteTitle: { fontSize: 14.5, fontWeight: '500', color: T.ink },
+  noteSub: { fontSize: 12, color: T.muted, fontWeight: '400', marginTop: 2 },
+  noteInput: { fontSize: 13, color: T.ink, marginTop: 2, padding: 0, minHeight: 36 },
+}));

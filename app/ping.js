@@ -11,6 +11,7 @@ import { occurrences, taskById, byId, partner, me } from '../src/demo';
 import { pingOptions } from '../src/demo-social';
 import copy from '../src/data/copy.json';
 import { colors, space, radius, font, motion } from '../src/theme';
+import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
 
@@ -36,7 +37,7 @@ export default function Ping() {
     .map(k => ({ key: k, emoji: k === 'reminder' ? '🌷' : k === 'turn' ? (task?.emoji || '🍽') : k === 'deadline' ? '⏰' : '🤝', label: fill(t.options[k].label, { time }), sub: t.options[k].sub }));
 
   return (
-    <View style={{ backgroundColor: colors.card }}>
+    <View style={{ backgroundColor: tk().bg }}>
       {task ? (
         <View style={{ paddingHorizontal: space.screenX, paddingTop: 14 }}>
           <Card r={radius.card} padding={0}>
@@ -77,14 +78,14 @@ export default function Ping() {
   );
 }
 
-const s = StyleSheet.create({
+const s = v3Styles(T => StyleSheet.create({
   raised: { position: 'absolute', left: 24, right: 24 },
   raisedRow: { flexDirection: 'row', alignItems: 'center', gap: 13, paddingVertical: 13, paddingHorizontal: 16 },
-  raisedTitle: { fontSize: 16, fontWeight: '600', color: colors.ink },
-  raisedSub: { fontSize: 12, fontWeight: '400', color: colors.muted, marginTop: 3 },
-  sheet: { backgroundColor: colors.card, paddingTop: 10, paddingHorizontal: space.screenX },
+  raisedTitle: { fontSize: 16, fontWeight: '600', color: T.ink },
+  raisedSub: { fontSize: 12, fontWeight: '400', color: T.muted, marginTop: 3 },
+  sheet: { backgroundColor: T.bg, paddingTop: 10, paddingHorizontal: space.screenX },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 11 },
   optRow: { flexDirection: 'row', alignItems: 'center', gap: 13, paddingVertical: 13, paddingHorizontal: 14 },
-  optLabel: { fontSize: 15.5, fontWeight: '600', color: colors.ink },
-  optSub: { ...font.caption, marginTop: 3 },
-});
+  optLabel: { fontSize: 15.5, fontWeight: '600', color: T.ink },
+  optSub: { ...font.caption, color: T.muted, marginTop: 3 },
+}));

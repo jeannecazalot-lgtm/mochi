@@ -50,6 +50,14 @@ export async function setNightMode(m) { mode = m; try { await AsyncStorage.setIt
 export function setBedtime(t) { bedtime = t; compute(); }
 compute(); // dès le chargement du module (sinon le premier rendu était toujours « jour »)
 setInterval(compute, 60 * 1000);
+// lecture hors hook (anciens écrans convertis mécaniquement) : tokens du moment
+export const currentTokens = () => (night ? NUIT : JOUR);
+// feuille de styles qui suit le mode jour / nuit : `const s = styles(T => StyleSheet.create({...}))`
+// (recalculée par palette, mémorisée ; les écrans se re-rendent au prochain montage)
+export function styles(build) {
+  const cache = new Map();
+  return new Proxy({}, { get(_, k) { const T = currentTokens(); let st = cache.get(T); if (!st) { st = build(T); cache.set(T, st); } return st[k]; } });
+}
 // hook : les écrans repris en DA v3 lisent leurs couleurs ici
 export function useTokens() {
   useSyncExternalStore(cb => (subs.add(cb), () => subs.delete(cb)), () => version);

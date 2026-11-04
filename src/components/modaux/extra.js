@@ -8,6 +8,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path } from 'react-native-svg';
 import { router } from 'expo-router';
 import { colors, gradients, radius, font } from '../../theme';
+import { styles as v3Styles, currentTokens as tk } from '../../theme-v3';
 
 // ─── tokens supplémentaires (absents de theme.js, source : artboards modaux) ─
 export const extraColors = {
@@ -39,7 +40,7 @@ export function ModalSheet({ children }) {
 }
 
 // ─── micro-label des sections (11,5/600 tracking 1,4, marge 9) ─────
-export const SectionLabel = ({ children, style }) => <Text style={[font.micro, { marginBottom: 9 }, style]}>{children}</Text>;
+export const SectionLabel = ({ children, style }) => <Text style={[font.micro, { color: tk().muted }, { marginBottom: 9 }, style]}>{children}</Text>;
 
 // ─── card « embossed » : ombre pleine couleur décalée sous la card crème ─
 export function EmbossedCard({ children, tint, tintOpacity = 0.4, offset = [4, 5], r = radius.cardLg, padding, style }) {
@@ -64,7 +65,7 @@ export function CtaModal({ label, onPress, disabled, style }) {
 
 // ─── bouton rond encre « + » (pense-bête) / bouton retour « ‹ » ─────
 export function RoundButton({ kind = 'plus', onPress, dark = kind === 'plus', size = 36, light }) {
-  const stroke = dark ? extraColors.cream : light ? extraColors.cream : colors.ink;
+  const stroke = dark ? extraColors.cream : light ? extraColors.cream : tk().ink;
   const path = kind === 'plus' ? 'M12 5v14M5 12h14' : 'M14.5 5.5L8 12l6.5 6.5';
   return (
     <Pressable onPress={onPress} hitSlop={8} style={({ pressed }) => [x.round, { width: size, height: size, borderRadius: size / 2 }, dark ? x.roundDark : light ? x.roundLight : x.roundCream, { opacity: pressed ? 0.8 : 1 }]}>
@@ -76,7 +77,7 @@ export function RoundButton({ kind = 'plus', onPress, dark = kind === 'plus', si
 // ─── chip sélectionnable (mood) : crème / encre si actif ───────────
 export function Chip({ label, on, onPress }) {
   return (
-    <Pressable onPress={onPress} style={[x.chip, on && { backgroundColor: colors.ink }]}>
+    <Pressable onPress={onPress} style={[x.chip, on && { backgroundColor: tk().ink }]}>
       <Text style={[x.chipText, on && { color: extraColors.cream }]}>{label}</Text>
     </Pressable>
   );
@@ -91,18 +92,18 @@ export function AppGlyph({ letter, bg }) {
 }
 
 const x = StyleSheet.create({
-  sheet: { backgroundColor: colors.bg, borderTopLeftRadius: radius.sheet, borderTopRightRadius: radius.sheet, paddingTop: 12, paddingBottom: 28, overflow: 'hidden' },
-  sheetLine: { position: 'absolute', top: 0, left: 0, right: 0, height: 1, backgroundColor: colors.sheetLine },
+  sheet: { backgroundColor: tk().bg, borderTopLeftRadius: radius.sheet, borderTopRightRadius: radius.sheet, paddingTop: 12, paddingBottom: 28, overflow: 'hidden' },
+  sheetLine: { position: 'absolute', top: 0, left: 0, right: 0, height: 1, backgroundColor: tk().line },
   grabber: { width: 44, height: 5, borderRadius: 3, backgroundColor: extraColors.grabber, alignSelf: 'center', marginBottom: 12 },
-  card: { backgroundColor: colors.card, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline, overflow: 'hidden' },
+  card: { backgroundColor: tk().bg, borderWidth: StyleSheet.hairlineWidth, borderColor: tk().line, overflow: 'hidden' },
   cta: { borderRadius: radius.pill, paddingVertical: 14, paddingHorizontal: 18, alignItems: 'center', shadowColor: extraColors.peach, shadowOpacity: 0.32, shadowRadius: 16, shadowOffset: { width: 0, height: 4 }, elevation: 4 },
-  ctaText: { fontSize: 15.5, fontWeight: '600', color: colors.ink },
+  ctaText: { fontSize: 15.5, fontWeight: '600', color: tk().ink },
   round: { alignItems: 'center', justifyContent: 'center' },
-  roundDark: { backgroundColor: colors.ink, shadowColor: colors.ink, shadowOpacity: 0.2, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 4 },
-  roundCream: { backgroundColor: colors.card, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
+  roundDark: { backgroundColor: tk().ink, shadowColor: tk().ink, shadowOpacity: 0.2, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 4 },
+  roundCream: { backgroundColor: tk().bg, borderWidth: StyleSheet.hairlineWidth, borderColor: tk().line },
   roundLight: { backgroundColor: cream(0.10) },
-  chip: { paddingVertical: 8, paddingHorizontal: 13, borderRadius: radius.pill, backgroundColor: colors.card, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
-  chipText: { fontSize: 13.5, fontWeight: '500', color: colors.ink },
+  chip: { paddingVertical: 8, paddingHorizontal: 13, borderRadius: radius.pill, backgroundColor: tk().bg, borderWidth: StyleSheet.hairlineWidth, borderColor: tk().line },
+  chipText: { fontSize: 13.5, fontWeight: '500', color: tk().ink },
   glyph: { width: 18, height: 18, borderRadius: 5, alignItems: 'center', justifyContent: 'center' },
-  glyphText: { fontSize: 13, fontWeight: '600', color: colors.ink, lineHeight: 15 },
+  glyphText: { fontSize: 13, fontWeight: '600', color: tk().ink, lineHeight: 15 },
 });

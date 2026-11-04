@@ -15,6 +15,7 @@ import { saveRule, deadlineOf } from '../src/mission-data';
 import { occStore } from '../src/demo-core';
 import copy from '../src/data/copy.json';
 import { colors, space, radius, font, alpha, slotColors } from '../src/theme';
+import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 
 const t = copy.analyse;
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
@@ -53,7 +54,7 @@ export default function Analyse() {
             <BackButton label={copy.common.back} />
             <View style={{ flex: 1 }}>
               <View style={{ flexDirection: 'row', gap: 8, marginBottom: 6 }}>
-                <PillLabel color={colors.lavender}>{t.pill}</PillLabel>
+                <PillLabel color={'#9A7BC8'}>{t.pill}</PillLabel>
               </View>
               <Text style={s.title}>{title}</Text>
             </View>
@@ -67,22 +68,22 @@ export default function Analyse() {
                 <CountUp value={sharePartner} format={v => fill(t.share, { name: partner.first_name, n: Math.round(v) })} style={[s.share, { color: deep(partner) }]} />
               </View>
               <ProgressBar ratio={shareMe / 100} color={me.color} track={partner.color} height={10} radius={5} style={{ marginBottom: 10 }} />
-              <Text style={[font.secondary, { lineHeight: 19 }]}>{t.explain}</Text>
+              <Text style={[font.secondary, { color: tk().muted }, { lineHeight: 19 }]}>{t.explain}</Text>
             </Card>
           </View>
 
           <View style={{ paddingHorizontal: 22 }}>
             <SectionMicro>{t.sectionWho}</SectionMicro>
             <View style={{ gap: 6, marginBottom: 11 }}>
-              {categories.length === 0 ? <Text style={[font.secondary, { paddingVertical: 8 }]}>{t.empty}</Text> : null}
+              {categories.length === 0 ? <Text style={[font.secondary, { color: tk().muted }, { paddingVertical: 8 }]}>{t.empty}</Text> : null}
               {categories.map((c, i) => {
                 const who = byId(c.carrier_id);
                 return (
                   <GlassRow key={c.id} style={{ paddingVertical: 10 }}>
                     <Text style={{ fontSize: 19 }}>{c.emoji}</Text>
                     <View style={{ flex: 1 }}>
-                      <Text style={[font.row, { marginBottom: 6 }]}>{c.title}</Text>
-                      <ProgressBar ratio={c.pct / 100} color={who.color} track={alpha(colors.ink, 0.07)} height={4} radius={2} delay={80 * i} />
+                      <Text style={[font.row, { color: tk().ink }, { marginBottom: 6 }]}>{c.title}</Text>
+                      <ProgressBar ratio={c.pct / 100} color={who.color} track={tk().seg} height={4} radius={2} delay={80 * i} />
                     </View>
                     <Text style={[s.who, { color: deep(who) }]}>{who.first_name}</Text>
                   </GlassRow>
@@ -90,15 +91,15 @@ export default function Analyse() {
               })}
             </View>
 
-            {sug ? <Card accent={colors.sage} padding={0} r={radius.card} style={{ paddingVertical: 13, paddingHorizontal: 16 }}>
+            {sug ? <Card accent={tk().ok} padding={0} r={radius.card} style={{ paddingVertical: 13, paddingHorizontal: 16 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 13 }}>
                 <Text style={{ fontSize: 21 }}>✨</Text>
                 <View style={{ flex: 1 }}>
                   <Text style={s.sugTitle}>{t.suggestTitle}</Text>
-                  <Text style={[font.secondary, { marginTop: 3, lineHeight: 18 }]}>{fill(t.suggestBody, { task: sugCat.title, name: sugTo.first_name, me: sugAfter.me, partner: sugAfter.partner })}</Text>
+                  <Text style={[font.secondary, { color: tk().muted }, { marginTop: 3, lineHeight: 18 }]}>{fill(t.suggestBody, { task: sugCat.title, name: sugTo.first_name, me: sugAfter.me, partner: sugAfter.partner })}</Text>
                 </View>
                 <Pressable onPress={apply} disabled={applied} hitSlop={8} style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}>
-                  <Text style={[s.apply, applied && { color: colors.muted }]}>{applied ? t.applied : t.apply}</Text>
+                  <Text style={[s.apply, applied && { color: tk().muted }]}>{applied ? t.applied : t.apply}</Text>
                 </Pressable>
               </View>
             </Card> : null}
@@ -109,11 +110,11 @@ export default function Analyse() {
   );
 }
 
-const s = StyleSheet.create({
+const s = v3Styles(T => StyleSheet.create({
   header: { paddingTop: 14, paddingHorizontal: space.headerX, marginBottom: 11, flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
-  title: { fontSize: 22, fontWeight: '600', letterSpacing: -1.1, lineHeight: 23, color: colors.ink },
+  title: { fontSize: 22, fontWeight: '600', letterSpacing: -1.1, lineHeight: 23, color: T.ink },
   share: { fontSize: 13.5, fontWeight: '600', fontVariant: ['tabular-nums'] },
   who: { fontSize: 12, fontWeight: '600' },
-  sugTitle: { fontSize: 15, fontWeight: '600', color: colors.ink },
-  apply: { fontSize: 13, fontWeight: '600', color: colors.sageDeep },
-});
+  sugTitle: { fontSize: 15, fontWeight: '600', color: T.ink },
+  apply: { fontSize: 13, fontWeight: '600', color: T.ok },
+}));

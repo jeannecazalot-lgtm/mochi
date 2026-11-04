@@ -22,9 +22,10 @@ import { logActivity } from '../src/activity-actions';
 import { pushToPartner } from '../src/push';
 import copy from '../src/data/copy.json';
 import { colors, space, font, alpha } from '../src/theme';
+import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 
 const t = copy.event;
-const ph = alpha(colors.ink, 0.3);
+const ph = tk().seg;
 const EMOJIS = ['🎂', '🍽️', '🎉', '🎁', '✈️', '🏡', '🩺', '🎓', '💍', '🎭', '⚽', '📅'];
 const fmtDate = iso => new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }).format(new Date(iso + 'T12:00:00'));
 
@@ -102,14 +103,14 @@ export default function Evenement() {
         <SheetHandle />
         <View style={s.head}>
           <EmojiPicker value={emoji} onChange={setEmoji} choices={EMOJIS} />
-          <TextInput value={title} onChangeText={setTitle} placeholder={t.titlePlaceholder} placeholderTextColor={ph} autoCorrect={false} returnKeyType="done" onSubmitEditing={Keyboard.dismiss} cursorColor={colors.coral} selectionColor={colors.coral} style={[s.title, { flex: 1 }]} />
+          <TextInput value={title} onChangeText={setTitle} placeholder={t.titlePlaceholder} placeholderTextColor={ph} autoCorrect={false} returnKeyType="done" onSubmitEditing={Keyboard.dismiss} cursorColor={tk().accent} selectionColor={tk().accent} style={[s.title, { flex: 1 }]} />
         </View>
 
         <Card r={16} padding={0} style={s.block}>
           <Row first label={t.dateLabel} right={<PillChip label={date ? fmtDate(date) : copy.notes.pickDate} selected={!!date} onPress={() => setDateOpen(o => !o)} />} onPress={() => setDateOpen(o => !o)} />
           {dateOpen ? <DateGrid value={date} onChange={iso => { setDate(iso); setDateOpen(false); Haptics.selectionAsync().catch(() => {}); }} /> : null}
-          <Row label={t.timeLabel} right={<TextInput value={time} onChangeText={setTime} placeholder={t.timePlaceholder} placeholderTextColor={ph} keyboardType="numbers-and-punctuation" returnKeyType="done" style={s.inline} cursorColor={colors.coral} selectionColor={colors.coral} />} />
-          <Row label={t.placeLabel} right={<TextInput value={place} onChangeText={setPlace} placeholder={t.placePlaceholder} placeholderTextColor={ph} returnKeyType="done" style={[s.inline, { minWidth: 140 }]} cursorColor={colors.coral} selectionColor={colors.coral} />} />
+          <Row label={t.timeLabel} right={<TextInput value={time} onChangeText={setTime} placeholder={t.timePlaceholder} placeholderTextColor={ph} keyboardType="numbers-and-punctuation" returnKeyType="done" style={s.inline} cursorColor={tk().accent} selectionColor={tk().accent} />} />
+          <Row label={t.placeLabel} right={<TextInput value={place} onChangeText={setPlace} placeholder={t.placePlaceholder} placeholderTextColor={ph} returnKeyType="done" style={[s.inline, { minWidth: 140 }]} cursorColor={tk().accent} selectionColor={tk().accent} />} />
         </Card>
 
         <Card r={16} padding={0} style={s.block}>
@@ -119,7 +120,7 @@ export default function Evenement() {
             return (
               <View key={it.id} style={s.itemRow}>
                 <Pressable onPress={() => patchItem(it.id, { who: nextWho(it.who) })} hitSlop={8}>{it.who === 'both' ? <AvatarPair members={[me, partner]} size={22} /> : <Avatar initial={who.initial} color={who.color} photo={who.avatar_url} size={24} />}</Pressable>
-                <TextInput value={it.label} onChangeText={v => patchItem(it.id, { label: v })} placeholder={t.itemPlaceholder} placeholderTextColor={ph} returnKeyType="done" style={[s.itemInput, { flex: 1 }]} cursorColor={colors.coral} selectionColor={colors.coral} />
+                <TextInput value={it.label} onChangeText={v => patchItem(it.id, { label: v })} placeholder={t.itemPlaceholder} placeholderTextColor={ph} returnKeyType="done" style={[s.itemInput, { flex: 1 }]} cursorColor={tk().accent} selectionColor={tk().accent} />
                 <Pressable onPress={() => patchItem(it.id, { minutes: it.minutes >= 60 ? 5 : it.minutes + (it.minutes < 30 ? 5 : 15) })} hitSlop={6}><Text style={s.minutes}>{fmtMin(it.minutes)}</Text></Pressable>
                 <Pressable onPress={() => removeItem(it.id)} hitSlop={8}><Text style={s.remove}>×</Text></Pressable>
               </View>
@@ -138,16 +139,16 @@ export default function Evenement() {
   );
 }
 
-const s = StyleSheet.create({
-  sheet: { backgroundColor: colors.card, paddingTop: 10, paddingHorizontal: space.screenX },
+const s = v3Styles(T => StyleSheet.create({
+  sheet: { backgroundColor: T.bg, paddingTop: 10, paddingHorizontal: space.screenX },
   head: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 2, marginBottom: 12, paddingHorizontal: 2 },
-  title: { ...font.cardTitle, padding: 0 },
+  title: { ...font.cardTitle, color: T.ink, padding: 0 },
   block: { marginBottom: 8 },
-  inline: { fontSize: 15, fontWeight: '500', color: colors.ink, padding: 0, textAlign: 'right', minWidth: 60 },
-  itemRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, paddingHorizontal: 14, borderTopWidth: 1, borderTopColor: colors.line },
-  itemInput: { fontSize: 15, fontWeight: '500', color: colors.ink, padding: 0 },
-  minutes: { fontSize: 13, fontWeight: '500', color: colors.muted, fontVariant: ['tabular-nums'] },
-  remove: { fontSize: 18, lineHeight: 20, color: colors.muted, paddingHorizontal: 2 },
-  noteBox: { paddingHorizontal: 14, paddingVertical: 10, gap: 8, borderTopWidth: 1, borderTopColor: colors.line },
-  noteInput: { fontSize: 15, color: colors.ink, minHeight: 60, textAlignVertical: 'top' },
-});
+  inline: { fontSize: 15, fontWeight: '500', color: T.ink, padding: 0, textAlign: 'right', minWidth: 60 },
+  itemRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, paddingHorizontal: 14, borderTopWidth: 1, borderTopColor: T.line },
+  itemInput: { fontSize: 15, fontWeight: '500', color: T.ink, padding: 0 },
+  minutes: { fontSize: 13, fontWeight: '500', color: T.muted, fontVariant: ['tabular-nums'] },
+  remove: { fontSize: 18, lineHeight: 20, color: T.muted, paddingHorizontal: 2 },
+  noteBox: { paddingHorizontal: 14, paddingVertical: 10, gap: 8, borderTopWidth: 1, borderTopColor: T.line },
+  noteInput: { fontSize: 15, color: T.ink, minHeight: 60, textAlignVertical: 'top' },
+}));

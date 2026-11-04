@@ -14,13 +14,14 @@ import { Animated, useFabRotation } from './motion';
 import { Icon, ICON, SheetHandle } from './core/extra';
 import copy from '../data/copy.json';
 import { colors, gradients, radius, space, font, motion, shadows, tabBar, alpha } from '../theme';
+import { styles as v3Styles, currentTokens as tk } from '../theme-v3';
 
 const SHEET_TRAVEL = 420;
 const ENTRIES = [
-  { k: 'task', icon: ICON.task, tint: colors.sage, deep: colors.sageDeep, route: '/task/edit' },
-  { k: 'event', icon: ICON.event, tint: colors.sky, deep: colors.skyDeep, route: '/event' },
-  { k: 'expense', icon: ICON.expense, tint: colors.butter, deep: colors.coralDeep, route: '/depense' },
-  { k: 'note', icon: ICON.note, tint: colors.lavender, deep: colors.lavenderDeep, route: '/note' },
+  { k: 'task', icon: ICON.task, tint: tk().ok, deep: tk().ok, route: '/task/edit' },
+  { k: 'event', icon: ICON.event, tint: '#7DB3D5', deep: '#7DB3D5', route: '/event' },
+  { k: 'expense', icon: ICON.expense, tint: tk().scene.lamp, deep: tk().accent, route: '/depense' },
+  { k: 'note', icon: ICON.note, tint: '#9A7BC8', deep: '#9A7BC8', route: '/note' },
 ];
 
 export function useFabSheet() {
@@ -57,23 +58,23 @@ export default function FabSheet({ open, onClose }) {
   if (!mounted) return null;
   return (
     <View pointerEvents={open ? 'auto' : 'none'} style={[StyleSheet.absoluteFill, { zIndex: 50, elevation: 50 }]}>
-      <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: alpha(colors.ink, 0.35) }, scrimStyle]}>
+      <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: tk().seg }, scrimStyle]}>
         <Pressable style={StyleSheet.absoluteFill} onPress={onClose} accessibilityLabel={t.closeA11y} />
       </Animated.View>
 
       <Animated.View style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 24) + 64 }, sheetStyle]}>
         <SheetHandle />
-        <Text style={[font.cardTitle, { marginBottom: 12 }]}>{t.title}</Text>
+        <Text style={[font.cardTitle, { color: tk().ink }, { marginBottom: 12 }]}>{t.title}</Text>
         {ENTRIES.map((e, i) => (
           <View key={e.k}>
             {i ? <Divider /> : null}
             <Pressable onPress={() => go(e.route)} style={({ pressed }) => [s.row, { opacity: pressed ? 0.7 : 1 }]}>
               <View style={[s.bullet, { backgroundColor: alpha(e.tint, 0.16) }]}><Icon d={e.icon} size={20} color={e.deep} /></View>
               <View style={{ flex: 1 }}>
-                <Text style={font.body}>{t[e.k]}</Text>
-                <Text style={[font.secondary, { fontSize: 13, marginTop: 2 }]}>{t[`${e.k}Sub`]}</Text>
+                <Text style={[font.body, { color: tk().ink }, { color: tk().ink }]}>{t[e.k]}</Text>
+                <Text style={[font.secondary, { color: tk().muted }, { fontSize: 13, marginTop: 2 }]}>{t[`${e.k}Sub`]}</Text>
               </View>
-              <Text style={{ fontSize: 16, color: colors.muted }}>›</Text>
+              <Text style={{ fontSize: 16, color: tk().muted }}>›</Text>
             </Pressable>
           </View>
         ))}
@@ -91,10 +92,10 @@ export default function FabSheet({ open, onClose }) {
   );
 }
 
-const s = StyleSheet.create({
-  sheet: { position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: colors.card, borderTopLeftRadius: radius.sheet, borderTopRightRadius: radius.sheet, paddingTop: 10, paddingHorizontal: space.screenX, borderTopWidth: 1, borderTopColor: colors.sheetLine },
+const s = v3Styles(T => StyleSheet.create({
+  sheet: { position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: T.bg, borderTopLeftRadius: radius.sheet, borderTopRightRadius: radius.sheet, paddingTop: 10, paddingHorizontal: space.screenX, borderTopWidth: 1, borderTopColor: T.line },
   row: { flexDirection: 'row', alignItems: 'center', gap: 13, paddingVertical: 12 },
   bullet: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   fabWrap: { position: 'absolute', alignSelf: 'center' },
-  fab: { width: tabBar.fabSize, height: tabBar.fabSize, borderRadius: tabBar.fabSize / 2, alignItems: 'center', justifyContent: 'center', borderWidth: tabBar.fabRing, borderColor: colors.white },
-});
+  fab: { width: tabBar.fabSize, height: tabBar.fabSize, borderRadius: tabBar.fabSize / 2, alignItems: 'center', justifyContent: 'center', borderWidth: tabBar.fabRing, borderColor: T.bg },
+}));

@@ -13,6 +13,7 @@ import { occStore } from '../src/demo-core';
 import { inRealMode, loadSetup } from '../src/setup-state';
 import copy from '../src/data/copy.json';
 import { colors, radius, space, alpha } from '../src/theme';
+import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 
 const fmtDate = iso => new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }).format(new Date(iso + 'T12:00:00'));
 
@@ -46,7 +47,7 @@ export default function PenseBete() {
           <RoundButton kind="back" onPress={() => router.back()} />
           <View style={{ flex: 1 }}>
             <View style={{ flexDirection: 'row', gap: 6, marginBottom: 6 }}>
-              <PillLabel color={colors.lavender}>{t.eyebrow}</PillLabel>
+              <PillLabel color={'#9A7BC8'}>{t.eyebrow}</PillLabel>
             </View>
             <ScreenTitle style={{ lineHeight: 24 }}>{t.title}</ScreenTitle>
           </View>
@@ -56,7 +57,7 @@ export default function PenseBete() {
         <View style={s.searchWrap}>
           <View style={s.search}>
             <Text style={{ fontSize: 15, opacity: 0.6 }}>🔍</Text>
-            <TextInput value={query} onChangeText={setQuery} placeholder={t.searchPlaceholder} placeholderTextColor={colors.muted} style={s.searchInput} cursorColor={colors.coral} selectionColor={colors.coral} autoCorrect={false} />
+            <TextInput value={query} onChangeText={setQuery} placeholder={t.searchPlaceholder} placeholderTextColor={tk().muted} style={s.searchInput} cursorColor={tk().accent} selectionColor={tk().accent} autoCorrect={false} />
             <Text style={s.count}>{t.count.replace('{n}', String(notes.length))}</Text>
           </View>
         </View>
@@ -64,8 +65,8 @@ export default function PenseBete() {
         <ScrollView contentContainerStyle={s.body} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
           {adding && (
             <Animated.View entering={FadeIn.duration(200)} style={s.addCard}>
-              <TextInput value={newTitle} onChangeText={setNewTitle} placeholder={t.newTitlePlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)} style={s.addTitle} cursorColor={colors.coral} selectionColor={colors.coral} />
-              <TextInput value={newDetail} onChangeText={setNewDetail} placeholder={t.newDetailPlaceholder} placeholderTextColor={alpha(colors.ink, 0.3)} style={s.addDetail} onSubmitEditing={add} returnKeyType="done" cursorColor={colors.coral} selectionColor={colors.coral} />
+              <TextInput value={newTitle} onChangeText={setNewTitle} placeholder={t.newTitlePlaceholder} placeholderTextColor={tk().seg} style={s.addTitle} cursorColor={tk().accent} selectionColor={tk().accent} />
+              <TextInput value={newDetail} onChangeText={setNewDetail} placeholder={t.newDetailPlaceholder} placeholderTextColor={tk().seg} style={s.addDetail} onSubmitEditing={add} returnKeyType="done" cursorColor={tk().accent} selectionColor={tk().accent} />
               <CtaModal label={t.add} disabled={!newTitle.trim()} onPress={add} style={{ marginTop: 10 }} />
             </Animated.View>
           )}
@@ -92,21 +93,21 @@ function Note({ note, index, onPress, onLongPress }) {
   );
 }
 
-const s = StyleSheet.create({
+const s = v3Styles(T => StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, paddingTop: 14, paddingHorizontal: space.headerX },
   searchWrap: { paddingTop: 14, paddingHorizontal: space.screenX, paddingBottom: 13 },
-  search: { backgroundColor: colors.card, borderRadius: radius.pill, paddingVertical: 10, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 8, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
-  searchInput: { flex: 1, fontSize: 14.5, fontWeight: '400', color: colors.ink, padding: 0 },
-  count: { fontSize: 11, fontWeight: '600', letterSpacing: 0.5, textTransform: 'uppercase', color: colors.muted, fontVariant: ['tabular-nums'] },
+  search: { backgroundColor: T.bg, borderRadius: radius.pill, paddingVertical: 10, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 8, borderWidth: StyleSheet.hairlineWidth, borderColor: T.line },
+  searchInput: { flex: 1, fontSize: 14.5, fontWeight: '400', color: T.ink, padding: 0 },
+  count: { fontSize: 11, fontWeight: '600', letterSpacing: 0.5, textTransform: 'uppercase', color: T.muted, fontVariant: ['tabular-nums'] },
   body: { paddingHorizontal: space.screenX, paddingBottom: 40 },
-  addCard: { backgroundColor: colors.card, borderRadius: radius.row, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline, padding: 14, marginBottom: 12 },
-  addTitle: { fontSize: 16, fontWeight: '600', letterSpacing: -0.2, color: colors.ink, padding: 0 },
-  addDetail: { fontSize: 12, fontWeight: '400', color: alpha(colors.ink, 0.65), marginTop: 6, padding: 0 },
+  addCard: { backgroundColor: T.bg, borderRadius: radius.row, borderWidth: StyleSheet.hairlineWidth, borderColor: T.line, padding: 14, marginBottom: 12 },
+  addTitle: { fontSize: 16, fontWeight: '600', letterSpacing: -0.2, color: T.ink, padding: 0 },
+  addDetail: { fontSize: 12, fontWeight: '400', color: T.seg, marginTop: 6, padding: 0 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   cell: { width: '48%', flexGrow: 1 },
-  note: { borderRadius: radius.row, paddingVertical: 13, paddingHorizontal: 14, minHeight: 92, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline },
-  tape: { position: 'absolute', top: -5, alignSelf: 'center', width: 28, height: 10, backgroundColor: 'rgba(255,255,255,0.5)', borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline, transform: [{ rotate: '-2deg' }] },
-  noteTitle: { fontSize: 16, fontWeight: '600', letterSpacing: -0.2, lineHeight: 18.5, color: colors.ink, marginTop: 4 },
-  noteDetail: { fontSize: 12, fontWeight: '400', color: alpha(colors.ink, 0.65), marginTop: 4, lineHeight: 16 },
-  empty: { fontSize: 13.5, color: colors.muted, textAlign: 'center', marginTop: 24 },
-});
+  note: { borderRadius: radius.row, paddingVertical: 13, paddingHorizontal: 14, minHeight: 92, borderWidth: StyleSheet.hairlineWidth, borderColor: T.line },
+  tape: { position: 'absolute', top: -5, alignSelf: 'center', width: 28, height: 10, backgroundColor: 'rgba(255,255,255,0.5)', borderWidth: StyleSheet.hairlineWidth, borderColor: T.line, transform: [{ rotate: '-2deg' }] },
+  noteTitle: { fontSize: 16, fontWeight: '600', letterSpacing: -0.2, lineHeight: 18.5, color: T.ink, marginTop: 4 },
+  noteDetail: { fontSize: 12, fontWeight: '400', color: T.seg, marginTop: 4, lineHeight: 16 },
+  empty: { fontSize: 13.5, color: T.muted, textAlign: 'center', marginTop: 24 },
+}));

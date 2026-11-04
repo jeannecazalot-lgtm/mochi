@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { View } from 'react-native';
 import { GlowBg } from '../../src/components/ui';
 import { TaskEditBody } from './edit';
+import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';
 
 export default function TaskPage() {
   return (

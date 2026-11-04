@@ -10,6 +10,7 @@ import { SheetHandle } from '../src/components/social/extra';
 import { joinWithCode } from '../src/invite-actions';
 import copy from '../src/data/copy.json';
 import { colors, space, radius, font, alpha } from '../src/theme';
+import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 
 export default function Rejoindre() {
   const insets = useSafeAreaInsets();
@@ -44,9 +45,9 @@ export default function Rejoindre() {
       <Card r={radius.row} padding={0} style={{ marginTop: 14, marginBottom: 10 }}>
         <TextInput
           value={code} onChangeText={v => setCode(v.toUpperCase())} placeholder={t.placeholder}
-          placeholderTextColor={alpha(colors.ink, 0.3)} autoCapitalize="characters" autoCorrect={false}
+          placeholderTextColor={tk().seg} autoCapitalize="characters" autoCorrect={false}
           maxLength={6} returnKeyType="go" onSubmitEditing={join}
-          cursorColor={colors.coral} selectionColor={colors.coral} style={s.input}
+          cursorColor={tk().accent} selectionColor={tk().accent} style={s.input}
         />
       </Card>
       {error ? <Text style={s.error}>{error}</Text> : null}
@@ -55,10 +56,10 @@ export default function Rejoindre() {
   );
 }
 
-const s = StyleSheet.create({
-  sheet: { backgroundColor: colors.card, paddingTop: 10, paddingHorizontal: space.screenX },
-  title: { fontSize: 19, fontWeight: '600', letterSpacing: -0.5, color: colors.ink, marginTop: 6 },
-  sub: { ...font.secondary, marginTop: 4 },
-  input: { paddingVertical: 15, paddingHorizontal: 18, fontSize: 24, fontWeight: '700', letterSpacing: 8, textAlign: 'center', color: colors.ink },
-  error: { fontSize: 13, fontWeight: '500', color: colors.coralDeep, textAlign: 'center', marginBottom: 10 },
-});
+const s = v3Styles(T => StyleSheet.create({
+  sheet: { backgroundColor: T.bg, paddingTop: 10, paddingHorizontal: space.screenX },
+  title: { fontSize: 19, fontWeight: '600', letterSpacing: -0.5, color: T.ink, marginTop: 6 },
+  sub: { ...font.secondary, color: T.muted, marginTop: 4 },
+  input: { paddingVertical: 15, paddingHorizontal: 18, fontSize: 24, fontWeight: '700', letterSpacing: 8, textAlign: 'center', color: T.ink },
+  error: { fontSize: 13, fontWeight: '500', color: T.accent, textAlign: 'center', marginBottom: 10 },
+}));

@@ -11,6 +11,7 @@ import Animated, { useSharedValue, useAnimatedStyle, withTiming, withDelay, Easi
 import { Card } from '../ui';
 import { prefersReducedMotion } from '../motion';
 import { colors, font, radius, space, alpha, motion } from '../../theme';
+import { styles as v3Styles, currentTokens as tk } from '../../theme-v3';
 
 // ─── en-tête des écrans poussés : bouton rond à gauche, titre micro centré ─
 export function ScreenHeader({ title, onBack, right, sub }) {
@@ -36,14 +37,14 @@ export function RoundBtn({ children, onPress }) {
 }
 
 const BackIcon = () => (
-  <Svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke={colors.ink} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+  <Svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke={tk().ink} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
     <Path d="M19 12H5M11 18l-6-6 6-6" />
   </Svg>
 );
 
 // ─── barre scindée : N segments animés (600 ms ease-out depuis 0) ───
 // parts = [{ ratio 0…1, color }] — la somme des ratios fait 1 (ou moins)
-export function SplitBar({ parts = [], height = 8, track = colors.line, delay = 0, style }) {
+export function SplitBar({ parts = [], height = 8, track = tk().line, delay = 0, style }) {
   return (
     <View style={[{ height, borderRadius: height / 2, backgroundColor: track, overflow: 'hidden', flexDirection: 'row' }, style]}>
       {parts.map((p, i) => <Segment key={i} ratio={p.ratio} color={p.color} delay={delay} />)}
@@ -89,7 +90,7 @@ export function DarkPill({ children }) {
 
 // ─── titre de section micro, aligné sur le padding header (23) ──────
 export function SectionMicro({ children, style }) {
-  return <Text style={[font.micro, s.sectionMicro, style]}>{children}</Text>;
+  return <Text style={[font.micro, { color: tk().muted }, s.sectionMicro, style]}>{children}</Text>;
 }
 
 // ─── rangée contributeur / malus : emoji · titre 15.5/500 + sous 12 · à droite ─
@@ -110,13 +111,13 @@ export function InfoRow({ emoji, title, sub, right }) {
 export function ChoiceChip({ label, selected, onPress }) {
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [s.chip, selected && s.chipOn, { opacity: pressed ? 0.8 : 1 }]}>
-      <Text style={[s.chipText, selected && { color: colors.card }]}>{label}</Text>
+      <Text style={[s.chipText, selected && { color: tk().bg }]}>{label}</Text>
     </Pressable>
   );
 }
 
 // ─── encart note (⚠️ + texte) sur fond coral 10 % ────────────────────
-export function NoteBox({ emoji, lead, strong, tint = colors.coral }) {
+export function NoteBox({ emoji, lead, strong, tint = tk().accent }) {
   return (
     <View style={[s.note, { backgroundColor: alpha(tint, 0.10) }]}>
       <Text style={{ fontSize: 15 }}>{emoji}</Text>
@@ -125,21 +126,21 @@ export function NoteBox({ emoji, lead, strong, tint = colors.coral }) {
   );
 }
 
-const s = StyleSheet.create({
+const s = v3Styles(T => StyleSheet.create({
   header: { paddingTop: 14, paddingHorizontal: space.screenX },
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  headerTitle: { fontSize: 11.5, letterSpacing: 1.6, fontWeight: '600', textTransform: 'uppercase', color: colors.ink },
-  headerSub: { marginTop: 6, fontSize: 13, color: colors.muted, fontWeight: '400', textAlign: 'center' },
-  round: { width: 38, height: 38, borderRadius: 19, backgroundColor: colors.card, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline, alignItems: 'center', justifyContent: 'center' },
-  darkPill: { backgroundColor: colors.ink, paddingVertical: 8, paddingHorizontal: 10, borderRadius: radius.pill },
-  darkPillText: { color: colors.card, fontSize: 13.5, fontWeight: '600', fontVariant: ['tabular-nums'] },
+  headerTitle: { fontSize: 11.5, letterSpacing: 1.6, fontWeight: '600', textTransform: 'uppercase', color: T.ink },
+  headerSub: { marginTop: 6, fontSize: 13, color: T.muted, fontWeight: '400', textAlign: 'center' },
+  round: { width: 38, height: 38, borderRadius: 19, backgroundColor: T.bg, borderWidth: StyleSheet.hairlineWidth, borderColor: T.line, alignItems: 'center', justifyContent: 'center' },
+  darkPill: { backgroundColor: T.ink, paddingVertical: 8, paddingHorizontal: 10, borderRadius: radius.pill },
+  darkPillText: { color: T.bg, fontSize: 13.5, fontWeight: '600', fontVariant: ['tabular-nums'] },
   sectionMicro: { paddingHorizontal: space.headerX, paddingTop: 8, paddingBottom: 6 },
   infoRow: { flexDirection: 'row', alignItems: 'center', gap: 13 },
-  infoTitle: { fontSize: 15.5, fontWeight: '500', color: colors.ink },
-  infoSub: { fontSize: 12, fontWeight: '400', color: colors.muted, marginTop: 3 },
-  chip: { backgroundColor: colors.card, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline, borderRadius: radius.pill, paddingVertical: 8, paddingHorizontal: 10 },
-  chipOn: { backgroundColor: colors.ink, borderColor: colors.ink },
-  chipText: { fontSize: 13, fontWeight: '500', color: colors.ink },
+  infoTitle: { fontSize: 15.5, fontWeight: '500', color: T.ink },
+  infoSub: { fontSize: 12, fontWeight: '400', color: T.muted, marginTop: 3 },
+  chip: { backgroundColor: T.bg, borderWidth: StyleSheet.hairlineWidth, borderColor: T.line, borderRadius: radius.pill, paddingVertical: 8, paddingHorizontal: 10 },
+  chipOn: { backgroundColor: T.ink, borderColor: T.ink },
+  chipText: { fontSize: 13, fontWeight: '500', color: T.ink },
   note: { marginTop: 10, flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8, paddingHorizontal: 10, borderRadius: 10 },
-  noteText: { flex: 1, fontSize: 13.5, fontWeight: '500', color: colors.ink, lineHeight: 18 },
-});
+  noteText: { flex: 1, fontSize: 13.5, fontWeight: '500', color: T.ink, lineHeight: 18 },
+}));

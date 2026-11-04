@@ -8,6 +8,7 @@ import { members, byId, today } from '../src/demo';
 import { monthOccurrences, isPremium } from '../src/demo-premium';
 import copy from '../src/data/copy.json';
 import { colors, space, radius, font, alpha } from '../src/theme';
+import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 
 const t = copy.calendar;
 const sameDay = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
@@ -34,7 +35,7 @@ export default function Calendrier() {
           <View style={s.header}>
             <BackButton label={copy.common.back} />
             <View style={{ flex: 1 }}>
-              <View style={{ marginBottom: 6 }}><PillLabel color={colors.butter}>{t.pill}</PillLabel></View>
+              <View style={{ marginBottom: 6 }}><PillLabel color={tk().scene.lamp}>{t.pill}</PillLabel></View>
               <Text style={s.month}>{t.months[month]}{year !== today.getFullYear() ? ` ${year}` : ''}</Text>
             </View>
             <View style={{ flexDirection: 'row', gap: 6 }}>
@@ -58,9 +59,9 @@ export default function Calendrier() {
                 return (
                   <View key={i} style={s.cell}>
                     <Pressable onPress={() => setSelected(date)} style={[s.day, isToday && s.today, isToday && premiumTokens.todayShadow, info?.missed && s.missed, isSel && !isToday && s.selected]}>
-                      <Text style={[s.dayNum, isToday && { color: colors.card }]}>{d}</Text>
+                      <Text style={[s.dayNum, isToday && { color: tk().bg }]}>{d}</Text>
                       <View style={{ flexDirection: 'row', gap: 5, height: 4 }}>
-                        {(info?.assignees || []).map(id => <View key={id} style={[s.dot, { backgroundColor: isToday ? colors.butterLight : byId(id).color }]} />)}
+                        {(info?.assignees || []).map(id => <View key={id} style={[s.dot, { backgroundColor: isToday ? tk().scene.lamp : byId(id).color }]} />)}
                       </View>
                     </Pressable>
                   </View>
@@ -69,13 +70,13 @@ export default function Calendrier() {
             </View>
             <View style={s.legend}>
               {members.map(m => <Text key={m.id} style={s.legendItem}><Text style={{ color: m.color }}>● </Text>{m.first_name}</Text>)}
-              <Text style={s.legendItem}><Text style={{ color: colors.coral }}>◻ </Text>{t.legendMissed}</Text>
+              <Text style={s.legendItem}><Text style={{ color: tk().accent }}>◻ </Text>{t.legendMissed}</Text>
             </View>
           </View>
 
           <View style={{ paddingHorizontal: 22 }}>
             <Card padding={0} r={radius.card} style={{ paddingVertical: 13, paddingHorizontal: 16 }}>
-              <Text style={[font.micro, { marginBottom: 9 }]}>{selLabel}</Text>
+              <Text style={[font.micro, { color: tk().muted }, { marginBottom: 9 }]}>{selLabel}</Text>
               {sel?.items?.length ? sel.items.map((o, i) => {
                 const who = o.assignee_id ? byId(o.assignee_id) : null;
                 return (
@@ -88,7 +89,7 @@ export default function Calendrier() {
                     </View>
                   </View>
                 );
-              }) : <Text style={font.secondary}>{t.empty}</Text>}
+              }) : <Text style={[font.secondary, { color: tk().muted }, { color: tk().muted }]}>{t.empty}</Text>}
             </Card>
           </View>
         </ScrollView>
@@ -97,21 +98,21 @@ export default function Calendrier() {
   );
 }
 
-const s = StyleSheet.create({
+const s = v3Styles(T => StyleSheet.create({
   header: { paddingTop: 14, paddingHorizontal: space.headerX, marginBottom: 11, flexDirection: 'row', alignItems: 'center', gap: 12 },
-  month: { fontSize: 22, fontWeight: '600', letterSpacing: -1.2, lineHeight: 24, color: colors.ink },
+  month: { fontSize: 22, fontWeight: '600', letterSpacing: -1.2, lineHeight: 24, color: T.ink },
   // 7 colonnes exactes (1/7), gouttière 5 obtenue par 2,5 de chaque côté de la cellule (l'artboard : grid gap 5)
   grid: { flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: -2.5, marginBottom: 6 },
-  dow: { width: '14.2857%', textAlign: 'center', fontSize: 10.5, letterSpacing: 1, fontWeight: '600', color: colors.muted },
+  dow: { width: '14.2857%', textAlign: 'center', fontSize: 10.5, letterSpacing: 1, fontWeight: '600', color: T.muted },
   cell: { width: '14.2857%', height: 44, paddingHorizontal: 2.5, marginBottom: 5 },
-  day: { flex: 1, borderRadius: 10, backgroundColor: colors.card, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.hairline, alignItems: 'center', justifyContent: 'center', gap: 5 },
-  today: { backgroundColor: colors.ink, borderWidth: 0 },
-  missed: { borderWidth: 1.5, borderColor: colors.coral },
-  selected: { borderWidth: 1.5, borderColor: alpha(colors.ink, 0.22) },
-  dayNum: { fontSize: 14, fontWeight: '600', color: colors.ink, fontVariant: ['tabular-nums'] },
+  day: { flex: 1, borderRadius: 10, backgroundColor: T.bg, borderWidth: StyleSheet.hairlineWidth, borderColor: T.line, alignItems: 'center', justifyContent: 'center', gap: 5 },
+  today: { backgroundColor: T.ink, borderWidth: 0 },
+  missed: { borderWidth: 1.5, borderColor: T.accent },
+  selected: { borderWidth: 1.5, borderColor: T.seg },
+  dayNum: { fontSize: 14, fontWeight: '600', color: T.ink, fontVariant: ['tabular-nums'] },
   dot: { width: 4, height: 4, borderRadius: 2 },
   legend: { flexDirection: 'row', justifyContent: 'center', gap: 16, marginTop: 10, marginBottom: 12 },
-  legendItem: { fontSize: 12, fontWeight: '500', color: colors.muted },
+  legendItem: { fontSize: 12, fontWeight: '500', color: T.muted },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 7 },
-  rowLabel: { flex: 1, fontSize: 14.5, fontWeight: '500', color: colors.ink },
-});
+  rowLabel: { flex: 1, fontSize: 14.5, fontWeight: '500', color: T.ink },
+}));

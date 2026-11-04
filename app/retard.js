@@ -27,6 +27,7 @@ import { localIso, addDaysIso } from '../src/dates';
 import { lateCaption } from '../src/late-groups';
 import copy from '../src/data/copy.json';
 import { colors, space, font, motion } from '../src/theme';
+import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
 const CLOSE_AFTER = 1700; // la confirmation reste lisible avant la fermeture (comme la sheet Tâche)
@@ -217,16 +218,16 @@ export default function Retard() {
   );
 }
 
-const s = StyleSheet.create({
-  sheet: { backgroundColor: colors.card, paddingTop: 10, paddingHorizontal: space.screenX },
+const s = v3Styles(T => StyleSheet.create({
+  sheet: { backgroundColor: T.bg, paddingTop: 10, paddingHorizontal: space.screenX },
   head: { marginTop: 2, marginBottom: 12, paddingHorizontal: 2, gap: 4 },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  title: { ...font.cardTitle },
+  title: { ...font.cardTitle, color: T.ink },
   meta: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  metaTxt: { fontSize: 13, fontWeight: '400', color: colors.muted },
-  late: { color: colors.coralDeep, fontWeight: '600' },
+  metaTxt: { fontSize: 13, fontWeight: '400', color: T.muted },
+  late: { color: T.accent, fontWeight: '600' },
   block: { marginBottom: 8 },
-  chev: { fontSize: 16, color: colors.muted },
-  moveBox: { paddingHorizontal: 14, paddingBottom: 12, gap: 9, borderTopWidth: 1, borderTopColor: colors.line, paddingTop: 10 },
+  chev: { fontSize: 16, color: T.muted },
+  moveBox: { paddingHorizontal: 14, paddingBottom: 12, gap: 9, borderTopWidth: 1, borderTopColor: T.line, paddingTop: 10 },
   days: { flexDirection: 'row', gap: 6 },
-});
+}));

@@ -11,6 +11,7 @@ import { loadTask, lastFive, historyCounts, currentAssignee, currentDay, fmtDay,
 import { occurrences, fmtMin } from '../../src/demo';
 import copy from '../../src/data/copy.json';
 import { colors } from '../../src/theme';
+import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';
 
 const f = (s, vars) => s.replace(/\{(\w+)\}/g, (_, k) => (vars[k] ?? ''));
 
@@ -62,7 +63,7 @@ export default function TaskDetail() {
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 11 }}>
               <LiveMochi size={56} mood={done ? 'wink' : 'happy'} />
               <View style={{ flex: 1 }}>
-                <View style={{ marginBottom: 4 }}><PillLabel color={mental ? colors.lavenderDeep : colors.sageDeep}>{mental ? t.catMental : t.catDomestic}</PillLabel></View>
+                <View style={{ marginBottom: 4 }}><PillLabel color={mental ? '#9A7BC8' : tk().ok}>{mental ? t.catMental : t.catDomestic}</PillLabel></View>
                 <Text style={s.heroTitle}>{task.title}</Text>
                 <Text style={s.heroSub}>{sub}</Text>
               </View>
@@ -108,22 +109,22 @@ export default function TaskDetail() {
   );
 }
 
-const s = StyleSheet.create({
+const s = v3Styles(T => StyleSheet.create({
   content: { paddingHorizontal: taskTokens.contentX, paddingBottom: 16 },
-  more: { fontSize: 15, color: colors.ink, fontWeight: '600', letterSpacing: 1 },
+  more: { fontSize: 15, color: T.ink, fontWeight: '600', letterSpacing: 1 },
   hero: { paddingVertical: 12, paddingHorizontal: 14, marginBottom: 8 },
-  heroTitle: { fontSize: 20, fontWeight: '600', letterSpacing: -0.7, lineHeight: 22, color: colors.ink },
-  heroSub: { fontSize: 12, color: colors.muted, fontWeight: '400', marginTop: 2 },
+  heroTitle: { fontSize: 20, fontWeight: '600', letterSpacing: -0.7, lineHeight: 22, color: T.ink },
+  heroSub: { fontSize: 12, color: T.muted, fontWeight: '400', marginTop: 2 },
   label: { marginBottom: 5 },
   listCard: { paddingVertical: 8, paddingHorizontal: 11, marginBottom: 8 },
   checkRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 9 },
-  checkRowLine: { borderTopWidth: 1, borderTopColor: colors.line },
+  checkRowLine: { borderTopWidth: 1, borderTopColor: T.line },
   box: { width: 18, height: 18, borderRadius: 6, alignItems: 'center', justifyContent: 'center' },
-  boxTodo: { borderWidth: 1.5, borderColor: colors.checkRing },
-  boxDone: { backgroundColor: colors.sage },
-  checkText: { fontSize: 14.5, fontWeight: '400', color: colors.ink, flex: 1 },
+  boxTodo: { borderWidth: 1.5, borderColor: T.muted },
+  boxDone: { backgroundColor: T.ok },
+  checkText: { fontSize: 14.5, fontWeight: '400', color: T.ink, flex: 1 },
   histCard: { paddingVertical: 9, paddingHorizontal: 13, marginBottom: 8 },
-  histDate: { fontSize: 9.5, color: colors.muted, fontWeight: '500' },
-  histSum: { fontSize: 12, color: colors.muted, fontWeight: '400', marginTop: 7, textAlign: 'center' },
-  hint: { fontSize: 12, color: colors.muted, fontWeight: '400' },
-});
+  histDate: { fontSize: 9.5, color: T.muted, fontWeight: '500' },
+  histSum: { fontSize: 12, color: T.muted, fontWeight: '400', marginTop: 7, textAlign: 'center' },
+  hint: { fontSize: 12, color: T.muted, fontWeight: '400' },
+}));
