@@ -16,15 +16,17 @@ const PAPIER = { night: false, bg: '#4E4660', ink: '#F4EFE8', muted: '#B8AFC4', 
 const DECOR = { mochi: require('../assets/proto-da/piece-mochi.png'), papier: require('../assets/proto-da/piece-papier.png') };
 const MOCHI_PAPIER = require('../assets/proto-da/mochi-papier.png');
 const ICO = { dish: require('../assets/proto-da/icones-papier/dish.png'), cart: require('../assets/proto-da/icones-papier/cart.png'), calendar: require('../assets/proto-da/icones-papier/calendar.png'), basket: require('../assets/proto-da/icones-papier/basket.png') };
+const CUT = { dish: require('../assets/proto-da/icones-decoupe/dish.png'), cart: require('../assets/proto-da/icones-decoupe/cart.png'), calendar: require('../assets/proto-da/icones-decoupe/calendar.png'), basket: require('../assets/proto-da/icones-decoupe/basket.png') };
 const TASKS = [['dish', 'Vaisselle', null, false], ['cart', 'Courses de la semaine', 'à deux', false], ['calendar', 'Penser au RDV pédiatre', 'mental', false], ['basket', 'Lessive', null, true]];
 
 export default function ProtoDa2() {
-  const { v = 'mochi' } = useLocalSearchParams();
+  const { v = 'mochi', ic = 'a' } = useLocalSearchParams(); // ic=a pastilles-images · b trait sur pastille · c papier découpé sans fond
   const papier = v === 'papier';
   const T0 = useTokens(); const T = papier ? PAPIER : T0;
   const insets = useSafeAreaInsets();
   const t = copy.homeV3;
-  const Icon = ({ k }) => (papier ? <Image source={ICO[k]} style={{ width: 36, height: 36, borderRadius: 18 }} /> : <TaskIcon emoji={{ dish: '🍽', cart: '🛒', calendar: '📅', basket: '🧺' }[k]} size={21} />);
+  const EMO = { dish: '🍽', cart: '🛒', calendar: '📅', basket: '🧺' };
+  const Icon = ({ k }) => (!papier ? <TaskIcon emoji={EMO[k]} size={21} /> : ic === 'b' ? <TaskIcon emoji={EMO[k]} size={20} image={false} color={T.ink} /> : ic === 'c' ? <Image source={CUT[k]} style={{ width: 40, height: 40 }} resizeMode="contain" /> : <Image source={ICO[k]} style={{ width: 36, height: 36, borderRadius: 18 }} />);
   return (
     <View style={{ flex: 1, backgroundColor: T.bg }}>
       <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
