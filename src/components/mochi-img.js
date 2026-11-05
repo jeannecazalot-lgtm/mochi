@@ -9,8 +9,11 @@ export const MOCHI_RATIO = 191 / 235; // hauteur / largeur du canevas
 // DA papier (5 nov 2026) : une seule image de Mochi pour l'instant (assets/mochi/papier.png, 512 × 433) ; les humeurs et
 // inclinaisons reviendront avec une planche dans cette matière. `source` explicite reste prioritaire.
 export const PAPIERS = { a: require('../../assets/mochi/papier-a.png'), b: require('../../assets/mochi/papier-b.png'), c: require('../../assets/mochi/papier-c.png') };
-const PAPIER = PAPIERS.c; // choix Jeanne 5 nov 2026 : C (aérographe doux, joues)
-export const PAPIER_RATIO = 0.74;
+// Mochi C, planche des humeurs et inclinaisons (5 nov 2026, Figma, chroma vert) : assets/mochi/papier/*.png, canevas commun
+const PF = { happy: require('../../assets/mochi/papier/happy.png'), neutral: require('../../assets/mochi/papier/neutral.png'), sad: require('../../assets/mochi/papier/sad.png'), sleeping: require('../../assets/mochi/papier/sleeping.png'), wink: require('../../assets/mochi/papier/wink.png'), leanL: require('../../assets/mochi/papier/leanL.png'), leanR: require('../../assets/mochi/papier/leanR.png'), surprised: require('../../assets/mochi/papier/surprised.png') };
+const PAPIER = PF.happy;
+export const PAPIER_RATIO = 0.81;
+export const papierFor = (lean, mood) => (mood && PF[mood]) || (lean <= -0.34 ? PF.leanL : lean >= 0.34 ? PF.leanR : PF.happy);
 const FRAMES = { // pas de « + » ni de « - » dans les noms : Metro ne résout pas ces fichiers
   '-3': require('../../assets/mochi/leanm3.png'), '-2': require('../../assets/mochi/leanm2.png'), '-1': require('../../assets/mochi/leanm1.png'),
   '0': require('../../assets/mochi/leanp0.png'),
@@ -25,8 +28,8 @@ export const frameFor = (lean, mood) => (mood && MOODS[mood]) || FRAMES[String(M
 // statique : `size` = largeur ; la hauteur suit le canevas
 export function MochiImage({ size = 140, lean = 0, mood, style, source }) {
   // humeur ≠ content : le cadre de face, incliné par rotation (les inclinaisons dessinées n'existent qu'avec le sourire)
-  const tilt = mood && MOODS[mood] ? [{ rotate: `${(lean || 0) * 8}deg` }] : [];
-  const src = source || PAPIER; const ratio = source ? MOCHI_RATIO : PAPIER_RATIO;
+  const tilt = source && mood && MOODS[mood] ? [{ rotate: `${(lean || 0) * 8}deg` }] : [];
+  const src = source || papierFor(lean || 0, mood); const ratio = source ? MOCHI_RATIO : PAPIER_RATIO;
   return <Image source={src} style={[{ width: size, height: size * ratio, transform: tilt }, style]} resizeMode="contain" accessibilityIgnoresInvertColors />;
 }
 

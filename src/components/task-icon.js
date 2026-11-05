@@ -74,7 +74,8 @@ export const iconFor = emoji => ICONS[BY_EMOJI[String(emoji || '').trim()] || (I
 export function TaskIcon({ emoji, icon, size = 20, color, sw = 1.9, style, pad = true, image = true }) {
   const T = useTokens();
   const key = icon || keyFor(emoji);
-  if (image && IMG[key]) return <Image source={IMG[key]} style={[{ width: size + 16, height: size + 16 }, style]} resizeMode="contain" accessibilityIgnoresInvertColors />;
+  // décision Jeanne 5 nov 2026 : les pastilles-images (objet dans un rond doux)
+  if (image && IMG[key]) return <View style={[{ width: size + 16, height: size + 16, borderRadius: (size + 16) / 2, backgroundColor: T.seg, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }, style]}><Image source={IMG[key]} style={{ width: size + 8, height: size + 8 }} resizeMode="contain" accessibilityIgnoresInvertColors /></View>;
   const d = ICONS[key] || ICONS.generic;
   const box = pad ? size + 16 : size;
   return (

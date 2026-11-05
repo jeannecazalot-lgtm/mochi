@@ -187,7 +187,7 @@ export default function Home() {
 
   return (
     <View style={{ flex: 1, backgroundColor: T.bg }}>
-      <Pressable onPress={() => router.push('/chambre')} style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><Scene T={T} stage={m.stage} mood={mood} lvl={lvl} away={away} topInset={insets.top + 44} /></Pressable>
+      <Pressable onPress={() => router.push('/chambre')} style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><Scene T={T} stage={m.stage} mood={mood} lvl={lvl} away={away} topInset={insets.top + 44} shiftY={34} /></Pressable>
       {flight && pearlsAt ? <PearlFlight key={flight.key} from={{ x: width / 2, y: layout.scene - layout.floor - 60 }} to={pearlsAt} count={Math.min(5, flight.n)} color={T.accent} onArrive={() => { pop(); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {}); }} /> : null}
       <SafeAreaView style={{ flex: 1 }} edges={['top']} pointerEvents="box-none">
         <View style={{ flex: 1, overflow: 'hidden' }} pointerEvents="box-none" onLayout={e => setAvailH(e.nativeEvent.layout.height)}>

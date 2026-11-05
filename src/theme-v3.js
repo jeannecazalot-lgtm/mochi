@@ -9,7 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const JOUR = {
   night: false,
   // DA papier (décision Jeanne 5 nov 2026) : gris-violet mat, blanc cassé, carmin, vert citron
-  bg: '#F5F1EA', ink: '#2B2437', muted: '#847B94', line: 'rgba(43,36,55,0.12)', seg: 'rgba(43,36,55,0.10)', accent: '#D9483E', ok: '#6F9A2E', // jour blanc cassé (Jeanne 5 nov : « le fond je veux plutôt blanc cassé »)
+  bg: '#F5F1EA', ink: '#1F2A58', muted: '#6E7591', line: 'rgba(31,42,88,0.14)', seg: 'rgba(31,42,88,0.09)', accent: '#D9483E', ok: '#6F9A2E', // jour blanc cassé (Jeanne 5 nov : « le fond je veux plutôt blanc cassé »)
   scene: { wall: '#F5F1EA', floor: '#E6DCD2', window: '#DCEAF0', hill: '#A9C49A', sofa: '#E29C80', cushion: '#F3CDB6', plant: '#7FA574', pot: '#C7784F', rug: '#E7CDB0', lamp: '#F7DFA8', lampOn: false, frame: '#D7B68F', shelf: '#CFB08C', book1: '#C7784F', book2: '#7FA574', vase: '#EAD6BC', stool: '#CFB08C', curtain: '#E7B9A2', shadow: 'rgba(43,36,32,0.10)', sun: '#F7DFA8', moon: null, stars: false }, // plus chaud et plus franc (retour Jeanne 4 nov 2026 : « un peu triste »)
 };
 const NUIT = { // bleu marine, pas noir (retour Jeanne 4 nov 2026 : « fond noir trop foncé, pas très lisible »)

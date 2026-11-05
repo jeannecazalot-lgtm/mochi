@@ -40,8 +40,9 @@ function Glow({ style, from = 0.35, to = 0.6, period = 2600, delay = 0 }) {
 }
 const Layer = ({ children, delay = 0, fade }) => <Animated.View entering={fade ? FadeIn.delay(delay) : ZoomIn.springify().damping(14).delay(delay)} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} pointerEvents="none">{children}</Animated.View>;
 
-export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height = layout.scene, hideMochi = false, cracking = false, topInset = 0, backdrop = undefined, mochiSource = null, mochiBottom = null }) {
+export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height = layout.scene, hideMochi = false, cracking = false, topInset = 0, backdrop = undefined, mochiSource = null, mochiBottom = null, shiftY = 0 }) {
   const c = T.scene, hh = height, fl = layout.floor, night = !!c.moon;
+  const { width: SW } = useWindowDimensions();
   // décision Jeanne 5 nov 2026 (« je préfère l'ancien ») : la pièce est le décor entier de ChatGPT, B le jour, D la nuit
   // l'appartement se remplit avec les paliers (Jeanne 5 nov : « au début l'appart est plus vide ») ; la nuit = le même décor sous un voile prune
   // le jour : la pièce de jour (soleil, mur mauve clair) ; le soir : la pièce validée (lune, gris-violet) — Jeanne 5 nov « montre la journée plutôt »
@@ -61,14 +62,13 @@ export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height =
   const walk = useAnimatedStyle(() => ({ transform: [{ translateX: tx.value }, { translateY: hop.value }] }));
   // mise en place (retour Jeanne 4 nov 2026, « c'est un collage ») : les meubles REPOSENT sur le sol, la fenêtre est
   // sur le mur, le tapis est à plat sous Mochi, les tailles se répondent. Tout est relatif à la largeur de l'écran.
-  const { width: SW } = useWindowDimensions();
   const u = SW / 440; // unité : 1 px sur un 440 pt
   const fl2 = fl + 10; // sol un peu plus haut pour poser les meubles
   // topInset : zone réservée en haut (Accueil : barre d'état + en-tête) pour que rien ne passe sous le texte
   const winW = 168 * u, winH = Math.min(190 * u, hh - fl2 - topInset - 36), winT = Math.max(topInset + 8, hh - fl2 - winH - 28);
   return (
     <View style={{ height: hh, backgroundColor: c.wall, overflow: 'hidden' }}>
-      {backdrop ? <Image source={backdrop} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, width: '100%', height: '100%' }} resizeMode="cover" accessibilityIgnoresInvertColors /> : null}
+      {backdrop ? <Image source={backdrop} style={{ position: 'absolute', left: 0, top: shiftY, width: SW, height: hh }} resizeMode="cover" accessibilityIgnoresInvertColors /> : null}
       {backdrop ? null : <S l={0} r={0} b={0} h={fl2} c={c.floor} />}
 
       {topInset ? <LinearGradient colors={night ? ['rgba(30,24,40,0.55)', 'rgba(30,24,40,0)'] : ['rgba(245,241,234,0.75)', 'rgba(245,241,234,0)']} style={{ position: 'absolute', left: 0, right: 0, top: 0, height: topInset + 28 }} pointerEvents="none" /> : null}
