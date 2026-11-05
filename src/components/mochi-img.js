@@ -6,6 +6,10 @@ import { Image, Pressable } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, withSpring, withSequence, withDelay, Easing } from 'react-native-reanimated';
 
 export const MOCHI_RATIO = 191 / 235; // hauteur / largeur du canevas
+// DA papier (5 nov 2026) : une seule image de Mochi pour l'instant (assets/mochi/papier.png, 512 × 433) ; les humeurs et
+// inclinaisons reviendront avec une planche dans cette matière. `source` explicite reste prioritaire.
+const PAPIER = require('../../assets/mochi/papier.png');
+export const PAPIER_RATIO = 433 / 512;
 const FRAMES = { // pas de « + » ni de « - » dans les noms : Metro ne résout pas ces fichiers
   '-3': require('../../assets/mochi/leanm3.png'), '-2': require('../../assets/mochi/leanm2.png'), '-1': require('../../assets/mochi/leanm1.png'),
   '0': require('../../assets/mochi/leanp0.png'),
@@ -21,7 +25,8 @@ export const frameFor = (lean, mood) => (mood && MOODS[mood]) || FRAMES[String(M
 export function MochiImage({ size = 140, lean = 0, mood, style, source }) {
   // humeur ≠ content : le cadre de face, incliné par rotation (les inclinaisons dessinées n'existent qu'avec le sourire)
   const tilt = mood && MOODS[mood] ? [{ rotate: `${(lean || 0) * 8}deg` }] : [];
-  return <Image source={source || frameFor(lean, mood)} style={[{ width: size, height: size * MOCHI_RATIO, transform: tilt }, style]} resizeMode="contain" accessibilityIgnoresInvertColors />;
+  const src = source || PAPIER; const ratio = source ? MOCHI_RATIO : PAPIER_RATIO;
+  return <Image source={src} style={[{ width: size, height: size * ratio, transform: tilt }, style]} resizeMode="contain" accessibilityIgnoresInvertColors />;
 }
 
 // réaction partagée : une coche n'importe où → secousse

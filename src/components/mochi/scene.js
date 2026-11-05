@@ -65,6 +65,7 @@ export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height =
     <View style={{ height: hh, backgroundColor: c.wall, overflow: 'hidden' }}>
       {backdrop ? <Image source={backdrop} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, width: '100%', height: '100%' }} resizeMode="cover" accessibilityIgnoresInvertColors /> : null}
       {backdrop ? null : <S l={0} r={0} b={0} h={fl2} c={c.floor} />}
+      {backdrop && night ? <S l={0} r={0} t={0} b={0} c={c.wall} op={0.45} /> : null}
       {/* tapis à plat, sous Mochi */}
       {backdrop ? null : <>
       <Im k="rug" l={SW * 0.28} w={SW * 0.44} b={fl2 - 30} h={44} op={0.95} />

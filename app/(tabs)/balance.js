@@ -7,7 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { CountUp } from '../../src/components/motion';
 import { Label, Num, Hair } from '../../src/components/mochi/gauges';
 import { useTokens, type, layout } from '../../src/theme-v3';
-import { frameFor, MOCHI_RATIO } from '../../src/components/mochi-img';
+import { MochiImage } from '../../src/components/mochi-img';
 import { members, me, partner, taskById, fmtMin } from '../../src/demo';
 import { shares, balanceState, weekInfo, malusItems, dayMinutes } from '../../src/demo-balance';
 import { missionDone, occStore, weekDays } from '../../src/demo-core';
@@ -97,7 +97,7 @@ export default function Balance() {
 
           {/* Mochi penche vers qui porte plus */}
           <Pressable onPress={() => router.push('/balance-detail')} style={{ paddingHorizontal: X, paddingTop: 18 * A, flexDirection: 'row', alignItems: 'center', gap: 16 }}>
-            <Image source={frameFor(lean, mood)} style={{ width: 64, height: 64 * MOCHI_RATIO, transform: [{ rotate: `${(lean || 0) * 8}deg` }] }} resizeMode="contain" />
+            <MochiImage size={64} lean={lean} mood={mood} />
             <Text style={[type.sub, { color: T.ink, flex: 1 }]}>{stateLabel}</Text>
           </Pressable>
 
