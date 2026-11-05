@@ -4,7 +4,7 @@
 // table, plante, tapis, cadre ; palier 2 lampe ; palier 3 banquette (remplace la table). Micro-mouvements :
 // la plante se balance, la lampe respire la nuit. La nuit : voile navy sur la pièce, lune et étoiles dans la fenêtre.
 import React, { useEffect } from 'react';
-import { View, Image } from 'react-native';
+import { View, Image, useWindowDimensions } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming, withDelay, withSequence, withRepeat, Easing, ZoomIn, FadeIn } from 'react-native-reanimated';
 import { LiveMochiImage, MOCHI_RATIO } from '../mochi-img';
 import { prefersReducedMotion } from '../motion';
@@ -36,7 +36,7 @@ function Glow({ style, from = 0.35, to = 0.6, period = 2600, delay = 0 }) {
 }
 const Layer = ({ children, delay = 0, fade }) => <Animated.View entering={fade ? FadeIn.delay(delay) : ZoomIn.springify().damping(14).delay(delay)} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} pointerEvents="none">{children}</Animated.View>;
 
-export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height = layout.scene, hideMochi = false, cracking = false }) {
+export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height = layout.scene, hideMochi = false, cracking = false, topInset = 0, backdrop = null, mochiSource = null, mochiBottom = null }) {
   const c = T.scene, hh = height, fl = layout.floor, night = !!c.moon;
   const W = Math.round(layout.mochi * (SIZE_BY_STAGE[stage] || 1)), H = W * MOCHI_RATIO;
   const tx = useSharedValue(away ? 420 : 0), hop = useSharedValue(0);
@@ -51,32 +51,43 @@ export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height =
     }
   }, [away]);
   const walk = useAnimatedStyle(() => ({ transform: [{ translateX: tx.value }, { translateY: hop.value }] }));
-  const winT = hh - 232;
+  // mise en place (retour Jeanne 4 nov 2026, « c'est un collage ») : les meubles REPOSENT sur le sol, la fenêtre est
+  // sur le mur, le tapis est à plat sous Mochi, les tailles se répondent. Tout est relatif à la largeur de l'écran.
+  const { width: SW } = useWindowDimensions();
+  const u = SW / 440; // unité : 1 px sur un 440 pt
+  const fl2 = fl + 10; // sol un peu plus haut pour poser les meubles
+  // topInset : zone réservée en haut (Accueil : barre d'état + en-tête) pour que rien ne passe sous le texte
+  const winW = 168 * u, winH = Math.min(190 * u, hh - fl2 - topInset - 36), winT = Math.max(topInset + 8, hh - fl2 - winH - 28);
   return (
     <View style={{ height: hh, backgroundColor: c.wall, overflow: 'hidden' }}>
-      <S l={0} r={0} b={0} h={fl} c={c.floor} />
-      <Im k="rug" l={60} r={60} b={6} h={46} />
-      {/* fenêtre en arche à gauche ; la nuit : lune et étoiles par-dessus le ciel */}
-      <Im k="window" l={28} t={winT} w={180} h={200} />
-      {night ? <><S l={118} t={winT + 46} w={34} h={34} rad={17} c={c.window} /><S l={128} t={winT + 50} w={14} h={14} rad={7} c={c.moon} op={0.95} /><Glow style={{ position: 'absolute', left: 78, top: winT + 64, width: 3, height: 3, borderRadius: 2, backgroundColor: c.moon }} from={0.2} to={0.9} period={1900} /><Glow style={{ position: 'absolute', left: 100, top: winT + 40, width: 2, height: 2, borderRadius: 1, backgroundColor: c.moon }} from={0.3} to={0.9} period={2300} delay={400} /><Glow style={{ position: 'absolute', left: 168, top: winT + 70, width: 3, height: 3, borderRadius: 2, backgroundColor: c.moon }} from={0.2} to={0.8} period={2100} delay={900} /></> : null}
-      <Im k="curtain" l={192} t={winT - 14} w={60} h={190} />
-      <Im k="shelf" r={28} t={hh - 212} w={130} h={74} />
-      <Im k="frame" r={70} t={hh - 128} w={34} h={40} />
-      {lvl < 3 ? <Im k="table" l={46} b={fl - 10} w={110} h={76} /> : null}
-      <Sway style={{ position: 'absolute', right: 16, bottom: fl - 8, width: 96, height: 128 }}><Image source={IMG.plant} style={{ width: 96, height: 128 }} resizeMode="contain" /></Sway>
+      {backdrop ? <Image source={backdrop} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, width: '100%', height: '100%' }} resizeMode="cover" accessibilityIgnoresInvertColors /> : null}
+      {backdrop ? null : <S l={0} r={0} b={0} h={fl2} c={c.floor} />}
+      {/* tapis à plat, sous Mochi */}
+      {backdrop ? null : <>
+      <Im k="rug" l={SW * 0.28} w={SW * 0.44} b={fl2 - 30} h={44} op={0.95} />
+      {/* fenêtre sur le mur, rideau à sa droite ; la nuit : lune et étoiles par-dessus le ciel */}
+      <Im k="window" l={30 * u} t={winT} w={winW} h={winH} />
+      {night ? <><S l={30 * u + winW * 0.42} t={winT + winH * 0.22} w={34} h={34} rad={17} c={c.window} /><S l={30 * u + winW * 0.48} t={winT + winH * 0.24} w={14} h={14} rad={7} c={c.moon} op={0.95} /><Glow style={{ position: 'absolute', left: 30 * u + winW * 0.22, top: winT + winH * 0.3, width: 3, height: 3, borderRadius: 2, backgroundColor: c.moon }} from={0.2} to={0.9} period={1900} /><Glow style={{ position: 'absolute', left: 30 * u + winW * 0.34, top: winT + winH * 0.18, width: 2, height: 2, borderRadius: 1, backgroundColor: c.moon }} from={0.3} to={0.9} period={2300} delay={400} /><Glow style={{ position: 'absolute', left: 30 * u + winW * 0.7, top: winT + winH * 0.34, width: 3, height: 3, borderRadius: 2, backgroundColor: c.moon }} from={0.2} to={0.8} period={2100} delay={900} /></> : null}
+      <Im k="curtain" l={30 * u + winW - 14 * u} t={winT - 10} w={58 * u} h={winH * 0.92} />
+      {/* étagère haute à droite, petit cadre entre les deux */}
+      <Im k="shelf" r={22 * u} t={winT + 6} w={118 * u} h={66 * u} />
+      <Im k="frame" r={150 * u} t={winT + 40} w={30 * u} h={34 * u} />
+      {/* table basse à gauche (banquette au palier 3), plante à droite : posées sur le sol */}
+      {lvl < 3 ? <Im k="table" l={34 * u} b={fl2 - 16} w={104 * u} h={72 * u} /> : null}
+      <Sway style={{ position: 'absolute', right: 18 * u, bottom: fl2 - 12, width: 78 * u, height: 104 * u }}><Image source={IMG.plant} style={{ width: 78 * u, height: 104 * u }} resizeMode="contain" /></Sway>
       {lvl >= 2 ? <Layer delay={120}>
-        <Im k="lamp" l={2} b={fl - 6} w={54} h={146} />
-        {night ? <Glow style={{ position: 'absolute', left: -22, bottom: fl + 70, width: 100, height: 100, borderRadius: 50, backgroundColor: c.lamp }} from={0.12} to={0.26} /> : null}
+        <Im k="lamp" l={6 * u} b={fl2 - 8} w={44 * u} h={130 * u} />
+        {night ? <Glow style={{ position: 'absolute', left: -20, bottom: fl2 + 70, width: 96, height: 96, borderRadius: 48, backgroundColor: c.lamp }} from={0.12} to={0.26} /> : null}
       </Layer> : null}
-      {lvl >= 3 ? <Layer delay={200}><Im k="sofa" l={34} b={fl - 10} w={140} h={88} /></Layer> : null}
-      {lvl >= 4 ? <Layer delay={300} fade><Im k="frame" r={120} t={hh - 236} w={28} h={32} /></Layer> : null}
-      {/* la nuit : un voile navy sur toute la pièce (les images gardent leur matière) */}
+      {lvl >= 3 ? <Layer delay={200}><Im k="sofa" l={24 * u} b={fl2 - 16} w={134 * u} h={84 * u} /></Layer> : null}
+      {lvl >= 4 ? <Layer delay={300} fade><Im k="frame" r={112 * u} t={winT - 30} w={26 * u} h={30 * u} /></Layer> : null}
       {night ? <S l={0} r={0} t={0} b={0} c={c.wall} op={0.5} /> : null}
+      </>}
       {hideMochi ? null : stage === 'egg'
-        ? <><View style={{ position: 'absolute', bottom: fl - 10, alignSelf: 'center', width: 150, height: 14, borderRadius: 7, backgroundColor: c.shadow }} /><Animated.View entering={ZoomIn.springify().damping(12)} style={{ position: 'absolute', bottom: fl - 6, left: 0, right: 0, alignItems: 'center' }}><Image source={cracking ? IMG.eggCrack : IMG.egg} style={{ width: 96, height: 120 }} resizeMode="contain" accessibilityIgnoresInvertColors /></Animated.View></>
-        : <Animated.View entering={ZoomIn.springify().damping(12).stiffness(160)} style={{ position: 'absolute', bottom: fl - 14, left: 0, right: 0 }}><Animated.View style={[{ alignItems: 'center' }, walk]}>
-              <View style={{ position: 'absolute', bottom: 2, width: Math.round(W * 1.1), height: 16, borderRadius: 8, backgroundColor: c.shadow }} />
-              <LiveMochiImage size={W} lean={0} mood={mood} />
+        ? <><Animated.View entering={ZoomIn.springify().damping(12)} style={{ position: 'absolute', bottom: fl2 - 12, left: 0, right: 0, alignItems: 'center' }}><Image source={cracking ? IMG.eggCrack : IMG.egg} style={{ width: 96, height: 120 }} resizeMode="contain" accessibilityIgnoresInvertColors /></Animated.View></>
+        : <Animated.View entering={ZoomIn.springify().damping(12).stiffness(160)} style={{ position: 'absolute', bottom: mochiBottom ?? (fl2 - 18), left: 0, right: 0 }}><Animated.View style={[{ alignItems: 'center' }, walk]}>
+              <View style={{ position: 'absolute', bottom: 4, width: Math.round(W * 0.9), height: 10, borderRadius: 5, backgroundColor: c.shadow, opacity: 0.6 }} />
+              <LiveMochiImage size={W} lean={0} mood={mood} source={mochiSource} />
             </Animated.View></Animated.View>}
     </View>
   );

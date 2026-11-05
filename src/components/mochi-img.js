@@ -18,10 +18,10 @@ const MOODS = { // planche des humeurs (ChatGPT, 14 sept 2026, 23 h), même corp
 export const frameFor = (lean, mood) => (mood && MOODS[mood]) || FRAMES[String(Math.max(-3, Math.min(3, Math.round((lean || 0) * 3))))];
 
 // statique : `size` = largeur ; la hauteur suit le canevas
-export function MochiImage({ size = 140, lean = 0, mood, style }) {
+export function MochiImage({ size = 140, lean = 0, mood, style, source }) {
   // humeur ≠ content : le cadre de face, incliné par rotation (les inclinaisons dessinées n'existent qu'avec le sourire)
   const tilt = mood && MOODS[mood] ? [{ rotate: `${(lean || 0) * 8}deg` }] : [];
-  return <Image source={frameFor(lean, mood)} style={[{ width: size, height: size * MOCHI_RATIO, transform: tilt }, style]} resizeMode="contain" accessibilityIgnoresInvertColors />;
+  return <Image source={source || frameFor(lean, mood)} style={[{ width: size, height: size * MOCHI_RATIO, transform: tilt }, style]} resizeMode="contain" accessibilityIgnoresInvertColors />;
 }
 
 // réaction partagée : une coche n'importe où → secousse
@@ -29,7 +29,7 @@ const listeners = new Set();
 export const mochiReact = () => listeners.forEach(f => f());
 
 // vivant : respiration depuis la base, changement de cadre quand la balance bouge (avec une petite secousse), secousse au toucher
-export function LiveMochiImage({ size = 140, lean = 0, mood, breathe = true }) {
+export function LiveMochiImage({ size = 140, lean = 0, mood, breathe = true, source }) {
   const [frameLean, setFrameLean] = useState(lean);
   const [shownMood, setShownMood] = useState(mood);
   const sx = useSharedValue(1), sy = useSharedValue(1), tx = useSharedValue(lean * 6), ty = useSharedValue(0);
@@ -65,7 +65,7 @@ export function LiveMochiImage({ size = 140, lean = 0, mood, breathe = true }) {
   const style = useAnimatedStyle(() => ({ transformOrigin: '50% 100%', transform: [{ translateX: tx.value }, { translateY: ty.value }, { scaleX: sx.value }, { scaleY: sy.value }] }));
   return (
     <Pressable onPress={wobble}>
-      <Animated.View style={style}><MochiImage size={size} lean={frameLean} mood={shownMood} /></Animated.View>
+      <Animated.View style={style}><MochiImage size={size} lean={frameLean} mood={shownMood} source={source} /></Animated.View>
     </Pressable>
   );
 }
