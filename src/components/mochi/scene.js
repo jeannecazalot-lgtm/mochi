@@ -17,7 +17,8 @@ const IMG = {
   rug: require('../../../assets/maison/rug.png'), frame: require('../../../assets/maison/frame.png'), curtain: require('../../../assets/maison/curtain.png'),
   egg: require('../../../assets/maison/egg.png'), eggCrack: require('../../../assets/maison/egg-crack.png'), eggOpen: require('../../../assets/maison/egg-open.png'),
   decorJour: require('../../../assets/maison/decor-jour.png'), decorNuit: require('../../../assets/maison/decor-nuit.png'),
-  decorVide: require('../../../assets/maison/decor-vide.png'), decorMoyen: require('../../../assets/maison/decor-moyen.png'), decorPlein: require('../../../assets/maison/decor-plein.png'),
+  jour: [require('../../../assets/maison/jour-vide.png'), require('../../../assets/maison/jour-moyen.png'), require('../../../assets/maison/jour-plein.png')],
+  nuit: [require('../../../assets/maison/nuit-vide.png'), require('../../../assets/maison/nuit-moyen.png'), require('../../../assets/maison/nuit-plein.png')],
 };
 const S = ({ l, r, t, b, w, h, rad = 0, c, op }) => <View style={{ position: 'absolute', left: l, right: r, top: t, bottom: b, width: w, height: h, borderRadius: rad, backgroundColor: c, opacity: op }} />;
 const Im = ({ k, l, r, t, b, w, h, op = 1 }) => <Image source={IMG[k]} style={{ position: 'absolute', left: l, right: r, top: t, bottom: b, width: w, height: h, opacity: op }} resizeMode="contain" accessibilityIgnoresInvertColors />;
@@ -43,7 +44,8 @@ export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height =
   const c = T.scene, hh = height, fl = layout.floor, night = !!c.moon;
   // décision Jeanne 5 nov 2026 (« je préfère l'ancien ») : la pièce est le décor entier de ChatGPT, B le jour, D la nuit
   // l'appartement se remplit avec les paliers (Jeanne 5 nov : « au début l'appart est plus vide ») ; la nuit = le même décor sous un voile prune
-  if (backdrop === undefined) backdrop = lvl <= 1 ? IMG.decorVide : lvl <= 3 ? IMG.decorMoyen : IMG.decorPlein;
+  // le jour : la pièce de jour (soleil, mur mauve clair) ; le soir : la pièce validée (lune, gris-violet) — Jeanne 5 nov « montre la journée plutôt »
+  if (backdrop === undefined) backdrop = (night ? IMG.nuit : IMG.jour)[lvl <= 1 ? 0 : lvl <= 3 ? 1 : 2];
   const W = Math.round(layout.mochi * (SIZE_BY_STAGE[stage] || 1)), H = W * MOCHI_RATIO;
   const tx = useSharedValue(away ? 420 : 0), hop = useSharedValue(0);
   useEffect(() => {
@@ -68,8 +70,8 @@ export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height =
     <View style={{ height: hh, backgroundColor: c.wall, overflow: 'hidden' }}>
       {backdrop ? <Image source={backdrop} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, width: '100%', height: '100%' }} resizeMode="cover" accessibilityIgnoresInvertColors /> : null}
       {backdrop ? null : <S l={0} r={0} b={0} h={fl2} c={c.floor} />}
-      {backdrop && night ? <S l={0} r={0} t={0} b={0} c={c.wall} op={0.35} /> : null}
-      {topInset ? <LinearGradient colors={['rgba(30,24,40,0.55)', 'rgba(30,24,40,0)']} style={{ position: 'absolute', left: 0, right: 0, top: 0, height: topInset + 28 }} pointerEvents="none" /> : null}
+
+      {topInset ? <LinearGradient colors={night ? ['rgba(30,24,40,0.55)', 'rgba(30,24,40,0)'] : ['rgba(245,241,234,0.75)', 'rgba(245,241,234,0)']} style={{ position: 'absolute', left: 0, right: 0, top: 0, height: topInset + 28 }} pointerEvents="none" /> : null}
       {/* fondu entre la pièce et l'écran (Jeanne 5 nov : « au lieu d'une coupure nette, un fondu ») */}
       <LinearGradient colors={[T.bg + '00', T.bg]} style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 64 }} pointerEvents="none" />
       {/* tapis à plat, sous Mochi */}

@@ -31,7 +31,7 @@ import { TaskIcon } from '../../src/components/task-icon';
 const fill = (s, vars) => Object.keys(vars).reduce((acc, k) => acc.replace(`{${k}}`, vars[k]), s);
 const DEMO_MOCHI = { stage: 'mini', hearts: 4, pearls: 128, walk_status: 'home', hatched_at: new Date(Date.now() - 12 * 86400e3).toISOString() };
 const fmtDate = d => { const s = d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }); return s.charAt(0).toUpperCase() + s.slice(1); };
-const HEAD = '#F4EFE8'; // en-tête posé sur la pièce (toujours sombre)
+const headOn = T => (T.night ? '#F4EFE8' : T.ink); // en-tête posé sur la pièce : clair la nuit, encre le jour
 const fmtTime = iso => new Date(iso).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }).replace(':', ' h ');
 
 function Row({ T, vm, first, done, onToggle }) {
@@ -74,7 +74,7 @@ const demoVms = () => myToday().map(o => { const task = taskById(o.task_id); ret
 
 export default function Home() {
   const t = copy.homeV3, h = copy.home;
-  const T = useTokens();
+  const T = useTokens(); const HEAD_ = headOn(T);
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   missionDone.useVersion();
@@ -194,11 +194,11 @@ export default function Home() {
           <View pointerEvents="box-none" onLayout={e => setTopH(e.nativeEvent.layout.height)}>
             <View style={s.header}>
               {/* sur la pièce (sombre), l'en-tête est en blanc cassé quel que soit le mode */}
-              <Label T={T} style={{ flex: 1, color: HEAD }}>{fmtDate(new Date())}</Label>
+              <Label T={T} style={{ flex: 1, color: HEAD_ }}>{fmtDate(new Date())}</Label>
               <Pressable onPress={() => router.push('/chambre')} hitSlop={8} ref={pearlsRef} onLayout={() => pearlsRef.current?.measureInWindow((x, y, w, hh) => setPearlsAt({ x: x + w / 2, y: y + hh / 2 }))} style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 6 }}>
-                <Animated.View style={popStyle}><Num T={T} style={{ color: HEAD }}>{(m.pearls ?? 0) + demoPearls}</Num></Animated.View><Label T={T} style={{ marginLeft: 6, color: HEAD, opacity: 0.8 }}>perles</Label>
+                <Animated.View style={popStyle}><Num T={T} style={{ color: HEAD_ }}>{(m.pearls ?? 0) + demoPearls}</Num></Animated.View><Label T={T} style={{ marginLeft: 6, color: HEAD_, opacity: 0.8 }}>perles</Label>
               </Pressable>
-              <RoundButton onPress={() => router.push('/activite')} accessibilityLabel={h.activityA11y}><Icon d={ICON.bubble} size={17} color={HEAD} /></RoundButton>
+              <RoundButton onPress={() => router.push('/activite')} accessibilityLabel={h.activityA11y}><Icon d={ICON.bubble} size={17} color={HEAD_} /></RoundButton>
               <Pressable onPress={() => router.push('/profil')} accessibilityLabel={h.profileA11y}><Avatar initial={me.initial} color={me.color} photo={me.avatar_url} size={36} /></Pressable>
             </View>
             <Pressable onPress={() => router.push('/chambre')} accessibilityLabel={t.roomA11y} style={{ height: Math.max(8, layout.scene + 12 - insets.top - 48) }} />{/* la scène se tape ici : vers la pièce de Mochi */}
