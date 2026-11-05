@@ -9,8 +9,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const JOUR = {
   night: false,
   // DA papier (décision Jeanne 5 nov 2026) : gris-violet mat, blanc cassé, carmin, vert citron
-  bg: '#4E4660', ink: '#F4EFE8', muted: '#B8AFC4', line: 'rgba(244,239,232,0.16)', seg: 'rgba(244,239,232,0.16)', accent: '#D9483E', ok: '#BFD94A',
-  scene: { wall: '#4E4660', floor: '#5A5068', window: '#DCEAF0', hill: '#A9C49A', sofa: '#E29C80', cushion: '#F3CDB6', plant: '#7FA574', pot: '#C7784F', rug: '#E7CDB0', lamp: '#F7DFA8', lampOn: false, frame: '#D7B68F', shelf: '#CFB08C', book1: '#C7784F', book2: '#7FA574', vase: '#EAD6BC', stool: '#CFB08C', curtain: '#E7B9A2', shadow: 'rgba(43,36,32,0.10)', sun: '#F7DFA8', moon: null, stars: false }, // plus chaud et plus franc (retour Jeanne 4 nov 2026 : « un peu triste »)
+  bg: '#EFE9F3', ink: '#2B2437', muted: '#7E7590', line: 'rgba(43,36,55,0.12)', seg: 'rgba(43,36,55,0.10)', accent: '#D9483E', ok: '#6F9A2E', // jour clair (Jeanne 5 nov : « une couleur claire pour le fond sauf le soir »)
+  scene: { wall: '#EFE9F3', floor: '#D9D0E2', window: '#DCEAF0', hill: '#A9C49A', sofa: '#E29C80', cushion: '#F3CDB6', plant: '#7FA574', pot: '#C7784F', rug: '#E7CDB0', lamp: '#F7DFA8', lampOn: false, frame: '#D7B68F', shelf: '#CFB08C', book1: '#C7784F', book2: '#7FA574', vase: '#EAD6BC', stool: '#CFB08C', curtain: '#E7B9A2', shadow: 'rgba(43,36,32,0.10)', sun: '#F7DFA8', moon: null, stars: false }, // plus chaud et plus franc (retour Jeanne 4 nov 2026 : « un peu triste »)
 };
 const NUIT = { // bleu marine, pas noir (retour Jeanne 4 nov 2026 : « fond noir trop foncé, pas très lisible »)
   night: true,

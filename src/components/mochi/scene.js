@@ -5,6 +5,7 @@
 // la plante se balance, la lampe respire la nuit. La nuit : voile navy sur la pièce, lune et étoiles dans la fenêtre.
 import React, { useEffect } from 'react';
 import { View, Image, useWindowDimensions } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming, withDelay, withSequence, withRepeat, Easing, ZoomIn, FadeIn } from 'react-native-reanimated';
 import { LiveMochiImage, MOCHI_RATIO } from '../mochi-img';
 import { prefersReducedMotion } from '../motion';
@@ -16,6 +17,7 @@ const IMG = {
   rug: require('../../../assets/maison/rug.png'), frame: require('../../../assets/maison/frame.png'), curtain: require('../../../assets/maison/curtain.png'),
   egg: require('../../../assets/maison/egg.png'), eggCrack: require('../../../assets/maison/egg-crack.png'), eggOpen: require('../../../assets/maison/egg-open.png'),
   decorJour: require('../../../assets/maison/decor-jour.png'), decorNuit: require('../../../assets/maison/decor-nuit.png'),
+  decorVide: require('../../../assets/maison/decor-vide.png'), decorMoyen: require('../../../assets/maison/decor-moyen.png'), decorPlein: require('../../../assets/maison/decor-plein.png'),
 };
 const S = ({ l, r, t, b, w, h, rad = 0, c, op }) => <View style={{ position: 'absolute', left: l, right: r, top: t, bottom: b, width: w, height: h, borderRadius: rad, backgroundColor: c, opacity: op }} />;
 const Im = ({ k, l, r, t, b, w, h, op = 1 }) => <Image source={IMG[k]} style={{ position: 'absolute', left: l, right: r, top: t, bottom: b, width: w, height: h, opacity: op }} resizeMode="contain" accessibilityIgnoresInvertColors />;
@@ -40,7 +42,8 @@ const Layer = ({ children, delay = 0, fade }) => <Animated.View entering={fade ?
 export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height = layout.scene, hideMochi = false, cracking = false, topInset = 0, backdrop = undefined, mochiSource = null, mochiBottom = null }) {
   const c = T.scene, hh = height, fl = layout.floor, night = !!c.moon;
   // décision Jeanne 5 nov 2026 (« je préfère l'ancien ») : la pièce est le décor entier de ChatGPT, B le jour, D la nuit
-  if (backdrop === undefined) backdrop = night ? IMG.decorNuit : IMG.decorJour;
+  // l'appartement se remplit avec les paliers (Jeanne 5 nov : « au début l'appart est plus vide ») ; la nuit = le même décor sous un voile prune
+  if (backdrop === undefined) backdrop = lvl <= 1 ? IMG.decorVide : lvl <= 3 ? IMG.decorMoyen : IMG.decorPlein;
   const W = Math.round(layout.mochi * (SIZE_BY_STAGE[stage] || 1)), H = W * MOCHI_RATIO;
   const tx = useSharedValue(away ? 420 : 0), hop = useSharedValue(0);
   useEffect(() => {
@@ -65,7 +68,9 @@ export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height =
     <View style={{ height: hh, backgroundColor: c.wall, overflow: 'hidden' }}>
       {backdrop ? <Image source={backdrop} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, width: '100%', height: '100%' }} resizeMode="cover" accessibilityIgnoresInvertColors /> : null}
       {backdrop ? null : <S l={0} r={0} b={0} h={fl2} c={c.floor} />}
-      {backdrop && night ? <S l={0} r={0} t={0} b={0} c={c.wall} op={0.45} /> : null}
+      {backdrop && night ? <S l={0} r={0} t={0} b={0} c={c.wall} op={0.62} /> : null}
+      {/* fondu entre la pièce et l'écran (Jeanne 5 nov : « au lieu d'une coupure nette, un fondu ») */}
+      <LinearGradient colors={[T.bg + '00', T.bg]} style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 64 }} pointerEvents="none" />
       {/* tapis à plat, sous Mochi */}
       {backdrop ? null : <>
       <Im k="rug" l={SW * 0.28} w={SW * 0.44} b={fl2 - 30} h={44} op={0.95} />

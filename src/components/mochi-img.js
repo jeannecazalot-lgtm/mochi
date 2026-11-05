@@ -8,8 +8,9 @@ import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, wit
 export const MOCHI_RATIO = 191 / 235; // hauteur / largeur du canevas
 // DA papier (5 nov 2026) : une seule image de Mochi pour l'instant (assets/mochi/papier.png, 512 × 433) ; les humeurs et
 // inclinaisons reviendront avec une planche dans cette matière. `source` explicite reste prioritaire.
-const PAPIER = require('../../assets/mochi/papier.png');
-export const PAPIER_RATIO = 433 / 512;
+export const PAPIERS = { a: require('../../assets/mochi/papier-a.png'), b: require('../../assets/mochi/papier-b.png'), c: require('../../assets/mochi/papier-c.png') };
+const PAPIER = PAPIERS.a;
+export const PAPIER_RATIO = 0.74;
 const FRAMES = { // pas de « + » ni de « - » dans les noms : Metro ne résout pas ces fichiers
   '-3': require('../../assets/mochi/leanm3.png'), '-2': require('../../assets/mochi/leanm2.png'), '-1': require('../../assets/mochi/leanm1.png'),
   '0': require('../../assets/mochi/leanp0.png'),
