@@ -13,24 +13,33 @@ import { useTokens, type, layout } from '../src/theme-v3';
 import copy from '../src/data/copy.json';
 
 const PAPIER = { night: false, bg: '#4E4660', ink: '#F4EFE8', muted: '#B8AFC4', line: 'rgba(244,239,232,0.16)', seg: 'rgba(244,239,232,0.16)', accent: '#D9483E', ok: '#BFD94A', scene: { wall: '#4E4660', floor: '#5A5068', shadow: 'rgba(0,0,0,0.25)', vase: '#EAD6BC', moon: null, lamp: '#F7DFA8' } };
-const DECOR = { mochi: require('../assets/proto-da/piece-mochi.png'), papier: require('../assets/proto-da/piece-papier.png') };
+const DECOR = { mochi: require('../assets/proto-da/piece-mochi.png'), papier: require('../assets/proto-da/piece-papier.png'), p1: require('../assets/proto-da/iter1/piece.png'), p2: require('../assets/proto-da/iter2/piece.png'), p3: require('../assets/proto-da/iter3/piece.png'), g: require('../assets/proto-da/graph/piece.png') };
+const GRAPH = { dish: require('../assets/proto-da/graph/icones/dish.png'), cart: require('../assets/proto-da/graph/icones/cart.png'), calendar: require('../assets/proto-da/graph/icones/calendar.png'), basket: require('../assets/proto-da/graph/icones/basket.png') };
+const MOCHIS = { g: require('../assets/proto-da/graph/mochi.png'), p1: require('../assets/proto-da/iter1/mochi.png'), p2: require('../assets/proto-da/iter2/mochi.png'), p3: require('../assets/proto-da/iter3/mochi.png') };
+// trois itérations de la DA papier (5 nov 2026), chacune plus près de la référence de Jeanne
+const ITER = {
+  g: { bg: '#2E2140', ink: '#F6EFE6', muted: '#BDAFCB', accent: '#D9483E', ok: '#C6E04B', line: 'rgba(246,239,230,0.16)', seg: 'rgba(246,239,230,0.16)', name: 'Graphique' },
+  p1: { bg: '#3B2C4F', ink: '#F6EFE6', muted: '#C3B4CF', accent: '#D9483E', ok: '#C6E04B', line: 'rgba(246,239,230,0.16)', seg: 'rgba(246,239,230,0.16)', name: 'Fête' },
+  p2: { bg: '#1F2A58', ink: '#F6EFE6', muted: '#B9C0DA', accent: '#D9483E', ok: '#F2B8C2', line: 'rgba(246,239,230,0.16)', seg: 'rgba(246,239,230,0.16)', name: 'Poupée' },
+  p3: { bg: '#1A1C45', ink: '#F6EFE6', muted: '#AEB1D6', accent: '#E8508F', ok: '#C6E04B', line: 'rgba(246,239,230,0.16)', seg: 'rgba(246,239,230,0.16)', name: 'Nuit de fête' },
+};
 const MOCHI_PAPIER = require('../assets/proto-da/mochi-papier.png');
 const ICO = { dish: require('../assets/proto-da/icones-papier/dish.png'), cart: require('../assets/proto-da/icones-papier/cart.png'), calendar: require('../assets/proto-da/icones-papier/calendar.png'), basket: require('../assets/proto-da/icones-papier/basket.png') };
 const CUT = { dish: require('../assets/proto-da/icones-decoupe/dish.png'), cart: require('../assets/proto-da/icones-decoupe/cart.png'), calendar: require('../assets/proto-da/icones-decoupe/calendar.png'), basket: require('../assets/proto-da/icones-decoupe/basket.png') };
 const TASKS = [['dish', 'Vaisselle', null, false], ['cart', 'Courses de la semaine', 'à deux', false], ['calendar', 'Penser au RDV pédiatre', 'mental', false], ['basket', 'Lessive', null, true]];
 
 export default function ProtoDa2() {
-  const { v = 'mochi', ic = 'a' } = useLocalSearchParams(); // ic=a pastilles-images · b trait sur pastille · c papier découpé sans fond
-  const papier = v === 'papier';
-  const T0 = useTokens(); const T = papier ? PAPIER : T0;
+  const { v = 'mochi', ic: icParam } = useLocalSearchParams(); const ic = icParam || (ITER[v] ? 'c' : 'a'); // ic=a pastilles-images · b trait sur pastille · c papier découpé sans fond
+  const it = ITER[v]; const papier = v === 'papier' || !!it;
+  const T0 = useTokens(); const T = it ? { ...PAPIER, ...it, scene: { ...PAPIER.scene, wall: it.bg, floor: it.bg } } : papier ? PAPIER : T0;
   const insets = useSafeAreaInsets();
   const t = copy.homeV3;
   const EMO = { dish: '🍽', cart: '🛒', calendar: '📅', basket: '🧺' };
-  const Icon = ({ k }) => (!papier ? <TaskIcon emoji={EMO[k]} size={21} /> : ic === 'b' ? <TaskIcon emoji={EMO[k]} size={20} image={false} color={T.ink} /> : ic === 'c' ? <Image source={CUT[k]} style={{ width: 40, height: 40 }} resizeMode="contain" /> : <Image source={ICO[k]} style={{ width: 36, height: 36, borderRadius: 18 }} />);
+  const Icon = ({ k }) => (!papier ? <TaskIcon emoji={EMO[k]} size={21} /> : ic === 'b' ? <TaskIcon emoji={EMO[k]} size={20} image={false} color={T.ink} /> : ic === 'c' ? <Image source={(v === 'g' ? GRAPH : CUT)[k]} style={{ width: 40, height: 40 }} resizeMode="contain" /> : <Image source={ICO[k]} style={{ width: 36, height: 36, borderRadius: 18 }} />);
   return (
     <View style={{ flex: 1, backgroundColor: T.bg }}>
       <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
-        <Scene T={T} stage="mochi" lvl={2} height={layout.scene + 40} topInset={insets.top + 44} backdrop={DECOR[papier ? 'papier' : 'mochi']} mochiSource={papier ? MOCHI_PAPIER : null} mochiBottom={papier ? 34 : 30} />
+        <Scene T={T} stage="mochi" lvl={2} height={layout.scene + 40} topInset={insets.top + 44} backdrop={DECOR[it ? v : papier ? 'papier' : 'mochi']} mochiSource={it ? MOCHIS[v] : papier ? MOCHI_PAPIER : null} mochiBottom={papier ? 34 : 30} />
       </View>
       <View style={{ paddingTop: insets.top + 10, paddingHorizontal: layout.x, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
         <Label T={T} style={{ flex: 1, color: T.ink }}>Jeudi 5 novembre</Label>
