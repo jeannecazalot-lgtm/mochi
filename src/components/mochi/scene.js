@@ -15,6 +15,7 @@ const IMG = {
   table: require('../../../assets/maison/table.png'), sofa: require('../../../assets/maison/sofa.png'), lamp: require('../../../assets/maison/lamp.png'),
   rug: require('../../../assets/maison/rug.png'), frame: require('../../../assets/maison/frame.png'), curtain: require('../../../assets/maison/curtain.png'),
   egg: require('../../../assets/maison/egg.png'), eggCrack: require('../../../assets/maison/egg-crack.png'), eggOpen: require('../../../assets/maison/egg-open.png'),
+  decorJour: require('../../../assets/maison/decor-jour.png'), decorNuit: require('../../../assets/maison/decor-nuit.png'),
 };
 const S = ({ l, r, t, b, w, h, rad = 0, c, op }) => <View style={{ position: 'absolute', left: l, right: r, top: t, bottom: b, width: w, height: h, borderRadius: rad, backgroundColor: c, opacity: op }} />;
 const Im = ({ k, l, r, t, b, w, h, op = 1 }) => <Image source={IMG[k]} style={{ position: 'absolute', left: l, right: r, top: t, bottom: b, width: w, height: h, opacity: op }} resizeMode="contain" accessibilityIgnoresInvertColors />;
@@ -36,8 +37,10 @@ function Glow({ style, from = 0.35, to = 0.6, period = 2600, delay = 0 }) {
 }
 const Layer = ({ children, delay = 0, fade }) => <Animated.View entering={fade ? FadeIn.delay(delay) : ZoomIn.springify().damping(14).delay(delay)} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} pointerEvents="none">{children}</Animated.View>;
 
-export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height = layout.scene, hideMochi = false, cracking = false, topInset = 0, backdrop = null, mochiSource = null, mochiBottom = null }) {
+export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height = layout.scene, hideMochi = false, cracking = false, topInset = 0, backdrop = undefined, mochiSource = null, mochiBottom = null }) {
   const c = T.scene, hh = height, fl = layout.floor, night = !!c.moon;
+  // décision Jeanne 5 nov 2026 (« je préfère l'ancien ») : la pièce est le décor entier de ChatGPT, B le jour, D la nuit
+  if (backdrop === undefined) backdrop = night ? IMG.decorNuit : IMG.decorJour;
   const W = Math.round(layout.mochi * (SIZE_BY_STAGE[stage] || 1)), H = W * MOCHI_RATIO;
   const tx = useSharedValue(away ? 420 : 0), hop = useSharedValue(0);
   useEffect(() => {
@@ -84,8 +87,8 @@ export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height =
       {night ? <S l={0} r={0} t={0} b={0} c={c.wall} op={0.5} /> : null}
       </>}
       {hideMochi ? null : stage === 'egg'
-        ? <><Animated.View entering={ZoomIn.springify().damping(12)} style={{ position: 'absolute', bottom: fl2 - 12, left: 0, right: 0, alignItems: 'center' }}><Image source={cracking ? IMG.eggCrack : IMG.egg} style={{ width: 96, height: 120 }} resizeMode="contain" accessibilityIgnoresInvertColors /></Animated.View></>
-        : <Animated.View entering={ZoomIn.springify().damping(12).stiffness(160)} style={{ position: 'absolute', bottom: mochiBottom ?? (fl2 - 18), left: 0, right: 0 }}><Animated.View style={[{ alignItems: 'center' }, walk]}>
+        ? <><Animated.View entering={ZoomIn.springify().damping(12)} style={{ position: 'absolute', bottom: backdrop ? 30 : fl2 - 12, left: 0, right: 0, alignItems: 'center' }}><Image source={cracking ? IMG.eggCrack : IMG.egg} style={{ width: 96, height: 120 }} resizeMode="contain" accessibilityIgnoresInvertColors /></Animated.View></>
+        : <Animated.View entering={ZoomIn.springify().damping(12).stiffness(160)} style={{ position: 'absolute', bottom: mochiBottom ?? (backdrop ? 26 : fl2 - 18), left: 0, right: 0 }}><Animated.View style={[{ alignItems: 'center' }, walk]}>
               <View style={{ position: 'absolute', bottom: 4, width: Math.round(W * 0.9), height: 10, borderRadius: 5, backgroundColor: c.shadow, opacity: 0.6 }} />
               <LiveMochiImage size={W} lean={0} mood={mood} source={mochiSource} />
             </Animated.View></Animated.View>}

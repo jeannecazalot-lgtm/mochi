@@ -39,7 +39,7 @@ export default function ProtoDa2() {
   return (
     <View style={{ flex: 1, backgroundColor: T.bg }}>
       <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
-        <Scene T={T} stage="mochi" lvl={2} height={layout.scene + 40} topInset={insets.top + 44} backdrop={DECOR[it ? v : papier ? 'papier' : 'mochi']} mochiSource={it ? MOCHIS[v] : papier ? MOCHI_PAPIER : null} mochiBottom={papier ? 34 : 30} />
+        <Scene T={T} stage="mochi" lvl={2} height={layout.scene + 40} topInset={insets.top + 44} backdrop={it ? DECOR[v] : papier ? DECOR.papier : undefined} mochiSource={it ? MOCHIS[v] : papier ? MOCHI_PAPIER : null} mochiBottom={papier ? 34 : 30} />
       </View>
       <View style={{ paddingTop: insets.top + 10, paddingHorizontal: layout.x, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
         <Label T={T} style={{ flex: 1, color: T.ink }}>Jeudi 5 novembre</Label>
