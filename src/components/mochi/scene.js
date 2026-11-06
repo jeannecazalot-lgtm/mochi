@@ -6,7 +6,7 @@
 import React, { useEffect } from 'react';
 import { View, Image, useWindowDimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming, withDelay, withSequence, withRepeat, Easing, ZoomIn, FadeIn } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming, withDelay, withSequence, withRepeat, Easing, ZoomIn, FadeIn, FadeInUp } from 'react-native-reanimated';
 import { LiveMochiImage, MOCHI_RATIO } from '../mochi-img';
 import { prefersReducedMotion } from '../motion';
 import { layout } from '../../theme-v3';
@@ -74,7 +74,7 @@ function Drift({ source, box, size, duration = 70000 }) {
   const st = useAnimatedStyle(() => ({ transform: [{ translateX: x.value }] }));
   return <Animated.Image pointerEvents="none" source={source} style={[{ position: 'absolute', left: box.l, top: box.t, width: size, height: size * 0.6, opacity: 0.9 }, st]} resizeMode="contain" />;
 }
-const Layer = ({ children, delay = 0, fade }) => <Animated.View entering={fade ? FadeIn.delay(delay) : ZoomIn.springify().damping(14).delay(delay)} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} pointerEvents="none">{children}</Animated.View>;
+const Layer = ({ children, delay = 0, fade }) => <Animated.View entering={FadeIn.delay(delay).duration(400)} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} pointerEvents="none">{children}</Animated.View>;
 
 export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height = layout.scene, hideMochi = false, cracking = false, topInset = 0, backdrop = undefined, mochiSource = null, mochiBottom = null, shiftY = 0 }) {
   const c = T.scene, hh = height, fl = layout.floor, night = !!c.moon;
@@ -141,8 +141,8 @@ export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height =
       {night ? <S l={0} r={0} t={0} b={0} c={c.wall} op={0.5} /> : null}
       </>}
       {hideMochi ? null : stage === 'egg'
-        ? <><Animated.View entering={ZoomIn.springify().damping(12)} style={{ position: 'absolute', bottom: backdrop ? 30 : fl2 - 12, left: 0, right: 0, alignItems: 'center' }}><Image source={cracking ? IMG.eggCrack : IMG.egg} style={{ width: 96, height: 120 }} resizeMode="contain" accessibilityIgnoresInvertColors /></Animated.View></>
-        : <Animated.View entering={ZoomIn.springify().damping(12).stiffness(160)} style={{ position: 'absolute', bottom: mochiBottom ?? (backdrop ? 26 : fl2 - 18), left: 0, right: 0 }}><Animated.View style={[{ alignItems: 'center' }, walk]}>
+        ? <><Animated.View entering={FadeInUp.duration(420).easing(Easing.out(Easing.cubic)).withInitialValues({ opacity: 0, transform: [{ translateY: 10 }] })} style={{ position: 'absolute', bottom: backdrop ? 30 : fl2 - 12, left: 0, right: 0, alignItems: 'center' }}><Image source={cracking ? IMG.eggCrack : IMG.egg} style={{ width: 96, height: 120 }} resizeMode="contain" accessibilityIgnoresInvertColors /></Animated.View></>
+        : <Animated.View entering={FadeInUp.duration(420).easing(Easing.out(Easing.cubic)).withInitialValues({ opacity: 0, transform: [{ translateY: 10 }] })} style={{ position: 'absolute', bottom: mochiBottom ?? (backdrop ? 26 : fl2 - 18), left: 0, right: 0 }}><Animated.View style={[{ alignItems: 'center' }, walk]}>
               <View style={{ position: 'absolute', bottom: 4, width: Math.round(W * 0.9), height: 10, borderRadius: 5, backgroundColor: c.shadow, opacity: 0.6 }} />
               <LiveMochiImage size={W} lean={0} mood={mood} source={mochiSource} />
             </Animated.View></Animated.View>}

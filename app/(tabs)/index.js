@@ -127,7 +127,8 @@ export default function Home() {
       const souvenirs = inv.filter(i => i.household_id === setup.householdId && i.kind === 'souvenir').length;
       setLvl(!m || m.stage === 'egg' ? 0 : souvenirs === 0 ? 1 : m.stage === 'mini' ? 2 : m.stage === 'mochi' ? 3 : 4);
       const swaps = await read('swap_requests').catch(() => []); const pendingIds = new Set(swaps.filter(sw => sw.status === 'pending' && sw.from_user === uid).map(sw => sw.occurrence_id));
-      const toVm = o => { const tk = byId[o.task_id] || {}; const q = `occ=${o.id}&tid=${o.task_id}&title=${encodeURIComponent(tk.title || '')}&emoji=${encodeURIComponent(tk.emoji || '•')}&mins=${tk.duration_min || 15}`; return { id: o.id, emoji: tk.emoji || '•', title: tk.title || '…', mental: !!tk.mental_load, together: !o.assignee_id, mins: tk.duration_min || 15, href: `/mission?${q}`, pending: pendingIds.has(o.id) ? fill(t.pending, { name: partner.first_name }) : null }; };
+      const refusedIds = new Set(swaps.filter(sw => sw.status === 'refused' && sw.from_user === uid && String(sw.resolved_at || '').slice(0, 10) === today).map(sw => sw.occurrence_id));
+      const toVm = o => { const tk = byId[o.task_id] || {}; const q = `occ=${o.id}&tid=${o.task_id}&title=${encodeURIComponent(tk.title || '')}&emoji=${encodeURIComponent(tk.emoji || '•')}&mins=${tk.duration_min || 15}`; return { id: o.id, emoji: tk.emoji || '•', title: tk.title || '…', mental: !!tk.mental_load, together: !o.assignee_id, mins: tk.duration_min || 15, href: `/mission?${q}`, pending: pendingIds.has(o.id) ? fill(t.pending, { name: partner.first_name }) : refusedIds.has(o.id) ? fill(t.refused, { name: partner.first_name }) : null }; };
       setLate(groupLate(occs.filter(o => isLive(o) && o.due_date < today && o.status !== 'done' && mine(o))).map(g => {
         const o = g.latest; const tk = byId[o.task_id] || {};
         const q = `occ=${o.id}&tid=${o.task_id}&title=${encodeURIComponent(tk.title || '')}&emoji=${encodeURIComponent(tk.emoji || '•')}&mins=${tk.duration_min || 15}`;
@@ -211,7 +212,7 @@ export default function Home() {
             {!checkedIn ? <Pressable onPress={() => router.push('/checkin')} style={{ marginHorizontal: layout.x, marginTop: 10, paddingVertical: 10, flexDirection: 'row', alignItems: 'center', gap: 10 }}><View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: T.accent }} /><Text style={[type.label, { color: T.ink, flex: 1 }]}>{T.night ? copy.checkin.homeRowEvening : copy.checkin.homeRow}</Text><Label T={T}>›</Label></Pressable> : null}
             <View style={{ marginTop: (checkedIn ? 16 : 6) * layout.air }}><Gauges T={T} t={t} energy={en} hearts={hearts} formLabel={t.formLabels[hearts] || ''} hint={m.stage !== 'egg' && !away && !full && day <= 7 ? t.energyHint : null} /></View>
             <View style={s.sectionHead}>
-              <Pressable onPress={() => router.push('/afaire')} hitSlop={6}><Text style={[type.section, { color: T.ink }]}>{t.today}</Text></Pressable>
+              <Pressable onPress={() => router.push('/(tabs)/planning')} hitSlop={6}><Text style={[type.section, { color: T.ink }]}>{t.today}</Text></Pressable>
               <Label T={T}>{meta}</Label>
             </View>
             <View style={{ marginHorizontal: layout.x }}>

@@ -75,7 +75,6 @@ export default function NoteSheet() {
           : (
             <View style={{ marginTop: 14 }}>
               <CTAPrimary label={t.add} disabled={!title.trim()} onPress={save} big />
-              <Pressable onPress={() => { router.back(); setTimeout(() => router.push('/pense-bete'), 250); }} hitSlop={8} style={{ alignSelf: 'center', marginTop: 14 }}><Text style={s.link}>{t.seeAll}</Text></Pressable>
             </View>
           )}
       </Pressable>

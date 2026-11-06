@@ -15,6 +15,7 @@ import { resetIdentity, getUid, loadIdentity, useIdentity } from '../src/identit
 import { resetAll, read } from '../src/store';
 import { computeRealBalance } from '../src/balance-real';
 import { getNightMode, setNightMode, useTokens } from '../src/theme-v3';
+import { getMochi } from '../src/mochi-state';
 import copy from '../src/data/copy.json';
 import { colors, space, radius, font, slotColors, alpha } from '../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
@@ -33,6 +34,7 @@ export default function Profil() {
   // profil au backlog ; en attendant, pas de faux chiffres.)
   useIdentity();
   const [real, setReal] = useState(null);
+  const [mochiHw, setMochiHw] = useState(0); useEffect(() => { getMochi().then(m => setMochiHw(m?.healthy_weeks || 0)).catch(() => {}); }, []);
   const [account, setAccount] = useState(null); // { email, provider } du compte connecté
   useEffect(() => { currentAccount().then(setAccount).catch(() => {}); }, []);
   // sous-titres calculés depuis ce qui est vraiment saisi (6 sept 2026 : « Soirs + week-end » était de la démo)
@@ -58,11 +60,11 @@ export default function Profil() {
   // « En duo avec {name} · depuis {n} jours » : le prénom du binôme est rendu à part, en couleur
   const duoParts = (real ? t.duoWithReal : t.duoWith).split('{name}').map(part => fill(part, { n: daysSince(duoSince) }));
   const stats = real ? [
-    { k: t.statStreak, v: fill(t.days, { n: real.streakDays }) },
+    { k: t.statStreak, v: String(mochiHw) },
     { k: t.statTasks, v: String(real.parts.reduce((a, p) => a + p.tasks, 0)) },
     { k: t.statBalance, v: `${real.parts[0].pct}%` },
   ] : [
-    { k: t.statStreak, v: fill(t.days, { n: streak.days }) },
+    { k: t.statStreak, v: '2' },
     { k: t.statTasks, v: String(lifetime.tasks_done) },
     { k: t.statBalance, v: `${balance.me}%` },
   ];
@@ -115,7 +117,6 @@ export default function Profil() {
             <View style={{ gap: 6 }}>
               <SettingRow emoji="👤" title={t.account} sub={account ? (account.provider === 'apple' ? fill(t.accountApple, { email: account.email || '' }) : account.email) : t.accountNone} onPress={() => (account ? null : router.push('/(auth)/login'))} />
               <SettingRow emoji="🔔" title={t.notifs} sub={real && setup.reminder ? fill(t.notifsSubReal, { time: String(setup.reminder).replace(':', ' h ') }) : fill(t.notifsSub, { n: duoRules.reminder_before_min })} onPress={() => router.push('/notifs')} />
-              <SettingRow emoji="📌" title={t.penseBete} sub={t.penseBeteSub} onPress={() => router.push('/pense-bete')} />
               <SettingRow emoji="🗓" title={t.mesReglages}
                 sub={!mine ? '' : [(!mine.slots && !mine.h) ? t.notSet : fill(mine.slots === 1 ? t.disposSubOne : t.disposSubReal, { n: mine.slots }) + (mine.h ? fill(t.disposSubHours, { h: mine.h }) : ''), !mine.hasPrefs ? t.notSet : fill(t.prefsSub, { like: mine.likes, hate: mine.hates, ls: mine.likes > 1 ? 's' : '', hs: mine.hates > 1 ? 's' : '' })].join(' · ')}
                 onPress={() => router.push('/mes-reglages')} />
@@ -128,7 +129,6 @@ export default function Profil() {
               {/* Mochi qu'on élève (4 nov 2026) : le point hebdo laisse la place au mode nuit ; un tap fait tourner auto → toujours → jamais */}
               <SettingRow emoji="🍡" title={t.mochiName} sub={t.mochiNameSub} onPress={() => router.push('/nom-mochi')} />
               <SettingRow emoji="🌙" title={t.nightMode} sub={t.nightModeSub} right={<Text style={s.value}>{t.nightValues[nightMode]}</Text>} onPress={() => { const order = ['auto', 'on', 'off']; setNightMode(order[(order.indexOf(nightMode) + 1) % 3]); }} />
-              <SettingRow emoji="📆" title={t.bilan} sub={t.bilanSub} onPress={() => router.push('/bilan')} />
               <SettingRow emoji="💳" title={t.subscription} sub={ALL_FREE ? t.subscriptionFree : premium ? fill(t.subscriptionOn, { date: fmtDate(household.premium_until) }) : t.subscriptionOff} onPress={() => router.push('/paywall')} />
               <SettingRow emoji="🗺" title={t.plan} sub={t.planSub} onPress={() => router.push('/plan')} />
             </View>

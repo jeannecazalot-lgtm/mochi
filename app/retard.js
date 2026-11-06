@@ -20,7 +20,7 @@ import { loadMission, saveRule } from '../src/mission-data';
 import { RuleEditor } from '../src/components/task/rule-editor';
 import { deleteRealTask } from '../src/task-actions';
 import { getUid } from '../src/identity';
-import { postponeMalus, malusPoints, clearMalusFor } from '../src/malus-actions';
+import { clearMalusFor } from '../src/malus-actions';
 import { read } from '../src/store';
 import { requestSwap } from '../src/swap-actions';
 import { localIso, addDaysIso } from '../src/dates';
@@ -75,7 +75,7 @@ export default function Retard() {
       setTheirs(await wasPartnersTask(String(occId)));
       const posed = malus.filter(m => m.occurrence_id === String(occId)).reduce((a, m) => a + Number(m.points || 0), 0);
       const tk = tasks.find(x => x.id === String(tid));
-      setPoints(posed || malusPoints(tk?.importance, daysLate));
+      setPoints(row?.status === 'missed' ? 1 : 0); // cœur perdu (balayage de minuit), jamais un calcul de points
     })();
   }, [occId]);
   const fmtPts = n => String(Math.round(n * 10) / 10).replace('.', ',');
@@ -139,7 +139,6 @@ export default function Retard() {
     if (busy.includes(d.iso)) { setMoveMsg(fill(copy.mission.moveBusy, { day: d.long })); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {}); return; }
     const r = await moveOccurrence(String(occId || ''), d.iso);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-    if (r.ok) postponeMalus(String(occId)).catch(() => {}); // « +1 malus mais ça passe »
     if (r.ok || r.reason === 'introuvable') finish({ kind: 'moved', title: fill(copy.mission.confirmMoved, { day: d.long }), sub: fill(copy.mission.confirmMovedSub, { name: partner.first_name }) });
     else Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
   };

@@ -203,7 +203,7 @@ export default function Activite() {
       // carte « Soirée équilibrée » : hier tout était fait → streak réel (proto du 2 sept, validé le 7 sept)
       const moments = [];
       const sd = uid ? computeRealBalance(occs, uid).streakDays : 0;
-      if (sd > 0) { const y = new Date(); y.setDate(y.getDate() - 1); y.setHours(21, 0, 0, 0); moments.push({ id: 'streak', type: 'mochi_moment', at: y, time: '', streak: sd }); }
+
       setRealItems([...dones, ...swaps, ...infos, ...moments].sort((a, b) => b.at - a.at));
     })();
   }, [occV]);

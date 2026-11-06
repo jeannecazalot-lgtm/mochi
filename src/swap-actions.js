@@ -9,6 +9,7 @@ import { read, mutate, uuid } from './store';
 import { supabase } from './supabase';
 import { occStore } from './demo-core';
 import { getUid, getPartnerUid } from './identity';
+import { logActivity } from './activity-actions';
 import { pushToPartner } from './push';
 
 export async function requestSwap(occId) {
@@ -40,6 +41,7 @@ export async function resolveSwap(swapId, accept) {
   // occurrence déjà faite entre-temps : la proposition tombe, le porteur ne bouge pas
   if (accept && o && o.status === 'done') accept = false;
   await mutate('swap_requests', { ...sw, status: accept ? 'accepted' : 'refused', resolved_at: new Date().toISOString() });
+  if (!accept) { const tasks = await read('tasks'); const vars = { task: (tasks.find(x => x.id === o?.task_id)?.title || '…').toLowerCase() }; pushToPartner('swapRefused', vars, '/(tabs)'); logActivity({ type: 'ping', preset_key: 'swapRefused', occurrence_id: sw.occurrence_id, payload: vars }).catch(() => {}); }
   if (accept) {
     const tasks = await read('tasks');
     pushToPartner('swapAccepted', { task: (tasks.find(x => x.id === o?.task_id)?.title || '…').toLowerCase() });

@@ -22,7 +22,7 @@ export const stageFor = hw => (hw >= STAGE_AT.dore ? 'dore' : hw >= STAGE_AT.max
 export const PEARLS = { mission: 3, mental: 4, together: 5, walk: 12, smallWalk: 5, checkin: 1, quest: 30 };
 export const WALK_MS = 2 * 3600e3;
 const PLACES_BY_STAGE = { egg: [], mini: ['jardin'], mochi: ['jardin', 'riviere'], maxi: ['jardin', 'riviere', 'foret', 'ville'], dore: ['jardin', 'riviere', 'foret', 'ville', 'plage', 'montagne'] };
-export const MOMENTS = ['hatch', 'walk_return', 'stage_up'];
+export const MOMENTS = ['hatch', 'walk_return', 'stage_up', 'week_closed'];
 export const demoFlags = { checkin: {} }; // mode démo : mémoire de session (pas de foyer)       // montrés en plein écran à chacun
 
 let version = 0; const subs = new Set();
@@ -126,7 +126,9 @@ export async function sweepHearts() {
 // ── clôture de la semaine passée (idempotente) : saine = balance < seuil, ≥ 80 % faites, pas malade ─
 export async function closeWeekIfNeeded() {
   const m = await getMochi(); if (!m || m.stage === 'egg') return false;
-  const lastMonday = weekStartIso(addDaysIso(-7)); const thisMonday = weekStartIso();
+  // le dimanche à partir de 20 h, c'est la semaine en cours qu'on clôt (récap du dimanche soir, décision Jeanne 6 nov 2026)
+  const now = new Date(); const sundayEvening = now.getDay() === 0 && now.getHours() >= 20;
+  const lastMonday = sundayEvening ? weekStartIso() : weekStartIso(addDaysIso(-7)); const thisMonday = sundayEvening ? weekStartIso(addDaysIso(7)) : weekStartIso();
   const evs = await read('mochi_events');
   if (evs.some(e => e.type === 'week_closed' && e.payload?.week_start === lastMonday)) return false;
   const [occs, tasks] = await Promise.all([read('occurrences'), read('tasks')]);
@@ -144,7 +146,7 @@ export async function closeWeekIfNeeded() {
   await event('week_closed', { actor_id: null, payload: { week_start: lastMonday, healthy, done_pct: Math.round(donePct * 100), gap_pct: Math.round(gapPct), sick } });
   if (!healthy) return true;
   const hw = (m.healthy_weeks || 0) + 1; const next = stageFor(hw);
-  await patch({ healthy_weeks: hw, stage: STAGES.indexOf(next) > STAGES.indexOf(m.stage) ? next : m.stage });
+  await patch({ healthy_weeks: hw, hearts: Math.min(5, (m.hearts || 5) + 1), stage: STAGES.indexOf(next) > STAGES.indexOf(m.stage) ? next : m.stage }); // une semaine saine rend un cœur
   if (STAGES.indexOf(next) > STAGES.indexOf(m.stage)) await event('stage_up', { actor_id: null, payload: { from: m.stage, to: next } });
   return true;
 }

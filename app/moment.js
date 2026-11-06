@@ -19,6 +19,7 @@ const DEMO = {
   hatch: { type: 'hatch', payload: {}, created_at: new Date().toISOString() },
   walk_return: { type: 'walk_return', payload: { souvenir_key: 'jardin-01', place: 'jardin' }, created_at: new Date().toISOString() },
   stage_up: { type: 'stage_up', payload: { from: 'mini', to: 'mochi' }, created_at: new Date().toISOString() },
+  week_closed: { type: 'week_closed', payload: { healthy: true, done_pct: 86, gap_pct: 6, sick: false }, created_at: new Date().toISOString() },
 };
 const fmtTime = iso => new Date(iso).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }).replace(':', ' h ');
 
@@ -39,8 +40,10 @@ export default function Moment() {
   const stageAfter = ev.type === 'hatch' ? 'mini' : ev.type === 'stage_up' ? ev.payload?.to || m.stage : m.stage;
   const k = Math.max(1, STAGES.indexOf(stageAfter));
   const lvl = ev.type === 'hatch' ? 1 : ev.type === 'walk_return' ? 2 : k >= 3 ? 4 : 3;
-  const title = ev.type === 'hatch' ? t.hatchTitle : ev.type === 'walk_return' ? t.returnTitle : t.stageTitle;
+  const wk = ev.payload || {};
+  const title = ev.type === 'hatch' ? t.hatchTitle : ev.type === 'walk_return' ? t.returnTitle : ev.type === 'week_closed' ? (wk.healthy ? t.weekTitleOk : t.weekTitleKo) : t.stageTitle;
   const sub = ev.type === 'hatch' ? t.hatchSub
+    : ev.type === 'week_closed' ? (wk.done_pct == null ? t.weekSubEmpty : wk.sick ? fill(t.weekSubSick, { done: wk.done_pct }) : fill(t.weekSub, { done: wk.done_pct, gap: wk.gap_pct }))
     : ev.type === 'walk_return' ? (souvenir ? fill(t.returnSub, { place, label: souvenir.label.toLowerCase() }) : fill(t.returnEmpty, { place }))
     : fill(t.stageSub, { weeks: m.healthy_weeks || k, k });
   const next = async () => {
@@ -50,7 +53,7 @@ export default function Moment() {
   };
   return (
     <View style={{ flex: 1, backgroundColor: T.bg }}>
-      <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><Scene T={T} stage={stageAfter} mood={T.night ? 'sleeping' : 'wink'} lvl={lvl} height={sceneH} />{ev.type !== 'walk_return' ? <View style={{ position: 'absolute', left: 0, right: 0, top: 0, height: sceneH }}><Burst count={18} colors={[T.accent, T.ok, T.scene.lamp, T.ink]} dist={150} delay={200} /></View> : null}</View>
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><Scene T={T} stage={stageAfter} mood={ev.type === 'week_closed' && !wk.healthy ? 'neutral' : T.night ? 'sleeping' : 'wink'} lvl={lvl} height={sceneH} />{ev.type !== 'walk_return' && !(ev.type === 'week_closed' && !wk.healthy) ? <View style={{ position: 'absolute', left: 0, right: 0, top: 0, height: sceneH }}><Burst count={18} colors={[T.accent, T.ok, T.scene.lamp, T.ink]} dist={150} delay={200} /></View> : null}</View>
       <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
         <View style={{ height: Math.max(8, sceneH - insets.top) }} />
         <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: layout.x, paddingBottom: 12 }}>

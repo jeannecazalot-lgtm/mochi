@@ -18,7 +18,7 @@ export function groupLate(occs) {
 export function lateCaption(n, daysSinceOldest, points) {
   const t = copy.late;
   const base = n > 1 ? fill(t.days, { n }) : daysSinceOldest <= 1 ? t.sinceYesterday : fill(t.since, { n: daysSinceOldest });
-  return points ? `${base} · ${fill(t.points, { pts: String(Math.round(points * 10) / 10).replace('.', ',') })}` : base;
+  return points ? `${base} · ${t.points}` : base;
 }
 
 export const daysBetweenIso = (fromIso, toIso) => Math.max(0, Math.round((new Date(`${toIso}T12:00:00`) - new Date(`${fromIso}T12:00:00`)) / 86400000));

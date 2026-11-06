@@ -76,7 +76,7 @@
     "days": "En retard · {n} jours",
     "since": "En retard depuis {n} j",
     "sinceYesterday": "En retard depuis hier",
-    "points": "{pts} pt de malus"
+    "points": "−1 cœur"
   },
   "home": {
     "_labels": {
@@ -386,7 +386,8 @@
       "_": "Sheet Tâche v2 (6 sept 2026) — Accueil/Planning → tap sur une mission. Deux étages : ce moment-ci / la règle. {name} = prénom du binôme, {time} = durée, {amount} = dépense, {day} = jour",
       "ruleLabel": "Rangée qui ouvre la sous-page jours / moment / qui / effort / note (ex-« La règle », 9 sept 2026)",
       "editHint": "Petit libellé à côté du titre (tap → Modifier la tâche)",
-      "metaPending": "Ajout dans la ligne de méta quand une proposition est en attente ({name})"
+      "metaPending": "Ajout dans la ligne de méta quand une proposition est en attente ({name})",
+      "swapRefused": "Ligne sous une mission quand l'autre a refusé la proposition ({name})"
     },
     "metaYou": "Toi",
     "metaToday": "aujourd'hui",
@@ -458,7 +459,8 @@
     "pingReminder": "🌷 Petit rappel",
     "pingTurn": "👉 C'est ton tour",
     "editHint": "modifier",
-    "metaPending": "proposée à {name}"
+    "metaPending": "proposée à {name}",
+    "swapRefused": "{name} ne peut pas, elle reste chez toi"
   },
   "pings": {
     "_labels": {
@@ -1137,7 +1139,7 @@
     "title": "Profil & réglages",
     "duoWith": "En duo avec {name} · depuis {n} jours",
     "pillPremium": "Mochi+",
-    "statStreak": "Streak",
+    "statStreak": "Semaines saines",
     "statTasks": "Tâches",
     "statBalance": "Ma part",
     "days": "{n} j",
@@ -1235,7 +1237,8 @@
       "expenseAdded": "{name} : {title} · {amount}",
       "taskDeleted": "{name} a supprimé {task}",
       "noteCreated": "{name} a noté : {title}",
-      "turn": "{name} : c'est ton tour pour {task}"
+      "turn": "{name} : c'est ton tour pour {task}",
+      "swapRefused": "{name} ne peut pas reprendre {task}"
     },
     "replies": {
       "thumbs": "👍",
@@ -1298,7 +1301,7 @@
     "groupTomorrow": "Demain · {day}",
     "groupCount": "{n} tâches",
     "lateSince": "En retard depuis {ago}",
-    "malusPill": "+{n} malus",
+    "malusPill": "−1 cœur",
     "swipeSwap": "Repasser",
     "swipePostpone": "Reporter",
     "daysAgo": "{n} j",
@@ -1519,7 +1522,7 @@
     },
     "pill": "{n} j de retard",
     "fallbackTitle": "Tâche en retard",
-    "warn": "Si tu ne fais rien : +1 malus ce mois",
+    "warn": "Si tu ne fais rien ce soir, Mochi perd un cœur.",
     "recommended": "Recommandé",
     "doNow": "Je le fais maintenant",
     "doNowSub": "≈{time}",
@@ -1527,13 +1530,13 @@
     "swap": "Repasser à {name}",
     "swapSub": "{name} décide",
     "postpone": "Décaler à demain",
-    "postponeSub": "Demain · +1 pt",
-    "warnReal": "Malus en cours : {n} pt — le faire maintenant l'efface",
-    "pillMalus": "{n} j de retard · {pts} pt",
+    "postponeSub": "Demain · sans conséquence",
+    "warnReal": "Mochi a perdu un cœur. La faire le lui rend.",
+    "pillMalus": "{n} j de retard · −1 cœur",
     "lateCaption": "En retard de {n} j",
-    "lateCaptionMalus": "En retard de {n} j · {pts} pt de malus",
-    "doNowSubMalus": "≈{time} · efface {pts} pt de malus",
-    "footerMalus": "Malus en cours : {pts} pt — il s'efface si tu la fais",
+    "lateCaptionMalus": "En retard de {n} j · Mochi a perdu un cœur",
+    "doNowSubMalus": "≈{time} · Mochi retrouve son cœur",
+    "footerMalus": "Mochi a perdu un cœur, il le retrouve si tu la fais",
     "lateCaptionOther": "En retard de {n} j · {name}",
     "pingOther": "Petit rappel à {name}",
     "pingOtherSub": "« Quand tu as un moment… » · notification",
@@ -1542,7 +1545,7 @@
     "giveBack": "Rendre à {name}",
     "giveBackSub": "C'était sa tâche · sans validation",
     "moveOther": "Décaler à un autre jour",
-    "moveOtherSub": "Choisir le jour · +1 pt",
+    "moveOtherSub": "Choisir le jour",
     "confirmGiveBack": "Rendu à {name}",
     "confirmGiveBackSub": "{name} recevra une notification",
     "confirmPing": "Rappel envoyé à {name}",
@@ -1550,9 +1553,9 @@
     "pingBtn": "Envoyer",
     "giveBtn": "Rendre",
     "doTodaySub": "Elle passe dans ta journée, à cocher quand c'est fait",
-    "doTodaySubMalus": "Elle passe dans ta journée · {pts} pt effacés quand tu la coches",
+    "doTodaySubMalus": "Elle passe dans ta journée · Mochi retrouve son cœur quand tu la coches",
     "confirmToday": "C'est pour aujourd'hui",
-    "confirmTodaySub": "Coche-la quand c'est fait, le malus s'effacera"
+    "confirmTodaySub": "Coche-la quand c'est fait, Mochi retrouvera son cœur"
   },
   "malus": {
     "_labels": {
@@ -1816,7 +1819,8 @@
     "expenseAdded": "{name} a ajouté une dépense : {title} · {amount}",
     "taskDeleted": "{name} a supprimé « {task} »",
     "noteCreated": "{name} a ajouté un pense-bête : {title}",
-    "turn": "{name} : c'est ton tour pour « {task} » 👉"
+    "turn": "{name} : c'est ton tour pour « {task} » 👉",
+    "swapRefused": "{name} ne peut pas reprendre {task}, elle reste chez toi"
   },
   "mesReglages": {
     "_labels": {
@@ -2073,7 +2077,8 @@
       "pearlsHint": "Ligne sous le compteur de perles (démo et réel), tap → la pièce",
       "pending": "Ligne sous une mission proposée à l'autre ({name})",
       "walkLeft": "Bande de balade, gauche ({time} = départ)",
-      "walkRight": "Bande de balade, droite ({time} = retour)"
+      "walkRight": "Bande de balade, droite ({time} = retour)",
+      "refused": "Ligne Accueil quand l'autre a refusé ({name})"
     },
     "pearls": "{n} perles",
     "stagePill": "Jour {day} · palier {k}",
@@ -2108,7 +2113,8 @@
     "pearlsHint": "3 par mission, 12 par balade · tap pour sa pièce",
     "pending": "Proposée à {name}, en attente de sa réponse",
     "walkLeft": "Parti à {time}",
-    "walkRight": "Retour vers {time}"
+    "walkRight": "Retour vers {time}",
+    "refused": "{name} ne peut pas, elle reste chez toi"
   },
   "moments": {
     "_labels": {
@@ -2122,7 +2128,12 @@
       "stageSub": "Sous-titre ({weeks} semaines saines, {k} palier)",
       "cta": "Bouton",
       "ctaLast": "Bouton du dernier moment",
-      "kicker": "Petite ligne au-dessus du titre ({time})"
+      "kicker": "Petite ligne au-dessus du titre ({time})",
+      "weekTitleOk": "Récap du dimanche, semaine saine",
+      "weekTitleKo": "Récap du dimanche, semaine pas saine",
+      "weekSub": "({done} % faites, {gap} % d'écart)",
+      "weekSubSick": "Idem quand Mochi a été malade",
+      "weekSubEmpty": "Semaine sans mission"
     },
     "kicker": "{time}",
     "hatchTitle": "Mochi a éclos.",
@@ -2134,7 +2145,12 @@
     "stageTitle": "Mochi grandit.",
     "stageSub": "{weeks} semaines saines. Il passe au palier {k}, et sa pièce aussi.",
     "cta": "Continuer",
-    "ctaLast": "C'est noté"
+    "ctaLast": "C'est noté",
+    "weekTitleOk": "Belle semaine.",
+    "weekTitleKo": "Semaine un peu bancale.",
+    "weekSub": "{done} % des missions faites, {gap} % d'écart entre vous deux. Mochi compte une semaine saine quand c'est au moins 80 % et moins de 10 %.",
+    "weekSubSick": "{done} % des missions faites, et Mochi a été malade. Pas de semaine saine cette fois, mais il va mieux.",
+    "weekSubEmpty": "Rien de prévu cette semaine. Elle ne compte pas."
   },
   "balanceV3": {
     "_labels": {
