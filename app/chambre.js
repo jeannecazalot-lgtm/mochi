@@ -70,12 +70,13 @@ export default function Chambre() {
           <View style={{ flex: 1 }} />
           <Num T={T}>{m.pearls ?? 0}</Num><Label T={T} style={{ marginLeft: 6 }}>perles</Label>
         </View>
-        <ScrollView contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
-          <View pointerEvents="none" style={{ height: Math.max(8, layout.scene + 40 - insets.top - 44) }} />
-          <View style={{ paddingHorizontal: X, paddingTop: 12 }}><Text style={[type.name, { color: T.ink }]}>{t.title}</Text></View>
-          <View style={{ flexDirection: 'row', gap: 22, paddingHorizontal: X, marginTop: 18, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: T.line }}>
-            {t.tabs.map((lab, i) => <Pressable key={lab} onPress={() => setTab(i)} style={{ paddingBottom: 10, borderBottomWidth: 2, borderColor: tab === i ? T.ink : 'transparent' }}><Text style={[type.label, { color: tab === i ? T.ink : T.muted, fontWeight: '600' }]}>{lab}</Text></Pressable>)}
-          </View>
+        {/* la scène reste fixe (Jeanne, 6 nov 2026 : « la partie écrite rogne sur l'animation ») : seule la liste défile dessous */}
+        <View pointerEvents="none" style={{ height: Math.max(8, layout.scene + 40 - insets.top - 44) }} />
+        <View style={{ paddingHorizontal: X, paddingTop: 12 }}><Text style={[type.name, { color: T.ink }]}>{t.title}</Text></View>
+        <View style={{ flexDirection: 'row', gap: 22, paddingHorizontal: X, marginTop: 18, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: T.line }}>
+          {t.tabs.map((lab, i) => <Pressable key={lab} onPress={() => setTab(i)} style={{ paddingBottom: 10, borderBottomWidth: 2, borderColor: tab === i ? T.ink : 'transparent' }}><Text style={[type.label, { color: tab === i ? T.ink : T.muted, fontWeight: '600' }]}>{lab}</Text></Pressable>)}
+        </View>
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
           <View style={{ paddingHorizontal: X }}>
             {tab === 0 ? items.objects.map(it => <RowItem key={it.key} it={it} kind="object" />)
               : tab === 1 ? items.outfits.map(it => <RowItem key={it.key} it={it} kind="outfit" />)
