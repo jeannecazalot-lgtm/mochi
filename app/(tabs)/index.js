@@ -18,7 +18,7 @@ import { me, partner, myToday, taskById, fmtMin } from '../../src/demo';
 import { fmtDayLabel, missionDone, occStore } from '../../src/demo-core';
 import { read, healMissingTasks } from '../../src/store';
 import { loadSetup, setup, inRealMode, isJoiner } from '../../src/setup-state';
-import { useIdentity, getUid, loadIdentity } from '../../src/identity';
+import { useIdentity, getUid, getPartnerUid, loadIdentity } from '../../src/identity';
 import { localIso, addDaysIso } from '../../src/dates';
 import { toggleOccurrence, isLive, skipOccurrence } from '../../src/occ-actions';
 import { clearMalusFor } from '../../src/malus-actions';
@@ -212,6 +212,13 @@ export default function Home() {
             </View>
             <Text style={[type.sub, { paddingHorizontal: layout.x, marginTop: 4, color: T.muted }]}>{line}</Text>
             {away ? <WalkBand T={T} t={t} started={m.walk_started_at} returns={m.walk_returns_at} /> : null}
+            {/* seul dans le foyer : l'invitation vit ici (retour Jeanne 6 nov 2026 : revenue sur l'Accueil sans moyen d'inviter) */}
+            {real && m.stage === 'egg' && !getPartnerUid() ? (
+              <Pressable onPress={() => router.push('/(setup)/invite')} style={{ marginHorizontal: layout.x, marginTop: 12, paddingVertical: 12, paddingHorizontal: 14, borderRadius: 14, backgroundColor: T.ink, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                <View style={{ flex: 1 }}><Text style={[type.body, { color: T.bg }]}>{t.inviteRow}</Text><Text style={[type.label, { color: T.bg, opacity: 0.75, marginTop: 2 }]}>{t.inviteRowSub}</Text></View>
+                <Text style={{ color: T.bg, fontSize: 18 }}>›</Text>
+              </Pressable>
+            ) : null}
             {!checkedIn ? <Pressable onPress={() => router.push('/checkin')} style={{ marginHorizontal: layout.x, marginTop: 10, paddingVertical: 10, flexDirection: 'row', alignItems: 'center', gap: 10 }}><View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: T.accent }} /><Text style={[type.label, { color: T.ink, flex: 1 }]}>{T.night ? copy.checkin.homeRowEvening : copy.checkin.homeRow}</Text><Label T={T}>›</Label></Pressable> : null}
             <View style={{ marginTop: (checkedIn ? 16 : 6) * layout.air }}><Gauges T={T} t={t} energy={en} hearts={hearts} formLabel={t.formLabels[hearts] || ''} hint={m.stage !== 'egg' && !away && !full && day <= 7 ? t.energyHint : null} /></View>
             <View style={s.sectionHead}>

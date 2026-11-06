@@ -2094,7 +2094,9 @@
       "pending": "Ligne sous une mission proposée à l'autre ({name})",
       "walkLeft": "Bande de balade, gauche ({time} = départ)",
       "walkRight": "Bande de balade, droite ({time} = retour)",
-      "refused": "Ligne Accueil quand l'autre a refusé ({name})"
+      "refused": "Ligne Accueil quand l'autre a refusé ({name})",
+      "inviteRow": "Ligne sur l'Accueil tant qu'on est seul dans le foyer",
+      "inviteRowSub": "Sous-ligne"
     },
     "pearls": "{n} perles",
     "stagePill": "Jour {day} · palier {k}",
@@ -2130,7 +2132,9 @@
     "pending": "Proposée à {name}, en attente de sa réponse",
     "walkLeft": "Parti à {time}",
     "walkRight": "Retour vers {time}",
-    "refused": "{name} ne peut pas, elle reste chez toi"
+    "refused": "{name} ne peut pas, elle reste chez toi",
+    "inviteRow": "Inviter ton binôme",
+    "inviteRowSub": "Mochi éclot quand vous êtes deux. Ton code et ton lien sont ici."
   },
   "moments": {
     "_labels": {
