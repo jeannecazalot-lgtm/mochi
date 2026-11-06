@@ -36,7 +36,7 @@ const CUT = { dish: require('../assets/proto-da/icones-decoupe/dish.png'), cart:
 const TASKS = [['dish', 'Vaisselle', null, false], ['cart', 'Courses de la semaine', 'à deux', false], ['calendar', 'Penser au RDV pédiatre', 'mental', false], ['basket', 'Lessive', null, true]];
 
 export default function ProtoDa2() {
-  const { v = 'mochi', ic: icParam, m, h } = useLocalSearchParams(); // h=a|b|c : tests de hiérarchie (6 nov 2026) const ic = icParam || (ITER[v] ? 'c' : 'a'); // m=a|b|c : test de Mochi (v=jour) // ic=a pastilles-images · b trait sur pastille · c papier découpé sans fond
+  const { v = 'mochi', ic: icParam, m, h, items: itemsParam, outfit, souvenirs } = useLocalSearchParams(); // items=plante,lampe&outfit=bonnet&souvenirs=3 : aperçu boutique // h=a|b|c : tests de hiérarchie (6 nov 2026) const ic = icParam || (ITER[v] ? 'c' : 'a'); // m=a|b|c : test de Mochi (v=jour) // ic=a pastilles-images · b trait sur pastille · c papier découpé sans fond
   const it = ITER[v]; const papier = v === 'papier' || !!it;
   const H = HIER[h] || null;
   const T0 = useTokens(); const T = it ? { ...PAPIER, ...it, scene: { ...PAPIER.scene, wall: it.bg, floor: it.bg } } : papier ? PAPIER : T0;
@@ -47,7 +47,7 @@ export default function ProtoDa2() {
   return (
     <View style={{ flex: 1, backgroundColor: T.bg }}>
       <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
-        <Scene T={T} stage="mochi" lvl={2} height={layout.scene + 40} topInset={insets.top + 44} backdrop={it ? DECOR[v] : papier ? DECOR.papier : v === 'feutre' ? DECOR.feutre : v === 'feutrejour' ? DECOR.feutrejour : undefined} mochiSource={it ? MOCHIS[v] : papier ? MOCHI_PAPIER : m ? PAPIERS[m] : null} mochiBottom={papier ? 34 : 30} />
+        <Scene T={T} stage="mochi" lvl={2} height={layout.scene + 40} topInset={insets.top + 44} backdrop={it ? DECOR[v] : papier ? DECOR.papier : v === 'feutre' ? DECOR.feutre : v === 'feutrejour' ? DECOR.feutrejour : undefined} items={itemsParam ? String(itemsParam).split(',') : []} outfit={outfit || null} souvenirs={Number(souvenirs) || 0} mochiSource={it ? MOCHIS[v] : papier ? MOCHI_PAPIER : m ? PAPIERS[m] : null} mochiBottom={papier ? 34 : 30} />
       </View>
       <View style={{ paddingTop: insets.top + 10, paddingHorizontal: layout.x, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
         <Label T={T} style={{ flex: 1, color: T.ink }}>Jeudi 5 novembre</Label>

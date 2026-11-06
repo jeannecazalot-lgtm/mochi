@@ -23,6 +23,20 @@ const IMG = {
 };
 const S = ({ l, r, t, b, w, h, rad = 0, c, op }) => <View style={{ position: 'absolute', left: l, right: r, top: t, bottom: b, width: w, height: h, borderRadius: rad, backgroundColor: c, opacity: op }} />;
 const Im = ({ k, l, r, t, b, w, h, op = 1 }) => <Image source={IMG[k]} style={{ position: 'absolute', left: l, right: r, top: t, bottom: b, width: w, height: h, opacity: op }} resizeMode="contain" accessibilityIgnoresInvertColors />;
+// boutique (6 nov 2026) : ce qu'on achète se voit — objets posés dans la pièce, tenue sur Mochi
+const SHOP = {
+  plante: require('../../../assets/boutique/plante.png'), pouf: require('../../../assets/boutique/pouf.png'), cadre: require('../../../assets/boutique/cadre.png'), lampe: require('../../../assets/boutique/lampe.png'),
+  tapis: require('../../../assets/boutique/tapis.png'), etagere2: require('../../../assets/boutique/etagere2.png'), fauteuil: require('../../../assets/boutique/fauteuil.png'), bibliotheque: require('../../../assets/boutique/bibliotheque.png'),
+  bonnet: require('../../../assets/boutique/bonnet.png'), echarpe: require('../../../assets/boutique/echarpe.png'), chapeau: require('../../../assets/boutique/chapeau.png'),
+};
+const SOUVENIR = require('../../../assets/icones/generic.png');
+// positions des objets (en unités u = largeur / 440, bas = depuis le bas de la scène)
+const PLACE = {
+  lampe: { l: 6, b: 44, w: 50, h: 96 }, fauteuil: { l: 50, b: 28, w: 88, h: 88 }, plante: { l: 112, b: 26, w: 46, h: 60 },
+  pouf: { r: 100, b: 22, w: 60, h: 48 }, bibliotheque: { r: 8, b: 34, w: 66, h: 132 },
+  etagere2: { r: 30, t: 0.5, w: 100, h: 70 }, cadre: { l: 200, t: 0.42, w: 36, h: 44 },
+  tapis: { l: 100, b: 12, w: 240, h: 78 },
+};
 export const SIZE_BY_STAGE = { egg: 0.6, mini: 0.75, mochi: 1, maxi: 1.15, dore: 1.25 };
 
 // la plante se balance très lentement (±1,5°, 2,8 s), depuis sa base
@@ -76,13 +90,14 @@ function Drift({ source, box, size, duration = 70000 }) {
 }
 const Layer = ({ children, delay = 0, fade }) => <Animated.View entering={FadeIn.delay(delay).duration(400)} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} pointerEvents="none">{children}</Animated.View>;
 
-export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height = layout.scene, hideMochi = false, cracking = false, topInset = 0, backdrop = undefined, mochiSource = null, mochiBottom = null, shiftY = 0 }) {
+export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height = layout.scene, hideMochi = false, cracking = false, topInset = 0, backdrop = undefined, mochiSource = null, mochiBottom = null, shiftY = 0, items = [], outfit = null, souvenirs = 0 }) {
   const c = T.scene, hh = height, fl = layout.floor, night = !!c.moon;
   const { width: SW } = useWindowDimensions();
   // décision Jeanne 5 nov 2026 (« je préfère l'ancien ») : la pièce est le décor entier de ChatGPT, B le jour, D la nuit
   // l'appartement se remplit avec les paliers (Jeanne 5 nov : « au début l'appart est plus vide ») ; la nuit = le même décor sous un voile prune
   // le jour : la pièce de jour (soleil, mur mauve clair) ; le soir : la pièce validée (lune, gris-violet) — Jeanne 5 nov « montre la journée plutôt »
-  if (backdrop === undefined) backdrop = (night ? IMG.nuit : IMG.jour)[lvl <= 1 ? 0 : lvl <= 3 ? 1 : 2];
+  // la pièce se remplit avec ce qu'on achète (décision Jeanne 6 nov 2026) ; le palier change Mochi, ses balades, la boutique
+  if (backdrop === undefined) backdrop = (night ? IMG.nuit : IMG.jour)[0];
   const W = Math.round(layout.mochi * (SIZE_BY_STAGE[stage] || 1)), H = W * MOCHI_RATIO;
   const tx = useSharedValue(away ? 420 : 0), hop = useSharedValue(0);
   useEffect(() => {
@@ -140,11 +155,16 @@ export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height =
       {lvl >= 4 ? <Layer delay={300} fade><Im k="frame" r={112 * u} t={winT - 30} w={26 * u} h={30 * u} /></Layer> : null}
       {night ? <S l={0} r={0} t={0} b={0} c={c.wall} op={0.5} /> : null}
       </>}
+      {/* objets achetés, posés aux emplacements prévus ; le tapis sous Mochi, le reste autour */}
+      {backdrop && items.length ? items.filter(k => SHOP[k] && PLACE[k]).map(k => { const P = PLACE[k]; return <Image key={k} source={SHOP[k]} style={{ position: 'absolute', left: P.l != null ? P.l * u : undefined, right: P.r != null ? P.r * u : undefined, bottom: P.b != null ? P.b : undefined, top: P.t != null ? hh * P.t : undefined, width: P.w * u, height: P.h * u }} resizeMode="contain" accessibilityIgnoresInvertColors />; }) : null}
+      {/* souvenirs de balade : une petite étagère qui se garnit (jusqu'à 8 visibles) */}
+      {backdrop && souvenirs > 0 ? <View pointerEvents="none" style={{ position: 'absolute', left: SW * 0.6, top: hh * 0.38, width: SW * 0.3, alignItems: 'center' }}><View style={{ flexDirection: 'row', gap: 4, paddingBottom: 3 }}>{Array.from({ length: Math.min(8, souvenirs) }).map((_, i) => <Image key={i} source={SOUVENIR} style={{ width: 16, height: 16, opacity: 0.9 }} resizeMode="contain" />)}</View><View style={{ height: 4, width: '100%', borderRadius: 2, backgroundColor: c.shelf || '#CFB08C' }} /></View> : null}
       {hideMochi ? null : stage === 'egg'
         ? <><Animated.View entering={FadeInUp.duration(420).easing(Easing.out(Easing.cubic)).withInitialValues({ opacity: 0, transform: [{ translateY: 10 }] })} style={{ position: 'absolute', bottom: backdrop ? 30 : fl2 - 12, left: 0, right: 0, alignItems: 'center' }}><Image source={cracking ? IMG.eggCrack : IMG.egg} style={{ width: 96, height: 120 }} resizeMode="contain" accessibilityIgnoresInvertColors /></Animated.View></>
         : <Animated.View entering={FadeInUp.duration(420).easing(Easing.out(Easing.cubic)).withInitialValues({ opacity: 0, transform: [{ translateY: 10 }] })} style={{ position: 'absolute', bottom: mochiBottom ?? (backdrop ? 26 : fl2 - 18), left: 0, right: 0 }}><Animated.View style={[{ alignItems: 'center' }, walk]}>
               <View style={{ position: 'absolute', bottom: 4, width: Math.round(W * 0.9), height: 10, borderRadius: 5, backgroundColor: c.shadow, opacity: 0.6 }} />
               <LiveMochiImage size={W} lean={0} mood={mood} source={mochiSource} />
+              {outfit && SHOP[outfit] ? <Image pointerEvents="none" source={SHOP[outfit]} style={outfit === 'echarpe' ? { position: 'absolute', bottom: Math.round(H * 0.08), width: Math.round(W * 0.62), height: Math.round(W * 0.42) } : { position: 'absolute', top: -Math.round(H * 0.3), width: Math.round(W * 0.56), height: Math.round(W * 0.5), marginLeft: outfit === 'chapeau' ? Math.round(W * 0.04) : 0 }} resizeMode="contain" accessibilityIgnoresInvertColors /> : null}
             </Animated.View></Animated.View>}
     </View>
   );

@@ -2147,7 +2147,7 @@
     "returnEmpty": "Il est allé {place}. Rien de nouveau cette fois, il a tout vu là-bas.",
     "pearls": "+{n} perles",
     "stageTitle": "Mochi grandit.",
-    "stageSub": "{weeks} semaines saines. Il passe au palier {k}, et sa pièce aussi.",
+    "stageSub": "{weeks} semaines saines. Il passe au palier {k} : il grandit, de nouveaux lieux de balade s'ouvrent, et la boutique s'agrandit.",
     "cta": "Continuer",
     "ctaLast": "C'est noté",
     "weekTitleOk": "Belle semaine.",
@@ -2251,9 +2251,12 @@
       "plus": "Badge Mochi+",
       "notEnough": "Pas assez de perles",
       "souvenirsCount": "({n} sur {total} + lieu)",
-      "locked": "Lieu pas encore débloqué",
+      "locked": "Objet pas encore en boutique ({k} = palier)",
       "empty": "Aucun souvenir",
-      "rule": "Rappel des perles"
+      "rule": "Rappel des perles",
+      "wear": "Bouton porter une tenue",
+      "worn": "Tenue portée",
+      "souvenirsShelf": "Titre de l'étagère à souvenirs dans la pièce"
     },
     "title": "La pièce de Mochi",
     "pearls": "{n} perles",
@@ -2267,9 +2270,11 @@
     "plus": "Mochi+",
     "notEnough": "Il vous manque {n} perles.",
     "souvenirsCount": "{n} sur {total}",
-    "locked": "Se débloque au palier suivant",
+    "locked": "Au palier {k}",
     "empty": "Mochi n'a encore rien ramené. La première balade part quand la jauge est pleine.",
-    "rule": "Les perles sont communes au foyer : 3 par mission, 4 si mentale, 5 chacun à deux, 12 par balade."
+    "rule": "Les perles sont communes au foyer : 3 par mission, 4 si mentale, 5 chacun à deux, 12 par balade. Ce que vous achetez apparaît dans la pièce.",
+    "wear": "Porter",
+    "worn": "Portée"
   },
   "mochiNotifs": {
     "_labels": {
