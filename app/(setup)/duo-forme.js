@@ -2,7 +2,7 @@
 // l'œuf arrive dans la pièce (c'est le moment où Mochi existe), vos deux avatars dessous, pas de particules.
 import React, { useEffect, useState } from 'react';
 import { router } from 'expo-router';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import Animated, { FadeInDown, FadeIn } from 'react-native-reanimated';
@@ -36,7 +36,8 @@ export default function DuoForme() {
   const prefilled = !!(realMe?.first_name && setup.availability && setup.prefs);
   const title = fill(joiner ? t.duoTitleJoiner : t.duoTitle, { name: partner.first_name }).replace('\n', ' ');
   const sub = fill(joiner ? (prefilled ? t.duoSubJoinerReady : t.duoSubJoiner) : t.duoSub, { name: partner.first_name });
-  const sceneH = layout.scene + insets.top;
+  const { height: SH } = useWindowDimensions();
+  const sceneH = Math.round(SH * 0.48);
   const go = () => {
     if (!joiner) { router.push('/(setup)/avant-taches'); return; }
     if (prefilled) { syncJoinerPrefs().catch(() => {}); router.replace('/(setup)/taches'); } else router.push('/(setup)/identite');
@@ -45,19 +46,21 @@ export default function DuoForme() {
     <View style={{ flex: 1, backgroundColor: T.bg }}>
       <View>
         <Scene T={T} stage={hatched ? 'mini' : 'egg'} cracking={!hatched} mood={hatched ? 'wink' : undefined} lvl={1} height={sceneH} />
-        {hatched ? <Bubble T={T} style={{ top: insets.top + 54 }}>{t.duoSay}</Bubble> : null}
+        {hatched ? <Bubble T={T} style={{ top: insets.top + 24 }}>{t.duoSay}</Bubble> : null}
       </View>
       <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
-        <Animated.View entering={FadeInDown.delay(200).duration(320)} style={{ paddingHorizontal: layout.x, paddingTop: 22, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-          <Avatar initial={me.initial} color={me.color} photo={me.avatar_url} size={34} />
-          <Avatar initial={partner.initial} color={partner.color} photo={partner.avatar_url} size={34} />
-          <Label T={T} style={{ marginLeft: 4 }}>{t.duoPill}</Label>
-        </Animated.View>
-        <Animated.View entering={FadeInDown.delay(320).duration(320)} style={{ paddingHorizontal: layout.x, paddingTop: 16 }}>
-          <Text style={[type.name, { color: T.ink }]}>{title}</Text>
-          <Text style={[type.sub, { color: T.muted, marginTop: 10, maxWidth: 380 }]}>{sub}</Text>
-        </Animated.View>
-        <View style={{ flex: 1 }} />
+        {/* le texte occupe l'espace restant, centré : plus de trou entre le texte et le bouton */}
+        <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: layout.x, paddingBottom: 12 }}>
+          <Animated.View entering={FadeInDown.delay(200).duration(320)} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, justifyContent: 'center' }}>
+            <Avatar initial={me.initial} color={me.color} photo={me.avatar_url} size={40} />
+            <Avatar initial={partner.initial} color={partner.color} photo={partner.avatar_url} size={40} />
+          </Animated.View>
+          <Animated.View entering={FadeInDown.delay(320).duration(320)} style={{ alignItems: 'center', marginTop: 18 }}>
+            <Label T={T}>{t.duoPill}</Label>
+            <Text style={{ fontSize: 28, fontWeight: '600', letterSpacing: -0.8, lineHeight: 34, color: T.ink, textAlign: 'center', marginTop: 8 }}>{title}</Text>
+            <Text style={{ fontSize: 17, lineHeight: 24, color: T.muted, textAlign: 'center', marginTop: 12, maxWidth: 340 }}>{sub}</Text>
+          </Animated.View>
+        </View>
         <Animated.View entering={FadeIn.delay(500)} style={{ paddingHorizontal: layout.x, paddingBottom: 16 }}>
           <CTAPrimary big label={joiner ? copy.common.continue : t.chooseTasks} onPress={ready ? go : undefined} />
         </Animated.View>
