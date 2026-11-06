@@ -14,7 +14,7 @@ function Seg({ T, on, i, prevLit }) {
   const op = useSharedValue(on ? 1 : 0);
   useEffect(() => { op.value = on ? withDelay(i >= prevLit ? (i - prevLit) * 28 : 0, withTiming(1, { duration: 180 })) : withTiming(0, { duration: 160 }); }, [on]);
   const st = useAnimatedStyle(() => ({ opacity: op.value }));
-  return <View style={{ flex: 1, height: 14, borderRadius: 2, backgroundColor: T.seg }}><Animated.View style={[{ flex: 1, borderRadius: 2, backgroundColor: T.ink }, st]} /></View>;
+  return <View style={{ flex: 1, height: 10, borderRadius: 2, backgroundColor: T.seg }}><Animated.View style={[{ flex: 1, borderRadius: 2, backgroundColor: T.ink }, st]} /></View>;
 }
 export function Meter({ T, n, of, segs = 20 }) {
   const lit = of ? Math.round((n / of) * segs) : 0;
@@ -25,7 +25,7 @@ function Heart({ T, on }) {
   const op = useSharedValue(on ? 1 : 0);
   useEffect(() => { op.value = withTiming(on ? 1 : 0, { duration: 220 }); }, [on]);
   const st = useAnimatedStyle(() => ({ opacity: op.value }));
-  return <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: T.seg }}><Animated.View style={[{ flex: 1, borderRadius: 5, backgroundColor: T.accent }, st]} /></View>;
+  return <View style={{ width: 9, height: 9, borderRadius: 5, backgroundColor: T.seg }}><Animated.View style={[{ flex: 1, borderRadius: 5, backgroundColor: T.accent }, st]} /></View>;
 }
 export function Hearts({ T, n }) {
   const prev = useRef(n); useEffect(() => { prev.current = n; }, [n]);
@@ -36,14 +36,14 @@ export function Gauges({ T, t, energy, hearts, formLabel, hint }) {
   const A = layout.air;
   return (
     <View style={{ marginHorizontal: layout.x, borderTopWidth: StyleSheet.hairlineWidth, borderColor: T.line }}>
-      <View style={[s.row, { paddingVertical: 18 * A, borderColor: T.line }]}>
-        <Label T={T} style={{ width: 66 }}>{t.energy}</Label>
+      <View style={[s.row, { paddingVertical: 12 * A, borderColor: T.line }]}>
+        <Label T={T} style={{ width: 60 }}>{t.energy}</Label>
         <Meter T={T} n={energy.done} of={energy.total} />
         <Num T={T}>{energy.done}<Text style={{ color: T.muted, fontWeight: '500' }}> / {energy.total}</Text></Num>
       </View>
       {hint ? <Label T={T} style={{ marginTop: -10 * A, paddingBottom: 12 * A }}>{hint}</Label> : null}
-      <View style={[s.row, { paddingVertical: 18 * A, borderColor: T.line }]}>
-        <Label T={T} style={{ width: 66 }}>{t.form}</Label>
+      <View style={[s.row, { paddingVertical: 12 * A, borderColor: T.line }]}>
+        <Label T={T} style={{ width: 60 }}>{t.form}</Label>
         <Hearts T={T} n={hearts} />
         <Label T={T} style={{ color: T.ink }}>{formLabel}</Label>
       </View>

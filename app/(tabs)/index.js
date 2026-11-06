@@ -202,14 +202,14 @@ export default function Home() {
               <Pressable onPress={() => router.push('/profil')} accessibilityLabel={h.profileA11y}><Avatar initial={me.initial} color={me.color} photo={me.avatar_url} size={36} /></Pressable>
             </View>
             <Pressable onPress={() => router.push('/chambre')} accessibilityLabel={t.roomA11y} style={{ height: Math.max(8, layout.scene + 12 - insets.top - 48) }} />{/* la scène se tape ici : vers la pièce de Mochi */}
-            <View style={{ paddingHorizontal: layout.x, paddingTop: 24 * layout.air, flexDirection: 'row', alignItems: 'baseline' }}>
+            <View style={{ paddingHorizontal: layout.x, paddingTop: 18, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
               <Text style={[type.name, { color: T.ink, flex: 1 }]}>{m.name || 'Mochi'}</Text>
-              <Label T={T}>{m.stage === 'egg' ? t.eggPill : fill(t.stagePill, { day, k: Math.max(1, STAGES.indexOf(m.stage)) })}</Label>
+              <View style={{ paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999, backgroundColor: T.seg }}><Text style={[type.label, { color: T.ink, fontWeight: '600' }]}>{m.stage === 'egg' ? t.eggPill : fill(t.stagePill, { day, k: Math.max(1, STAGES.indexOf(m.stage)) })}</Text></View>
             </View>
-            <Text style={[type.sub, { paddingHorizontal: layout.x, marginTop: 6, color: T.muted }]}>{line}</Text>
+            <Text style={[type.sub, { paddingHorizontal: layout.x, marginTop: 4, color: T.muted }]}>{line}</Text>
             {away ? <WalkBand T={T} t={t} started={m.walk_started_at} returns={m.walk_returns_at} /> : null}
-            {!checkedIn ? <Pressable onPress={() => router.push('/checkin')} style={{ marginHorizontal: layout.x, marginTop: 14, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 10 }}><View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: T.accent }} /><Text style={[type.label, { color: T.ink, flex: 1 }]}>{T.night ? copy.checkin.homeRowEvening : copy.checkin.homeRow}</Text><Label T={T}>›</Label></Pressable> : null}
-            <View style={{ marginTop: (checkedIn ? 24 : 10) * layout.air }}><Gauges T={T} t={t} energy={en} hearts={hearts} formLabel={t.formLabels[hearts] || ''} hint={m.stage !== 'egg' && !away && !full ? t.energyHint : null} /></View>
+            {!checkedIn ? <Pressable onPress={() => router.push('/checkin')} style={{ marginHorizontal: layout.x, marginTop: 10, paddingVertical: 10, flexDirection: 'row', alignItems: 'center', gap: 10 }}><View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: T.accent }} /><Text style={[type.label, { color: T.ink, flex: 1 }]}>{T.night ? copy.checkin.homeRowEvening : copy.checkin.homeRow}</Text><Label T={T}>›</Label></Pressable> : null}
+            <View style={{ marginTop: (checkedIn ? 16 : 6) * layout.air }}><Gauges T={T} t={t} energy={en} hearts={hearts} formLabel={t.formLabels[hearts] || ''} hint={m.stage !== 'egg' && !away && !full && day <= 7 ? t.energyHint : null} /></View>
             <View style={s.sectionHead}>
               <Pressable onPress={() => router.push('/afaire')} hitSlop={6}><Text style={[type.section, { color: T.ink }]}>{t.today}</Text></Pressable>
               <Label T={T}>{meta}</Label>

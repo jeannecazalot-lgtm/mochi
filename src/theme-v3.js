@@ -19,15 +19,15 @@ const NUIT = { // bleu marine, pas noir (retour Jeanne 4 nov 2026 : « fond noir
 };
 export const TOKENS = { jour: JOUR, nuit: NUIT };
 // typo de l'instrument : étiquettes en phrase normale, chiffres tabulaires, pas de capitales espacées
-export const type = {
-  name: { fontSize: 32, fontWeight: '600', letterSpacing: -1 },
-  label: { fontSize: 13.5, fontWeight: '500' },
-  num: { fontSize: 15, fontWeight: '600', letterSpacing: -0.4, fontVariant: ['tabular-nums'] },
-  body: { fontSize: 16, fontWeight: '500' },
-  section: { fontSize: 17, fontWeight: '600' },
-  sub: { fontSize: 15.5, lineHeight: 21 },
+export const type = { // échelle B « instrument » (6 nov 2026) : le nom est une étiquette, la phrase est l'information, tout est serré
+  name: { fontSize: 22, fontWeight: '600', letterSpacing: -0.6 },
+  label: { fontSize: 12.5, fontWeight: '500' },
+  num: { fontSize: 14, fontWeight: '600', letterSpacing: -0.3, fontVariant: ['tabular-nums'] },
+  body: { fontSize: 15, fontWeight: '500' },
+  section: { fontSize: 15, fontWeight: '600' },
+  sub: { fontSize: 14.5, lineHeight: 20 },
 };
-export const layout = { x: 24, air: 1.3, scene: 300, floor: 54, mochi: 150 };
+export const layout = { x: 24, air: 1.05, scene: 300, floor: 54, mochi: 150 };
 
 const K = 'mochi:nightMode';
 let mode = 'auto', bedtime = '22:00', night = false, version = 0; // 22 h = décision Jeanne (tableau de bord, 4 nov 2026)
