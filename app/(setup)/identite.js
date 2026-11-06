@@ -69,7 +69,7 @@ export default function Identite() {
               : <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: tk().seg, alignItems: 'center', justifyContent: 'center' }}><Text style={{ fontSize: 20, fontWeight: '600', color: tk().ink }}>{(firstName.trim()[0] || '?').toUpperCase()}</Text></View>}
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 15, fontWeight: '500', color: tk().ink }}>{photo ? t.photoChange || t.photoButton : t.photoButton}</Text>
-              <Text style={{ fontSize: 12.5, color: tk().muted, marginTop: 2 }}>{t.photoHint.replace('{name}', copy.common.partner)}</Text>
+              <Text style={{ fontSize: 12.5, color: tk().muted, marginTop: 2 }}>{t.photoHint.replace('{name}', 'Ton binôme')}</Text>
             </View>
             <Text style={{ fontSize: 16, color: tk().muted }}>›</Text>
           </Pressable>

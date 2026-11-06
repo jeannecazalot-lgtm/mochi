@@ -603,13 +603,14 @@
       "beforeTasksSub": "Écran 09c (choix partagé en direct, 15 sept 2026) — {name} = prénom du binôme",
       "duoSay": "Bulle de Mochi (œuf) sur Duo formé",
       "why": "Ligne « Étape n sur N · pourquoi » en tête de chaque écran setup (4 nov 2026)",
-      "photoHint": "Sous la ligne photo (optionnelle)"
+      "photoHint": "Sous la ligne photo (optionnelle)",
+      "photoChange": "Ligne photo quand une photo est choisie"
     },
     "identityTitle": "Comment tu t'appelles ?",
     "firstNameLabel": "Ton prénom",
     "firstNamePlaceholder": "Ton prénom",
     "photoLabel": "Ta photo",
-    "photoButton": "Ajouter",
+    "photoButton": "Ajouter une photo",
     "skip": "Passer",
     "stepOf": "Étape {n} sur {total}",
     "disposTitle": "Tes dispos & ton énergie.",
@@ -735,7 +736,8 @@
     "whyInvite": "Mochi n'existe qu'à deux.",
     "whyTasks": "Ce que le foyer doit faire chaque semaine.",
     "whyDispatch": "Tout se change ici, puis dans le Planning.",
-    "photoHint": "Optionnel. {name} te verra comme ça."
+    "photoHint": "Optionnel. {name} te verra comme ça.",
+    "photoChange": "Changer la photo"
   },
   "event": {
     "_labels": {
