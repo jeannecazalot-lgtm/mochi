@@ -131,7 +131,7 @@ export default function Profil() {
               <SettingRow emoji="🍡" title={t.mochiName} sub={t.mochiNameSub} onPress={() => router.push('/nom-mochi')} />
               <SettingRow emoji="🌙" title={t.nightMode} sub={t.nightModeSub} right={<Text style={s.value}>{t.nightValues[nightMode]}</Text>} onPress={() => { const order = ['auto', 'on', 'off']; setNightMode(order[(order.indexOf(nightMode) + 1) % 3]); }} />
               <SettingRow emoji="💳" title={t.subscription} sub={ALL_FREE ? t.subscriptionFree : premium ? fill(t.subscriptionOn, { date: fmtDate(household.premium_until) }) : t.subscriptionOff} onPress={() => router.push('/paywall')} />
-              <SettingRow emoji="🗺" title={t.plan} sub={t.planSub} onPress={() => router.push('/plan')} />
+              {__DEV__ ? <SettingRow emoji="🗺" title={t.plan} sub={t.planSub} onPress={() => router.push('/plan')} /> : null}
             </View>
 
             {/* quitter le foyer (décision Jeanne 5 sept 2026) : confirmation, puis écran 09 */}
