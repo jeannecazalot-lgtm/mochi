@@ -13,7 +13,7 @@ import { loadSetup, setup, saveDispos, savePrefs, isJoiner } from '../../src/set
 import { syncJoinerPrefs } from '../../src/sync-setup';
 import copy from '../../src/data/copy.json';
 import { Egg } from '../../src/components/mochi/scene';
-import { useTokens as useT3 } from '../../src/theme-v3';
+import { useTokens as useT3, layout } from '../../src/theme-v3';
 const EggHero = () => <Egg T={useT3()} />;
 import { colors, space, radius, alpha, font } from '../../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';
@@ -56,37 +56,24 @@ export default function Identite() {
       <SafeAreaView style={{ flex: 1 }}>
         <SetupHeader hero={<EggHero />} why={t.whyIdentity} step={1} total={2} title={t.identityTitle} backFallback="/onboarding" />
 
-        <View style={{ paddingHorizontal: space.headerX, paddingTop: 24 }}>
-          <Micro style={s.label}>{t.firstNameLabel}</Micro>
-          <Card padding={0} style={{ marginBottom: 19 }}>
-            <TextInput
-              value={firstName} onChangeText={setFirstName} placeholder={t.firstNamePlaceholder} placeholderTextColor={tk().seg}
-              autoCorrect={false} autoCapitalize="words" returnKeyType="done" cursorColor={tk().accent} selectionColor={tk().accent}
-              style={s.input}
-            />
-          </Card>
-
-          <Micro style={s.label}>{t.photoLabel}</Micro>
-          {/* Façon Airbnb (retour Jeanne, 1er sept 2026) : grande photo centrée, pilule « Ajouter » à cheval sur le bas */}
-          <Pressable onPress={pickPhoto} style={{ alignItems: 'center', marginTop: 6 }}>
+        {/* DA v3 (7 nov 2026, retour Jeanne « manque de modernité ») : le prénom en grand, une ligne photo discrète, plus de rond pointillé */}
+        <View style={{ paddingHorizontal: layout.x, paddingTop: 28 }}>
+          <TextInput
+            value={firstName} onChangeText={setFirstName} placeholder={t.firstNamePlaceholder} placeholderTextColor={tk().muted}
+            autoCorrect={false} autoCapitalize="words" returnKeyType="done" cursorColor={tk().accent} selectionColor={tk().accent}
+            style={{ fontSize: 34, fontWeight: '600', letterSpacing: -1, color: tk().ink, paddingVertical: 10, borderBottomWidth: 1.5, borderColor: tk().ink }}
+          />
+          <Pressable onPress={pickPhoto} style={({ pressed }) => [{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 16, marginTop: 22, borderTopWidth: StyleSheet.hairlineWidth, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: tk().line, opacity: pressed ? 0.7 : 1 }]}>
             {photo
-              ? <Image source={{ uri: photo }} style={s.photo} />
-              : (
-                <View style={s.photoEmpty}>
-                  <Svg width={30} height={30} viewBox="0 0 24 24" fill="none" stroke={tk().muted} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-                    <Path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2v11z" /><Circle cx="12" cy="13" r="4" />
-                  </Svg>
-                </View>
-              )}
-            <View style={s.addPill}>
-              <Svg width={15} height={15} viewBox="0 0 24 24" fill="none" stroke={tk().ink} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                <Path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2v11z" /><Circle cx="12" cy="13" r="4" />
-              </Svg>
-              <Text style={s.addPillTxt}>{t.photoButton}</Text>
+              ? <Image source={{ uri: photo }} style={{ width: 48, height: 48, borderRadius: 24 }} />
+              : <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: tk().seg, alignItems: 'center', justifyContent: 'center' }}><Text style={{ fontSize: 20, fontWeight: '600', color: tk().ink }}>{(firstName.trim()[0] || '?').toUpperCase()}</Text></View>}
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 15, fontWeight: '500', color: tk().ink }}>{photo ? t.photoChange || t.photoButton : t.photoButton}</Text>
+              <Text style={{ fontSize: 12.5, color: tk().muted, marginTop: 2 }}>{t.photoHint.replace('{name}', copy.common.partner)}</Text>
             </View>
+            <Text style={{ fontSize: 16, color: tk().muted }}>›</Text>
           </Pressable>
         </View>
-
 
         <View style={s.ctaWrap}>
           {error ? <Text style={[font.caption, { color: tk().muted }, { color: tk().accent, textAlign: 'center', marginBottom: 8 }]}>{error}</Text> : null}

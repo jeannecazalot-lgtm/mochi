@@ -602,9 +602,10 @@
       "perWeekSlash": "Suffixe des totaux de l écran 12",
       "beforeTasksSub": "Écran 09c (choix partagé en direct, 15 sept 2026) — {name} = prénom du binôme",
       "duoSay": "Bulle de Mochi (œuf) sur Duo formé",
-      "why": "Ligne « Étape n sur N · pourquoi » en tête de chaque écran setup (4 nov 2026)"
+      "why": "Ligne « Étape n sur N · pourquoi » en tête de chaque écran setup (4 nov 2026)",
+      "photoHint": "Sous la ligne photo (optionnelle)"
     },
-    "identityTitle": "C'est toi.",
+    "identityTitle": "Comment tu t'appelles ?",
     "firstNameLabel": "Ton prénom",
     "firstNamePlaceholder": "Ton prénom",
     "photoLabel": "Ta photo",
@@ -733,7 +734,8 @@
     "whyPrefs": "Ce qui te pèse n'est pas ce qui pèse à l'autre.",
     "whyInvite": "Mochi n'existe qu'à deux.",
     "whyTasks": "Ce que le foyer doit faire chaque semaine.",
-    "whyDispatch": "Tout se change ici, puis dans le Planning."
+    "whyDispatch": "Tout se change ici, puis dans le Planning.",
+    "photoHint": "Optionnel. {name} te verra comme ça."
   },
   "event": {
     "_labels": {
