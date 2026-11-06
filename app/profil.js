@@ -73,7 +73,7 @@ export default function Profil() {
   // (Un écran de déconnexion dédié est au backlog ; l'onboarding fait l'accueil en attendant.)
   const onLeave = () => Alert.alert(t.leaveTitle, t.leaveBody, [
     { text: t.leaveCancel, style: 'cancel' },
-    { text: t.leaveOk, style: 'destructive', onPress: async () => { const r = await leaveHousehold(); if (r.ok) router.replace('/(setup)/invite'); } },
+    { text: t.leaveOk, style: 'destructive', onPress: async () => { const r = await leaveHousehold(); if (r.ok) { try { router.dismissAll(); } catch (e) { /* rien à fermer */ } router.replace('/(setup)/invite?from=leave'); } } },
   ]);
   const onLogout = async () => {
     try { await signOut(); } catch (e) { /* mode démo */ }

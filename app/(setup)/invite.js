@@ -2,7 +2,7 @@
 // Retours Jeanne 22 août 2026 : DA alignée sur 06-08 (SetupHeader points+titre,
 // pas de Mochi héros ici : le hero est la carte d'invitation), actions façon Tricount.
 import React, { useEffect, useState } from 'react';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { View, Text, Pressable, Share, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSharedValue, useAnimatedStyle, withRepeat, withSequence, withTiming, Easing } from 'react-native-reanimated';
@@ -25,6 +25,7 @@ import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';
 const t = copy.setup;
 
 export default function Invite() {
+  const { from } = useLocalSearchParams(); // home | leave : hors du setup, pas d'étape ni de chevron
   // invitation RÉELLE (2 sept 2026) : code Supabase à 6 caractères, 7 jours.
   // Sans foyer (setup non terminé) ou hors ligne → démo comme avant.
   const [realCode, setRealCode] = useState(null);
@@ -76,7 +77,7 @@ export default function Invite() {
       <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }}>
         <View>
-          <SetupHeader hero={<EggHero />} why={t.whyInvite} step={2} total={2} title={fill(t.inviteTitle, { partner: copy.common.partner })} sub={t.inviteSub} />
+          <SetupHeader hero={<EggHero />} why={t.whyInvite} step={from ? undefined : 2} total={2} title={fill(t.inviteTitle, { partner: copy.common.partner })} sub={t.inviteSub} />
           {/* « Passer » retiré (9 sept 2026) : même porte de sortie qu'« Inviter plus tard » */}
         </View>
 

@@ -28,6 +28,9 @@ export function resetPartner() {
   Object.assign(demoPartner, DEFAULT_PARTNER);
   notify();
 }
+// seul dans un VRAI foyer : le binôme n'a pas de prénom (jamais celui de la démo) — retour Jeanne 6 nov 2026 « qui est Julian ? »
+export const hasPartner = () => !!partnerUidVal;
+export const SOLO_PARTNER = { first_name: 'ton binôme', initial: '?', avatar_url: null };
 export function resetIdentity() {
   real = null; uidVal = null; started = false; partnerUidVal = null;
   Object.assign(demoMe, DEFAULT_ME);
@@ -91,7 +94,7 @@ export async function loadPartner(householdId) {
     const uid = data.session.user.id;
     const { data: members } = await supabase.from('household_members').select('user_id').eq('household_id', householdId);
     const other = (members || []).find(m => m.user_id !== uid);
-    if (!other) return null;
+    if (!other) { partnerUidVal = null; Object.assign(demoPartner, SOLO_PARTNER); notify(); return null; }
     partnerUidVal = other.user_id;
     const { data: p } = await supabase.from('profiles').select('first_name, avatar_url').eq('id', other.user_id).maybeSingle();
     const name = (p?.first_name || '').trim();

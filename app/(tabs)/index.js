@@ -179,7 +179,7 @@ export default function Home() {
   }, [full]);
   useEffect(() => { if (!full && demoAway) setDemoAway(false); }, [full]);
   const line = vms === null ? ' '
-    : m.stage === 'egg' ? (partner?.first_name && isJoiner() === false && !anyOcc ? fill(t.eggWait, { name: partner.first_name }) : t.egg)
+    : m.stage === 'egg' ? t.egg
     : away ? fill(t.away, { time: fmtTime(m.walk_returns_at || new Date(Date.now() + 2 * 3600e3).toISOString()) })
     : hearts <= 1 ? t.sick
     : heavy ? t.heavy
@@ -212,12 +212,13 @@ export default function Home() {
             </View>
             <Text style={[type.sub, { paddingHorizontal: layout.x, marginTop: 4, color: T.muted }]}>{line}</Text>
             {away ? <WalkBand T={T} t={t} started={m.walk_started_at} returns={m.walk_returns_at} /> : null}
-            {/* seul dans le foyer : l'invitation vit ici (retour Jeanne 6 nov 2026 : revenue sur l'Accueil sans moyen d'inviter) */}
-            {real && m.stage === 'egg' && !getPartnerUid() ? (
-              <Pressable onPress={() => router.push('/(setup)/invite')} style={{ marginHorizontal: layout.x, marginTop: 12, paddingVertical: 12, paddingHorizontal: 14, borderRadius: 14, backgroundColor: T.ink, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                <View style={{ flex: 1 }}><Text style={[type.body, { color: T.bg }]}>{t.inviteRow}</Text><Text style={[type.label, { color: T.bg, opacity: 0.75, marginTop: 2 }]}>{t.inviteRowSub}</Text></View>
-                <Text style={{ color: T.bg, fontSize: 18 }}>›</Text>
-              </Pressable>
+            {/* seul dans le foyer : l'invitation EST l'écran (retour Jeanne 6 nov 2026 : « on ne peut rien faire sans binôme ») */}
+            {real && !getPartnerUid() ? (
+              <View style={{ marginHorizontal: layout.x, marginTop: 16, padding: 18, borderRadius: 18, backgroundColor: T.ink }}>
+                <Text style={{ fontSize: 20, fontWeight: '600', letterSpacing: -0.5, color: T.bg }}>{t.soloTitle}</Text>
+                <Text style={{ fontSize: 14.5, lineHeight: 20, color: T.bg, opacity: 0.8, marginTop: 6 }}>{m.stage === 'egg' ? t.soloSub : t.soloSubHatched}</Text>
+                <Pressable onPress={() => router.push('/(setup)/invite?from=home')} style={({ pressed }) => [{ marginTop: 14, paddingVertical: 13, borderRadius: 999, backgroundColor: T.accent, alignItems: 'center', opacity: pressed ? 0.85 : 1 }]}><Text style={[type.body, { color: '#FFFFFF', fontWeight: '600' }]}>{t.soloCta}</Text></Pressable>
+              </View>
             ) : null}
             {!checkedIn ? <Pressable onPress={() => router.push('/checkin')} style={{ marginHorizontal: layout.x, marginTop: 10, paddingVertical: 10, flexDirection: 'row', alignItems: 'center', gap: 10 }}><View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: T.accent }} /><Text style={[type.label, { color: T.ink, flex: 1 }]}>{T.night ? copy.checkin.homeRowEvening : copy.checkin.homeRow}</Text><Label T={T}>›</Label></Pressable> : null}
             <View style={{ marginTop: (checkedIn ? 16 : 6) * layout.air }}><Gauges T={T} t={t} energy={en} hearts={hearts} formLabel={t.formLabels[hearts] || ''} hint={m.stage !== 'egg' && !away && !full && day <= 7 ? t.energyHint : null} /></View>

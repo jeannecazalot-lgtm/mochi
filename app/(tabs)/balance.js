@@ -13,7 +13,7 @@ import { shares, balanceState, weekInfo, malusItems, dayMinutes } from '../../sr
 import { missionDone, occStore, weekDays } from '../../src/demo-core';
 import { read } from '../../src/store';
 import { loadSetup, setup, inRealMode } from '../../src/setup-state';
-import { getUid, useIdentity } from '../../src/identity';
+import { getUid, getPartnerUid, useIdentity } from '../../src/identity';
 import { localIso } from '../../src/dates';
 import { weekMalus, sweepMissed } from '../../src/malus-actions';
 import { computeRealBalance, realContributors } from '../../src/balance-real';
@@ -102,18 +102,21 @@ export default function Balance() {
             <Label T={T}>{fill(t.week, { n: week.num, range: week.range })}</Label>
           </View>
 
+          {real && !getPartnerUid() ? (
+            <View style={{ paddingHorizontal: X, paddingTop: 18 * A }}><Text style={[type.sub, { color: T.muted }]}>{t.solo}</Text><Pressable onPress={() => router.push('/(setup)/invite?from=home')} style={{ marginTop: 12, alignSelf: 'flex-start', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 999, backgroundColor: T.ink }}><Text style={[type.body, { color: T.bg }]}>{copy.homeV3.soloCta}</Text></Pressable></View>
+          ) : (<>
           {/* Mochi penche vers qui porte plus */}
           <Pressable onPress={() => router.push('/chambre')} style={{ paddingHorizontal: X, paddingTop: 18 * A, flexDirection: 'row', alignItems: 'center', gap: 16 }}>
             <MochiImage size={64} lean={lean} mood={mood} />
             <Text style={[type.sub, { color: T.ink, flex: 1 }]}>{stateLabel}</Text>
           </Pressable>
 
-          {/* croissance : 5 paliers, pas de nom pour l'instant */}
-          <View style={{ marginHorizontal: X, marginTop: 22 * A, borderTopWidth: StyleSheet.hairlineWidth, borderColor: T.line, paddingTop: 16 * A }}>
+          {/* croissance : 5 paliers, pas de nom pour l'instant — rien tant que c'est un œuf */}
+          {m.stage === 'egg' ? null : <View style={{ marginHorizontal: X, marginTop: 22 * A, borderTopWidth: StyleSheet.hairlineWidth, borderColor: T.line, paddingTop: 16 * A }}>
             <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' }}><Text style={[type.section, { color: T.ink }]}>{t.growTitle}</Text><Label T={T}>{m.stage === 'egg' ? copy.homeV3.eggPill : `palier ${k}`}</Label></View>
             <View style={{ flexDirection: 'row', gap: 6, marginTop: 12 }}>{STAGES.map((st, i) => <View key={st} style={{ flex: 1, height: 14, borderRadius: 2, backgroundColor: i <= k ? T.ink : T.seg }} />)}</View>
             <Text style={[type.sub, { color: T.muted, marginTop: 10 }]}>{growLine}</Text>
-          </View>
+          </View>}
 
           {/* héros : temps de chacun */}
           <View style={{ marginHorizontal: X, marginTop: 18 * A, borderTopWidth: StyleSheet.hairlineWidth, borderColor: T.line, paddingTop: 16 * A }}>
@@ -186,6 +189,8 @@ export default function Balance() {
             ) : null}
             <Text style={[type.sub, { color: T.muted, marginTop: 10 }]}>{retainLine || copy.checkin.subNone.replace('{name}', partner.first_name)}</Text>
           </View>
+
+          </>)}
 
           {/* ratées = cœurs perdus */}
           <View style={{ marginHorizontal: X, marginTop: 18 * A, borderTopWidth: StyleSheet.hairlineWidth, borderColor: T.line, paddingTop: 16 * A }}>

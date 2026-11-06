@@ -20,7 +20,7 @@ import { addDaysIso } from '../../src/dates';
 import { read } from '../../src/store';
 import { healMissingTasks } from '../../src/store';
 import { loadSetup, setup, inRealMode } from '../../src/setup-state';
-import { getUid, useIdentity } from '../../src/identity';
+import { getUid, getPartnerUid, useIdentity } from '../../src/identity';
 import { localIso } from '../../src/dates';
 import { toggleOccurrence, isLive } from '../../src/occ-actions';
 import { isPremium } from '../../src/demo-premium';
@@ -330,8 +330,9 @@ export default function Planning() {
                 />
               ))}
             </View>
+            {realGroups && !getPartnerUid() ? <Label T={T} style={{ paddingHorizontal: space.screenX, paddingBottom: 10 }}>{t.solo}</Label> : null}
             <View style={{ flexDirection: 'row', gap: 6, paddingHorizontal: space.screenX, paddingBottom: 10 }}>
-              {t.filters.map((lab, k) => <Pressable key={k} onPress={() => setWho(k)} style={[s.filter, who === k && s.filterOn]}><Text style={[type.label, { color: who === k ? T.bg : T.ink }]}>{lab.replace('{name}', partner.first_name)}</Text></Pressable>)}
+              {(realGroups && !getPartnerUid() ? [] : t.filters).map((lab, k) => <Pressable key={k} onPress={() => setWho(k)} style={[s.filter, who === k && s.filterOn]}><Text style={[type.label, { color: who === k ? T.bg : T.ink }]}>{lab.replace('{name}', partner.first_name)}</Text></Pressable>)}
             </View>
             <ScrollView ref={scrollRef} onScroll={onScroll} scrollEventThrottle={48} contentContainerStyle={{ paddingHorizontal: space.screenX, paddingBottom: 16 }} showsVerticalScrollIndicator={false}>
               {who !== 0 && !shownGroups.length ? <Text style={[type.sub, { color: T.muted, textAlign: 'center', paddingVertical: 24 }]}>{t.filterEmpty}</Text> : null}

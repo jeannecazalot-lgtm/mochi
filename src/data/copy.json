@@ -168,7 +168,8 @@
       "late": "Sous-texte d'une tâche en retard (mode réel)",
       "realHint": "Indice sous la liste en mode réel (tap = sheet Mission)",
       "filters": "Filtre Toi / L'autre ({name}) / À deux (semaine)",
-      "filterEmpty": "Aucune mission pour ce filtre"
+      "filterEmpty": "Aucune mission pour ce filtre",
+      "solo": "Bandeau Planning quand on est seul"
     },
     "title": "Planning",
     "week": "Semaine",
@@ -191,7 +192,8 @@
       "{name}",
       "À deux"
     ],
-    "filterEmpty": "Rien pour ce filtre sur ces 7 jours."
+    "filterEmpty": "Rien pour ce filtre sur ces 7 jours.",
+    "solo": "Tes missions sont là. Elles se partagent quand ton binôme a rejoint."
   },
   "balance": {
     "_labels": {
@@ -1183,7 +1185,7 @@
     "duoWithReal": "En duo avec {name}",
     "leave": "Quitter le foyer",
     "leaveTitle": "Quitter le foyer ?",
-    "leaveBody": "Tes missions et ton historique ici seront perdus. Tu pourras créer ou rejoindre un autre foyer.",
+    "leaveBody": "Tu perds l'accès aux missions, à la balance et à Mochi de ce foyer. Il n'y a pas de retour en arrière.",
     "leaveOk": "Quitter",
     "leaveCancel": "Rester",
     "notifsSubReal": "Récap chaque jour à {time}",
@@ -2096,7 +2098,12 @@
       "walkRight": "Bande de balade, droite ({time} = retour)",
       "refused": "Ligne Accueil quand l'autre a refusé ({name})",
       "inviteRow": "Ligne sur l'Accueil tant qu'on est seul dans le foyer",
-      "inviteRowSub": "Sous-ligne"
+      "inviteRowSub": "Sous-ligne",
+      "soloTitle": "Bloc « seul » sur l'Accueil : titre",
+      "soloSub": "Bloc « seul » : phrase",
+      "soloSubHatched": "Bloc « seul » : phrase quand Mochi est déjà éclos (le binôme est parti)",
+      "soloCta": "Bloc « seul » : bouton",
+      "soloCode": "Bloc « seul » : ton code ({code})"
     },
     "pearls": "{n} perles",
     "stagePill": "Jour {day} · palier {k}",
@@ -2112,7 +2119,7 @@
       "En pleine forme"
     ],
     "egg": "Un œuf. Il éclot quand vous serez deux.",
-    "eggWait": "Un œuf. Il éclot quand {name} aura rejoint le foyer.",
+    "eggWait": "Un œuf. Il éclot quand vous serez deux.",
     "away": "Parti en balade, retour vers {time}. Il vous racontera.",
     "sick": "Mochi est malade. Il a besoin de vous deux : rattrapez les missions en retard.",
     "night": "Dort. On se retrouve demain.",
@@ -2134,7 +2141,12 @@
     "walkRight": "Retour vers {time}",
     "refused": "{name} ne peut pas, elle reste chez toi",
     "inviteRow": "Inviter ton binôme",
-    "inviteRowSub": "Mochi éclot quand vous êtes deux. Ton code et ton lien sont ici."
+    "inviteRowSub": "Mochi éclot quand vous êtes deux. Ton code et ton lien sont ici.",
+    "soloTitle": "Mochi attend ton binôme.",
+    "soloSub": "Tout se joue à deux : les missions, la balance, et Mochi qui éclot. Envoie-lui le lien ou donne-lui ton code.",
+    "soloSubHatched": "Tout se joue à deux : les missions, la balance, et Mochi qui grandit. Envoie-lui le lien ou donne-lui ton code.",
+    "soloCta": "Inviter ton binôme",
+    "soloCode": "Ton code : {code}"
   },
   "moments": {
     "_labels": {
@@ -2204,7 +2216,8 @@
       "give": "Bouton par ligne (→ {name})",
       "given": "Après ({name})",
       "weighsRow": "Sous-ligne ({mine} min contre {other} min)",
-      "demoOnly": "Message en démo"
+      "demoOnly": "Message en démo",
+      "solo": "Balance quand on est seul dans le foyer"
     },
     "title": "Balance",
     "week": "Sem. {n} · {range}",
@@ -2235,7 +2248,8 @@
     "give": "→ {name}",
     "given": "Passée chez {name}",
     "weighsRow": "{mine} min contre {other} min",
-    "demoOnly": "Démo : rien n'est déplacé."
+    "demoOnly": "Démo : rien n'est déplacé.",
+    "solo": "La balance compare ce que vous faites à deux. Elle démarre quand ton binôme a rejoint le foyer."
   },
   "checkin": {
     "_labels": {
