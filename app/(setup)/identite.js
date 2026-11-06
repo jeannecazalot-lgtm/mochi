@@ -9,6 +9,8 @@ import { GlowBg, SetupHeader, Card, Micro, CTAPrimary } from '../../src/componen
 import { LiveMochi } from '../../src/components/motion';
 import { saveIdentity, loadProfile } from '../../src/profile';
 import { setLocalIdentity } from '../../src/identity';
+import { loadSetup, setup, saveDispos, savePrefs, isJoiner } from '../../src/setup-state';
+import { syncJoinerPrefs } from '../../src/sync-setup';
 import copy from '../../src/data/copy.json';
 import { Egg } from '../../src/components/mochi/scene';
 import { useTokens as useT3 } from '../../src/theme-v3';
@@ -33,7 +35,14 @@ export default function Identite() {
     setLocalIdentity({ firstName, avatarUrl: photo }); // visible partout tout de suite
     try { await saveIdentity({ firstName, photoUri: photo }); }
     catch (e) { console.warn('[06] saveIdentity a échoué (on avance quand même) :', e?.message || e); }
-    finally { setSaving(false); router.push('/(setup)/dispos'); }
+    finally {
+      setSaving(false);
+      // setup court (Jeanne 6 nov 2026) : dispos et préférences par défaut, réglables dans Profil › Mes dispos & préférences
+      await loadSetup();
+      if (!setup.availability) saveDispos({ availability: { morning: [0, 0, 0, 0, 0, 0, 0], evening: [1, 1, 1, 1, 1, 1, 1] }, weekly_minutes: null });
+      if (!setup.prefs) savePrefs({ prefs: {}, reminder: '19:30' });
+      if (isJoiner()) { syncJoinerPrefs().catch(() => {}); router.replace('/(setup)/taches'); } else router.push('/(setup)/invite');
+    }
   };
 
   const pickPhoto = async () => {
@@ -45,7 +54,7 @@ export default function Identite() {
     <View style={{ flex: 1 }}>
       <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }}>
-        <SetupHeader hero={<EggHero />} why={t.whyIdentity} step={1} total={4} title={t.identityTitle} backFallback="/onboarding" />
+        <SetupHeader hero={<EggHero />} why={t.whyIdentity} step={1} total={2} title={t.identityTitle} backFallback="/onboarding" />
 
         <View style={{ paddingHorizontal: space.headerX, paddingTop: 24 }}>
           <Micro style={s.label}>{t.firstNameLabel}</Micro>

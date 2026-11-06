@@ -6,6 +6,7 @@ import { View, Text, TextInput, Pressable, StyleSheet, KeyboardAvoidingView, Key
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as Haptics from 'expo-haptics';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Svg, { Path, Rect } from 'react-native-svg';
 import { GlowBg, Card, Secondary, CTAPrimary } from '../../src/components/ui';
 import { LiveMochi } from '../../src/components/motion';
@@ -88,6 +89,11 @@ export default function Login() {
                 <Pressable onPress={() => { setNote(null); setMode('email'); }} style={({ pressed }) => [s.emailBtn, { opacity: pressed ? 0.85 : 1 }]}>
                   <MailIcon /><Text style={s.emailTxt}>{t.email}</Text>
                 </Pressable>
+                {/* sans compte (Jeanne 6 nov 2026) : session anonyme créée au premier enregistrement, compte à relier depuis le Profil */}
+                <Pressable onPress={async () => { try { await AsyncStorage.setItem('mochi:guest', '1'); } catch (e) { /* ignore */ } Haptics.selectionAsync().catch(() => {}); router.replace(next ? String(next) : '/(setup)/identite'); }} hitSlop={8} style={{ alignSelf: 'center', marginTop: 6, paddingVertical: 8 }}>
+                  <Text style={[s.emailTxt, { fontSize: 15 }]}>{t.guest}</Text>
+                </Pressable>
+                <Text style={[font.secondary, { color: tk().muted }, { textAlign: 'center', fontSize: 12.5 }]}>{t.guestHint}</Text>
                 {note ? <Secondary style={{ textAlign: 'center' }}>{note}</Secondary> : null}
                 <Text style={s.legal}>{t.legal}</Text>
               </View>

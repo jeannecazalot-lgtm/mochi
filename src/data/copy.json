@@ -26,7 +26,9 @@
       "emailPlaceholder": "Placeholder email",
       "title2": "Titre écran connexion (façon Suno)",
       "or": "Séparateur entre le bouton principal et les carrés",
-      "emailTitle": "Titre de l état saisie e-mail"
+      "emailTitle": "Titre de l état saisie e-mail",
+      "guest": "Bouton « sans compte » (session anonyme, compte à relier plus tard dans le Profil)",
+      "guestHint": "Ligne sous le bouton"
     },
     "title": "Bienvenue",
     "apple": "Continuer avec Apple",
@@ -52,7 +54,9 @@
     "sentHint": "Ouvre le lien « Sign in » depuis ce téléphone : l'app se rouvre connectée.",
     "resendLink": "Renvoyer le lien",
     "linkOpening": "Connexion en cours…",
-    "linkFailed": "Ce lien ne fonctionne plus. On t'en renvoie un."
+    "linkFailed": "Ce lien ne fonctionne plus. On t'en renvoie un.",
+    "guest": "Continuer sans compte",
+    "guestHint": "Tu pourras relier un compte plus tard, depuis ton profil."
   },
   "tabs": {
     "_labels": {
@@ -2275,14 +2279,24 @@
     "walkReturnTitle": "Mochi est rentré",
     "walkReturnBody": "Il a ramené quelque chose de sa balade. Venez voir sa pièce."
   },
-  "onbV4": {
+  "nomMochi": {
     "_labels": {
-      "_": "Onboarding v4 (4 nov 2026, retour Jeanne : mixer le pathos de l'ancien et Mochi qui parle). 5 écrans : 2 de constat (chiffres Insee), l'œuf qui parle, le nom, la jauge. Mochi parle dans une bulle (say).",
+      "title": "Titre de la sheet",
+      "sub": "Sous-titre",
+      "cta": "Bouton"
+    },
+    "title": "Comment vous l'appelez ?",
+    "sub": "Le nom est partagé par le foyer.",
+    "cta": "C'est noté"
+  },
+  "onbV5": {
+    "_labels": {
+      "_": "Onboarding v5 (6 nov 2026, retours Jeanne : œuf direct, titres, écrans pleins, éclosion animée). 3 écrans + connexion.",
       "skip": "Passer",
       "next": "Suivant",
-      "start": "Bouton final",
-      "namePlaceholder": "Champ nom",
-      "slides": "5 écrans : title, body, say (bulle de Mochi, optionnelle)"
+      "start": "Commencer",
+      "namePlaceholder": "Mochi",
+      "slides": "3 écrans : title, body, say (bulle), rows (chiffres)"
     },
     "skip": "Passer",
     "next": "Suivant",
@@ -2290,8 +2304,8 @@
     "namePlaceholder": "Mochi",
     "slides": [
       {
-        "title": "Quand l'un porte plus, ça finit par peser.",
-        "body": "Dans beaucoup de foyers, une personne consacre davantage de temps aux tâches domestiques et à leur organisation.",
+        "title": "Chez vous, qui porte le plus ?",
+        "body": "Dans la plupart des foyers, une personne consacre plus de temps aux tâches et à leur organisation. Ça finit par peser.",
         "rows": [
           {
             "t": "Chaque jour",
@@ -2309,34 +2323,15 @@
         "source": "Insee · Enquête emploi du temps"
       },
       {
-        "title": "Faire est une chose. Y penser en est une autre.",
-        "body": "Anticiper, se rappeler, organiser, relancer. Tout ce travail invisible fait aussi partie de ce qu'il y a à partager."
+        "title": "Voici Mochi. Il est à vous deux.",
+        "body": "Il vit chez vous. Quand vous prenez soin de la maison ensemble, il va bien. Quand l'un porte tout, il le sent.",
+        "say": "Je suis ce qu'il y a entre vous deux. Vous m'appelez comment ?"
       },
       {
-        "title": "Voici Mochi. C'est vous deux.",
-        "body": "Il vit dans votre foyer. Quand vous prenez soin de la maison ensemble, il va bien. Quand l'un porte tout, il le sent, et il le montre.",
-        "say": "Je suis ce qu'il y a entre vous deux. Prenez soin de la maison, et je vais bien."
-      },
-      {
-        "title": "Donnez-lui un nom.",
-        "body": "Vous pourrez le changer plus tard, dans les réglages.",
-        "say": "Comment vous m'appelez ?"
-      },
-      {
-        "title": "Il grandit avec vous.",
-        "body": "Jauge pleine, il part en balade et revient avec un souvenir. Une mission oubliée, il perd un cœur. Il ne meurt jamais, mais il compte sur vous deux.",
-        "say": "Chaque mission cochée me donne de l'énergie."
+        "title": "Il éclot quand vous êtes deux.",
+        "body": "Chaque mission cochée lui donne de l'énergie. Jauge pleine, il part en balade. Une mission oubliée lui coûte un cœur. Il ne meurt jamais, mais il compte sur vous.",
+        "say": "Et après, je grandis avec vous."
       }
     ]
-  },
-  "nomMochi": {
-    "_labels": {
-      "title": "Titre de la sheet",
-      "sub": "Sous-titre",
-      "cta": "Bouton"
-    },
-    "title": "Comment vous l'appelez ?",
-    "sub": "Le nom est partagé par le foyer.",
-    "cta": "C'est noté"
   }
 }

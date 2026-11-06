@@ -6,6 +6,7 @@
 import React, { useEffect, useState } from 'react';
 import { Redirect } from 'expo-router';
 import { View, ActivityIndicator } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSession, isRealUser } from '../src/auth';
 import { loadProfile } from '../src/profile';
 import { SUPABASE_READY } from '../src/supabase';
@@ -15,6 +16,8 @@ import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 export default function Index() {
   const session = useSession();
   const [profile, setProfile] = useState(undefined);
+  const [guest, setGuest] = useState(undefined);
+  useEffect(() => { AsyncStorage.getItem('mochi:guest').then(v => setGuest(v === '1')).catch(() => setGuest(false)); }, []);
 
   useEffect(() => {
     if (session === undefined) return;
@@ -25,10 +28,10 @@ export default function Index() {
   // Phase « app navigable » : en dev, on entre par le Plan des écrans (données de démo)
   if (__DEV__) return <Redirect href="/plan" />;
   if (!SUPABASE_READY) return <Redirect href="/(setup)/identite" />;
-  if (session === undefined || profile === undefined) {
+  if (session === undefined || profile === undefined || guest === undefined) {
     return <View style={{ flex: 1, backgroundColor: tk().bg, alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator /></View>;
   }
   // compte d'abord (13 sept 2026) : sans session vraie (nulle ou anonyme) → connexion ; puis prénom ; puis l'app
-  if (!isRealUser(session)) return <Redirect href="/(auth)/login" />;
+  if (!isRealUser(session) && !guest) return <Redirect href="/(auth)/login" />; // invité : on avance sans compte
   return <Redirect href={profile?.first_name ? '/(tabs)' : '/(setup)/identite'} />;
 }

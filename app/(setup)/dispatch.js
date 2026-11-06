@@ -35,7 +35,7 @@ const finish = () => {
   syncSetup(setup.result)
     .then(() => rescheduleReminders()) // rappels locaux calés sur les occurrences générées
     .catch(e => console.warn('[12] synchro Supabase échouée (on avance quand même) :', e?.message || e));
-  router.replace('/(tabs)');
+  router.replace({ pathname: '/paywall', params: { next: '/(tabs)' } }); // paywall doux quand le foyer est créé (Jeanne 6 nov 2026)
 };
 
 // pop d'échelle à chaque bascule d'assigné (pas au montage)
