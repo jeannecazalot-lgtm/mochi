@@ -17,7 +17,7 @@ import { loadPartner, useIdentity } from '../../src/identity';
 import QRCode from 'react-native-qrcode-svg';
 import copy from '../../src/data/copy.json';
 import { Egg } from '../../src/components/mochi/scene';
-import { useTokens as useT3 } from '../../src/theme-v3';
+import { useTokens as useT3, layout } from '../../src/theme-v3';
 const EggHero = () => <Egg T={useT3()} />;
 import { colors, space } from '../../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';
@@ -80,48 +80,24 @@ export default function Invite() {
           {/* « Passer » retiré (9 sept 2026) : même porte de sortie qu'« Inviter plus tard » */}
         </View>
 
-        {/* Retour Jeanne (1er sept 2026) : la carte était centrée dans l'espace restant
-            et tombait trop bas — elle vient maintenant se poser sous le titre. */}
-        <View style={{ flex: 1, paddingTop: 34, paddingHorizontal: space.headerX }}>
-          <Card padding={0} r={22}>
-            <View style={{ paddingTop: 28, paddingHorizontal: 24, paddingBottom: 24, alignItems: 'center' }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 14 }}>
-                <Avatar initial={me.initial} color={me.color} photo={me.avatar_url} size={54} ring />
-                <Animated.View style={breathe}><AvatarPlaceholder size={54} /></Animated.View>
-              </View>
-              <Text style={s.cardTitle}>{waiting ? t.waitingTitle : t.inviteCardTitle}</Text>
-              <Text style={s.cardSub}>{waiting ? t.waitingSub : t.inviteCardSub}</Text>
-              {/* Retour Jeanne (1er sept 2026) : le lien n'est plus affiché — le bouton « Envoyer le lien » suffit.
-                  En mode réel, le CODE à 6 caractères s'affiche : c'est lui que l'autre saisit. */}
-              {realCode ? (
-                <View style={s.codePill}>
-                  <Text style={s.codeTxt}>{realCode}</Text>
-                </View>
-              ) : null}
-            </View>
-          </Card>
+        {/* DA v3 (7 nov 2026, retour Jeanne « pas très moderne ») : ta photo et la place vide en haut, le CODE en très grand
+            au centre (c'est l'objet de l'écran), un seul bouton principal, les autres actions en liens discrets */}
+        <View style={{ flex: 1, paddingHorizontal: layout.x, alignItems: 'center', paddingTop: 44 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Avatar initial={me.initial} color={me.color} photo={me.avatar_url} size={64} ring />
+            <Animated.View style={[breathe, { marginLeft: -10 }]}><View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: tk().seg, borderWidth: 3, borderColor: tk().bg, alignItems: 'center', justifyContent: 'center' }}><Text style={{ fontSize: 24, fontWeight: '600', color: tk().muted }}>?</Text></View></Animated.View>
+          </View>
+          <Text style={{ fontSize: 15, fontWeight: '500', color: tk().muted, marginTop: 28 }}>{waiting ? t.waitingTitle : t.codeLabel}</Text>
+          {realCode ? <Text style={{ fontSize: 44, fontWeight: '600', letterSpacing: 10, color: tk().ink, marginTop: 6, fontVariant: ['tabular-nums'] }}>{realCode}</Text> : null}
+          <Text style={{ fontSize: 13.5, color: tk().muted, marginTop: 10, textAlign: 'center', maxWidth: 300 }}>{waiting ? t.waitingSub : t.inviteCardSub}</Text>
+          <View style={{ flexDirection: 'row', gap: 22, marginTop: 22 }}>
+            <Pressable onPress={() => setQrOpen(true)} hitSlop={8}><Text style={{ fontSize: 15, fontWeight: '600', color: tk().ink }}>{t.showQr}</Text></Pressable>
+            <Pressable onPress={() => router.push('/rejoindre')} hitSlop={8}><Text style={{ fontSize: 15, fontWeight: '600', color: tk().ink }}>{t.enterCode}</Text></Pressable>
+          </View>
+          {waiting ? <Pressable onPress={next} hitSlop={8} style={{ marginTop: 18 }}><Text style={s.later}>{t.continueMeanwhile}</Text></Pressable> : null}
         </View>
 
-        {/* Retour Jeanne (1er sept 2026) : « Envoyer le lien » exactement à la place
-            du CTA des écrans précédents (pleine largeur, bas 26) ; QR / partage /
-            « Inviter plus tard » regroupés juste au-dessus. */}
         <View style={s.bottom}>
-          {/* paddingLeft : le bouton dev « Plan des écrans » recouvrait le QR (test du 2 sept) */}
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12, marginBottom: 15, paddingLeft: 56 }}>
-            <ActionPill round icon={<QRIcon />} onPress={() => setQrOpen(true)} accessibilityLabel={t.qr} />
-            <ActionPill round icon={<ShareIcon />} onPress={shareOnly} accessibilityLabel={t.share} />
-            <Pressable onPress={() => router.push('/rejoindre')} hitSlop={8}>
-              <Text style={s.later}>{t.enterCode}</Text>
-            </Pressable>
-            {/* « Inviter plus tard » retiré (décision Jeanne 9 sept 2026 : l'app ne sert à rien seul) ;
-                une fois le lien envoyé, on peut préparer les tâches en attendant l'autre */}
-          </View>
-          {/* « Choisir nos tâches en attendant » sur sa propre ligne (retour Jeanne 15 sept : les boutons s'écartaient) */}
-          {waiting ? (
-            <Pressable onPress={next} hitSlop={8} style={{ alignSelf: 'center', marginBottom: 14 }}>
-              <Text style={s.later}>{t.continueMeanwhile}</Text>
-            </Pressable>
-          ) : null}
           <CTAPrimary label={waiting ? t.resendLink : t.sendLink} onPress={send} big />
         </View>
 

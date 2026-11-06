@@ -604,7 +604,9 @@
       "duoSay": "Bulle de Mochi (œuf) sur Duo formé",
       "why": "Ligne « Étape n sur N · pourquoi » en tête de chaque écran setup (4 nov 2026)",
       "photoHint": "Sous la ligne photo (optionnelle)",
-      "photoChange": "Ligne photo quand une photo est choisie"
+      "photoChange": "Ligne photo quand une photo est choisie",
+      "codeLabel": "Étiquette au-dessus du grand code",
+      "showQr": "Lien sous le code"
     },
     "identityTitle": "Comment tu t'appelles ?",
     "firstNameLabel": "Ton prénom",
@@ -641,9 +643,9 @@
     "reminderSub": "Ton récap de missions du jour",
     "letsGo": "C’est parti",
     "inviteTitle": "Invite {partner}.",
-    "inviteSub": "Sans l’autre, pas de balance. Un lien suffit.",
+    "inviteSub": "Mochi éclot quand vous êtes deux. Envoie-lui le lien, ou donne-lui ce code.",
     "inviteCardTitle": "Une place t’attend.",
-    "inviteCardSub": "C’est ce que l’autre verra en ouvrant ton lien.",
+    "inviteCardSub": "L'autre le saisit dans « J'ai reçu un code », ou ouvre ton lien.",
     "copy": "Copier",
     "copied": "Copié",
     "sendLink": "Envoyer le lien",
@@ -737,7 +739,9 @@
     "whyTasks": "Ce que le foyer doit faire chaque semaine.",
     "whyDispatch": "Tout se change ici, puis dans le Planning.",
     "photoHint": "Optionnel. {name} te verra comme ça.",
-    "photoChange": "Changer la photo"
+    "photoChange": "Changer la photo",
+    "codeLabel": "Votre code",
+    "showQr": "Montrer le QR"
   },
   "event": {
     "_labels": {
