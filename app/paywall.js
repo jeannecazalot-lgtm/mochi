@@ -4,7 +4,7 @@
 // `?next=` : paywall doux montré après l'onboarding (fermer ou acheter → va à `next`).
 import React, { useState, useEffect } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
-import { View, Text, Pressable, Linking, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, Pressable, Linking, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import Animated, { FadeInDown, useSharedValue, useAnimatedStyle, withSpring, withSequence, withTiming } from 'react-native-reanimated';
@@ -97,12 +97,14 @@ export default function Paywall() {
     if (r.success) { setMsg(t.restored); setTimeout(leave, 600); } else setMsg(t.restoreNone);
   };
   const open = url => { if (url) Linking.openURL(url).catch(() => {}); };
-  const sceneH = 230 + insets.top;
+  // tient sur un écran (Jeanne, 7 nov 2026) : la scène prend ce qui reste au-dessus d'un contenu compact (~600 pt)
+  const { height: SH } = useWindowDimensions();
+  const sceneH = Math.max(150 + insets.top, SH - 600);
   const X = layout.x;
 
   return (
     <View style={{ flex: 1, backgroundColor: T.bg }}>
-      <ScrollView contentContainerStyle={{ paddingBottom: 12 }} showsVerticalScrollIndicator={false} bounces={false}>
+      <ScrollView contentContainerStyle={{ paddingBottom: Math.max(8, insets.bottom) }} showsVerticalScrollIndicator={false} bounces={false}>
         <View>
           <Scene T={T} stage="mochi" mood={burst ? 'wink' : undefined} lvl={4} height={sceneH} />
           {burst ? <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, top: 0, height: sceneH }}><Burst count={18} colors={[T.accent, T.ok, T.scene.lamp, T.ink]} dist={150} /></View> : null}
@@ -112,12 +114,12 @@ export default function Paywall() {
             : <Pressable onPress={leave} hitSlop={12} accessibilityLabel={t.close} style={{ position: 'absolute', top: insets.top + 8, right: X, width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: T.bg, opacity: 0.9 }}><Text style={{ color: T.ink, fontSize: 16, lineHeight: 18 }}>×</Text></Pressable>}
         </View>
 
-        <Animated.View entering={FadeInDown.delay(120).duration(320)} style={{ paddingHorizontal: X, paddingTop: 24 }}>
+        <Animated.View entering={FadeInDown.delay(120).duration(320)} style={{ paddingHorizontal: X, paddingTop: 14 }}>
           <Text style={[type.name, { color: T.ink }]}>{t.title}</Text>
-          <Text style={[type.sub, { color: T.muted, marginTop: 8 }]}>{t.subtitle}</Text>
+          <Text style={[type.sub, { color: T.muted, marginTop: 4 }]}>{t.subtitle}</Text>
         </Animated.View>
 
-        <View style={{ marginHorizontal: X, marginTop: 22 }}>
+        <View style={{ marginHorizontal: X, marginTop: 12 }}>
           <Hair T={T} />
           {t.features.map((f, i) => (
             <Animated.View key={f} entering={FadeInDown.delay(200 + i * 60).duration(300)} style={[s.feature, { borderColor: T.line }]}>
@@ -127,17 +129,17 @@ export default function Paywall() {
           ))}
         </View>
 
-        <View style={{ paddingHorizontal: X, marginTop: 22, gap: 10 }}>
+        <View style={{ paddingHorizontal: X, marginTop: 14, gap: 8 }}>
           <Plan T={T} on={plan === 'yearly'} onPress={() => setPlan('yearly')} label={t.planYearly} price={yearly ? yearly.priceString : t.priceUnavailable} suffix={yearly ? ` ${t.perYear}` : ''} hint={perMonth ? fill(t.yearlyHint, { price: perMonth }) : null} badge={free > 0 ? fill(t.monthsFree, { n: free }) : null} />
           <Plan T={T} on={plan === 'monthly'} onPress={() => setPlan('monthly')} label={t.planMonthly} price={monthly ? monthly.priceString : t.priceUnavailable} suffix={monthly ? ` ${t.perMonth}` : ''} hint={t.monthlyHint} />
         </View>
 
         {/* divulgation complète AU-DESSUS du CTA (Apple 3.1.2) */}
-        <Text style={[type.label, { color: T.muted, lineHeight: 18, paddingHorizontal: X, marginTop: 18 }]}>{disclosure}</Text>
-        <View style={{ paddingHorizontal: X, marginTop: 14 }}>
+        <Text style={[type.label, { color: T.muted, fontSize: 11.5, lineHeight: 15, paddingHorizontal: X, marginTop: 12 }]}>{disclosure}</Text>
+        <View style={{ paddingHorizontal: X, marginTop: 10 }}>
           <CTAPrimary big label={ctaLabel} onPress={onBuy} disabled={busy} />
-          {msg ? <Text style={[type.label, { color: T.accent, textAlign: 'center', marginTop: 10 }]}>{msg}</Text> : null}
-          <View style={{ flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', gap: 14, marginTop: 14 }}>
+          {msg ? <Text style={[type.label, { color: T.accent, textAlign: 'center', marginTop: 8 }]}>{msg}</Text> : null}
+          <View style={{ flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', gap: 14, marginTop: 10 }}>
             <Pressable onPress={onRestore} disabled={busy} hitSlop={8}><Text style={[type.label, { color: T.muted }]}>{t.restore}</Text></Pressable>
             <Pressable onPress={() => open(LEGAL_URLS.privacy)} hitSlop={8}><Text style={[type.label, { color: T.muted }]}>{t.privacy}</Text></Pressable>
             <Pressable onPress={() => open(LEGAL_URLS.eula)} hitSlop={8}><Text style={[type.label, { color: T.muted }]}>{t.terms}</Text></Pressable>
@@ -149,6 +151,6 @@ export default function Paywall() {
 }
 
 const s = StyleSheet.create({
-  feature: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 13, borderBottomWidth: StyleSheet.hairlineWidth },
-  plan: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14, paddingHorizontal: 16, borderRadius: 16, borderWidth: 1.5 },
+  feature: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 8, borderBottomWidth: StyleSheet.hairlineWidth },
+  plan: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, paddingHorizontal: 16, borderRadius: 16, borderWidth: 1.5 },
 });
