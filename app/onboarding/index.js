@@ -8,6 +8,7 @@ import { router } from 'expo-router';
 import { View, Text, Pressable, FlatList, TextInput, Keyboard, useWindowDimensions, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, FadeIn, FadeInDown, LinearTransition } from 'react-native-reanimated';
 import { CTAPrimary } from '../../src/components/ui';
 import { CountUp } from '../../src/components/motion';
@@ -66,6 +67,7 @@ export default function Onboarding() {
   const finish = useCallback(() => {
     Keyboard.dismiss();
     setPendingName(name.trim() || t.namePlaceholder).catch(() => {});
+    AsyncStorage.setItem('mochi:onboarded', '1').catch(() => {}); // ne se remontre plus
     router.replace('/(auth)/login');
   }, [name]);
   const next = useCallback(() => {

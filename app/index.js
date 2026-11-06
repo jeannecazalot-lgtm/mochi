@@ -17,7 +17,11 @@ export default function Index() {
   const session = useSession();
   const [profile, setProfile] = useState(undefined);
   const [guest, setGuest] = useState(undefined);
-  useEffect(() => { AsyncStorage.getItem('mochi:guest').then(v => setGuest(v === '1')).catch(() => setGuest(false)); }, []);
+  const [onboarded, setOnboarded] = useState(undefined); // premier lancement → onboarding (6 nov 2026 : une install neuve allait droit à la connexion)
+  useEffect(() => {
+    AsyncStorage.getItem('mochi:guest').then(v => setGuest(v === '1')).catch(() => setGuest(false));
+    AsyncStorage.getItem('mochi:onboarded').then(v => setOnboarded(v === '1')).catch(() => setOnboarded(false));
+  }, []);
 
   useEffect(() => {
     if (session === undefined) return;
@@ -28,10 +32,12 @@ export default function Index() {
   // Phase « app navigable » : en dev, on entre par le Plan des écrans (données de démo)
   if (__DEV__) return <Redirect href="/plan" />;
   if (!SUPABASE_READY) return <Redirect href="/(setup)/identite" />;
-  if (session === undefined || profile === undefined || guest === undefined) {
+  if (session === undefined || profile === undefined || guest === undefined || onboarded === undefined) {
     return <View style={{ flex: 1, backgroundColor: tk().bg, alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator /></View>;
   }
   // compte d'abord (13 sept 2026) : sans session vraie (nulle ou anonyme) → connexion ; puis prénom ; puis l'app
+  // jamais vu l'onboarding et pas encore de compte ni de prénom → l'onboarding d'abord
+  if (!onboarded && !isRealUser(session) && !guest && !profile?.first_name) return <Redirect href="/onboarding" />;
   if (!isRealUser(session) && !guest) return <Redirect href="/(auth)/login" />; // invité : on avance sans compte
   return <Redirect href={profile?.first_name ? '/(tabs)' : '/(setup)/identite'} />;
 }
