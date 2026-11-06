@@ -71,7 +71,7 @@ export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height =
       {backdrop ? <Image source={backdrop} style={{ position: 'absolute', left: 0, top: shiftY, width: SW, height: hh }} resizeMode="cover" accessibilityIgnoresInvertColors /> : null}
       {backdrop ? null : <S l={0} r={0} b={0} h={fl2} c={c.floor} />}
 
-      {topInset ? <LinearGradient colors={night ? ['rgba(30,24,40,0.55)', 'rgba(30,24,40,0)'] : ['rgba(245,241,234,0.75)', 'rgba(245,241,234,0)']} style={{ position: 'absolute', left: 0, right: 0, top: 0, height: topInset + 28 }} pointerEvents="none" /> : null}
+      {topInset && night ? <LinearGradient colors={['rgba(30,24,40,0.45)', 'rgba(30,24,40,0)']} style={{ position: 'absolute', left: 0, right: 0, top: 0, height: topInset + 28 }} pointerEvents="none" /> : null}
       {/* fondu entre la pièce et l'écran (Jeanne 5 nov : « au lieu d'une coupure nette, un fondu ») */}
       <LinearGradient colors={[T.bg + '00', T.bg]} style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 64 }} pointerEvents="none" />
       {/* tapis à plat, sous Mochi */}

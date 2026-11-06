@@ -1,7 +1,7 @@
 // TabBar v3 « l'instrument » (4 nov 2026) : hairline en haut, icônes fines, étiquettes en phrase normale,
 // + plat couleur accent ; suit le mode jour / nuit (theme-v3). Accueil · Planning · [+] · Balance · Budget
 import React from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet, Image } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTokens } from '../theme-v3';
@@ -13,6 +13,8 @@ const ICONS = {
   balance: 'M12 4v16M5 7h14M5 7l-2.5 6a3.5 3.5 0 007 0L7 7M19 7l-2.5 6a3.5 3.5 0 007 0L21 7M8 20h8',
   budget: 'M3 8a2 2 0 012-2h14a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V8zM3 10h18M16 15h2',
 };
+// pictos en images (décision Jeanne 5 nov 2026 : « Accueil, Planning… sont des pictos aussi »)
+const TAB_IMG = { index: require('../../assets/icones/tabs/building.png'), planning: require('../../assets/icones/tabs/calendar.png'), balance: require('../../assets/icones/tabs/balance.png'), budget: require('../../assets/icones/tabs/wallet.png') };
 const LABELS = { index: copy.tabs.home, planning: copy.tabs.planning, balance: copy.tabs.balance, budget: copy.tabs.budget };
 const ORDER = ['index', 'planning', 'fab', 'balance', 'budget'];
 
@@ -36,7 +38,7 @@ export default function TabBar({ state, navigation, onFab }) {
         const c = on ? T.ink : T.muted;
         return (
           <Pressable key={name} onPress={() => navigation.navigate(name)} style={s.tab}>
-            <Svg width={21} height={21} viewBox="0 0 24 24" fill="none"><Path d={ICONS[name]} stroke={c} strokeWidth={on ? 2.1 : 1.9} strokeLinecap="round" strokeLinejoin="round" /></Svg>
+            <Image source={TAB_IMG[name]} style={{ width: 26, height: 26, opacity: on ? 1 : 0.5 }} resizeMode="contain" accessibilityIgnoresInvertColors />
             <Text style={{ fontSize: 11, color: c, fontWeight: on ? '600' : '400' }}>{LABELS[name]}</Text>
           </Pressable>
         );

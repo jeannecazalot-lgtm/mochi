@@ -64,8 +64,7 @@ const BY_EMOJI = {
 // décision Jeanne 4 nov 2026 : D = images dans la matière de Mochi (ChatGPT) pour ce qui se fait ; les clés sans image
 // tombent sur le trait (B : trait sur pastille) en attendant leur lot. Metro : pas de require dynamique → table explicite.
 export const IMG = {
-  dish: require('../../assets/icones/dish.png'), cart: require('../../assets/icones/cart.png'), basket: require('../../assets/icones/basket.png'),
-  broom: require('../../assets/icones/broom.png'), trash: require('../../assets/icones/trash.png'), calendar: require('../../assets/icones/calendar.png'),
+  dish: require('../../assets/icones/dish.png'), cart: require('../../assets/icones/cart.png'), basket: require('../../assets/icones/basket.png'), broom: require('../../assets/icones/broom.png'), trash: require('../../assets/icones/trash.png'), calendar: require('../../assets/icones/calendar.png'), pan: require('../../assets/icones/pan.png'), shirt: require('../../assets/icones/shirt.png'), bed: require('../../assets/icones/bed.png'), bath: require('../../assets/icones/bath.png'), box: require('../../assets/icones/box.png'), file: require('../../assets/icones/file.png'), mail: require('../../assets/icones/mail.png'), list: require('../../assets/icones/list.png'), suitcase: require('../../assets/icones/suitcase.png'), dog: require('../../assets/icones/dog.png'), leaf: require('../../assets/icones/leaf.png'), cat: require('../../assets/icones/cat.png'), pin: require('../../assets/icones/pin.png'), baby: require('../../assets/icones/baby.png'), wrench: require('../../assets/icones/wrench.png'), car: require('../../assets/icones/car.png'), pill: require('../../assets/icones/pill.png'), gift: require('../../assets/icones/gift.png'), pizza: require('../../assets/icones/pizza.png'), coins: require('../../assets/icones/coins.png'), bulb: require('../../assets/icones/bulb.png'), key: require('../../assets/icones/key.png'), phone: require('../../assets/icones/phone.png'), stetho: require('../../assets/icones/stetho.png'), home: require('../../assets/icones/home.png'), cake: require('../../assets/icones/cake.png'), plane: require('../../assets/icones/plane.png'), party: require('../../assets/icones/party.png'), grad: require('../../assets/icones/grad.png'), ring: require('../../assets/icones/ring.png'), mask: require('../../assets/icones/mask.png'), ball: require('../../assets/icones/ball.png'), coffee: require('../../assets/icones/coffee.png'), ticket: require('../../assets/icones/ticket.png'), generic: require('../../assets/icones/generic.png'), user: require('../../assets/icones/user.png'),
 };
 export const keyFor = emoji => BY_EMOJI[String(emoji || '').trim()] || (ICONS[emoji] ? emoji : 'generic');
 export const iconFor = emoji => ICONS[BY_EMOJI[String(emoji || '').trim()] || (ICONS[emoji] ? emoji : 'generic')];
@@ -75,7 +74,8 @@ export function TaskIcon({ emoji, icon, size = 20, color, sw = 1.9, style, pad =
   const T = useTokens();
   const key = icon || keyFor(emoji);
   // décision Jeanne 5 nov 2026 : les pastilles-images (objet dans un rond doux)
-  if (image && IMG[key]) return <View style={[{ width: size + 16, height: size + 16, borderRadius: (size + 16) / 2, backgroundColor: T.seg, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }, style]}><Image source={IMG[key]} style={{ width: size + 8, height: size + 8 }} resizeMode="contain" accessibilityIgnoresInvertColors /></View>;
+  // pictos VALIDÉS par Jeanne (5 nov 2026) : les objets du deuxième test, détourés, SANS rond (« mais pas dans le rond »)
+  if (image && IMG[key]) return <Image source={IMG[key]} style={[{ width: size + 14, height: size + 14 }, style]} resizeMode="contain" accessibilityIgnoresInvertColors />;
   const d = ICONS[key] || ICONS.generic;
   const box = pad ? size + 16 : size;
   return (
