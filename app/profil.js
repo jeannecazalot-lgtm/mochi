@@ -5,7 +5,7 @@ import { View, Text, Pressable, ScrollView, StyleSheet, Alert } from 'react-nati
 import { leaveHousehold } from '../src/invite-actions';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GlowBg, Card, PillLabel, Avatar } from '../src/components/ui';
-import { BackButton, SectionMicro, SettingRow } from '../src/components/premium/extra';
+import { BackButton, SettingRow } from '../src/components/premium/extra';
 import { me, partner, household, streak, balance } from '../src/demo';
 import { duoSince, daysSince, lifetime, duoRules, prefs, isPremium, ALL_FREE } from '../src/demo-premium';
 import { signOut, currentAccount } from '../src/auth';
@@ -103,18 +103,19 @@ export default function Profil() {
             {premium && !ALL_FREE ? <PillLabel color={tk().scene.lamp}>{t.pillPremium}</PillLabel> : null}
           </View>
 
-          <View style={{ paddingHorizontal: 22, flexDirection: 'row', gap: 8, marginBottom: 16 }}>
-            {stats.map(st => (
-              <Card key={st.k} padding={13} r={radius.row} style={{ flex: 1 }}>
-                <Text style={s.statKey}>{st.k}</Text>
+          {/* trois chiffres en ligne, hairlines (DA v3, 6 nov 2026) */}
+          <View style={{ marginHorizontal: 24, marginBottom: 8, borderTopWidth: StyleSheet.hairlineWidth, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: tk().line, flexDirection: 'row', paddingVertical: 14 }}>
+            {stats.map((st, i) => (
+              <View key={st.k} style={{ flex: 1, alignItems: i === 0 ? 'flex-start' : i === stats.length - 1 ? 'flex-end' : 'center' }}>
                 <Text style={s.statVal}>{st.v}</Text>
-              </Card>
+                <Text style={s.statKey}>{st.k}</Text>
+              </View>
             ))}
           </View>
 
-          <View style={{ paddingHorizontal: 22 }}>
-            <SectionMicro>{t.sectionMine}</SectionMicro>
-            <View style={{ gap: 6 }}>
+          <View style={{ paddingHorizontal: 24 }}>
+            <Text style={s.section}>{t.sectionMine}</Text>
+            <View>
               <SettingRow emoji="👤" title={t.account} sub={account ? (account.provider === 'apple' ? fill(t.accountApple, { email: account.email || '' }) : account.email) : t.accountNone} onPress={() => (account ? null : router.push('/(auth)/login'))} />
               <SettingRow emoji="🔔" title={t.notifs} sub={real && setup.reminder ? fill(t.notifsSubReal, { time: String(setup.reminder).replace(':', ' h ') }) : fill(t.notifsSub, { n: duoRules.reminder_before_min })} onPress={() => router.push('/notifs')} />
               <SettingRow emoji="🗓" title={t.mesReglages}
@@ -122,8 +123,8 @@ export default function Profil() {
                 onPress={() => router.push('/mes-reglages')} />
             </View>
 
-            <SectionMicro style={{ marginTop: 16 }}>{t.sectionDuo}</SectionMicro>
-            <View style={{ gap: 6 }}>
+            <Text style={[s.section, { marginTop: 22 }]}>{t.sectionDuo}</Text>
+            <View>
               <SettingRow emoji="⚖️" title={t.thresholds} sub={fill(t.thresholdsSub, { warn: th.warn, alert: th.alert })}
                 right={<Text style={s.value}>{fill(t.thresholdsValue, { warn: th.warn, alert: th.alert })}</Text>} onPress={() => router.push('/seuils')} />
               {/* Mochi qu'on élève (4 nov 2026) : le point hebdo laisse la place au mode nuit ; un tap fait tourner auto → toujours → jamais */}
@@ -151,8 +152,9 @@ export default function Profil() {
 
 const s = v3Styles(T => StyleSheet.create({
   header: { paddingTop: 19, paddingHorizontal: space.headerX, marginBottom: 14, flexDirection: 'row', alignItems: 'center', gap: 14 },
-  statKey: { fontSize: 10.5, letterSpacing: 1.2, fontWeight: '500', textTransform: 'uppercase', color: T.muted, marginBottom: 6 },
-  statVal: { fontSize: 21, fontWeight: '600', letterSpacing: -0.6, color: T.ink, fontVariant: ['tabular-nums'] },
+  statKey: { fontSize: 12.5, fontWeight: '500', color: T.muted, marginTop: 4 },
+  statVal: { fontSize: 26, fontWeight: '600', letterSpacing: -0.8, color: T.ink, fontVariant: ['tabular-nums'] },
+  section: { fontSize: 15, fontWeight: '600', color: T.ink, marginBottom: 4 },
   value: { fontSize: 13.5, fontWeight: '600', color: T.ink, fontVariant: ['tabular-nums'] },
   logout: { fontSize: 14.5, fontWeight: '600', color: T.accent },
   leave: { fontSize: 14.5, fontWeight: '600', color: T.muted },

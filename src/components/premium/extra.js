@@ -90,8 +90,8 @@ const s = v3Styles(T => StyleSheet.create({
   gateTitle: { fontSize: 14.5, fontWeight: '600', color: T.ink },
   gateSub: { fontSize: 12.5, fontWeight: '400', color: T.muted, marginTop: 2, lineHeight: 17 },
   checkDot: { width: 20, height: 20, borderRadius: 10, backgroundColor: premiumTokens.checkDot, alignItems: 'center', justifyContent: 'center' },
-  setting: { backgroundColor: T.bg, borderWidth: StyleSheet.hairlineWidth, borderColor: T.line, borderRadius: radius.row, paddingVertical: 11, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 13 },
-  settingTitle: { fontSize: 15.5, fontWeight: '500', color: T.ink },
-  settingSub: { fontSize: 12, fontWeight: '400', color: T.muted, marginTop: 3 },
+  setting: { borderBottomWidth: StyleSheet.hairlineWidth, borderColor: T.line, paddingVertical: 13, flexDirection: 'row', alignItems: 'center', gap: 14 }, // DA v3 : rangée hairline, plus de carte
+  settingTitle: { fontSize: 15, fontWeight: '500', color: T.ink },
+  settingSub: { fontSize: 12.5, fontWeight: '400', color: T.muted, marginTop: 2 },
 }));
 
