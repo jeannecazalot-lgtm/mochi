@@ -34,7 +34,7 @@ export default function Chambre() {
   const souvenirs = inv.filter(i => i.kind === 'souvenir').length;
   const lvl = m.stage === 'egg' ? 0 : souvenirs === 0 ? 1 : m.stage === 'mini' ? 2 : m.stage === 'mochi' ? 3 : 4;
   const places = PLACES_BY_STAGE[m.stage] || [];
-  const stageIdx = STAGES.indexOf(m.stage);
+  const stageIdx = Math.max(1, STAGES.indexOf(m.stage)); // l'œuf peut déjà meubler : le palier 1 est ouvert avant l'éclosion (7 nov 2026)
   // posé / porté = `placed` dans l'inventaire (commun au foyer) ; en démo, local
   const outfit = inv.find(i => i.kind === 'outfit' && i.placed)?.item_key || null;
   const objects = inv.filter(i => i.kind === 'object' && i.placed !== false).map(i => i.item_key);
