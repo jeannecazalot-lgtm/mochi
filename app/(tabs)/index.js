@@ -107,7 +107,7 @@ export default function Home() {
   useEffect(() => {
     (async () => {
       await loadSetup();
-      if (!inRealMode()) { setVms(demoVms()); setMochi(DEMO_MOCHI); setLvl(2); setRoom({ items: ['plante', 'lampe'], outfit: 'bonnet', souvenirs: 3 }); setEnergy({ done: 0, total: 0 }); const dm = demoFlags.checkin[T.night ? 'evening' : 'morning']; setCheckedIn(!!dm); setMyMood(dm || null); return; }
+      if (!inRealMode()) { setVms(demoVms()); setMochi(DEMO_MOCHI); setLvl(2); setRoom({ items: ['cheval', 'lave'], outfit: 'beret', souvenirs: 3 }); setEnergy({ done: 0, total: 0 }); const dm = demoFlags.checkin[T.night ? 'evening' : 'morning']; setCheckedIn(!!dm); setMyMood(dm || null); return; }
       const [occs, tasks, inv, cks] = await Promise.all([read('occurrences'), read('tasks'), read('mochi_inventory'), read('mochi_checkins')]);
       if (setup.householdId && occs.some(o => !tasks.some(tk => tk.id === o.task_id))) healMissingTasks(setup.householdId).then(ok => { if (ok) occStore.bump(); }).catch(() => {});
       const byId = Object.fromEntries(tasks.map(tk => [tk.id, tk]));
@@ -127,7 +127,7 @@ export default function Home() {
       setEnergy(energyOf(occs));
       const souvenirs = inv.filter(i => i.household_id === setup.householdId && i.kind === 'souvenir').length;
       const mineInv = inv.filter(i => i.household_id === setup.householdId); const outfits = mineInv.filter(i => i.kind === 'outfit').sort((a, b) => String(a.acquired_at).localeCompare(String(b.acquired_at)));
-      setRoom({ items: mineInv.filter(i => i.kind === 'object').map(i => i.item_key), outfit: outfits.length ? outfits[outfits.length - 1].item_key : null, souvenirs });
+      setRoom({ items: mineInv.filter(i => i.kind === 'object' && i.placed !== false).map(i => i.item_key), outfit: (outfits.find(o => o.placed) || null)?.item_key || null, souvenirs });
       setLvl(!m || m.stage === 'egg' ? 0 : souvenirs === 0 ? 1 : m.stage === 'mini' ? 2 : m.stage === 'mochi' ? 3 : 4);
       const swaps = await read('swap_requests').catch(() => []); const pendingIds = new Set(swaps.filter(sw => sw.status === 'pending' && sw.from_user === uid).map(sw => sw.occurrence_id));
       const refusedIds = new Set(swaps.filter(sw => sw.status === 'refused' && sw.from_user === uid && String(sw.resolved_at || '').slice(0, 10) === today).map(sw => sw.occurrence_id));

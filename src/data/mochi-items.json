@@ -1,5 +1,5 @@
 {
-  "_readme": "Catalogue de l'appartement de Mochi (3 nov 2026). souvenirs = ramenés de balade (lieux débloqués par le stade) ; objects/outfits = achetés en perles ; plus = Mochi+. | 6 nov 2026 : `stage` = palier à partir duquel l'objet est en boutique (la pièce se remplit avec ce qu'on achète ; le palier débloque le catalogue, la taille de Mochi et les lieux de balade).",
+  "_readme": "Catalogue de l'appartement de Mochi (3 nov 2026). souvenirs = ramenés de balade (lieux débloqués par le stade) ; objects/outfits = achetés en perles ; plus = Mochi+. | 6 nov 2026 : `stage` = palier à partir duquel l'objet est en boutique (la pièce se remplit avec ce qu'on achète ; le palier débloque le catalogue, la taille de Mochi et les lieux de balade). | 7 nov 2026 : catalogue Polly Pocket choisi par Jeanne (planches design/boutique-propositions) ; la pièce se réorganise selon le nombre d'objets posés (src/components/mochi/shop-assets.js) ; `placed` dans mochi_inventory = posé / rangé (objet) ou portée (tenue).",
   "places": {
     "jardin": "Le jardin",
     "riviere": "La rivière",
@@ -212,74 +212,174 @@
   ],
   "objects": [
     {
-      "key": "plante",
-      "label": "Plante grasse",
+      "key": "chewinggum",
+      "label": "Machine à bonbons",
       "price": 40,
       "stage": "mini"
     },
     {
-      "key": "pouf",
-      "label": "Pouf moelleux",
-      "price": 60,
+      "key": "cheval",
+      "label": "Cheval à bascule",
+      "price": 90,
+      "stage": "mini"
+    },
+    {
+      "key": "lave",
+      "label": "Lampe à lave",
+      "price": 110,
       "stage": "mini"
     },
     {
       "key": "cadre",
       "label": "Cadre photo de vous deux",
-      "price": 80,
-      "stage": "mochi"
+      "price": 120,
+      "stage": "mini"
     },
     {
       "key": "lampe",
       "label": "Lampe champignon",
-      "price": 90,
+      "price": 120,
       "stage": "mochi"
     },
     {
-      "key": "tapis",
-      "label": "Tapis rond",
-      "price": 120,
-      "stage": "maxi"
-    },
-    {
-      "key": "etagere2",
-      "label": "Deuxième étagère",
+      "key": "aquarium",
+      "label": "Aquarium et son poisson",
       "price": 150,
+      "stage": "mochi"
+    },
+    {
+      "key": "cage",
+      "label": "Cage et son oiseau",
+      "price": 160,
+      "stage": "mochi"
+    },
+    {
+      "key": "tournedisque",
+      "label": "Tourne-disque",
+      "price": 180,
+      "stage": "mochi"
+    },
+    {
+      "key": "coucou",
+      "label": "Horloge coucou",
+      "price": 200,
+      "stage": "mochi"
+    },
+    {
+      "key": "disco",
+      "label": "Boule disco",
+      "price": 240,
       "stage": "maxi"
     },
     {
-      "key": "fauteuil",
-      "label": "Fauteuil",
-      "price": 200,
+      "key": "mobile",
+      "label": "Mobile nuages et étoiles",
+      "price": 250,
+      "stage": "maxi"
+    },
+    {
+      "key": "maisonpoupee",
+      "label": "Maison de poupée",
+      "price": 260,
+      "stage": "maxi"
+    },
+    {
+      "key": "piano",
+      "label": "Piano",
+      "price": 320,
+      "stage": "maxi"
+    },
+    {
+      "key": "montgolfiere",
+      "label": "Montgolfière",
+      "price": 350,
       "stage": "dore"
     },
     {
-      "key": "bibliotheque",
-      "label": "Bibliothèque",
-      "price": 300,
+      "key": "cheminee",
+      "label": "Cheminée",
+      "price": 420,
+      "stage": "dore"
+    },
+    {
+      "key": "jukebox",
+      "label": "Jukebox",
+      "price": 450,
+      "stage": "dore"
+    },
+    {
+      "key": "baignoire",
+      "label": "Baignoire à bulles",
+      "price": 500,
       "stage": "dore"
     }
   ],
   "outfits": [
     {
-      "key": "bonnet",
-      "label": "Bonnet",
+      "key": "lunettesrouges",
+      "label": "Lunettes de soleil",
+      "price": 50,
+      "stage": "mini"
+    },
+    {
+      "key": "noeud",
+      "label": "Nœud papillon",
       "price": 60,
       "stage": "mini"
     },
     {
-      "key": "echarpe",
-      "label": "Écharpe d'hiver",
+      "key": "beret",
+      "label": "Béret",
       "price": 80,
-      "plus": true,
+      "stage": "mini"
+    },
+    {
+      "key": "fete",
+      "label": "Chapeau de fête",
+      "price": 110,
       "stage": "mochi"
     },
     {
-      "key": "chapeau",
-      "label": "Chapeau melon",
+      "key": "lunettesecolier",
+      "label": "Lunettes rondes",
       "price": 120,
-      "plus": true,
+      "stage": "mochi"
+    },
+    {
+      "key": "lapin",
+      "label": "Oreilles de lapin",
+      "price": 130,
+      "stage": "mochi"
+    },
+    {
+      "key": "fleurs",
+      "label": "Couronne de fleurs",
+      "price": 180,
       "stage": "maxi"
+    },
+    {
+      "key": "couronne",
+      "label": "Couronne",
+      "price": 200,
+      "stage": "maxi"
+    },
+    {
+      "key": "pirate",
+      "label": "Chapeau de pirate",
+      "price": 200,
+      "stage": "maxi"
+    },
+    {
+      "key": "cire",
+      "label": "Capuche de ciré",
+      "price": 260,
+      "stage": "dore"
+    },
+    {
+      "key": "astronaute",
+      "label": "Casque d'astronaute",
+      "price": 300,
+      "stage": "dore"
     }
   ],
   "placeTo": {

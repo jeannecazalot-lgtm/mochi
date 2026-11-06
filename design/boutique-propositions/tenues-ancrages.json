@@ -1,0 +1,68 @@
+{
+ "lunettesrouges": [
+  0.66,
+  "center",
+  0.52,
+  0
+ ],
+ "lunettesecolier": [
+  0.66,
+  "center",
+  0.52,
+  0
+ ],
+ "couronne": [
+  0.42,
+  "bottom",
+  0.1,
+  0
+ ],
+ "fete": [
+  0.34,
+  "bottom",
+  0.12,
+  0
+ ],
+ "pirate": [
+  0.62,
+  "bottom",
+  0.14,
+  0
+ ],
+ "beret": [
+  0.6,
+  "bottom",
+  0.24,
+  0.06
+ ],
+ "fleurs": [
+  0.78,
+  "center",
+  0.17,
+  0
+ ],
+ "lapin": [
+  0.62,
+  "bottom",
+  0.3,
+  0
+ ],
+ "noeud": [
+  0.4,
+  "center",
+  0.86,
+  0
+ ],
+ "astronaute": [
+  1.15,
+  "center",
+  0.42,
+  0
+ ],
+ "ciré": [
+  1.12,
+  "center",
+  0.46,
+  0
+ ]
+}

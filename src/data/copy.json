@@ -2312,6 +2312,9 @@
       "rule": "Rappel des perles",
       "wear": "Bouton porter une tenue",
       "worn": "Tenue portée",
+      "remove": "Bouton retirer la tenue portée",
+      "place": "Bouton poser un objet dans la pièce",
+      "store": "Bouton ranger un objet (il reste à vous, il n'est plus dans la pièce)",
       "souvenirsShelf": "Titre de l'étagère à souvenirs dans la pièce"
     },
     "title": "La pièce de Mochi",
@@ -2330,7 +2333,10 @@
     "empty": "Mochi n'a encore rien ramené. La première balade part quand la jauge est pleine.",
     "rule": "Les perles sont communes au foyer : 3 par mission, 4 si mentale, 5 chacun à deux, 12 par balade. Ce que vous achetez apparaît dans la pièce.",
     "wear": "Porter",
-    "worn": "Portée"
+    "worn": "Portée",
+    "remove": "Retirer",
+    "place": "Poser",
+    "store": "Ranger"
   },
   "mochiNotifs": {
     "_labels": {

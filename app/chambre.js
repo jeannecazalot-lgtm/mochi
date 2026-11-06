@@ -5,18 +5,18 @@ import { router } from 'expo-router';
 import { View, Text, Pressable, ScrollView, StyleSheet, Image } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Scene } from '../src/components/mochi/scene';
+import { SHOP } from '../src/components/mochi/shop-assets';
 import { Label, Num } from '../src/components/mochi/gauges';
 import { useTokens, type, layout } from '../src/theme-v3';
 import { read } from '../src/store';
 import { loadSetup, setup, inRealMode } from '../src/setup-state';
-import { mochiStore, getMochi, buyItem, STAGES } from '../src/mochi-state';
+import { mochiStore, getMochi, buyItem, setPlaced, STAGES } from '../src/mochi-state';
 import items from '../src/data/mochi-items.json';
 import copy from '../src/data/copy.json';
 
 const fill = (s, vars) => Object.keys(vars).reduce((acc, k) => acc.replace(`{${k}}`, vars[k]), s);
 const PLACES_BY_STAGE = { egg: [], mini: ['jardin'], mochi: ['jardin', 'riviere'], maxi: ['jardin', 'riviere', 'foret', 'ville'], dore: ['jardin', 'riviere', 'foret', 'ville', 'plage', 'montagne'] };
-const SHOP_IMG = { plante: require('../assets/boutique/plante.png'), pouf: require('../assets/boutique/pouf.png'), cadre: require('../assets/boutique/cadre.png'), lampe: require('../assets/boutique/lampe.png'), tapis: require('../assets/boutique/tapis.png'), etagere2: require('../assets/boutique/etagere2.png'), fauteuil: require('../assets/boutique/fauteuil.png'), bibliotheque: require('../assets/boutique/bibliotheque.png'), bonnet: require('../assets/boutique/bonnet.png'), echarpe: require('../assets/boutique/echarpe.png'), chapeau: require('../assets/boutique/chapeau.png') };
-const DEMO = { mochi: { stage: 'mini', pearls: 128, hearts: 4 }, inv: [{ item_key: 'jardin-01', kind: 'souvenir' }, { item_key: 'jardin-03', kind: 'souvenir' }, { item_key: 'plante', kind: 'object' }, { item_key: 'bonnet', kind: 'outfit' }] };
+const DEMO = { mochi: { stage: 'mini', pearls: 128, hearts: 4 }, inv: [{ item_key: 'jardin-01', kind: 'souvenir' }, { item_key: 'jardin-03', kind: 'souvenir' }, { item_key: 'cheval', kind: 'object', placed: true }, { item_key: 'beret', kind: 'outfit', placed: true }] };
 
 export default function Chambre() {
   const t = copy.chambre;
@@ -35,13 +35,18 @@ export default function Chambre() {
   const lvl = m.stage === 'egg' ? 0 : souvenirs === 0 ? 1 : m.stage === 'mini' ? 2 : m.stage === 'mochi' ? 3 : 4;
   const places = PLACES_BY_STAGE[m.stage] || [];
   const stageIdx = STAGES.indexOf(m.stage);
-  const [worn, setWorn] = useState(null); // tenue portée (choix local ; sinon la dernière achetée)
-  const outfitsOwned = inv.filter(i => i.kind === 'outfit'); const outfit = worn || (outfitsOwned.length ? outfitsOwned[outfitsOwned.length - 1].item_key : null);
-  const objects = inv.filter(i => i.kind === 'object').map(i => i.item_key);
+  // posé / porté = `placed` dans l'inventaire (commun au foyer) ; en démo, local
+  const outfit = inv.find(i => i.kind === 'outfit' && i.placed)?.item_key || null;
+  const objects = inv.filter(i => i.kind === 'object' && i.placed !== false).map(i => i.item_key);
+  const placedOf = k => inv.find(i => i.item_key === k)?.placed !== false;
+  const place = async (it, kind, on) => {
+    if (demo) { setInv(rows => rows.map(r => r.item_key === it.key ? { ...r, placed: on } : kind === 'outfit' && on && r.kind === 'outfit' ? { ...r, placed: false } : r)); return; }
+    await setPlaced(it.key, on);
+  };
   const buy = async (it, kind) => {
     if (demo) { // démo : achat local, pour voir la pièce changer
       if ((m.pearls || 0) < it.price) { setMsg(fill(t.notEnough, { n: it.price - (m.pearls || 0) })); return; }
-      setMsg(''); setInv(i => [...i, { item_key: it.key, kind }]); setMochi(mm => ({ ...mm, pearls: (mm.pearls || 0) - it.price })); return;
+      setMsg(''); setInv(i => [...i.map(r => kind === 'outfit' && r.kind === 'outfit' ? { ...r, placed: false } : r), { item_key: it.key, kind, placed: true }]); setMochi(mm => ({ ...mm, pearls: (mm.pearls || 0) - it.price })); return;
     }
     const r = await buyItem(it, kind);
     setMsg(r.ok ? '' : r.reason === 'pearls' ? fill(t.notEnough, { n: it.price - (m.pearls || 0) }) : '');
@@ -52,10 +57,10 @@ export default function Chambre() {
     const locked = it.stage && STAGES.indexOf(it.stage) > stageIdx;
     return (
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 12, borderTopWidth: StyleSheet.hairlineWidth, borderColor: T.line, opacity: locked ? 0.5 : 1 }}>
-        <Image source={SHOP_IMG[it.key]} style={{ width: 44, height: 44 }} resizeMode="contain" accessibilityIgnoresInvertColors />
+        <Image source={SHOP[it.key]} style={{ width: 52, height: 52 }} resizeMode="contain" accessibilityIgnoresInvertColors />
         <View style={{ flex: 1, minWidth: 0 }}><Text style={[type.body, { color: T.ink }]}>{it.label}</Text>{locked ? <Label T={T} style={{ marginTop: 2 }}>{fill(t.locked, { k: STAGES.indexOf(it.stage) })}</Label> : it.plus ? <Label T={T} style={{ marginTop: 2 }}>{t.plus}</Label> : null}</View>
-        {has && kind === 'outfit' ? (outfit === it.key ? <Label T={T}>{t.worn}</Label> : <Pressable onPress={() => setWorn(it.key)} style={[s.pill, { borderColor: T.ink }]}><Label T={T} style={{ color: T.ink }}>{t.wear}</Label></Pressable>)
-          : has ? <Label T={T}>{t.owned}</Label>
+        {has && kind === 'outfit' ? (outfit === it.key ? <Pressable onPress={() => place(it, kind, false)} style={[s.pill, { borderColor: T.line }]}><Label T={T}>{t.remove}</Label></Pressable> : <Pressable onPress={() => place(it, kind, true)} style={[s.pill, { borderColor: T.ink }]}><Label T={T} style={{ color: T.ink }}>{t.wear}</Label></Pressable>)
+          : has ? (placedOf(it.key) ? <Pressable onPress={() => place(it, kind, false)} style={[s.pill, { borderColor: T.line }]}><Label T={T}>{t.store}</Label></Pressable> : <Pressable onPress={() => place(it, kind, true)} style={[s.pill, { borderColor: T.ink }]}><Label T={T} style={{ color: T.ink }}>{t.place}</Label></Pressable>)
           : locked ? null
           : it.plus ? <View style={[s.pill, { borderColor: T.accent }]}><Label T={T} style={{ color: T.accent }}>{t.plus}</Label></View>
           : <Pressable onPress={() => buy(it, kind)} style={[s.pill, { borderColor: T.ink }]}><Num T={T}>{it.price}</Num><Label T={T} style={{ marginLeft: 4 }}>perles</Label></Pressable>}

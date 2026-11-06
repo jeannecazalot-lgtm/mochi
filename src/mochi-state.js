@@ -17,7 +17,7 @@ import { scheduleMochiReturn } from './notifications';
 import items from './data/mochi-items.json';
 
 export const STAGES = ['egg', 'mini', 'mochi', 'maxi', 'dore'];
-export const STAGE_AT = { mochi: 3, maxi: 8, dore: 16 };           // semaines saines cumulées
+export const STAGE_AT = { mochi: 2, maxi: 6, dore: 14 };           // semaines « qui comptent » cumulées (7 nov 2026, Jeanne : Finch grandit dès 7 jours)
 export const stageFor = hw => (hw >= STAGE_AT.dore ? 'dore' : hw >= STAGE_AT.maxi ? 'maxi' : hw >= STAGE_AT.mochi ? 'mochi' : 'mini');
 export const PEARLS = { mission: 3, mental: 4, together: 5, walk: 12, smallWalk: 5, checkin: 1, quest: 30 };
 export const WALK_MS = 2 * 3600e3;
@@ -123,7 +123,8 @@ export async function sweepHearts() {
   return true;
 }
 
-// ── clôture de la semaine passée (idempotente) : saine = balance < seuil, ≥ 80 % faites, pas malade ─
+// ── clôture de la semaine passée (idempotente) : saine = balance < seuil « ça penche », ≥ 80 % faites, pas malade → +1 cœur ;
+//    la semaine COMPTE pour le palier dès 70 % faites et un écart sous le seuil d'alerte (assoupli le 7 nov 2026 : un couple moyen restait au palier 1 avec une bourse pleine)
 export async function closeWeekIfNeeded() {
   const m = await getMochi(); if (!m || m.stage === 'egg') return false;
   // le dimanche à partir de 20 h, c'est la semaine en cours qu'on clôt (récap du dimanche soir, décision Jeanne 6 nov 2026)
@@ -142,11 +143,13 @@ export async function closeWeekIfNeeded() {
   const loads = people.map(k => mins[k] + both); const tot = loads.reduce((a, b) => a + b, 0) || 1;
   const gapPct = loads.length >= 2 ? Math.abs(loads[0] - loads[1]) / tot * 100 : 100;
   const sick = evs.some(e => e.type === 'sick' && String(e.created_at).slice(0, 10) >= lastMonday && String(e.created_at).slice(0, 10) < thisMonday);
-  const healthy = gapPct < thresholdsOf().warn && donePct >= 0.8 && !sick;
-  await event('week_closed', { actor_id: null, payload: { week_start: lastMonday, healthy, done_pct: Math.round(donePct * 100), gap_pct: Math.round(gapPct), sick } });
-  if (!healthy) return true;
+  const th = thresholdsOf();
+  const healthy = gapPct < th.warn && donePct >= 0.8 && !sick;
+  const counts = gapPct < th.alert && donePct >= 0.7 && !sick;
+  await event('week_closed', { actor_id: null, payload: { week_start: lastMonday, healthy, counts, done_pct: Math.round(donePct * 100), gap_pct: Math.round(gapPct), sick } });
+  if (!counts) return true;
   const hw = (m.healthy_weeks || 0) + 1; const next = stageFor(hw);
-  await patch({ healthy_weeks: hw, hearts: Math.min(5, (m.hearts || 5) + 1), stage: STAGES.indexOf(next) > STAGES.indexOf(m.stage) ? next : m.stage }); // une semaine saine rend un cœur
+  await patch({ healthy_weeks: hw, hearts: healthy ? Math.min(5, (m.hearts || 5) + 1) : m.hearts, stage: STAGES.indexOf(next) > STAGES.indexOf(m.stage) ? next : m.stage }); // une semaine saine rend un cœur ; une semaine qui compte avance le palier
   if (STAGES.indexOf(next) > STAGES.indexOf(m.stage)) await event('stage_up', { actor_id: null, payload: { from: m.stage, to: next } });
   return true;
 }
@@ -184,9 +187,17 @@ export async function buyItem(item, kind = 'object') {
   const inv = await read('mochi_inventory');
   if (inv.some(i => i.household_id === hid() && i.item_key === item.key)) return { ok: false, reason: 'owned' };
   const ev = await event('pearls', { payload: { delta: -item.price, reason: 'shop', item_key: item.key } });
+  if (kind === 'outfit') for (const r of inv.filter(i => i.household_id === hid() && i.kind === 'outfit' && i.placed)) await mutate('mochi_inventory', { ...r, placed: false }); // une seule tenue portée
   await mutate('mochi_inventory', { id: uuid(), household_id: hid(), item_key: item.key, kind, source: 'shop', placed: true, event_id: ev.id, acquired_by: getUid(), acquired_at: nowIso() });
   await patch({ pearls: (m.pearls || 0) - item.price });
   return { ok: true };
+}
+// posé / rangé (objet) ou portée / retirée (tenue, une seule à la fois) — décision Jeanne du 7 nov 2026 (« Poser / Ranger »)
+export async function setPlaced(itemKey, placed) {
+  const inv = (await read('mochi_inventory')).filter(i => i.household_id === hid());
+  const row = inv.find(i => i.item_key === itemKey); if (!row) return false;
+  if (row.kind === 'outfit' && placed) for (const r of inv.filter(i => i.kind === 'outfit' && i.placed && i.item_key !== itemKey)) await mutate('mochi_inventory', { ...r, placed: false });
+  await mutate('mochi_inventory', { ...row, placed: !!placed }); mochiStore.bump(); return true;
 }
 
 // ── nom choisi à l'onboarding (avant tout foyer) : appliqué au premier Mochi réel vu, puis effacé ──
