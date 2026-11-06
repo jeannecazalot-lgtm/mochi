@@ -175,3 +175,17 @@ export async function syncSetup(result) {
   try { await Promise.all([pull('tasks', householdId), pull('occurrences', householdId)]); } catch (e) { /* realtime rattrapera */ }
   return householdId;
 }
+
+// Installation neuve (TestFlight, nouveau téléphone) avec un compte déjà membre d'un foyer : on retrouve
+// le foyer et on rapatrie ses données. Sans ça, l'app tournait en mode démo (« Julian », 148 tâches, pas de
+// bouton Quitter le foyer) — vu sur le téléphone de Ketley le 7 nov 2026.
+export async function restoreHousehold() {
+  try {
+    const session = await ensureSession(); const uid = session.user.id;
+    const { data: mine } = await supabase.from('household_members').select('household_id').eq('user_id', uid).maybeSingle();
+    if (!mine?.household_id) return null;
+    saveHouseholdId(mine.household_id);
+    await Promise.all(['household_members', 'tasks', 'occurrences', 'task_pains', 'swap_requests', 'mochi_state', 'mochi_events', 'mochi_inventory', 'mochi_checkins'].map(tb => pull(tb, mine.household_id).catch(() => null)));
+    return mine.household_id;
+  } catch (e) { return null; }
+}
