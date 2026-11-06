@@ -17,6 +17,7 @@ const IMG = {
   rug: require('../../../assets/maison/rug.png'), frame: require('../../../assets/maison/frame.png'), curtain: require('../../../assets/maison/curtain.png'),
   egg: require('../../../assets/maison/egg.png'), eggCrack: require('../../../assets/maison/egg-crack.png'), eggOpen: require('../../../assets/maison/egg-open.png'),
   decorJour: require('../../../assets/maison/decor-jour.png'), decorNuit: require('../../../assets/maison/decor-nuit.png'),
+  bird1: require('../../../assets/maison/vie/bird1.png'), bird2: require('../../../assets/maison/vie/bird2.png'), fly1: require('../../../assets/maison/vie/fly1.png'), fly2: require('../../../assets/maison/vie/fly2.png'), cloud: require('../../../assets/maison/vie/cloud.png'),
   jour: [require('../../../assets/maison/jour-vide.png'), require('../../../assets/maison/jour-moyen.png'), require('../../../assets/maison/jour-plein.png')],
   nuit: [require('../../../assets/maison/nuit-vide.png'), require('../../../assets/maison/nuit-moyen.png'), require('../../../assets/maison/nuit-plein.png')],
 };
@@ -37,6 +38,41 @@ function Glow({ style, from = 0.35, to = 0.6, period = 2600, delay = 0 }) {
   useEffect(() => { if (prefersReducedMotion()) { op.value = to; return; } op.value = withDelay(delay, withRepeat(withTiming(to, { duration: period, easing: Easing.inOut(Easing.sin) }), -1, true)); }, []);
   const st = useAnimatedStyle(() => ({ opacity: op.value }));
   return <Animated.View pointerEvents="none" style={[style, st]} />;
+}
+// un sprite à deux cadres (battement) qui traverse une zone, puis attend ; `every` ms entre deux passages
+function Flyer({ frames, box, size, every = 18000, duration = 6500, delay = 0, flap = 160, wander = 0 }) {
+  const x = useSharedValue(-size), y = useSharedValue(box.h * 0.4), op = useSharedValue(0), f = useSharedValue(0);
+  useEffect(() => {
+    if (prefersReducedMotion()) return;
+    let alive = true; let t1, t2;
+    const pass = () => {
+      if (!alive) return;
+      x.value = -size; y.value = box.h * (0.25 + Math.random() * 0.4); op.value = withTiming(1, { duration: 300 });
+      x.value = withTiming(box.w + size, { duration, easing: Easing.inOut(Easing.sin) });
+      y.value = withRepeat(withTiming(y.value + (wander || 14), { duration: 900, easing: Easing.inOut(Easing.sin) }), -1, true);
+      t1 = setTimeout(() => { op.value = withTiming(0, { duration: 300 }); }, duration - 300);
+      t2 = setTimeout(pass, duration + every);
+    };
+    f.value = withRepeat(withTiming(1, { duration: flap }), -1, true);
+    const t0 = setTimeout(pass, delay);
+    return () => { alive = false; clearTimeout(t0); clearTimeout(t1); clearTimeout(t2); };
+  }, []);
+  const st = useAnimatedStyle(() => ({ opacity: op.value, transform: [{ translateX: x.value }, { translateY: y.value }] }));
+  const a = useAnimatedStyle(() => ({ opacity: f.value < 0.5 ? 1 : 0 }));
+  const b = useAnimatedStyle(() => ({ opacity: f.value < 0.5 ? 0 : 1 }));
+  return (
+    <Animated.View pointerEvents="none" style={[{ position: 'absolute', left: box.l, top: box.t, width: size, height: size }, st]}>
+      <Animated.Image source={frames[0]} style={[{ position: 'absolute', width: size, height: size }, a]} resizeMode="contain" />
+      <Animated.Image source={frames[1]} style={[{ position: 'absolute', width: size, height: size }, b]} resizeMode="contain" />
+    </Animated.View>
+  );
+}
+// le nuage dérive très lentement, en boucle
+function Drift({ source, box, size, duration = 70000 }) {
+  const x = useSharedValue(-size);
+  useEffect(() => { if (prefersReducedMotion()) { x.value = box.w * 0.3; return; } x.value = withRepeat(withTiming(box.w + size, { duration, easing: Easing.linear }), -1, false); }, []);
+  const st = useAnimatedStyle(() => ({ transform: [{ translateX: x.value }] }));
+  return <Animated.Image pointerEvents="none" source={source} style={[{ position: 'absolute', left: box.l, top: box.t, width: size, height: size * 0.6, opacity: 0.9 }, st]} resizeMode="contain" />;
 }
 const Layer = ({ children, delay = 0, fade }) => <Animated.View entering={fade ? FadeIn.delay(delay) : ZoomIn.springify().damping(14).delay(delay)} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} pointerEvents="none">{children}</Animated.View>;
 
@@ -70,6 +106,12 @@ export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height =
     <View style={{ height: hh, backgroundColor: c.wall, overflow: 'hidden' }}>
       {backdrop ? <Image source={backdrop} style={{ position: 'absolute', left: 0, top: shiftY, width: SW, height: hh }} resizeMode="cover" accessibilityIgnoresInvertColors /> : null}
       {backdrop ? null : <S l={0} r={0} b={0} h={fl2} c={c.floor} />}
+      {/* la vie par la fenêtre (le jour) : un nuage qui dérive, un oiseau qui passe, un papillon qui flâne */}
+      {backdrop && !night ? <>
+        <Drift source={IMG.cloud} box={{ l: 0, t: hh * 0.18, w: SW * 0.42 }} size={44} />
+        <Flyer frames={[IMG.bird1, IMG.bird2]} box={{ l: 0, t: hh * 0.14, w: SW * 0.44, h: hh * 0.3 }} size={30} every={16000} duration={6000} delay={2500} />
+        <Flyer frames={[IMG.fly1, IMG.fly2]} box={{ l: SW * 0.04, t: hh * 0.38, w: SW * 0.34, h: hh * 0.22 }} size={22} every={22000} duration={9000} delay={9000} flap={120} wander={10} />
+      </> : null}
 
       {topInset && night ? <LinearGradient colors={['rgba(30,24,40,0.45)', 'rgba(30,24,40,0)']} style={{ position: 'absolute', left: 0, right: 0, top: 0, height: topInset + 28 }} pointerEvents="none" /> : null}
       {/* fondu entre la pièce et l'écran (Jeanne 5 nov : « au lieu d'une coupure nette, un fondu ») */}

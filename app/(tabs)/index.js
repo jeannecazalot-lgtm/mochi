@@ -3,7 +3,7 @@
 // le rendu est la DA v3 : scène pleine largeur, jauges, hairlines. L'état de Mochi vient de mochi-state (migration 0013).
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { router } from 'expo-router';
-import { View, Text, Pressable, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, Text, Pressable, StyleSheet, useWindowDimensions, Image } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { LinearTransition, FadeInDown, Easing } from 'react-native-reanimated';
@@ -187,7 +187,7 @@ export default function Home() {
 
   return (
     <View style={{ flex: 1, backgroundColor: T.bg }}>
-      <Pressable onPress={() => router.push('/chambre')} style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><Scene T={T} stage={m.stage} mood={mood} lvl={lvl} away={away} topInset={insets.top + 44} shiftY={34} /></Pressable>
+      <Pressable onPress={() => router.push('/chambre')} style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><Scene T={T} stage={m.stage} mood={mood} lvl={lvl} away={away} topInset={insets.top + 44} /></Pressable>
       {flight && pearlsAt ? <PearlFlight key={flight.key} from={{ x: width / 2, y: layout.scene - layout.floor - 60 }} to={pearlsAt} count={Math.min(5, flight.n)} color={T.accent} onArrive={() => { pop(); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {}); }} /> : null}
       <SafeAreaView style={{ flex: 1 }} edges={['top']} pointerEvents="box-none">
         <View style={{ flex: 1, overflow: 'hidden' }} pointerEvents="box-none" onLayout={e => setAvailH(e.nativeEvent.layout.height)}>
@@ -198,7 +198,7 @@ export default function Home() {
               <Pressable onPress={() => router.push('/chambre')} hitSlop={8} ref={pearlsRef} onLayout={() => pearlsRef.current?.measureInWindow((x, y, w, hh) => setPearlsAt({ x: x + w / 2, y: y + hh / 2 }))} style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 6 }}>
                 <Animated.View style={popStyle}><Num T={T} style={{ color: HEAD_ }}>{(m.pearls ?? 0) + demoPearls}</Num></Animated.View><Label T={T} style={{ marginLeft: 6, color: HEAD_, opacity: 0.8 }}>perles</Label>
               </Pressable>
-              <RoundButton onPress={() => router.push('/activite')} accessibilityLabel={h.activityA11y}><Icon d={ICON.bubble} size={17} color={HEAD_} /></RoundButton>
+              <Pressable onPress={() => router.push('/activite')} accessibilityLabel={h.activityA11y} hitSlop={8} style={{ marginRight: 4 }}><Image source={require('../../assets/icones/tabs/bubble.png')} style={{ width: 34, height: 34 }} resizeMode="contain" accessibilityIgnoresInvertColors /></Pressable>
               <Pressable onPress={() => router.push('/profil')} accessibilityLabel={h.profileA11y}><Avatar initial={me.initial} color={me.color} photo={me.avatar_url} size={36} /></Pressable>
             </View>
             <Pressable onPress={() => router.push('/chambre')} accessibilityLabel={t.roomA11y} style={{ height: Math.max(8, layout.scene + 12 - insets.top - 48) }} />{/* la scène se tape ici : vers la pièce de Mochi */}

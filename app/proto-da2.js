@@ -13,6 +13,12 @@ import { Avatar } from '../src/components/ui';
 import { useTokens, type, layout } from '../src/theme-v3';
 import copy from '../src/data/copy.json';
 
+// trois hiérarchies : A resserrée (nom 26), B instrument (nom 22 + pastille, tout compact), C éditoriale (la phrase en héros)
+const HIER = {
+  a: { name: 26, nameW: '600', sub: 15.5, label: 13, body: 15.5, section: 16, rowPad: 12, gauge: 12, hint: true },
+  b: { name: 22, nameW: '600', sub: 14.5, label: 12.5, body: 15, section: 15, rowPad: 11, gauge: 10, hint: false },
+  c: { name: 20, nameW: '500', sub: 19, label: 13, body: 15.5, section: 16, rowPad: 12, gauge: 12, hint: false, hero: true },
+};
 const PAPIER = { night: false, bg: '#4E4660', ink: '#F4EFE8', muted: '#B8AFC4', line: 'rgba(244,239,232,0.16)', seg: 'rgba(244,239,232,0.16)', accent: '#D9483E', ok: '#BFD94A', scene: { wall: '#4E4660', floor: '#5A5068', shadow: 'rgba(0,0,0,0.25)', vase: '#EAD6BC', moon: null, lamp: '#F7DFA8' } };
 const DECOR = { mochi: require('../assets/proto-da/piece-mochi.png'), papier: require('../assets/proto-da/piece-papier.png'), p1: require('../assets/proto-da/iter1/piece.png'), p2: require('../assets/proto-da/iter2/piece.png'), p3: require('../assets/proto-da/iter3/piece.png'), g: require('../assets/proto-da/graph/piece.png'), feutre: require('../assets/maison/test-feutre.png'), feutrejour: require('../assets/maison/test-feutre-jour.png') };
 const GRAPH = { dish: require('../assets/proto-da/graph/icones/dish.png'), cart: require('../assets/proto-da/graph/icones/cart.png'), calendar: require('../assets/proto-da/graph/icones/calendar.png'), basket: require('../assets/proto-da/graph/icones/basket.png') };
@@ -30,8 +36,9 @@ const CUT = { dish: require('../assets/proto-da/icones-decoupe/dish.png'), cart:
 const TASKS = [['dish', 'Vaisselle', null, false], ['cart', 'Courses de la semaine', 'à deux', false], ['calendar', 'Penser au RDV pédiatre', 'mental', false], ['basket', 'Lessive', null, true]];
 
 export default function ProtoDa2() {
-  const { v = 'mochi', ic: icParam, m } = useLocalSearchParams(); const ic = icParam || (ITER[v] ? 'c' : 'a'); // m=a|b|c : test de Mochi (v=jour) // ic=a pastilles-images · b trait sur pastille · c papier découpé sans fond
+  const { v = 'mochi', ic: icParam, m, h } = useLocalSearchParams(); // h=a|b|c : tests de hiérarchie (6 nov 2026) const ic = icParam || (ITER[v] ? 'c' : 'a'); // m=a|b|c : test de Mochi (v=jour) // ic=a pastilles-images · b trait sur pastille · c papier découpé sans fond
   const it = ITER[v]; const papier = v === 'papier' || !!it;
+  const H = HIER[h] || null;
   const T0 = useTokens(); const T = it ? { ...PAPIER, ...it, scene: { ...PAPIER.scene, wall: it.bg, floor: it.bg } } : papier ? PAPIER : T0;
   const insets = useSafeAreaInsets();
   const t = copy.homeV3;
@@ -45,10 +52,36 @@ export default function ProtoDa2() {
       <View style={{ paddingTop: insets.top + 10, paddingHorizontal: layout.x, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
         <Label T={T} style={{ flex: 1, color: T.ink }}>Jeudi 5 novembre</Label>
         <Num T={T}>128</Num><Label T={T}>perles</Label>
-        <View style={{ width: 36, height: 36, borderRadius: 18, borderWidth: StyleSheet.hairlineWidth, borderColor: T.line, alignItems: 'center', justifyContent: 'center' }}><Svg width={17} height={17} viewBox="0 0 24 24" fill="none"><Path d="M4 5h16v11H9l-5 4V5z" stroke={T.ink} strokeWidth={1.8} strokeLinejoin="round" /></Svg></View>
+        <Image source={require('../assets/icones/tabs/bubble.png')} style={{ width: 34, height: 34 }} resizeMode="contain" />
         <Avatar initial="K" color="#7DB3D5" size={36} />
       </View>
       <View style={{ height: layout.scene + 40 - insets.top - 46 }} />
+      {H ? (
+        <>
+          <View style={{ paddingHorizontal: layout.x, paddingTop: 20, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <Text style={{ fontSize: H.name, fontWeight: H.nameW, letterSpacing: -0.6, color: T.ink, flex: 1 }}>Mochi</Text>
+            <View style={{ paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999, backgroundColor: T.seg }}><Text style={{ fontSize: H.label, fontWeight: '600', color: T.ink }}>Jour 13 · palier 2</Text></View>
+          </View>
+          <Text style={{ paddingHorizontal: layout.x, marginTop: H.hero ? 8 : 4, fontSize: H.sub, lineHeight: H.sub * 1.35, fontWeight: H.hero ? '600' : '400', color: H.hero ? T.ink : T.muted }}>Encore 2 missions et il part en balade.</Text>
+          <View style={{ marginHorizontal: layout.x, marginTop: 16, borderTopWidth: StyleSheet.hairlineWidth, borderColor: T.line }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: H.gauge }}>
+              <Text style={{ fontSize: H.label, fontWeight: '500', color: T.muted, width: 60 }}>Énergie</Text>
+              <View style={{ flex: 1, flexDirection: 'row', gap: 3 }}>{Array.from({ length: 20 }).map((_, i) => <View key={i} style={{ flex: 1, height: H.gauge, borderRadius: 2, backgroundColor: i < 10 ? T.ink : T.seg }} />)}</View>
+              <Text style={{ fontSize: H.label + 1, fontWeight: '600', color: T.ink, fontVariant: ['tabular-nums'] }}>2<Text style={{ color: T.muted, fontWeight: '500' }}> / 4</Text></Text>
+            </View>
+            {H.hint ? <Text style={{ fontSize: H.label, color: T.muted, marginTop: -4, paddingBottom: 8 }}>{t.energyHint}</Text> : null}
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: H.gauge, borderTopWidth: StyleSheet.hairlineWidth, borderColor: T.line }}>
+              <Text style={{ fontSize: H.label, fontWeight: '500', color: T.muted, width: 60 }}>Forme</Text>
+              <View style={{ flex: 1, flexDirection: 'row', gap: 7 }}>{[1, 2, 3, 4, 5].map(i => <View key={i} style={{ width: H.gauge - 2, height: H.gauge - 2, borderRadius: 99, backgroundColor: i <= 4 ? T.accent : T.seg }} />)}</View>
+              <Text style={{ fontSize: H.label, fontWeight: '500', color: T.ink }}>{t.formLabels[4]}</Text>
+            </View>
+          </View>
+          <View style={{ paddingHorizontal: layout.x, paddingTop: 16, flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' }}>
+            <Text style={{ fontSize: H.section, fontWeight: '600', color: T.ink }}>Aujourd'hui</Text><Text style={{ fontSize: H.label, color: T.muted }}>2 restantes · 55 min</Text>
+          </View>
+        </>
+      ) : (
+        <>
       <View style={{ paddingHorizontal: layout.x, paddingTop: 24, flexDirection: 'row', alignItems: 'baseline' }}>
         <Text style={[type.name, { color: T.ink, flex: 1 }]}>Mochi</Text>
         <Label T={T}>Jour 13 · palier 2</Label>
@@ -58,12 +91,14 @@ export default function ProtoDa2() {
       <View style={{ paddingHorizontal: layout.x, paddingTop: 18, flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' }}>
         <Text style={[type.section, { color: T.ink }]}>Aujourd'hui</Text><Label T={T}>2 restantes · 55 min</Label>
       </View>
+        </>
+      )}
       <View style={{ marginHorizontal: layout.x }}>
         {TASKS.map(([k, title, badge, done], i) => (
-          <View key={k} style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 12, borderTopWidth: i ? StyleSheet.hairlineWidth : 0, borderColor: T.line, opacity: done ? 0.45 : 1 }}>
+          <View key={k} style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: H ? H.rowPad : 12, borderTopWidth: i ? StyleSheet.hairlineWidth : 0, borderColor: T.line, opacity: done ? 0.45 : 1 }}>
             <Icon k={k} />
-            <Text style={[type.body, { color: T.ink, flex: 1, textDecorationLine: done ? 'line-through' : 'none' }]}>{title}</Text>
-            {badge ? <Label T={T}>{badge}</Label> : null}
+            <Text style={[type.body, { color: T.ink, flex: 1, textDecorationLine: done ? 'line-through' : 'none' }, H && { fontSize: H.body }]}>{title}</Text>
+            {badge ? <Label T={T} style={H && { fontSize: H.label }}>{badge}</Label> : null}
             <Svg width={22} height={22} viewBox="0 0 24 24" fill="none"><Circle cx={12} cy={12} r={10} stroke={done ? T.ink : T.line} strokeWidth={1.5} fill={done ? T.ink : 'none'} />{done ? <Path d="M8 12.5l2.5 2.5L16 9.5" stroke={T.bg} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" /> : null}</Svg>
           </View>
         ))}
