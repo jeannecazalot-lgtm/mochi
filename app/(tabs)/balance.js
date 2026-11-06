@@ -103,7 +103,7 @@ export default function Balance() {
           </View>
 
           {/* Mochi penche vers qui porte plus */}
-          <Pressable onPress={() => router.push('/balance-detail')} style={{ paddingHorizontal: X, paddingTop: 18 * A, flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+          <Pressable onPress={() => router.push('/chambre')} style={{ paddingHorizontal: X, paddingTop: 18 * A, flexDirection: 'row', alignItems: 'center', gap: 16 }}>
             <MochiImage size={64} lean={lean} mood={mood} />
             <Text style={[type.sub, { color: T.ink, flex: 1 }]}>{stateLabel}</Text>
           </Pressable>
@@ -116,7 +116,7 @@ export default function Balance() {
           </View>
 
           {/* héros : temps de chacun */}
-          <Pressable onPress={() => router.push('/balance-detail')} style={{ marginHorizontal: X, marginTop: 18 * A, borderTopWidth: StyleSheet.hairlineWidth, borderColor: T.line, paddingTop: 16 * A }}>
+          <View style={{ marginHorizontal: X, marginTop: 18 * A, borderTopWidth: StyleSheet.hairlineWidth, borderColor: T.line, paddingTop: 16 * A }}>
             <View style={{ flexDirection: 'row', gap: 13, marginBottom: 12 }}>
               {parts.map((p, i) => { const align = i === 0 ? 'left' : i === parts.length - 1 ? 'right' : 'center'; return (
                 <View key={p.member.id} style={{ flex: 1 }}>
@@ -129,7 +129,7 @@ export default function Balance() {
             {real && parts.every(p => !p.minutes) ? <Label T={T} style={{ marginTop: 10 }}>{t.empty}</Label> : null}
             {real && planned ? <Label T={T} style={{ marginTop: 10 }}>{fill(copy.balance.plannedWeek, { total: fmtMin(planned.me + planned.partner + planned.both), me: fmtMin(planned.me + Math.round(planned.both / 2)), partner: fmtMin(planned.partner + Math.round(planned.both / 2)), name: partner.first_name })}</Label> : null}
             
-          </Pressable>
+          </View>
 
           {/* prévu à côté du fait (décision Jeanne 6 nov 2026 : la Balance doit aider) */}
           {planned ? (() => { const pm = planned.me + planned.both / 2, pp = planned.partner + planned.both / 2, pt = pm + pp || 1; const dm = parts[0].pct, plannedPct = Math.round(pm / pt * 100); const planFair = Math.abs(plannedPct - 50) < 10, doneLeans = state !== 'balanced'; return (

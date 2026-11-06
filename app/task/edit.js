@@ -6,7 +6,7 @@
 // fermeture — sauf une nouvelle tâche, qui a besoin d'un « Créer ».
 import React, { useState, useEffect, useRef } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
-import { View, TextInput, StyleSheet, KeyboardAvoidingView, Keyboard, Pressable } from 'react-native';
+import { View, Text, TextInput, StyleSheet, KeyboardAvoidingView, Keyboard, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSheetGrow, CREATE_SHEET_MIN } from '../../src/components/sheet-grow';
 import { Card, CTAPrimary } from '../../src/components/ui';

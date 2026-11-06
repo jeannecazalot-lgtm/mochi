@@ -158,7 +158,7 @@ export function TaskFooter({ children, bottom = 19 }) {
 const s = v3Styles(T => StyleSheet.create({
   round: { width: 36, height: 36, borderRadius: 18, backgroundColor: T.bg, borderWidth: StyleSheet.hairlineWidth, borderColor: T.line, alignItems: 'center', justifyContent: 'center' },
   header: { paddingTop: 10, paddingHorizontal: taskTokens.headerX, marginBottom: 8, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  headerTitle: { fontSize: 11.5, letterSpacing: 1.6, fontWeight: '600', color: T.ink, textTransform: 'uppercase' },
+  headerTitle: { fontSize: 15, fontWeight: '600', color: T.ink },
   toggle: { width: 40, height: 24, borderRadius: radius.pill },
   knob: { position: 'absolute', top: 2, width: 20, height: 20, borderRadius: 10, backgroundColor: T.bg, shadowColor: T.ink, shadowOpacity: 0.2, shadowRadius: 3, shadowOffset: { width: 0, height: 1 }, elevation: 2 },
   chip: { paddingVertical: 6, paddingHorizontal: 9, borderRadius: radius.pill, alignSelf: 'flex-start' },
@@ -166,7 +166,7 @@ const s = v3Styles(T => StyleSheet.create({
   chipText: { fontSize: 14.5, fontWeight: '600' },
   chipTextSmall: { fontSize: 11, fontWeight: '600' },
   tile: { paddingVertical: 6, paddingHorizontal: 10 },
-  tileLabel: { fontSize: 9.5, letterSpacing: 1, color: T.muted, fontWeight: '600', marginBottom: 4, textTransform: 'uppercase' },
+  tileLabel: { fontSize: 12, color: T.muted, fontWeight: '500', marginBottom: 4 },
   tileValue: { fontSize: 19, fontWeight: '700', letterSpacing: -0.4, color: T.ink },
   tileHint: { fontSize: 9.5, color: '#9A7BC8', fontWeight: '500', marginTop: 2 },
   seg: { flex: 1, borderRadius: 10, paddingVertical: 6, paddingHorizontal: 8, alignItems: 'center' },

@@ -57,7 +57,7 @@ export function PremiumGate({ title, sub, cta, style }) {
 }
 
 // ─── micro-titre de section (11,5/600 tracking 1,5 uppercase) ──────
-export const SectionMicro = ({ children, style }) => <Text style={[font.micro, { color: tk().muted }, { letterSpacing: 1.5, marginBottom: 9 }, style]}>{children}</Text>;
+export const SectionMicro = ({ children, style }) => <Text style={[{ fontSize: 15, fontWeight: '600', color: tk().ink, marginBottom: 4 }, style]}>{children}</Text>;
 
 // ─── pastille ✓ 20 (liste d'avantages, 37) ──────────────────────────
 export function CheckDot() {

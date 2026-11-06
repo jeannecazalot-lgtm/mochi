@@ -88,11 +88,11 @@ export const font = {
   row: { fontSize: 15, fontWeight: '500', color: colors.ink },
   secondary: { fontSize: 13.5, fontWeight: '400', color: colors.muted },
   caption: { fontSize: 12, fontWeight: '400', color: colors.muted },
-  micro: { fontSize: 11.5, fontWeight: '600', letterSpacing: 1.4, textTransform: 'uppercase', color: colors.muted },
+  micro: { fontSize: 12.5, fontWeight: '500', color: colors.muted }, // DA v3 (7 nov 2026) : phrase normale, plus de capitales espacées
   cta: { fontSize: 14, fontWeight: '600', color: colors.ink },
   ctaSecondary: { fontSize: 14, fontWeight: '500', color: colors.ink },
   tabLabel: { fontSize: 11 },
-  pill: { fontSize: 9.5, fontWeight: '600', letterSpacing: 1.4, textTransform: 'uppercase' },
+  pill: { fontSize: 11.5, fontWeight: '600' }, // DA v3 : phrase normale
   tabular: { fontVariant: ['tabular-nums'] },
 };
 

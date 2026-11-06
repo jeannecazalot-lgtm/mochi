@@ -14,7 +14,6 @@ const GROUPS = [
   ['Onglets', [['17 · Accueil', '/(tabs)'], ['19 · Planning', '/(tabs)/planning'], ['Jour (sheet, vue mois)', '/jour'],['21 · Balance', '/(tabs)/balance'], ['23 · Budget', '/(tabs)/budget']]],
   ['Tâches', [['14 · Fiche tâche', '/task/edit?id=t-courses'], ['Mission (sheet, tap Accueil)', '/mission'], ['21 · Tâche en retard (sheet)', '/retard?title=Courses&emoji=🛒&mins=45']]],
   ['Social', [['18 · Ping (sheet)', '/ping?occ=o2'], ['22 · Fil Activité', '/activite']]],
-  ['Balance', [['22 · Balance détail', '/balance-detail']]],
   ['Ajout', [['Dépense', '/depense'], ['30 · Événement social', '/event'], ['34 · Notifs lockscreen', '/notifs']]],
   ['Moments', [['Éclosion', '/moment?demo=hatch'], ['Retour de balade', '/moment?demo=walk_return'], ['Palier', '/moment?demo=stage_up'], ['Récap du dimanche', '/moment?demo=week_closed']]],
   ['Premium', [['37 · Paywall Mochi+', '/paywall'], ['38 · Profil & réglages', '/profil']]],

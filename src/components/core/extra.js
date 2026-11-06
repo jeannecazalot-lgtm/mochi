@@ -38,7 +38,7 @@ export function BadgePill({ children, color, tint = color, a = 0.16, size = 11 }
   const s = mk(useTokens());
   return (
     <View style={[s.badge, { backgroundColor: alpha(tint, a) }]}>
-      <Text style={{ fontSize: size, fontWeight: '700', letterSpacing: 0.6, textTransform: 'uppercase', color }}>{children}</Text>
+      <Text style={{ fontSize: size + 1, fontWeight: '600', color }}>{children}</Text>
     </View>
   );
 }

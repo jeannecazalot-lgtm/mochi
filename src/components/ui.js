@@ -41,7 +41,7 @@ function PlanFab() {
 export function Card({ children, style, padding = space.md, r = radius.card, accent }) {
   const s = mk(useTokens());
   return (
-    <View style={[s.card, { padding, borderRadius: r }, accent && { borderWidth: 1.5, borderColor: accent }, style]}>
+    <View style={[s.card, { padding, borderRadius: 0 }, accent && { borderLeftWidth: 3, borderLeftColor: accent }, style]}>
       {children}
     </View>
   );
@@ -133,8 +133,8 @@ export function Mochi({ size = 140, mood = 'happy', lean = 0 }) {
   return <MochiImage size={size} lean={lean} mood={mood} />;
 }
 const mk = T => StyleSheet.create({
-  card: { backgroundColor: T.bg, borderWidth: StyleSheet.hairlineWidth, borderColor: T.line },
-  glass: { borderWidth: StyleSheet.hairlineWidth, borderColor: T.line, borderRadius: radius.row, paddingVertical: 11, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 13 },
+  card: { backgroundColor: T.bg, borderTopWidth: StyleSheet.hairlineWidth, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: T.line }, // DA v3 (7 nov 2026) : groupe entre deux hairlines, plus de boîte
+  glass: { borderBottomWidth: StyleSheet.hairlineWidth, borderColor: T.line, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 13 },
   divider: { height: StyleSheet.hairlineWidth, backgroundColor: T.line },
   pill: { alignSelf: 'flex-start', paddingVertical: 8, paddingHorizontal: 10, borderRadius: radius.pill },
   cta: { borderRadius: radius.row, paddingVertical: 15, alignItems: 'center', justifyContent: 'center' },

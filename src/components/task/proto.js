@@ -107,7 +107,7 @@ export const Arrow = () => <Chevron />;
 export const Caption = ({ children, style }) => { const s = mk(useTokens()); return <Text style={[s.caption, style]}>{children}</Text>; };
 
 const mk = T => StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingHorizontal: 14 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingHorizontal: 2 },
   rowLine: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: T.line },
   rowLabel: { fontSize: 15, fontWeight: '500', color: T.ink },
   rowStrong: { fontSize: 15.5, fontWeight: '600', color: T.ink },

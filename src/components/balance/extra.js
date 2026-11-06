@@ -130,7 +130,7 @@ export function NoteBox({ emoji, lead, strong, tint = tk().accent }) {
 const s = v3Styles(T => StyleSheet.create({
   header: { paddingTop: 14, paddingHorizontal: space.screenX },
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  headerTitle: { fontSize: 11.5, letterSpacing: 1.6, fontWeight: '600', textTransform: 'uppercase', color: T.ink },
+  headerTitle: { fontSize: 15, fontWeight: '600', color: T.ink },
   headerSub: { marginTop: 6, fontSize: 13, color: T.muted, fontWeight: '400', textAlign: 'center' },
   round: { width: 38, height: 38, borderRadius: 19, backgroundColor: T.bg, borderWidth: StyleSheet.hairlineWidth, borderColor: T.line, alignItems: 'center', justifyContent: 'center' },
   darkPill: { backgroundColor: T.ink, paddingVertical: 8, paddingHorizontal: 10, borderRadius: radius.pill },
