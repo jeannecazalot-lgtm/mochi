@@ -173,9 +173,10 @@ export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height =
 // l'œuf seul, en petit (setup : Mochi n'existe pas encore)
 export function Egg({ T, size = 56 }) {
   return (
-    <View style={{ width: size * 1.3, height: size + 10, alignItems: 'center', justifyContent: 'flex-end' }}>
-      <View style={{ position: 'absolute', bottom: 0, width: size * 1.3, height: 10, borderRadius: 5, backgroundColor: T.scene.shadow }} />
-      <Image source={IMG.egg} style={{ width: size * 0.85, height: size, marginBottom: 4 }} resizeMode="contain" accessibilityIgnoresInvertColors />
+    <View style={{ width: size, height: size + 4, alignItems: 'center', justifyContent: 'flex-end' }}>
+      {/* ombre : un petit disque sous l'œuf, pas une barre (retour Jeanne 7 nov 2026) */}
+      <View style={{ position: 'absolute', bottom: 0, width: size * 0.5, height: 6, borderRadius: 3, backgroundColor: T.scene.shadow, opacity: 0.6 }} />
+      <Image source={IMG.egg} style={{ width: size * 0.85, height: size, marginBottom: 2 }} resizeMode="contain" accessibilityIgnoresInvertColors />
     </View>
   );
 }
