@@ -16,7 +16,9 @@ import { loadSetup, setup, inRealMode } from '../../src/setup-state';
 import { getUid, useIdentity } from '../../src/identity';
 import { localIso } from '../../src/dates';
 import { weekMalus, sweepMissed } from '../../src/malus-actions';
-import { computeRealBalance } from '../../src/balance-real';
+import { computeRealBalance, realContributors } from '../../src/balance-real';
+import { suggestRebalance, rebalanceWeek, handTask } from '../../src/rebalance';
+import * as Haptics from 'expo-haptics';
 import { mochiStore, getMochi, STAGES, STAGE_AT } from '../../src/mochi-state';
 import copy from '../../src/data/copy.json';
 import { slotColors } from '../../src/theme';
@@ -40,7 +42,10 @@ export default function Balance() {
   const [planned, setPlanned] = useState(null);
   const [missed, setMissed] = useState([]);
   const [mochi, setMochi] = useState(null);
-  const [retain, setRetain] = useState(null); // ressenti vs réel : { pct, moods: { iso: 1|2|3 } }
+  const [retain, setRetain] = useState(null);
+  const [suggest, setSuggest] = useState(null); // { n, to } : ce que « Rééquilibrer » ferait
+  const [contribs, setContribs] = useState([]); // ce qui pèse (réel)
+  const [msg, setMsg] = useState(null); const [given, setGiven] = useState({}); // ressenti vs réel : { pct, moods: { iso: 1|2|3 } }
   useEffect(() => {
     (async () => {
       await loadSetup();
@@ -48,6 +53,8 @@ export default function Balance() {
       await sweepMissed().catch(() => {});
       const [occs, tasks] = await Promise.all([read('occurrences'), read('tasks')]);
       setReal(computeRealBalance(occs, getUid()));
+      setContribs(realContributors(occs, tasks, getUid()));
+      suggestRebalance().then(setSuggest).catch(() => {});
       const byTask = Object.fromEntries(tasks.map(tk => [tk.id, tk]));
       const d0 = new Date(); const mon = new Date(d0); mon.setDate(d0.getDate() - ((d0.getDay() + 6) % 7)); const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
       const from = localIso(mon), to = localIso(sun); const uid = getUid();
@@ -121,8 +128,39 @@ export default function Balance() {
             <Split T={T} parts={parts.map(p => ({ ratio: p.pct / 100, color: p.member.color }))} />
             {real && parts.every(p => !p.minutes) ? <Label T={T} style={{ marginTop: 10 }}>{t.empty}</Label> : null}
             {real && planned ? <Label T={T} style={{ marginTop: 10 }}>{fill(copy.balance.plannedWeek, { total: fmtMin(planned.me + planned.partner + planned.both), me: fmtMin(planned.me + Math.round(planned.both / 2)), partner: fmtMin(planned.partner + Math.round(planned.both / 2)), name: partner.first_name })}</Label> : null}
-            <Label T={T} style={{ marginTop: 10, textAlign: 'right', color: T.ink }}>{t.detail}</Label>
+            
           </Pressable>
+
+          {/* prévu à côté du fait (décision Jeanne 6 nov 2026 : la Balance doit aider) */}
+          {planned ? (() => { const pm = planned.me + planned.both / 2, pp = planned.partner + planned.both / 2, pt = pm + pp || 1; const dm = parts[0].pct, plannedPct = Math.round(pm / pt * 100); const planFair = Math.abs(plannedPct - 50) < 10, doneLeans = state !== 'balanced'; return (
+            <View style={{ marginHorizontal: X, marginTop: 18 * A, borderTopWidth: StyleSheet.hairlineWidth, borderColor: T.line, paddingTop: 16 * A }}>
+              <Text style={[type.section, { color: T.ink }]}>{t.planTitle}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 12 }}><Label T={T} style={{ width: 48 }}>{t.planned}</Label><View style={{ flex: 1 }}><Split T={T} height={8} parts={[{ ratio: pm / pt, color: me.color }, { ratio: pp / pt, color: partner.color }]} /></View><Num T={T} style={{ width: 44, textAlign: 'right' }}>{plannedPct} %</Num></View>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 10 }}><Label T={T} style={{ width: 48 }}>{t.done}</Label><View style={{ flex: 1 }}><Split T={T} height={8} parts={parts.map(p => ({ ratio: p.pct / 100, color: p.member.color }))} /></View><Num T={T} style={{ width: 44, textAlign: 'right' }}>{dm} %</Num></View>
+              {planFair && doneLeans ? <Text style={[type.sub, { color: T.muted, marginTop: 10 }]}>{t.planHint}</Text> : null}
+              {doneLeans && suggest ? (
+                <View style={{ marginTop: 14 }}>
+                  {msg ? <Text style={[type.sub, { color: T.ink }]}>{msg}</Text> : suggest.n ? <>
+                    <Pressable onPress={async () => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {}); const r = await rebalanceWeek(); setMsg(r.ok ? fill(t.rebalanced, { n: r.n, name: partner.first_name }) : t.rebalanceNone); }} style={({ pressed }) => [{ alignSelf: 'flex-start', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 999, backgroundColor: T.ink, opacity: pressed ? 0.8 : 1 }]}><Text style={[type.body, { color: T.bg }]}>{t.rebalance}</Text></Pressable>
+                    <Label T={T} style={{ marginTop: 8 }}>{fill(t.rebalanceSub, { n: suggest.n, name: suggest.to === getUid() ? me.first_name : partner.first_name })}</Label>
+                  </> : <Label T={T}>{t.rebalanceNone}</Label>}
+                </View>
+              ) : null}
+            </View>
+          ); })() : null}
+
+          {/* ce qui pèse : les 3 plus gros écarts, avec une action par ligne */}
+          {real && contribs.length ? (
+            <View style={{ marginHorizontal: X, marginTop: 18 * A, borderTopWidth: StyleSheet.hairlineWidth, borderColor: T.line, paddingTop: 16 * A }}>
+              <Text style={[type.section, { color: T.ink }]}>{t.weighsTitle}</Text>
+              {contribs.map((cb, i) => (
+                <View key={cb.task_id} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, borderTopWidth: i ? StyleSheet.hairlineWidth : 0, borderColor: T.line, marginTop: i ? 0 : 4 }}>
+                  <View style={{ flex: 1, minWidth: 0 }}><Text style={[type.body, { color: T.ink }]} numberOfLines={1}>{cb.task.title}</Text><Label T={T} style={{ marginTop: 2 }}>{fill(t.weighsRow, { mine: cb.mine, other: cb.other })}</Label></View>
+                  {cb.who === me ? (given[cb.task_id] ? <Label T={T}>{fill(t.given, { name: partner.first_name })}</Label> : <Pressable onPress={async () => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {}); const r = await handTask(cb.task_id); if (r.ok) setGiven(g => ({ ...g, [cb.task_id]: true })); }} style={({ pressed }) => [{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999, borderWidth: 1.5, borderColor: T.ink, opacity: pressed ? 0.7 : 1 }]}><Text style={[type.label, { color: T.ink, fontWeight: '600' }]}>{fill(t.give, { name: partner.first_name })}</Text></Pressable>) : null}
+                </View>
+              ))}
+            </View>
+          ) : null}
 
           {/* 7 jours */}
           <View style={{ marginHorizontal: X, marginTop: 18 * A, borderTopWidth: StyleSheet.hairlineWidth, borderColor: T.line, paddingTop: 16 * A }}>

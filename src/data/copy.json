@@ -1242,7 +1242,9 @@
       "taskDeleted": "{name} a supprimé {task}",
       "noteCreated": "{name} a noté : {title}",
       "turn": "{name} : c'est ton tour pour {task}",
-      "swapRefused": "{name} ne peut pas reprendre {task}"
+      "swapRefused": "{name} ne peut pas reprendre {task}",
+      "rebalanced": "{name} a rééquilibré la semaine ({n} missions)",
+      "handed": "{name} te passe {task}"
     },
     "replies": {
       "thumbs": "👍",
@@ -1824,7 +1826,9 @@
     "taskDeleted": "{name} a supprimé « {task} »",
     "noteCreated": "{name} a ajouté un pense-bête : {title}",
     "turn": "{name} : c'est ton tour pour « {task} » 👉",
-    "swapRefused": "{name} ne peut pas reprendre {task}, elle reste chez toi"
+    "swapRefused": "{name} ne peut pas reprendre {task}, elle reste chez toi",
+    "rebalanced": "{name} a rééquilibré la semaine : {n} missions passent chez toi",
+    "handed": "{name} te passe {task}"
   },
   "mesReglages": {
     "_labels": {
@@ -2175,7 +2179,20 @@
       "missedMe": "Toi",
       "heartCost": "Coût d'une ratée",
       "detail": "Lien détail",
-      "moodLegend": "Légende des points d'humeur sur les 7 jours"
+      "moodLegend": "Légende des points d'humeur sur les 7 jours",
+      "planTitle": "Titre du bloc prévu / fait",
+      "planned": "Étiquette barre prévu",
+      "done": "Étiquette barre fait",
+      "planHint": "Phrase sous les deux barres quand le prévu est juste mais le fait penche",
+      "rebalance": "Bouton",
+      "rebalanceSub": "Sous le bouton ({n}, {name})",
+      "rebalanced": "Confirmation ({n}, {name})",
+      "rebalanceNone": "Rien à déplacer",
+      "weighsTitle": "Titre « ce qui pèse »",
+      "give": "Bouton par ligne (→ {name})",
+      "given": "Après ({name})",
+      "weighsRow": "Sous-ligne ({mine} min contre {other} min)",
+      "demoOnly": "Message en démo"
     },
     "title": "Balance",
     "week": "Sem. {n} · {range}",
@@ -2193,7 +2210,20 @@
     "missedMe": "Toi",
     "heartCost": "− 1 cœur",
     "detail": "Voir le détail",
-    "moodLegend": "Point à droite : ton ressenti du jour"
+    "moodLegend": "Point à droite : ton ressenti du jour",
+    "planTitle": "Prévu · Fait",
+    "planned": "Prévu",
+    "done": "Fait",
+    "planHint": "Le partage prévu est juste. C'est le suivi qui penche : ce n'est pas la répartition qu'il faut changer.",
+    "rebalance": "Rééquilibrer",
+    "rebalanceSub": "Mochi passe {n} missions de la semaine à {name}, et le prévient.",
+    "rebalanced": "C'est fait : {n} missions passées chez {name}.",
+    "rebalanceNone": "Rien à déplacer cette semaine : tout est déjà réparti.",
+    "weighsTitle": "Ce qui pèse",
+    "give": "→ {name}",
+    "given": "Passée chez {name}",
+    "weighsRow": "{mine} min contre {other} min",
+    "demoOnly": "Démo : rien n'est déplacé."
   },
   "checkin": {
     "_labels": {
