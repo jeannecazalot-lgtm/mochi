@@ -14,7 +14,7 @@ import { useTokens, type, layout } from '../src/theme-v3';
 import copy from '../src/data/copy.json';
 
 const PAPIER = { night: false, bg: '#4E4660', ink: '#F4EFE8', muted: '#B8AFC4', line: 'rgba(244,239,232,0.16)', seg: 'rgba(244,239,232,0.16)', accent: '#D9483E', ok: '#BFD94A', scene: { wall: '#4E4660', floor: '#5A5068', shadow: 'rgba(0,0,0,0.25)', vase: '#EAD6BC', moon: null, lamp: '#F7DFA8' } };
-const DECOR = { mochi: require('../assets/proto-da/piece-mochi.png'), papier: require('../assets/proto-da/piece-papier.png'), p1: require('../assets/proto-da/iter1/piece.png'), p2: require('../assets/proto-da/iter2/piece.png'), p3: require('../assets/proto-da/iter3/piece.png'), g: require('../assets/proto-da/graph/piece.png'), feutre: require('../assets/maison/test-feutre.png') };
+const DECOR = { mochi: require('../assets/proto-da/piece-mochi.png'), papier: require('../assets/proto-da/piece-papier.png'), p1: require('../assets/proto-da/iter1/piece.png'), p2: require('../assets/proto-da/iter2/piece.png'), p3: require('../assets/proto-da/iter3/piece.png'), g: require('../assets/proto-da/graph/piece.png'), feutre: require('../assets/maison/test-feutre.png'), feutrejour: require('../assets/maison/test-feutre-jour.png') };
 const GRAPH = { dish: require('../assets/proto-da/graph/icones/dish.png'), cart: require('../assets/proto-da/graph/icones/cart.png'), calendar: require('../assets/proto-da/graph/icones/calendar.png'), basket: require('../assets/proto-da/graph/icones/basket.png') };
 const MOCHIS = { g: require('../assets/proto-da/graph/mochi.png'), p1: require('../assets/proto-da/iter1/mochi.png'), p2: require('../assets/proto-da/iter2/mochi.png'), p3: require('../assets/proto-da/iter3/mochi.png') };
 // trois itérations de la DA papier (5 nov 2026), chacune plus près de la référence de Jeanne
@@ -40,7 +40,7 @@ export default function ProtoDa2() {
   return (
     <View style={{ flex: 1, backgroundColor: T.bg }}>
       <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
-        <Scene T={T} stage="mochi" lvl={2} height={layout.scene + 40} topInset={insets.top + 44} backdrop={it ? DECOR[v] : papier ? DECOR.papier : v === 'feutre' ? DECOR.feutre : undefined} mochiSource={it ? MOCHIS[v] : papier ? MOCHI_PAPIER : m ? PAPIERS[m] : null} mochiBottom={papier ? 34 : 30} />
+        <Scene T={T} stage="mochi" lvl={2} height={layout.scene + 40} topInset={insets.top + 44} backdrop={it ? DECOR[v] : papier ? DECOR.papier : v === 'feutre' ? DECOR.feutre : v === 'feutrejour' ? DECOR.feutrejour : undefined} mochiSource={it ? MOCHIS[v] : papier ? MOCHI_PAPIER : m ? PAPIERS[m] : null} mochiBottom={papier ? 34 : 30} />
       </View>
       <View style={{ paddingTop: insets.top + 10, paddingHorizontal: layout.x, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
         <Label T={T} style={{ flex: 1, color: T.ink }}>Jeudi 5 novembre</Label>
