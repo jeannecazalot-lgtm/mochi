@@ -80,10 +80,10 @@ export default function Chambre() {
             {tab === 0 ? items.objects.map(it => <RowItem key={it.key} it={it} kind="object" />)
               : tab === 1 ? items.outfits.map(it => <RowItem key={it.key} it={it} kind="outfit" />)
               : Object.keys(items.places).map(pl => {
-                const all = items.souvenirs.filter(sv => sv.place === pl); const mine = all.filter(sv => owned.has(sv.key)); const open = places.includes(pl);
+                const all = items.souvenirs.filter(sv => sv.place === pl); const mine = all.filter(sv => owned.has(sv.key)); const open = places.includes(pl); const unlockAt = STAGES.findIndex(st => (PLACES_BY_STAGE[st] || []).includes(pl));
                 return (
                   <View key={pl} style={{ paddingVertical: 14, borderTopWidth: StyleSheet.hairlineWidth, borderColor: T.line }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' }}><Text style={[type.body, { color: open ? T.ink : T.muted }]}>{items.places[pl]}</Text><Label T={T}>{open ? fill(t.souvenirsCount, { n: mine.length, total: all.length }) : t.locked}</Label></View>
+                    <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' }}><Text style={[type.body, { color: open ? T.ink : T.muted }]}>{items.places[pl]}</Text><Label T={T}>{open ? fill(t.souvenirsCount, { n: mine.length, total: all.length }) : fill(t.locked, { k: unlockAt })}</Label></View>
                     {mine.length ? <Text style={[type.sub, { color: T.muted, marginTop: 4 }]}>{mine.map(sv => sv.label).join(' · ')}</Text> : null}
                   </View>);
               })}
