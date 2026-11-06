@@ -73,8 +73,8 @@ export default function Login() {
       <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }}>
         <KeyboardAvoidingView behavior="padding" style={{ flex: 1, paddingHorizontal: 24 }}>
-          <Pressable onPress={Keyboard.dismiss} accessible={false} style={{ flex: 1 }}>
-            <View style={{ alignItems: 'center', paddingTop: 36 }}><LiveMochi size={110} /></View>
+          <Pressable onPress={Keyboard.dismiss} accessible={false} style={{ flex: 1, justifyContent: 'center', paddingBottom: 40 }}>
+            <View style={{ alignItems: 'center' }}><LiveMochi size={110} /></View>
             <Text style={s.title}>{mode === 'choice' ? t.title2 : mode === 'email' ? t.emailTitle : mode === 'sent' ? t.sentTitle : t.codeTitle}</Text>
             <Secondary style={{ textAlign: 'center', marginTop: 8, lineHeight: 21 }}>{mode === 'choice' ? t.sub : mode === 'email' ? t.emailSub : (mode === 'sent' ? t.sentSub : t.codeSub).replace('{email}', email.trim())}</Secondary>
 

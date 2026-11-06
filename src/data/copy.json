@@ -2335,7 +2335,8 @@
       "next": "Suivant",
       "start": "Commencer",
       "namePlaceholder": "Mochi",
-      "slides": "3 écrans : title, body, say (bulle), rows (chiffres)"
+      "slides": "3 écrans : title, body, say (bulle), rows (chiffres)",
+      "rows": "Chiffres (v affiché à la fin ; n = valeur qui compte, f = format hm minutes→1h26 / h heures)"
     },
     "skip": "Passer",
     "next": "Suivant",
@@ -2348,15 +2349,21 @@
         "rows": [
           {
             "t": "Chaque jour",
-            "v": "+1h26"
+            "v": "+1h26",
+            "n": 86,
+            "f": "hm"
           },
           {
             "t": "Chaque semaine",
-            "v": "≈ 10h"
+            "v": "≈ 10h",
+            "n": 10,
+            "f": "h"
           },
           {
             "t": "Sur l'année",
-            "v": "≈ 260h"
+            "v": "≈ 260h",
+            "n": 260,
+            "f": "h"
           }
         ],
         "source": "Insee · Enquête emploi du temps"

@@ -11,6 +11,7 @@ import { saveIdentity, loadProfile } from '../../src/profile';
 import { setLocalIdentity } from '../../src/identity';
 import { loadSetup, setup, saveDispos, savePrefs, isJoiner } from '../../src/setup-state';
 import { syncJoinerPrefs } from '../../src/sync-setup';
+import { me } from '../../src/demo';
 import copy from '../../src/data/copy.json';
 import { Egg } from '../../src/components/mochi/scene';
 import { useTokens as useT3, layout } from '../../src/theme-v3';
@@ -56,23 +57,23 @@ export default function Identite() {
       <SafeAreaView style={{ flex: 1 }}>
         <SetupHeader hero={<EggHero />} why={t.whyIdentity} step={1} total={2} title={t.identityTitle} backFallback="/onboarding" />
 
-        {/* DA v3 (7 nov 2026, retour Jeanne « manque de modernité ») : le prénom en grand, une ligne photo discrète, plus de rond pointillé */}
-        <View style={{ paddingHorizontal: layout.x, paddingTop: 28 }}>
+        {/* DA v3 (7 nov 2026, retours Jeanne) : la photo est l'élément central — grand cercle avec l'initiale en couleur,
+            bouton rond + accroché dessus, puis le prénom en grand. La photo choisie remplit le cercle. */}
+        <View style={{ paddingHorizontal: layout.x, paddingTop: 26, alignItems: 'center' }}>
+          <Pressable onPress={pickPhoto} style={({ pressed }) => [{ width: 132, height: 132, opacity: pressed ? 0.8 : 1 }]}>
+            {photo
+              ? <Image source={{ uri: photo }} style={{ width: 132, height: 132, borderRadius: 66 }} />
+              : <View style={{ width: 132, height: 132, borderRadius: 66, backgroundColor: me.color, alignItems: 'center', justifyContent: 'center' }}><Text style={{ fontSize: 56, fontWeight: '600', letterSpacing: -2, color: '#FFFFFF' }}>{(firstName.trim()[0] || '?').toUpperCase()}</Text></View>}
+            <View style={{ position: 'absolute', right: -2, bottom: -2, width: 40, height: 40, borderRadius: 20, backgroundColor: tk().ink, borderWidth: 3, borderColor: tk().bg, alignItems: 'center', justifyContent: 'center' }}>
+              <Svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke={tk().bg} strokeWidth={2.4} strokeLinecap="round"><Path d="M12 5v14M5 12h14" /></Svg>
+            </View>
+          </Pressable>
+          <Text style={{ fontSize: 12.5, color: tk().muted, marginTop: 12 }}>{photo ? t.photoChange : t.photoHint.replace('{name}', 'Ton binôme')}</Text>
           <TextInput
             value={firstName} onChangeText={setFirstName} placeholder={t.firstNamePlaceholder} placeholderTextColor={tk().muted}
-            autoCorrect={false} autoCapitalize="words" returnKeyType="done" cursorColor={tk().accent} selectionColor={tk().accent}
-            style={{ fontSize: 34, fontWeight: '600', letterSpacing: -1, color: tk().ink, paddingVertical: 10, borderBottomWidth: 1.5, borderColor: tk().ink }}
+            autoCorrect={false} autoCapitalize="words" returnKeyType="done" cursorColor={tk().accent} selectionColor={tk().accent} textAlign="center"
+            style={{ fontSize: 34, fontWeight: '600', letterSpacing: -1, color: tk().ink, paddingVertical: 10, marginTop: 22, alignSelf: 'stretch', borderBottomWidth: 1.5, borderColor: tk().ink }}
           />
-          <Pressable onPress={pickPhoto} style={({ pressed }) => [{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 16, marginTop: 22, borderTopWidth: StyleSheet.hairlineWidth, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: tk().line, opacity: pressed ? 0.7 : 1 }]}>
-            {photo
-              ? <Image source={{ uri: photo }} style={{ width: 48, height: 48, borderRadius: 24 }} />
-              : <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: tk().seg, alignItems: 'center', justifyContent: 'center' }}><Text style={{ fontSize: 20, fontWeight: '600', color: tk().ink }}>{(firstName.trim()[0] || '?').toUpperCase()}</Text></View>}
-            <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 15, fontWeight: '500', color: tk().ink }}>{photo ? t.photoChange || t.photoButton : t.photoButton}</Text>
-              <Text style={{ fontSize: 12.5, color: tk().muted, marginTop: 2 }}>{t.photoHint.replace('{name}', 'Ton binôme')}</Text>
-            </View>
-            <Text style={{ fontSize: 16, color: tk().muted }}>›</Text>
-          </Pressable>
         </View>
 
         <View style={s.ctaWrap}>

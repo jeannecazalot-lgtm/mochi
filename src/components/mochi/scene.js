@@ -88,9 +88,39 @@ function Drift({ source, box, size, duration = 70000 }) {
   const st = useAnimatedStyle(() => ({ transform: [{ translateX: x.value }] }));
   return <Animated.Image pointerEvents="none" source={source} style={[{ position: 'absolute', left: box.l, top: box.t, width: size, height: size * 0.6, opacity: 0.9 }, st]} resizeMode="contain" />;
 }
+// l'œuf est vivant (retour Jeanne 7 nov 2026 « pourquoi tu n'animes pas ? ») : il respire, et toutes les ~5 s il se
+// dandine deux fois (quelqu'un bouge dedans) ; en mode fêlé il tremble plus vite
+function LiveEgg({ source, cracking, size = 96, hatching = false, onHatched }) {
+  const sy = useSharedValue(1), rot = useSharedValue(0);
+  const op = useSharedValue(1), ty = useSharedValue(0), sc = useSharedValue(1);
+  useEffect(() => {
+    if (prefersReducedMotion()) return;
+    sy.value = withRepeat(withTiming(0.985, { duration: 2400, easing: Easing.inOut(Easing.sin) }), -1, true);
+    let alive = true; let t;
+    const wiggle = () => {
+      if (!alive) return;
+      rot.value = withSequence(withTiming(-4, { duration: 90 }), withTiming(4, { duration: 120 }), withTiming(-3, { duration: 110 }), withTiming(2, { duration: 100 }), withSpring(0, { damping: 9, stiffness: 240 }));
+      t = setTimeout(wiggle, cracking ? 700 : 4500 + Math.random() * 2500);
+    };
+    t = setTimeout(wiggle, cracking ? 150 : 1800);
+    return () => { alive = false; clearTimeout(t); };
+  }, [cracking]);
+  // éclosion : l'œuf tremble fort, se gonfle, puis s'efface vers le haut (les coquilles « s'ouvrent ») ; Mochi prend la place dessous
+  useEffect(() => {
+    if (!hatching) return;
+    rot.value = withSequence(withTiming(-7, { duration: 70 }), withTiming(7, { duration: 90 }), withTiming(-6, { duration: 80 }), withTiming(5, { duration: 80 }), withTiming(0, { duration: 80 }));
+    sc.value = withDelay(400, withSequence(withTiming(1.12, { duration: 220, easing: Easing.out(Easing.quad) }), withTiming(1.0, { duration: 120 })));
+    op.value = withDelay(760, withTiming(0, { duration: 260 }));
+    ty.value = withDelay(760, withTiming(-28, { duration: 320, easing: Easing.out(Easing.cubic) }));
+    const t = setTimeout(() => onHatched && onHatched(), 900);
+    return () => clearTimeout(t);
+  }, [hatching]);
+  const st = useAnimatedStyle(() => ({ opacity: op.value, transformOrigin: '50% 100%', transform: [{ translateY: ty.value }, { scaleY: sy.value }, { scale: sc.value }, { rotate: `${rot.value}deg` }] }));
+  return <Animated.Image source={source} style={[{ width: size, height: size * 1.25 }, st]} resizeMode="contain" accessibilityIgnoresInvertColors />;
+}
 const Layer = ({ children, delay = 0, fade }) => <Animated.View entering={FadeIn.delay(delay).duration(400)} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} pointerEvents="none">{children}</Animated.View>;
 
-export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height = layout.scene, hideMochi = false, cracking = false, topInset = 0, backdrop = undefined, mochiSource = null, mochiBottom = null, shiftY = 0, items = [], outfit = null, souvenirs = 0 }) {
+export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height = layout.scene, hideMochi = false, cracking = false, hatching = false, onHatched = null, topInset = 0, backdrop = undefined, mochiSource = null, mochiBottom = null, shiftY = 0, items = [], outfit = null, souvenirs = 0 }) {
   const c = T.scene, hh = height, fl = layout.floor, night = !!c.moon;
   const { width: SW } = useWindowDimensions();
   // décision Jeanne 5 nov 2026 (« je préfère l'ancien ») : la pièce est le décor entier de ChatGPT, B le jour, D la nuit
@@ -160,7 +190,7 @@ export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height =
       {/* souvenirs de balade : une petite étagère qui se garnit (jusqu'à 8 visibles) */}
       {backdrop && souvenirs > 0 ? <View pointerEvents="none" style={{ position: 'absolute', left: SW * 0.6, top: hh * 0.38, width: SW * 0.3, alignItems: 'center' }}><View style={{ flexDirection: 'row', gap: 4, paddingBottom: 3 }}>{Array.from({ length: Math.min(8, souvenirs) }).map((_, i) => <Image key={i} source={SOUVENIR} style={{ width: 16, height: 16, opacity: 0.9 }} resizeMode="contain" />)}</View><View style={{ height: 4, width: '100%', borderRadius: 2, backgroundColor: c.shelf || '#CFB08C' }} /></View> : null}
       {hideMochi ? null : stage === 'egg'
-        ? <><Animated.View entering={FadeInUp.duration(420).easing(Easing.out(Easing.cubic)).withInitialValues({ opacity: 0, transform: [{ translateY: 10 }] })} style={{ position: 'absolute', bottom: backdrop ? 30 : fl2 - 12, left: 0, right: 0, alignItems: 'center' }}><Image source={cracking ? IMG.eggCrack : IMG.egg} style={{ width: 96, height: 120 }} resizeMode="contain" accessibilityIgnoresInvertColors /></Animated.View></>
+        ? <><Animated.View entering={FadeInUp.duration(420).easing(Easing.out(Easing.cubic)).withInitialValues({ opacity: 0, transform: [{ translateY: 10 }] })} style={{ position: 'absolute', bottom: backdrop ? 30 : fl2 - 12, left: 0, right: 0, alignItems: 'center' }}><LiveEgg source={cracking || hatching ? IMG.eggCrack : IMG.egg} cracking={cracking && !hatching} hatching={hatching} onHatched={onHatched} /></Animated.View></>
         : <Animated.View entering={FadeInUp.duration(420).easing(Easing.out(Easing.cubic)).withInitialValues({ opacity: 0, transform: [{ translateY: 10 }] })} style={{ position: 'absolute', bottom: mochiBottom ?? (backdrop ? 26 : fl2 - 18), left: 0, right: 0 }}><Animated.View style={[{ alignItems: 'center' }, walk]}>
               <View style={{ position: 'absolute', bottom: 4, width: Math.round(W * 0.9), height: 10, borderRadius: 5, backgroundColor: c.shadow, opacity: 0.6 }} />
               <LiveMochiImage size={W} lean={0} mood={mood} source={mochiSource} />
@@ -176,7 +206,7 @@ export function Egg({ T, size = 56 }) {
     <View style={{ width: size, height: size + 4, alignItems: 'center', justifyContent: 'flex-end' }}>
       {/* ombre : un petit disque sous l'œuf, pas une barre (retour Jeanne 7 nov 2026) */}
       <View style={{ position: 'absolute', bottom: 0, width: size * 0.5, height: 6, borderRadius: 3, backgroundColor: T.scene.shadow, opacity: 0.6 }} />
-      <Image source={IMG.egg} style={{ width: size * 0.85, height: size, marginBottom: 2 }} resizeMode="contain" accessibilityIgnoresInvertColors />
+      <View style={{ marginBottom: 2 }}><LiveEgg source={IMG.egg} size={size * 0.8} /></View>
     </View>
   );
 }

@@ -27,10 +27,11 @@ export default function DuoForme() {
   const realMe = useIdentity();
   const [joiner, setJoiner] = useState(false);
   const [ready, setReady] = useState(false);
-  const [hatched, setHatched] = useState(false); // l'œuf se fêle 1,2 s après l'arrivée, puis Mochi apparaît (éclosion = duo formé)
+  const [phase, setPhase] = useState('cracking'); // cracking → hatching → hatched (éclosion = duo formé)
+  const hatched = phase === 'hatched';
   useEffect(() => {
     loadSetup().then(() => { setJoiner(isJoiner()); setReady(true); });
-    const id = setTimeout(() => { setHatched(true); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {}); tick().catch(() => {}); }, 1400);
+    const id = setTimeout(() => setPhase('hatching'), 1200);
     return () => clearTimeout(id);
   }, []);
   const prefilled = !!(realMe?.first_name && setup.availability && setup.prefs);
@@ -45,7 +46,7 @@ export default function DuoForme() {
   return (
     <View style={{ flex: 1, backgroundColor: T.bg }}>
       <View>
-        <Scene T={T} stage={hatched ? 'mini' : 'egg'} cracking={!hatched} mood={hatched ? 'wink' : undefined} lvl={1} height={sceneH} />
+        <Scene T={T} stage={hatched ? 'mini' : 'egg'} cracking={phase === 'cracking'} hatching={phase === 'hatching'} onHatched={() => { setPhase('hatched'); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {}); tick().catch(() => {}); }} mood={hatched ? 'wink' : undefined} lvl={1} height={sceneH} />
         {hatched ? <Bubble T={T} style={{ top: insets.top + 24 }}>{t.duoSay}</Bubble> : null}
       </View>
       <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
