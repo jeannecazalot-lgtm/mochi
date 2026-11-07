@@ -41,11 +41,13 @@ export async function refreshMochi() {
   mochiStore.bump();
   return getMochi();
 }
+// On ne pousse QUE les champs modifiés (7 nov 2026) : pousser la ligne entière écrasait ce que l'autre
+// téléphone venait d'écrire (l'éclosion faite chez Ketley repassait « œuf » depuis le cache de Jeanne)
 async function patch(changes) {
   const m = await getMochi(); if (!m) return null;
-  const row = { ...m, ...changes, updated_at: nowIso() };
-  await mutate('mochi_state', row); mochiStore.bump();
-  return row;
+  const part = { household_id: m.household_id, ...(m.id ? { id: m.id } : {}), ...changes, updated_at: nowIso() };
+  await mutate('mochi_state', part); mochiStore.bump();
+  return { ...m, ...part };
 }
 async function event(type, extra = {}) {
   const e = { id: uuid(), household_id: hid(), type, actor_id: 'actor_id' in extra ? extra.actor_id : getUid(), occurrence_id: extra.occurrence_id || null, payload: extra.payload || {}, seen_by: extra.seen_by || [], created_at: nowIso() };

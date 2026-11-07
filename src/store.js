@@ -35,7 +35,7 @@ export async function read(table) {
 
 async function writeLocal(table, row) {
   const rows = await read(table);
-  const i = rows.findIndex(r => r.id === row.id);
+  const keys = PK[table] || ['id']; const i = rows.findIndex(r => keys.every(k => r[k] === row[k])); // clé composite respectée (mochi_state : household_id)
   if (i >= 0) rows[i] = { ...rows[i], ...row }; else rows.push(row);
   await AsyncStorage.setItem(K.table(table), JSON.stringify(rows));
   return rows;
