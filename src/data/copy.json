@@ -655,7 +655,7 @@
     "timeMin": "le minimum",
     "timeMid": "raisonnable",
     "timeMax": "large",
-    "prefsTitle": "Ce que tu aimes. Ce que tu détestes.",
+    "prefsTitle": "Ce que tu aimes, ou pas.",
     "prefsSub": "Repasser, c'est 1 sur 5 pour toi et 5 sur 5 pour l'autre ? C'est exactement ce que Mochi veut savoir.",
     "likeLabel": "J’aime bien faire · {max} max",
     "hateLabel": "Je déteste · {max} max",
@@ -681,8 +681,8 @@
     "enterCode": "J'ai reçu un code",
     "inviteHint": "Vous êtes côte à côte ? Montre le QR, c’est instantané.",
     "duoPill": "Duo formé",
-    "duoTitle": "{name} est là.\nVous êtes deux.",
-    "duoSub": "Prochaine étape : choisir vos missions, ensemble.",
+    "duoTitle": "{name} est là.",
+    "duoSub": "Vous êtes deux. Prochaine étape : choisir vos missions, ensemble.",
     "chooseTasks": "Choisir nos tâches",
     "tasksTitle": "Vos missions.",
     "tasksSub": "On a préparé une liste pour tout le foyer. Coche, décoche, ajoute les tiennes.",
@@ -743,7 +743,7 @@
     "alternate": "Alterné",
     "perWeekSlash": "/ semaine",
     "shareMsgNoLink": "{name} t'invite à élever Mochi avec toi. Installe l'app, choisis « J'ai reçu un code » et tape : {code}",
-    "duoTitleJoiner": "Tu as rejoint le foyer de {name}.",
+    "duoTitleJoiner": "Bienvenue chez {name}.",
     "duoSubJoiner": "Encore trois petites étapes : ton prénom, tes dispos, tes goûts. Ensuite, les missions se choisissent à deux.",
     "duoSubJoinerReady": "Tes dispos et tes goûts partent dans le foyer. Ensuite, les missions se choisissent à deux.",
     "continueMeanwhile": "Préparer la liste en attendant",
@@ -2428,8 +2428,8 @@
         "source": "Insee · Enquête emploi du temps"
       },
       {
-        "title": "Faire, c'est une chose. Y penser, c'en est une autre.",
-        "body": "Anticiper, se rappeler, relancer. Ce boulot invisible tourne presque toujours dans une seule tête.",
+        "title": "Faire, c'est une chose.",
+        "body": "Y penser, c'en est une autre. Anticiper, se rappeler, relancer : ce boulot invisible tourne presque toujours dans une seule tête.",
         "items": [
           "RDV pédiatre · mardi 14 h",
           "Racheter du café · avant demain",
@@ -2439,8 +2439,8 @@
         "outro": "Ça s'appelle la charge mentale. Et ça se partage."
       },
       {
-        "title": "Mochi répartit. À deux, c'est plus léger.",
-        "body": "Vos missions, vos dispos, vos goûts : il répartit la semaine et dit quand ça penche. Personne ne tient les comptes, lui si.",
+        "title": "Mochi répartit.",
+        "body": "À deux, c'est plus léger. Vos missions, vos dispos, vos goûts : il répartit la semaine et dit quand ça penche. Personne ne tient les comptes, lui si.",
         "say": "Moi, je répartis. Vous, vous me donnez un nom ?"
       }
     ]
