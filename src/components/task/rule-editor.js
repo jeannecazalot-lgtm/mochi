@@ -33,7 +33,7 @@ export function RuleEditor({ rule, onPatch, showMoment = false, showEffort = fal
   return (
     <View>
       <RuleGroup first={first} label={t.ruleDays} row>
-        {copy.calendar.dowsLong.map((d, i) => <View key={i} style={{ flex: 1, alignItems: 'center' }}><View style={{ alignSelf: 'stretch' }}><PillChip flex label={d.toLowerCase()} selected={days.includes(i)}
+        {copy.calendar.dowsLong.map((d, i) => <View key={i} style={{ flex: 1, alignItems: 'center' }}><View style={{ flexDirection: 'row', alignSelf: 'stretch' }}><PillChip flex label={d.toLowerCase()} selected={days.includes(i)}
           onPress={() => onPatch({ window_days: days.includes(i) ? days.filter(x => x !== i) : [...days, i].sort((a, b) => a - b) })} /></View>{plannedDay === i ? <View style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: T.accent, marginTop: 4 }} /> : <View style={{ height: 9 }} />}</View>)}
       </RuleGroup>
       {plannedDay != null ? <Text style={s.hint}>{t.plannedDayHint.replace('{day}', copy.calendar.dowsLong[plannedDay].toLowerCase())}</Text> : null}
@@ -44,11 +44,11 @@ export function RuleEditor({ rule, onPatch, showMoment = false, showEffort = fal
         </RuleGroup>
       ) : null}
       {/* une seule ligne, « Mochi décide » compris (Jeanne, 10 sept 2026) */}
-      <RuleGroup label={t.ruleWho} row>
-        <PillChip flex label={t.who.me} avatar={me} selected={rule.who === 'me'} onPress={() => onPatch({ who: 'me' })} />
-        <PillChip flex label={partner.first_name} avatar={partner} selected={rule.who === 'partner'} onPress={() => onPatch({ who: 'partner' })} />
-        <PillChip flex label={t.who.alt} selected={rule.who === 'alt'} onPress={() => onPatch({ who: 'alt' })} />
-        <PillChip flex label={t.who.auto} selected={rule.who === 'auto' && !!rule.whoChosen} onPress={() => onPatch({ who: 'auto', whoChosen: true })} />
+      <RuleGroup label={t.ruleWho}>
+        <PillChip label={t.who.me} avatar={me} selected={rule.who === 'me'} onPress={() => onPatch({ who: 'me' })} />
+        <PillChip label={partner.first_name} avatar={partner.avatar_url || partner.initial !== '?' ? partner : null} selected={rule.who === 'partner'} onPress={() => onPatch({ who: 'partner' })} />
+        <PillChip label={t.who.alt} selected={rule.who === 'alt'} onPress={() => onPatch({ who: 'alt' })} />
+        <PillChip label={t.who.auto} selected={rule.who === 'auto' && !!rule.whoChosen} onPress={() => onPatch({ who: 'auto', whoChosen: true })} />
       </RuleGroup>
       {showDuration ? <Row label={t.ruleDuration} right={<Stepper value={fmtMin(rule.duration_min)} onMinus={() => onPatch({ duration_min: Math.max(5, rule.duration_min - 5) })} onPlus={() => onPatch({ duration_min: rule.duration_min + 5 })} />} /> : null}
       {showEffort ? <Row label={tt.statPain} sub={tt.effortSub} right={<Stars value={rule.pain || 3} onChange={n => onPatch({ pain: n })} />} /> : null}

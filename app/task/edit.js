@@ -86,8 +86,10 @@ export function TaskEditBody({ page = false }) {
   const busy = useRef(false); // deux taps rapides = deux tâches (Ketley 12 sept 2026)
   const create = async () => { if (busy.current) return; busy.current = true; await createRealTask(toReal(f)); dirty.current = false; router.back(); };
 
+  // le nom est en haut : pas besoin de pousser la feuille quand son clavier s'ouvre — avec « padding », la feuille (hauteur figée)
+  // se compressait et le bouton « Créer la tâche » venait flotter sur les jours (vidéo Jeanne, 7 nov 2026). On ne pousse que pour la note.
   return (
-    <KeyboardAvoidingView behavior="padding" style={[s.sheet, page && s.page, { paddingBottom: Math.max(insets.bottom, 31) }]} onLayout={page ? undefined : onGrowLayout}>
+    <KeyboardAvoidingView behavior={noteOpen ? 'padding' : undefined} style={[s.sheet, page && s.page, { paddingBottom: Math.max(insets.bottom, 31) }]} onLayout={page ? undefined : onGrowLayout}>
       <Pressable onPress={Keyboard.dismiss} accessible={false}>
       {page ? <TaskHeader title={isNew ? t.headerNew : t.headerEdit} backLabel={t.back} /> : <SheetHandle />}
         <View style={[s.head, { flexDirection: 'row', alignItems: 'center', gap: 12 }]}>

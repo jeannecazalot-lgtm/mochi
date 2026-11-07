@@ -1,5 +1,6 @@
 // Écran 21 · Balance — v3 « l'instrument » (4 nov 2026). Logique v1 conservée (balance réelle de la semaine,
 // prévu, ratées) ; les points et le point hebdo disparaissent, une ratée coûte un cœur à Mochi (recette §1, §6).
+import { RouteError } from '../../src/components/route-error';
 import React, { useEffect, useMemo, useState } from 'react';
 import { router } from 'expo-router';
 import { View, Text, Pressable, ScrollView, StyleSheet, Image } from 'react-native';
@@ -207,3 +208,6 @@ export default function Balance() {
     </View>
   );
 }
+
+// expo-router : une erreur de rendu affiche ce filet au lieu d'un écran vide
+export function ErrorBoundary(props) { return <RouteError {...props} />; }

@@ -1,6 +1,7 @@
 // Écran 17 · Accueil — v3 « l'instrument et la créature » (4 nov 2026). Recette : docs/recettes/da-v2-mochi-eleve.md §6-7.
 // La logique (vraies occurrences, retards groupés, « à venir » qui tient sur la page) est celle de la v1 ;
 // le rendu est la DA v3 : scène pleine largeur, jauges, hairlines. L'état de Mochi vient de mochi-state (migration 0013).
+import { RouteError } from '../../src/components/route-error';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { router } from 'expo-router';
 import { View, Text, Pressable, StyleSheet, useWindowDimensions, Image } from 'react-native';
@@ -237,3 +238,6 @@ const s = StyleSheet.create({
   sectionHead: { paddingTop: 26 * layout.air, paddingBottom: 4, paddingHorizontal: layout.x, flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' },
   row: { flexDirection: 'row', alignItems: 'center', gap: 14 },
 });
+
+// expo-router : une erreur de rendu affiche ce filet au lieu d'un écran vide
+export function ErrorBoundary(props) { return <RouteError {...props} />; }

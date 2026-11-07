@@ -1,4 +1,5 @@
 // Écran 38 · Profil & réglages (accès par l'avatar). Recette : docs/recettes/38-profil.md
+import { RouteError } from '../src/components/route-error';
 import React, { useState, useEffect } from 'react';
 import { router, useFocusEffect } from 'expo-router';
 import { View, Text, Pressable, ScrollView, StyleSheet, Alert } from 'react-native';
@@ -116,8 +117,9 @@ export default function Profil() {
           <View style={{ paddingHorizontal: 24 }}>
             <Text style={s.section}>{t.sectionMine}</Text>
             <View>
-              <SettingRow emoji="👤" title={t.account} sub={account ? (account.provider === 'apple' ? fill(t.accountApple, { email: account.email || '' }) : account.email) : t.accountNone} onPress={() => (account ? null : router.push('/(auth)/login'))} />
+              <SettingRow emoji="👤" title={t.account} sub={account ? (account.provider === 'apple' ? fill(t.accountApple, { email: account.email || '' }) : account.email) : t.accountNone} onPress={() => (account ? null : router.push('/(auth)/login?link=1'))} />
               <SettingRow emoji="🔔" title={t.notifs} sub={real && setup.reminder ? fill(t.notifsSubReal, { time: String(setup.reminder).replace(':', ' h ') }) : fill(t.notifsSub, { n: duoRules.reminder_before_min })} onPress={() => router.push('/notifs')} />
+              <SettingRow emoji="📌" title={t.penseBete} sub={t.penseBeteSub} onPress={() => router.push('/pense-bete')} />
               <SettingRow emoji="🗓" title={t.mesReglages}
                 sub={!mine ? '' : [(!mine.slots && !mine.h) ? t.notSet : fill(mine.slots === 1 ? t.disposSubOne : t.disposSubReal, { n: mine.slots }) + (mine.h ? fill(t.disposSubHours, { h: mine.h }) : ''), !mine.hasPrefs ? t.notSet : fill(t.prefsSub, { like: mine.likes, hate: mine.hates, ls: mine.likes > 1 ? 's' : '', hs: mine.hates > 1 ? 's' : '' })].join(' · ')}
                 onPress={() => router.push('/mes-reglages')} />
@@ -159,3 +161,6 @@ const s = v3Styles(T => StyleSheet.create({
   logout: { fontSize: 14.5, fontWeight: '600', color: T.accent },
   leave: { fontSize: 14.5, fontWeight: '600', color: T.muted },
 }));
+
+// expo-router : une erreur de rendu affiche ce filet au lieu d'un écran vide
+export function ErrorBoundary(props) { return <RouteError {...props} />; }

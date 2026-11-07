@@ -1,5 +1,6 @@
 // Écran 22 · Activité — fil du duo (pings, événements, moments Mochi). Recette : docs/recettes/22-activite.md
 // DA v3 (4 nov 2026) : une colonne, un filet à gauche (sauge = moi, gris = l'autre, corail = à répondre), jour/nuit.
+import { RouteError } from '../src/components/route-error';
 import React, { useState, useEffect } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
@@ -281,3 +282,6 @@ const mk = T => StyleSheet.create({
   moment: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 10, paddingHorizontal: 4 },
   momentTitle: { fontSize: 15, fontWeight: '600', letterSpacing: -0.2, color: T.ink },
 });
+
+// expo-router : une erreur de rendu affiche ce filet au lieu d'un écran vide
+export function ErrorBoundary(props) { return <RouteError {...props} />; }

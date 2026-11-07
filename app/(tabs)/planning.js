@@ -3,6 +3,7 @@
 // Retour Jeanne (1er sept 2026) : le segment Semaine/Mois ne pousse plus un nouvel
 // écran — les deux vues glissent l'une vers l'autre dans la page (slide 320 ms),
 // la vue mois est une grille calendrier, tap sur un jour → sheet « planning du jour ».
+import { RouteError } from '../../src/components/route-error';
 import React, { useState, useEffect, useRef } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import { View, Text, Pressable, ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
@@ -169,6 +170,7 @@ export default function Planning() {
   const base = realGroups ? new Date() : today; // démo : « aujourd'hui » de la démo
   const rolling = Array.from({ length: 7 }, (_, i) => addDays(base, i));
   const [realDots, setRealDots] = useState({}); // iso → couleurs des porteurs (semaine + mois)
+  const [soloList, setSoloList] = useState([]); // seul dans le foyer : la liste préparée, pas encore répartie (8 nov 2026, « Planning tout blanc »)
   const [dbg, setDbg] = useState(''); // dev : diagnostic de la liste réelle
   const occV = occStore.useVersion();
   missionDone.useVersion();
@@ -189,7 +191,7 @@ export default function Planning() {
       const lateOccs = [];
       const dotMap = {};
       for (const o of occs) {
-        if (!isLive(o)) continue;
+        if (!isLive(o) || !o.due_date) continue; // une occurrence sans date ne doit pas casser l'écran
         const tk = byTask[o.task_id] || {};
         const isDone = o.status === 'done' || missionDone.has(o.id);
         const late = o.due_date < todayIso && !isDone;
@@ -211,7 +213,7 @@ export default function Planning() {
       // événements réels (7 sept 2026) : une rangée à leur date, sans porteur ni coche
       for (const ev of events) {
         if (ev.deleted_at || !ev.starts_at) continue;
-        const iso = localIso(new Date(ev.starts_at));
+        const iso = localIso(new Date(ev.starts_at)); if (!/^\d{4}-\d{2}-\d{2}$/.test(iso) || iso.includes('NaN')) continue;
         if (iso < todayIso) continue;
         const d = ev.details || {};
         // porteurs (retour Ketley 12 sept 2026 : « dans le planning on ne voit pas à qui il est attribué »)
@@ -235,6 +237,7 @@ export default function Planning() {
         lateItems.push({ id: o.id, emoji: tk.emoji || '•', title: tk.title || '…', sub: lateCaption(g.n, daysBetweenIso(g.oldest.due_date, todayIso)), who, checkable: !o.assignee_id || o.assignee_id === uid || !uid, done: false, late: true, href: `/retard?${q}&due=${g.oldest.due_date}&ids=${g.ids.join(',')}&n=${g.n}` });
       }
       if (lateItems.length) groups.unshift({ iso: '__late', late: true, items: lateItems });
+      setSoloList(!getPartnerUid() && !occs.some(isLive) ? (setup.tasks || []) : []);
       setRealGroups(groups); // [] = foyer réel encore vide (état vide, pas la démo)
       setRealDots(Object.fromEntries(Object.entries(dotMap).map(([k, v]) => [k, [...v]])));
       if (__DEV__) setDbg(`occ ${occs.length} · retards ${lateItems.length} · v${occV}`);
@@ -349,7 +352,14 @@ export default function Planning() {
                     {g.items.map(o => <TaskRow key={o.id} T={T} occ={o} onGrab={setGrabbed} />)}
                   </View>
                 ))}
-              {realGroups && realGroups.length === 0
+              {realGroups && realGroups.length === 0 && soloList.length ? (
+                <View style={{ paddingTop: 6 }}>
+                  <Label T={T} style={[s.groupLabel, { color: T.ink, fontWeight: '600' }]}>{t.soloListTitle}</Label>
+                  <Text style={[type.sub, { color: T.muted, marginBottom: 8 }]}>{t.soloListSub}</Text>
+                  {soloList.map(tk => <View key={tk.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 11, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: T.line }}><TaskIcon emoji={tk.emoji} size={21} /><Text style={[type.body, { color: T.ink, flex: 1 }]}>{tk.label}</Text><Label T={T}>{fmtMin(tk.duration_min || 15)}</Label></View>)}
+                  <Pressable onPress={() => router.push('/(setup)/taches')} hitSlop={8} style={{ paddingVertical: 14 }}><Text style={[type.label, { color: T.accent, fontWeight: '600' }]}>{t.soloListCta}</Text></Pressable>
+                </View>
+              ) : realGroups && realGroups.length === 0
                 ? <Text style={[type.sub, { color: T.muted, textAlign: 'center', paddingVertical: 24 }]}>{t.emptyReal}</Text> : null}
               <Label T={T} style={{ textAlign: 'center', marginTop: 8 }}>{realGroups ? (realGroups.length ? t.realHint : '') : grabbed ? t.grabbed : t.dragHint}</Label>
               {__DEV__ && dbg ? <Label T={T} style={{ textAlign: 'center', opacity: 0.5 }}>{dbg}</Label> : null}
@@ -385,3 +395,6 @@ const mk = T => StyleSheet.create({
   dayNum: { fontSize: 14, fontWeight: '600', color: T.ink, fontVariant: ['tabular-nums'] },
   dot: { width: 4, height: 4, borderRadius: 2 },
 });
+
+// expo-router : une erreur de rendu affiche ce filet au lieu d'un écran vide
+export function ErrorBoundary(props) { return <RouteError {...props} />; }

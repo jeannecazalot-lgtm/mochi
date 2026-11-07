@@ -1,4 +1,5 @@
 // Écran 23 · Budget. Recette : docs/recettes/23-budget.md — DA v3 « l'instrument » (4 nov 2026) : solde en gros chiffre, hairlines, jour/nuit
+import { RouteError } from '../../src/components/route-error';
 import React, { useEffect, useState } from 'react';
 import { router } from 'expo-router';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
@@ -186,3 +187,6 @@ export default function Budget() {
 const s = StyleSheet.create({
   header: { paddingTop: 14, paddingHorizontal: layout.x, marginBottom: 18 },
 });
+
+// expo-router : une erreur de rendu affiche ce filet au lieu d'un écran vide
+export function ErrorBoundary(props) { return <RouteError {...props} />; }

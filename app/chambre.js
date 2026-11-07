@@ -1,5 +1,6 @@
 // La pièce de Mochi + boutique (étape 5, 4 nov 2026) : la scène en grand, les souvenirs ramenés, les objets et
 // tenues contre des perles communes, Mochi+ pour les collections. Données : mochi_inventory / mochi_state.
+import { RouteError } from '../src/components/route-error';
 import React, { useEffect, useState } from 'react';
 import { router } from 'expo-router';
 import { View, Text, Pressable, ScrollView, StyleSheet, Image } from 'react-native';
@@ -114,3 +115,6 @@ export default function Chambre() {
   );
 }
 const s = StyleSheet.create({ pill: { flexDirection: 'row', alignItems: 'baseline', borderWidth: 1.5, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6 } });
+
+// expo-router : une erreur de rendu affiche ce filet au lieu d'un écran vide
+export function ErrorBoundary(props) { return <RouteError {...props} />; }

@@ -89,6 +89,7 @@ export default function RootLayout() {
         <Stack.Screen name="checkin" options={sheetV3} />
         <Stack.Screen name="nom-mochi" options={sheetV3} />
         <Stack.Screen name="chambre" options={{ presentation: 'card' }} />{/* Mochi qu'on élève : éclosion, retour de balade, palier */}
+        <Stack.Screen name="pense-bete" options={{ presentation: 'card' }} />
         <Stack.Screen name="plan" />
       </Stack>
     </GestureHandlerRootView>

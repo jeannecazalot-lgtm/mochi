@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import { View, Text, TextInput, Pressable, StyleSheet, KeyboardAvoidingView, Keyboard } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as Haptics from 'expo-haptics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -27,7 +27,9 @@ const MailIcon = () => (
 );
 
 export default function Login() {
-  const { next, mode: modeParam } = useLocalSearchParams();
+  const { next, mode: modeParam, link } = useLocalSearchParams();
+  const insets = useSafeAreaInsets();
+  const linkMode = link === '1'; // depuis le Profil (Jeanne, 8 nov 2026) : relier un compte, avec une croix, sans « Continuer sans compte »
   const [mode, setMode] = useState(modeParam || 'choice'); // choice | email | code
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
@@ -43,6 +45,7 @@ export default function Login() {
     await loadIdentity().catch(() => {});
     await loadSetup(); bindSetupToUser(getUid());
     const p = await loadProfile().catch(() => null);
+    if (linkMode) { router.back(); return; }
     if (next) { router.replace(String(next)); return; }
     router.replace(p?.first_name ? '/(tabs)' : '/(setup)/identite');
   };
@@ -72,11 +75,12 @@ export default function Login() {
     <View style={{ flex: 1 }}>
       <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }}>
+        {linkMode ? <Pressable onPress={() => router.back()} hitSlop={12} accessibilityLabel={t.close} style={{ position: 'absolute', top: insets.top + 8, right: 20, zIndex: 2, width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: tk().seg }}><Text style={{ color: tk().ink, fontSize: 18, lineHeight: 20 }}>×</Text></Pressable> : null}
         <KeyboardAvoidingView behavior="padding" style={{ flex: 1, paddingHorizontal: 24 }}>
           <Pressable onPress={Keyboard.dismiss} accessible={false} style={{ flex: 1, justifyContent: 'center', paddingBottom: 40 }}>
             <View style={{ alignItems: 'center' }}><LiveMochi size={110} /></View>
-            <Text style={s.title}>{mode === 'choice' ? t.title2 : mode === 'email' ? t.emailTitle : mode === 'sent' ? t.sentTitle : t.codeTitle}</Text>
-            <Secondary style={{ textAlign: 'center', marginTop: 8, lineHeight: 21 }}>{mode === 'choice' ? t.sub : mode === 'email' ? t.emailSub : (mode === 'sent' ? t.sentSub : t.codeSub).replace('{email}', email.trim())}</Secondary>
+            <Text style={s.title}>{mode === 'choice' ? (linkMode ? t.linkTitle : t.title2) : mode === 'email' ? t.emailTitle : mode === 'sent' ? t.sentTitle : t.codeTitle}</Text>
+            <Secondary style={{ textAlign: 'center', marginTop: 8, lineHeight: 21 }}>{mode === 'choice' ? (linkMode ? t.linkSub : t.sub) : mode === 'email' ? t.emailSub : (mode === 'sent' ? t.sentSub : t.codeSub).replace('{email}', email.trim())}</Secondary>
 
             {mode === 'choice' ? (
               <View style={{ marginTop: 34, gap: 12 }}>
@@ -90,10 +94,10 @@ export default function Login() {
                   <MailIcon /><Text style={s.emailTxt}>{t.email}</Text>
                 </Pressable>
                 {/* sans compte (Jeanne 6 nov 2026) : session anonyme créée au premier enregistrement, compte à relier depuis le Profil */}
-                <Pressable onPress={async () => { try { await AsyncStorage.setItem('mochi:guest', '1'); } catch (e) { /* ignore */ } Haptics.selectionAsync().catch(() => {}); router.replace(next ? String(next) : '/(setup)/identite'); }} hitSlop={8} style={{ alignSelf: 'center', marginTop: 6, paddingVertical: 8 }}>
+                {linkMode ? null : <Pressable onPress={async () => { try { await AsyncStorage.setItem('mochi:guest', '1'); } catch (e) { /* ignore */ } Haptics.selectionAsync().catch(() => {}); router.replace(next ? String(next) : '/(setup)/identite'); }} hitSlop={8} style={{ alignSelf: 'center', marginTop: 6, paddingVertical: 8 }}>
                   <Text style={[s.emailTxt, { fontSize: 15 }]}>{t.guest}</Text>
-                </Pressable>
-                <Text style={[font.secondary, { color: tk().muted }, { textAlign: 'center', fontSize: 12.5 }]}>{t.guestHint}</Text>
+                </Pressable>}
+                {linkMode ? null : <Text style={[font.secondary, { color: tk().muted }, { textAlign: 'center', fontSize: 12.5 }]}>{t.guestHint}</Text>}
                 {note ? <Secondary style={{ textAlign: 'center' }}>{note}</Secondary> : null}
                 <Text style={s.legal}>{t.legal}</Text>
               </View>

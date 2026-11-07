@@ -16,7 +16,10 @@
     "save": "Enregistrer",
     "partner": "ton binôme",
     "mochi": "Mochi",
-    "saveError": "Impossible d'enregistrer pour l'instant. Réessaie dans un instant."
+    "saveError": "Impossible d'enregistrer pour l'instant. Réessaie dans un instant.",
+    "errorTitle": "Oups, cet écran a trébuché.",
+    "errorSub": "Envoie une capture de cet écran à Jeanne et Claude, puis réessaie.",
+    "retry": "Réessayer"
   },
   "auth": {
     "_labels": {
@@ -28,7 +31,10 @@
       "or": "Séparateur entre le bouton principal et les carrés",
       "emailTitle": "Titre de l état saisie e-mail",
       "guest": "Bouton « sans compte » (session anonyme, compte à relier plus tard dans le Profil)",
-      "guestHint": "Ligne sous le bouton"
+      "guestHint": "Ligne sous le bouton",
+      "linkTitle": "Titre quand on vient du Profil (relier un compte)",
+      "linkSub": "Sous-titre idem",
+      "close": "Accessibilité : croix"
     },
     "title": "Bienvenue",
     "apple": "Continuer avec Apple",
@@ -56,7 +62,10 @@
     "linkOpening": "Connexion en cours…",
     "linkFailed": "Ce lien ne fonctionne plus. On t'en renvoie un.",
     "guest": "Continuer sans compte",
-    "guestHint": "Tu pourras relier un compte plus tard, depuis ton profil."
+    "guestHint": "Tu pourras relier un compte plus tard, depuis ton profil.",
+    "linkTitle": "Relier un compte",
+    "linkSub": "Pour retrouver ton foyer sur un autre téléphone, et ne rien perdre.",
+    "close": "Fermer"
   },
   "tabs": {
     "_labels": {
@@ -169,7 +178,10 @@
       "realHint": "Indice sous la liste en mode réel (tap = sheet Mission)",
       "filters": "Filtre Toi / L'autre ({name}) / À deux (semaine)",
       "filterEmpty": "Aucune mission pour ce filtre",
-      "solo": "Bandeau Planning quand on est seul"
+      "solo": "Bandeau Planning quand on est seul",
+      "soloListTitle": "Seul dans le foyer : titre de la liste préparée",
+      "soloListSub": "Sous-titre",
+      "soloListCta": "Lien vers l'écran des tâches"
     },
     "title": "Planning",
     "week": "Semaine",
@@ -193,7 +205,10 @@
       "À deux"
     ],
     "filterEmpty": "Rien pour ce filtre sur ces 7 jours.",
-    "solo": "Tes missions sont là. Elles se partagent quand ton binôme a rejoint."
+    "solo": "Tes missions sont là. Elles se partagent quand ton binôme a rejoint.",
+    "soloListTitle": "Ta liste, en attendant ton binôme",
+    "soloListSub": "Rien n'est encore daté : la répartition se fait quand il a rejoint et donné ses dispos.",
+    "soloListCta": "Modifier la liste"
   },
   "balance": {
     "_labels": {
