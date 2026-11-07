@@ -7,6 +7,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GlowBg, ScreenTitle, Card, Divider, Micro, Secondary } from '../src/components/ui';
 import { colors, space, font } from '../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
+import { read, mutate } from '../src/store';
+import { mochiStore } from '../src/mochi-state';
 
 const GROUPS = [
   ['Onboarding', [['Onboarding v3 (3 slides)', '/onboarding'], ['01-05 · Onboarding (ancien)', '/onboarding/ancien']]],
@@ -19,6 +21,7 @@ const GROUPS = [
   ['Premium', [['37 · Paywall Mochi+', '/paywall'], ['38 · Profil & réglages', '/profil']]],
   ['Propositions (à choisir)', [['Proto · Mochi v2 (variantes A/B/C)', '/proto-mochi'], ['Proto · 10 animations à valider', '/proto-anim'], ['06 · Profil — A/B/C', '/props/profil06'], ['07 · Explication des créneaux — A/B/C', '/props/creneaux'], ['08 · Préférences — A/B/C + wording', '/props/prefs'], ['09 · Invitation — A/B/C', '/props/invite']]],
   ['Compte', [['Connexion (Apple / code e-mail)', '/(auth)/login']]],
+  ['Outils de test (dev seulement)', [['+ 500 perles sur le foyer courant', 'dev:pearls']]],
 ];
 
 export default function Plan() {
@@ -41,6 +44,7 @@ export default function Plan() {
                     <Pressable
                       onPress={() => {
                         // la démo du 07 ne se joue qu'à la première visite : cette entrée dev efface le marqueur
+                        if (href === 'dev:pearls') { (async () => { const rows = await read('mochi_state'); for (const r of rows) await mutate('mochi_state', { household_id: r.household_id, pearls: (r.pearls || 0) + 500, updated_at: new Date().toISOString() }); mochiStore.bump(); router.push('/chambre'); })(); return; }
                         if (href === 'replay07') { AsyncStorage.removeItem('mochi:demo:dispos-vue').catch(() => {}).then(() => router.push('/(setup)/dispos')); return; }
                         router.push(href);
                       }}

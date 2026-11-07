@@ -13,6 +13,15 @@ export async function ensureSession() {
   return anon.session;
 }
 
+// photo du cadre « vous deux » (7 nov 2026) : avatars/<uid>/cadre.jpg, URL publique datée
+export async function uploadFramePhoto(uri) {
+  const session = await ensureSession(); const userId = session.user.id;
+  const res = await fetch(uri); const blob = await res.arrayBuffer();
+  const path = `${userId}/cadre.jpg`;
+  const { error } = await supabase.storage.from('avatars').upload(path, blob, { contentType: 'image/jpeg', upsert: true });
+  if (error) throw error;
+  return supabase.storage.from('avatars').getPublicUrl(path).data.publicUrl + `?v=${Date.now()}`;
+}
 async function uploadAvatar(userId, uri) {
   const res = await fetch(uri);
   const blob = await res.arrayBuffer();

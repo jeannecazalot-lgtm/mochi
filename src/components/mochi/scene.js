@@ -23,7 +23,7 @@ const IMG = {
 };
 const S = ({ l, r, t, b, w, h, rad = 0, c, op }) => <View style={{ position: 'absolute', left: l, right: r, top: t, bottom: b, width: w, height: h, borderRadius: rad, backgroundColor: c, opacity: op }} />;
 const Im = ({ k, l, r, t, b, w, h, op = 1 }) => <Image source={IMG[k]} style={{ position: 'absolute', left: l, right: r, top: t, bottom: b, width: w, height: h, opacity: op }} resizeMode="contain" accessibilityIgnoresInvertColors />;
-import { SHOP, layoutRoom, outfitStyle } from './shop-assets';
+import { SHOP, layoutRoom, outfitStyle, CADRE_WINDOW } from './shop-assets';
 const SOUVENIR = require('../../../assets/icones/generic.png');
 export const SIZE_BY_STAGE = { egg: 0.6, mini: 0.75, mochi: 1, maxi: 1.15, dore: 1.25 };
 
@@ -108,7 +108,7 @@ function LiveEgg({ source, cracking, size = 96, hatching = false, onHatched }) {
 }
 const Layer = ({ children, delay = 0, fade }) => <Animated.View entering={FadeIn.delay(delay).duration(400)} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} pointerEvents="none">{children}</Animated.View>;
 
-export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height = layout.scene, hideMochi = false, cracking = false, hatching = false, onHatched = null, topInset = 0, backdrop = undefined, mochiSource = null, mochiBottom = null, shiftY = 0, items = [], outfit = null, souvenirs = 0 }) {
+export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height = layout.scene, hideMochi = false, cracking = false, hatching = false, onHatched = null, topInset = 0, backdrop = undefined, mochiSource = null, mochiBottom = null, shiftY = 0, items = [], outfit = null, souvenirs = 0, photo = null }) {
   const c = T.scene, hh = height, fl = layout.floor, night = !!c.moon;
   const { width: SW } = useWindowDimensions();
   // décision Jeanne 5 nov 2026 (« je préfère l'ancien ») : la pièce est le décor entier de ChatGPT, B le jour, D la nuit
@@ -174,7 +174,7 @@ export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height =
       {night ? <S l={0} r={0} t={0} b={0} c={c.wall} op={0.5} /> : null}
       </>}
       {/* objets achetés, posés aux emplacements prévus ; le tapis sous Mochi, le reste autour */}
-      {backdrop && items.length ? layoutRoom(items, SW, hh).map(p => <React.Fragment key={p.key}>{p.string ? <View style={{ position: 'absolute', left: p.left + p.width / 2 - 1, top: 0, width: 2, height: p.top + 6, backgroundColor: '#8A8078', opacity: 0.8 }} /> : null}<Image source={SHOP[p.img]} style={{ position: 'absolute', left: p.left, top: p.top, width: p.width, height: p.height }} resizeMode="contain" accessibilityIgnoresInvertColors /></React.Fragment>) : null}
+      {backdrop && items.length ? layoutRoom(items, SW, hh).map(p => <React.Fragment key={p.key}>{p.string ? <View style={{ position: 'absolute', left: p.left + p.width / 2 - 1, top: 0, width: 2, height: p.top + 6, backgroundColor: '#8A8078', opacity: 0.8 }} /> : null}{p.photo && photo ? <Image source={{ uri: photo }} style={{ position: 'absolute', left: p.left + p.width * CADRE_WINDOW.x, top: p.top + p.height * CADRE_WINDOW.y, width: p.width * CADRE_WINDOW.w, height: p.height * CADRE_WINDOW.h }} resizeMode="cover" accessibilityIgnoresInvertColors /> : null}<Image source={SHOP[p.img]} style={{ position: 'absolute', left: p.left, top: p.top, width: p.width, height: p.height }} resizeMode="contain" accessibilityIgnoresInvertColors /></React.Fragment>) : null}
       {/* souvenirs de balade : une petite étagère qui se garnit (jusqu'à 8 visibles) */}
       {backdrop && souvenirs > 0 ? <View pointerEvents="none" style={{ position: 'absolute', left: SW * 0.6, top: hh * 0.38, width: SW * 0.3, alignItems: 'center' }}><View style={{ flexDirection: 'row', gap: 4, paddingBottom: 3 }}>{Array.from({ length: Math.min(8, souvenirs) }).map((_, i) => <Image key={i} source={SOUVENIR} style={{ width: 16, height: 16, opacity: 0.9 }} resizeMode="contain" />)}</View><View style={{ height: 4, width: '100%', borderRadius: 2, backgroundColor: c.shelf || '#CFB08C' }} /></View> : null}
       {hideMochi ? null : stage === 'egg'

@@ -56,8 +56,10 @@ async function event(type, extra = {}) {
 }
 
 // ── énergie du jour : missions du FOYER dues aujourd'hui (les deux ensemble) ─────────────
+// jauge du jour : les missions prévues aujourd'hui + tout ce qui a été coché aujourd'hui (un retard rattrapé compte, Jeanne 7 nov 2026)
 export function energyOf(occs, iso = localIso()) {
-  const today = occs.filter(o => isLive(o) && o.due_date === iso);
+  const doneToday = o => o.status === 'done' && o.done_at && localIso(new Date(o.done_at)) === iso;
+  const today = occs.filter(o => isLive(o) && (o.due_date === iso || doneToday(o)));
   return { done: today.filter(o => o.status === 'done').length, total: today.length };
 }
 export const pearlsFor = (occ, task) => (!occ.assignee_id ? PEARLS.together : task?.mental_load ? PEARLS.mental : PEARLS.mission);
@@ -197,9 +199,10 @@ export async function buyItem(item, kind = 'object') {
 // posé / rangé (objet) ou portée / retirée (tenue, une seule à la fois) — décision Jeanne du 7 nov 2026 (« Poser / Ranger »)
 export async function setPlaced(itemKey, placed) {
   const inv = (await read('mochi_inventory')).filter(i => i.household_id === hid());
-  const row = inv.find(i => i.item_key === itemKey); if (!row) return false;
-  if (row.kind === 'outfit' && placed) for (const r of inv.filter(i => i.kind === 'outfit' && i.placed && i.item_key !== itemKey)) await mutate('mochi_inventory', { ...r, placed: false });
-  await mutate('mochi_inventory', { ...row, placed: !!placed }); mochiStore.bump(); return true;
+  const rows = inv.filter(i => i.item_key === itemKey); if (!rows.length) return false;
+  if (rows[0].kind === 'outfit' && placed) for (const r of inv.filter(i => i.kind === 'outfit' && i.placed && i.item_key !== itemKey)) await mutate('mochi_inventory', { ...r, placed: false });
+  for (const row of rows) await mutate('mochi_inventory', { ...row, placed: !!placed }); // toutes les lignes (doublon possible après deux achats simultanés)
+  mochiStore.bump(); return true;
 }
 
 // ── nom choisi à l'onboarding (avant tout foyer) : appliqué au premier Mochi réel vu, puis effacé ──
@@ -213,4 +216,5 @@ export async function applyPendingName() {
     await AsyncStorage.removeItem(NAME_K); return true;
   } catch (e) { return false; }
 }
+export async function setFramePhoto(url) { await patch({ photo_url: url || null }); return true; } // photo du cadre (colonne mochi_state.photo_url, migration 0015)
 export async function renameMochi(name) { const m = await getMochi(); if (!m) return false; await patch({ name: String(name || 'Mochi').trim() || 'Mochi' }); return true; }

@@ -2315,6 +2315,9 @@
       "remove": "Bouton retirer la tenue portée",
       "place": "Bouton poser un objet dans la pièce",
       "store": "Bouton ranger un objet (il reste à vous, il n'est plus dans la pièce)",
+      "photoPick": "Lien sous le cadre : choisir la photo de vous deux",
+      "photoChange": "Lien sous le cadre : changer la photo",
+      "photoError": "Message si l'envoi de la photo échoue",
       "souvenirsShelf": "Titre de l'étagère à souvenirs dans la pièce"
     },
     "title": "La pièce de Mochi",
@@ -2336,7 +2339,10 @@
     "worn": "Portée",
     "remove": "Retirer",
     "place": "Poser",
-    "store": "Ranger"
+    "store": "Ranger",
+    "photoPick": "Choisir votre photo",
+    "photoChange": "Changer la photo",
+    "photoError": "La photo n'a pas pu être envoyée. Réessaie avec du réseau."
   },
   "mochiNotifs": {
     "_labels": {

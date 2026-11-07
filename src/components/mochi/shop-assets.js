@@ -20,7 +20,7 @@ export const SHOP = {
   astronaute: require('../../../assets/boutique/astronaute.png'), cire: require('../../../assets/boutique/cire.png'),
 };
 // hauteur / largeur de chaque image
-const R = { aquarium: 0.941, tournedisque: 1.143, lave: 2.645, piano: 1.144, chewinggum: 1.748, cheval: 0.962, disco: 1.422, jukebox: 1.315, maisonpoupee: 0.966, baignoire: 1.03, mobile: 1.33, cage: 1.331, montgolfiere: 1.604, cheminee: 1.099, coucou: 1.667, cadre: 1.199, lampe: 1.172, table: 0.919,
+const R = { aquarium: 0.941, tournedisque: 1.143, lave: 2.645, piano: 1.144, chewinggum: 1.748, cheval: 0.962, disco: 1.422, jukebox: 1.315, maisonpoupee: 0.966, baignoire: 1.03, mobile: 1.33, cage: 1.331, montgolfiere: 1.604, cheminee: 1.099, coucou: 1.667, cadre: 1.337, lampe: 1.172, table: 0.919,
   lunettesrouges: 0.412, couronne: 0.81, noeud: 0.529, fleurs: 0.471, pirate: 0.52, fete: 1.605, lapin: 0.93, beret: 0.66, lunettesecolier: 0.41, astronaute: 0.912, cire: 1.096 };
 
 // zone, largeur quand la pièce est pleine (w), largeur quand l'objet est presque seul (wa), en px de l'image.
@@ -30,7 +30,8 @@ const OBJ = {
   cage: { zone: 'back', w: 150, wa: 240 }, maisonpoupee: { zone: 'back', w: 230, wa: 330 },
   piano: { zone: 'wall', w: 250, wa: 330 }, cheminee: { zone: 'wall', w: 290, wa: 370 }, jukebox: { zone: 'wall', w: 190, wa: 270 },
   disco: { zone: 'hang', w: 100, wa: 150 }, mobile: { zone: 'hang', w: 170, wa: 240 },
-  coucou: { zone: 'mount', w: 100, wa: 170 }, cadre: { zone: 'mount', w: 70, wa: 120 },
+  coucou: { zone: 'mount', w: 100, wa: 170 },
+  cadre: { zone: 'top', hosts: ['cheminee', 'piano'], w: 70, wa: 100 }, // posé, jamais au mur (il « flottait », Jeanne 7 nov 2026)
   montgolfiere: { zone: 'window', w: 110, wa: 150 },
   table: { zone: 'side', w: 150, wa: 210 },
   aquarium: { zone: 'top', hosts: ['piano', 'cheminee'], w: 110, wa: 150 },
@@ -39,6 +40,8 @@ const OBJ = {
   lampe: { zone: 'top', hosts: ['piano', 'cheminee'], w: 80, wa: 110 },
 };
 // ce qu'un meuble peut porter : décalages x (px de l'image, à sa largeur de base) et enfoncement du bas de l'objet dans le dessus
+// fenêtre du cadre (fraction de l'image) : la photo du couple s'y glisse derrière
+export const CADRE_WINDOW = { x: 0.2, y: 0.146, w: 0.597, h: 0.648 };
 const HOSTS = { piano: { dx: [-10, 70, -85], sink: 14 }, cheminee: { dx: [-40, 45, 110], sink: 14 }, table: { dx: [-18, 38], sink: 22 } };
 // emplacements par zone selon le nombre d'objets dans la zone : [cx, bas] (sol, mur) ou [cx, haut] (suspendu, accroché, fenêtre)
 const LAYOUTS = {
@@ -76,7 +79,7 @@ export function layoutRoom(keys, SW, hh, boost = 1.15) {
   });
   const used = {};
   tops.forEach(([k, host]) => { const H = out[host]; if (!H) return; const kind = host.replace(/\d+$/, ''); const spec = HOSTS[kind]; const i = used[host] || 0; used[host] = i + 1; const sc = H.w / OBJ[kind].w; const dx = (spec.dx[i] ?? 0) * sc; const w = px(OBJ[k]), h = w * R[k]; out[k] = { x: H.x + H.w / 2 + dx - w / 2, y: H.y + spec.sink * sc - h, w, h }; });
-  return Object.entries(out).map(([key, p]) => ({ key, img: key.replace(/\d+$/, ''), left: ox + p.x * s, top: oy + p.y * s, width: p.w * s, height: p.h * s, string: !!p.string }));
+  return Object.entries(out).map(([key, p]) => ({ key, img: key.replace(/\d+$/, ''), left: ox + p.x * s, top: oy + p.y * s, width: p.w * s, height: p.h * s, string: !!p.string, photo: key === 'cadre' }));
 }
 
 // tenues : largeur relative à Mochi (W), ancre (center / bottom), y relatif à sa hauteur (H), décalage x relatif
