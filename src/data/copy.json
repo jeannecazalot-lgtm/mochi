@@ -2367,12 +2367,12 @@
   },
   "onbV5": {
     "_labels": {
-      "_": "Onboarding v5 (6 nov 2026, retours Jeanne : œuf direct, titres, écrans pleins, éclosion animée). 3 écrans + connexion.",
+      "_": "Onboarding v6 (8 nov 2026, Jeanne : charge mentale + ce que fait Mochi + « à deux c'est plus léger », textes de l'ancien onboarding). 3 écrans + connexion.",
       "skip": "Passer",
       "next": "Suivant",
       "start": "Commencer",
       "namePlaceholder": "Mochi",
-      "slides": "3 écrans : title, body, say (bulle), rows (chiffres)",
+      "slides": "3 écrans : title, body, say (bulle, dernier écran), rows (chiffres), items + outro (pensées)",
       "rows": "Chiffres (v affiché à la fin ; n = valeur qui compte, f = format hm minutes→1h26 / h heures)"
     },
     "skip": "Passer",
@@ -2406,14 +2406,20 @@
         "source": "Insee · Enquête emploi du temps"
       },
       {
-        "title": "Voici Mochi. Il est à vous deux.",
-        "body": "Il vit chez vous. Quand vous prenez soin de la maison ensemble, il va bien. Quand l'un porte tout, il le sent.",
-        "say": "Je suis ce qu'il y a entre vous deux. Vous m'appelez comment ?"
+        "title": "Faire est une chose. Y penser en est une autre.",
+        "body": "Anticiper, se rappeler, organiser, relancer. Ce travail invisible tourne presque toujours dans une seule tête.",
+        "items": [
+          "RDV pédiatre · mardi 14 h",
+          "Racheter du café · avant demain",
+          "Cadeau d'anniversaire · 30 ans",
+          "Appeler le plombier · la fuite"
+        ],
+        "outro": "C'est ce qu'on appelle la charge mentale."
       },
       {
-        "title": "Il éclot quand vous êtes deux.",
-        "body": "Chaque mission cochée lui donne de l'énergie. Jauge pleine, il part en balade. Une mission oubliée lui coûte un cœur. Il ne meurt jamais, mais il compte sur vous.",
-        "say": "Et après, je grandis avec vous."
+        "title": "Mochi répartit. À deux, c'est plus léger.",
+        "body": "Vos missions, vos dispos, vos préférences : il répartit la semaine, voit quand ça penche, et chacun sait ce qu'il a à faire.",
+        "say": "Je m'occupe de la répartition. Vous m'appelez comment ?"
       }
     ]
   }

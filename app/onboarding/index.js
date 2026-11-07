@@ -14,13 +14,12 @@ import { CTAPrimary } from '../../src/components/ui';
 import { CountUp } from '../../src/components/motion';
 import { Scene } from '../../src/components/mochi/scene';
 import { Bubble } from '../../src/components/mochi/bubble';
-import { Gauges, Label, Num } from '../../src/components/mochi/gauges';
+import { Label, Num } from '../../src/components/mochi/gauges';
 import { setPendingName } from '../../src/mochi-state';
 import { useTokens, type, layout } from '../../src/theme-v3';
 import copy from '../../src/data/copy.json';
 
 const t = copy.onbV5;
-const DEMO_TOTAL = 5;
 
 function Dot({ T, on }) {
   const w = useSharedValue(on ? 28 : 8);
@@ -35,9 +34,6 @@ export default function Onboarding() {
   const insets = useSafeAreaInsets();
   const list = useRef(null);
   const [index, setIndex] = useState(0);
-  const [phase, setPhase] = useState('egg'); // écran 3 : egg → cracking → hatched
-  const [energy, setEnergy] = useState(0);
-  const [away, setAway] = useState(false);
   const [name, setName] = useState('');
   const [kb, setKb] = useState(0); // hauteur du clavier : la scène se réduit pour laisser le texte et le champ visibles
   useEffect(() => {
@@ -46,23 +42,8 @@ export default function Onboarding() {
     return () => { a.remove(); b.remove(); };
   }, []);
   const last = index === t.slides.length - 1;
-  const sceneH = Math.round(SH * (kb ? 0.2 : 0.46));
+  const sceneH = Math.round(SH * (kb ? 0.2 : t.slides[index].items ? 0.34 : 0.46)); // l'écran des pensées a besoin de place
 
-  // écran 3 : l'œuf se fêle, Mochi apparaît, la jauge se remplit mission par mission, il part et revient
-  useEffect(() => {
-    if (!last) { setPhase('egg'); setAway(false); setEnergy(0); return; }
-    const ids = [];
-    ids.push(setTimeout(() => setPhase('cracking'), 500));
-    ids.push(setTimeout(() => setPhase('hatching'), 1700)); // l'œuf joue sa sortie, puis onHatched → Mochi
-    let i = 0;
-    ids.push(setTimeout(() => {
-      const id = setInterval(() => {
-        i += 1; setEnergy(i); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-        if (i >= DEMO_TOTAL) { clearInterval(id); ids.push(setTimeout(() => setAway(true), 600)); ids.push(setTimeout(() => setAway(false), 4200)); }
-      }, 420); ids.push(id);
-    }, 2600));
-    return () => ids.forEach(x => { clearTimeout(x); clearInterval(x); });
-  }, [index]);
 
   const finish = useCallback(() => {
     Keyboard.dismiss();
@@ -81,7 +62,6 @@ export default function Onboarding() {
   }, [width, index]);
 
   const say = t.slides[index].say ? t.slides[index].say.replace('Mochi', name.trim() || 'Mochi') : null;
-  const stage = last && phase === 'hatched' ? 'mini' : 'egg';
   const renderItem = useCallback(({ item, index: i }) => (
     <View style={{ width, paddingHorizontal: layout.x, flex: 1, justifyContent: 'center' }}>
       <Animated.View entering={FadeInDown.duration(320)} style={{ alignItems: 'center' }}>
@@ -100,7 +80,13 @@ export default function Onboarding() {
           <Label T={T} style={{ marginTop: 8, textAlign: 'center' }}>{item.source}</Label>
         </View>
       ) : null}
-      {i === 1 ? (
+      {item.items ? (
+        <View style={{ marginTop: 18, borderTopWidth: StyleSheet.hairlineWidth, borderColor: T.line }}>
+          {item.items.map((it, k) => <Animated.View key={it} entering={FadeInDown.delay(150 + k * 90).duration(300)} style={{ paddingVertical: 7, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: T.line }}><Text style={[type.body, { color: T.ink, textAlign: 'center' }]}>{it}</Text></Animated.View>)}
+          {item.outro ? <Text style={[type.sub, { color: T.ink, textAlign: 'center', marginTop: 12, fontStyle: 'italic' }]}>{item.outro}</Text> : null}
+        </View>
+      ) : null}
+      {i === t.slides.length - 1 ? (
         <View style={{ marginTop: kb ? 12 : 22, borderBottomWidth: 1.5, borderColor: T.ink, paddingBottom: 6, alignSelf: 'center', minWidth: 200 }}>
           <TextInput value={name} onChangeText={setName} placeholder={t.namePlaceholder} placeholderTextColor={T.muted} maxLength={18} returnKeyType="done" onSubmitEditing={next} textAlign="center" style={{ fontSize: 26, fontWeight: '600', color: T.ink, padding: 0 }} />
         </View>
@@ -111,15 +97,11 @@ export default function Onboarding() {
   return (
     <View style={{ flex: 1, backgroundColor: T.bg, paddingBottom: kb }}>
       <Animated.View layout={LinearTransition.duration(260)}>
-        <Scene T={T} stage={stage} cracking={phase === 'cracking'} hatching={phase === 'hatching'} onHatched={() => { setPhase('hatched'); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {}); }} mood={last && energy >= DEMO_TOTAL ? 'wink' : undefined} lvl={1} away={away} height={sceneH} />
-        {say && !kb && !(last && phase !== 'hatched') ? <Bubble T={T} style={{ top: insets.top + 24 }}>{say}</Bubble> : null}
+        <Scene T={T} stage="egg" lvl={1} height={sceneH} />
+        {/* la bulle, plus bas (Jeanne 8 nov 2026 : « trop haute ») : au tiers de la scène, au-dessus de l'œuf */}
+        {say && !kb ? <Bubble T={T} style={{ top: Math.max(insets.top + 56, sceneH * 0.4) }}>{say}</Bubble> : null}
         {!last ? <Pressable onPress={finish} hitSlop={12} style={{ position: 'absolute', top: insets.top + 10, right: layout.x }}><Text style={[type.label, { color: T.ink, opacity: 0.7 }]}>{t.skip}</Text></Pressable> : null}
       </Animated.View>
-      {last && phase === 'hatched' ? (
-        <Animated.View entering={FadeIn.duration(400)}>
-          <Gauges T={T} t={copy.homeV3} energy={{ done: energy, total: DEMO_TOTAL }} hearts={5} formLabel={copy.homeV3.formLabels[5]} />
-        </Animated.View>
-      ) : null}
       <FlatList
         ref={list}
         data={t.slides}
