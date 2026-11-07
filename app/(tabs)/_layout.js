@@ -25,8 +25,9 @@ export default function TabsLayout() {
     const refresh = async () => {
       const hid = setup.householdId;
       if (!hid) return;
-      try { await Promise.all(['tasks', 'occurrences', 'task_pains', 'swap_requests', 'malus', 'expenses', 'activity', 'events'].map(tb => pull(tb, hid))); } catch (e) { /* hors ligne */ }
+      try { await Promise.all(['tasks', 'occurrences', 'task_pains', 'swap_requests', 'malus', 'expenses', 'activity', 'events', 'household_members', 'setup_drafts', 'mochi_state', 'mochi_events', 'mochi_inventory'].map(tb => pull(tb, hid))); } catch (e) { /* hors ligne */ }
       occStore.bump();
+      loadPartner(hid); // un binôme arrivé pendant que l'app dormait
       sweepMissed().catch(() => {});
     };
     loadNightMode(); // réglage de la personne (auto / toujours / jamais)

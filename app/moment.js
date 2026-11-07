@@ -12,6 +12,8 @@ import { Label, Num } from '../src/components/mochi/gauges';
 import { useTokens, type, layout } from '../src/theme-v3';
 import { unseenMoments, markSeen, getMochi, PEARLS, STAGES } from '../src/mochi-state';
 import items from '../src/data/mochi-items.json';
+import { read } from '../src/store';
+import { isLive } from '../src/occ-actions';
 import copy from '../src/data/copy.json';
 
 const fill = (s, vars) => Object.keys(vars).reduce((acc, k) => acc.replace(`{${k}}`, vars[k]), s);
@@ -49,7 +51,10 @@ export default function Moment() {
   const next = async () => {
     if (!demo) await markSeen(ev).catch(() => {});
     const rest = queue.slice(1);
-    if (rest.length) setQueue(rest); else router.back();
+    if (rest.length) { setQueue(rest); return; }
+    // éclosion réelle et rien d'encore réparti : on enchaîne sur le choix des missions à deux (8 nov 2026, Jeanne : « ça m'a pas proposé de remplir des missions »)
+    if (!demo && ev.type === 'hatch') { try { const occs = await read('occurrences'); if (!occs.some(isLive)) { router.replace('/(setup)/taches'); return; } } catch (e) { /* retour simple */ } }
+    router.back();
   };
   return (
     <View style={{ flex: 1, backgroundColor: T.bg }}>

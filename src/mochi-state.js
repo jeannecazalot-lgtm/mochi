@@ -77,6 +77,7 @@ export async function onMissionDone(occ, task, { wasMissed = false } = {}) {
 // « il éclot quand ils créent leur session à deux »). L'écran Duo formé est le moment de l'éclosion.
 export async function checkHatch() {
   const m = await getMochi(); if (!m || m.stage !== 'egg') return false;
+  try { await pull('household_members', hid()); } catch (e) { /* hors ligne : le cache */ } // le cache ne se rafraîchissait jamais : l'œuf n'éclosait pas (8 nov 2026)
   const members = await read('household_members');
   if (members.filter(x => x.household_id === hid()).length < 2) return false;
   await event('hatch', { actor_id: null });
