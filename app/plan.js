@@ -17,7 +17,7 @@ const GROUPS = [
   ['Tâches', [['14 · Fiche tâche', '/task/edit?id=t-courses'], ['Mission (sheet, tap Accueil)', '/mission'], ['21 · Tâche en retard (sheet)', '/retard?title=Courses&emoji=🛒&mins=45']]],
   ['Social', [['18 · Ping (sheet)', '/ping?occ=o2'], ['22 · Fil Activité', '/activite']]],
   ['Ajout', [['Dépense', '/depense'], ['30 · Événement social', '/event'], ['34 · Notifs lockscreen', '/notifs']]],
-  ['Moments', [['Éclosion', '/moment?demo=hatch'], ['Retour de balade', '/moment?demo=walk_return'], ['Palier', '/moment?demo=stage_up'], ['Récap du dimanche', '/moment?demo=week_closed']]],
+  ['Moments', [['Éclosion', '/moment?demo=hatch'], ['Retour de balade', '/moment?demo=walk_return'], ['Palier', '/moment?demo=stage_up'], ['Récap du dimanche', '/moment?demo=week_closed'], ['Balade par la fenêtre (proposition)', '/proto-balade']]],
   ['Premium', [['37 · Paywall Mochi+', '/paywall'], ['38 · Profil & réglages', '/profil']]],
   ['Propositions (à choisir)', [['Proto · Mochi v2 (variantes A/B/C)', '/proto-mochi'], ['Proto · 10 animations à valider', '/proto-anim'], ['06 · Profil — A/B/C', '/props/profil06'], ['07 · Explication des créneaux — A/B/C', '/props/creneaux'], ['08 · Préférences — A/B/C + wording', '/props/prefs'], ['09 · Invitation — A/B/C', '/props/invite']]],
   ['Compte', [['Connexion (Apple / code e-mail)', '/(auth)/login']]],

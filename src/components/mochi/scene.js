@@ -3,11 +3,11 @@
 // un sol plats, aux mêmes positions et paliers que la version en formes : jour 1 = fenêtre, rideau, étagère,
 // table, plante, tapis, cadre ; palier 2 lampe ; palier 3 banquette (remplace la table). Micro-mouvements :
 // la plante se balance, la lampe respire la nuit. La nuit : voile navy sur la pièce, lune et étoiles dans la fenêtre.
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { View, Image, useWindowDimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming, withDelay, withSequence, withRepeat, Easing, ZoomIn, FadeIn, FadeInUp } from 'react-native-reanimated';
-import { LiveMochiImage, MOCHI_RATIO } from '../mochi-img';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming, withDelay, withSequence, withRepeat, cancelAnimation, Easing, ZoomIn, FadeIn, FadeInUp } from 'react-native-reanimated';
+import { LiveMochiImage, MOCHI_RATIO, papierFor } from '../mochi-img';
 import { prefersReducedMotion } from '../motion';
 import { layout } from '../../theme-v3';
 
@@ -17,6 +17,7 @@ const IMG = {
   rug: require('../../../assets/maison/rug.png'), frame: require('../../../assets/maison/frame.png'), curtain: require('../../../assets/maison/curtain.png'),
   egg: require('../../../assets/maison/egg.png'), eggCrack: require('../../../assets/maison/egg-crack.png'), eggOpen: require('../../../assets/maison/egg-open.png'),
   decorJour: require('../../../assets/maison/decor-jour.png'), decorNuit: require('../../../assets/maison/decor-nuit.png'),
+  sac: require('../../../assets/maison/vie/sac.png'),
   bird1: require('../../../assets/maison/vie/bird1.png'), bird2: require('../../../assets/maison/vie/bird2.png'), fly1: require('../../../assets/maison/vie/fly1.png'), fly2: require('../../../assets/maison/vie/fly2.png'), cloud: require('../../../assets/maison/vie/cloud.png'),
   jour: [require('../../../assets/maison/jour-vide.png'), require('../../../assets/maison/jour-moyen.png'), require('../../../assets/maison/jour-plein.png')],
   nuit: [require('../../../assets/maison/nuit-vide.png'), require('../../../assets/maison/nuit-moyen.png'), require('../../../assets/maison/nuit-plein.png')],
@@ -69,6 +70,36 @@ function Flyer({ frames, box, size, every = 18000, duration = 6500, delay = 0, f
     </Animated.View>
   );
 }
+// Balade (proposition du 7 nov 2026) : pendant la sortie, Mochi trottine en tout petit sur les collines, derrière la vitre
+function Walker({ size, box, active }) {
+  const x = useSharedValue(box.w * 0.45), bob = useSharedValue(0), f = useSharedValue(0);
+  useEffect(() => {
+    if (!active) return;
+    if (prefersReducedMotion()) { x.value = box.w * 0.45; return; }
+    x.value = withRepeat(withSequence(withTiming(box.w * 0.72, { duration: 9000, easing: Easing.inOut(Easing.sin) }), withTiming(box.w * 0.12, { duration: 9000, easing: Easing.inOut(Easing.sin) })), -1, false);
+    bob.value = withRepeat(withSequence(withTiming(-3, { duration: 220 }), withTiming(0, { duration: 220 })), -1, false);
+    f.value = withRepeat(withTiming(1, { duration: 440 }), -1, true);
+    return () => { cancelAnimation(x); cancelAnimation(bob); cancelAnimation(f); };
+  }, [active]);
+  const st = useAnimatedStyle(() => ({ transform: [{ translateX: x.value }, { translateY: bob.value }] }));
+  const a = useAnimatedStyle(() => ({ opacity: f.value < 0.5 ? 1 : 0 }));
+  const b = useAnimatedStyle(() => ({ opacity: f.value < 0.5 ? 0 : 1 }));
+  if (!active) return null;
+  const h = size * MOCHI_RATIO;
+  return (
+    <Animated.View pointerEvents="none" style={[{ position: 'absolute', left: box.l, top: box.t, width: size, height: h }, st]}>
+      <Animated.Image source={papierFor(-1)} style={[{ position: 'absolute', width: size, height: h }, a]} resizeMode="contain" />
+      <Animated.Image source={papierFor(1)} style={[{ position: 'absolute', width: size, height: h }, b]} resizeMode="contain" />
+    </Animated.View>
+  );
+}
+// le souvenir qui vient d'arriver brille deux secondes sur l'étagère
+function Shine({ color }) {
+  const op = useSharedValue(0.9), sc = useSharedValue(0.6);
+  useEffect(() => { op.value = withTiming(0, { duration: 2000, easing: Easing.out(Easing.quad) }); sc.value = withTiming(2.4, { duration: 2000, easing: Easing.out(Easing.quad) }); }, []);
+  const st = useAnimatedStyle(() => ({ opacity: op.value, transform: [{ scale: sc.value }] }));
+  return <Animated.View pointerEvents="none" style={[{ position: 'absolute', left: -4, top: -4, width: 24, height: 24, borderRadius: 12, backgroundColor: color }, st]} />;
+}
 // le nuage dérive très lentement, en boucle
 function Drift({ source, box, size, duration = 70000 }) {
   const x = useSharedValue(-size);
@@ -117,18 +148,44 @@ export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height =
   // la pièce se remplit avec ce qu'on achète (décision Jeanne 6 nov 2026) ; le palier change Mochi, ses balades, la boutique
   if (backdrop === undefined) backdrop = (night ? IMG.nuit : IMG.jour)[0];
   const W = Math.round(layout.mochi * (SIZE_BY_STAGE[stage] || 1)), H = W * MOCHI_RATIO;
-  const tx = useSharedValue(away ? 420 : 0), hop = useSharedValue(0);
+  // ── balade par la fenêtre (proposition du 7 nov 2026) : Mochi met son sac, trottine vers la fenêtre en rapetissant,
+  // passe derrière la vitre où il marche sur les collines ; au retour il revient par la fenêtre, pose son sac, et le
+  // souvenir brille sur l'étagère. Phases : home → leaving → away → returning → home.
+  const [phase, setPhase] = useState(away ? 'away' : 'home');
+  const [shine, setShine] = useState(false);
+  const firstRun = useRef(true);
+  const tx = useSharedValue(0), ty = useSharedValue(0), sc = useSharedValue(1), hop = useSharedValue(0), mop = useSharedValue(away ? 0 : 1), sacOp = useSharedValue(away ? 1 : 0);
+  const bottomM = mochiBottom ?? (backdrop ? 26 : fl + 10 - 18);
+  const toX = -(SW / 2 - SW * 0.15), toY = (hh * 0.05 + hh * 0.62 * 0.6) - (hh - bottomM - H / 2); // le centre de la fenêtre, vu du tapis
   useEffect(() => {
-    const rm = prefersReducedMotion();
+    if (firstRun.current) { firstRun.current = false; return; }
+    const rm = prefersReducedMotion(); const ease = Easing.inOut(Easing.cubic);
     if (away) {
-      if (rm) { tx.value = 420; return; }
-      hop.value = withSequence(withTiming(-10, { duration: 120 }), withTiming(0, { duration: 120 }), withTiming(-10, { duration: 120 }), withTiming(0, { duration: 120 }), withTiming(-8, { duration: 120 }), withTiming(0, { duration: 120 }));
-      tx.value = withTiming(420, { duration: 900 });
-    } else {
-      tx.value = rm ? 0 : withSpring(0, { damping: 14, stiffness: 90 });
+      if (rm) { mop.value = 0; sacOp.value = 1; setPhase('away'); return; }
+      setPhase('leaving');
+      sacOp.value = withTiming(1, { duration: 350 });
+      hop.value = withSequence(withTiming(-14, { duration: 140 }), withTiming(0, { duration: 140 }), withTiming(-10, { duration: 120 }), withTiming(0, { duration: 120 }), withDelay(80, withRepeat(withSequence(withTiming(-6, { duration: 160 }), withTiming(0, { duration: 160 })), 3, false)));
+      tx.value = withDelay(600, withTiming(toX, { duration: 1100, easing: ease }));
+      ty.value = withDelay(600, withTiming(toY, { duration: 1100, easing: ease }));
+      sc.value = withDelay(600, withTiming(0.3, { duration: 1100, easing: ease }));
+      mop.value = withDelay(1600, withTiming(0, { duration: 150 }));
+      const t = setTimeout(() => setPhase('away'), 1750);
+      return () => clearTimeout(t);
     }
+    if (rm) { mop.value = 1; sacOp.value = 0; tx.value = 0; ty.value = 0; sc.value = 1; setPhase('home'); return; }
+    setPhase('returning');
+    tx.value = toX; ty.value = toY; sc.value = 0.3; mop.value = withTiming(1, { duration: 150 });
+    tx.value = withDelay(150, withTiming(0, { duration: 1100, easing: ease }));
+    ty.value = withDelay(150, withTiming(0, { duration: 1100, easing: ease }));
+    sc.value = withDelay(150, withTiming(1, { duration: 1100, easing: ease }));
+    hop.value = withDelay(150, withRepeat(withSequence(withTiming(-6, { duration: 160 }), withTiming(0, { duration: 160 })), 3, false));
+    sacOp.value = withDelay(1300, withTiming(0, { duration: 300 }));
+    const t = setTimeout(() => { setPhase('home'); setShine(true); }, 1400);
+    const t2 = setTimeout(() => setShine(false), 3600);
+    return () => { clearTimeout(t); clearTimeout(t2); };
   }, [away]);
-  const walk = useAnimatedStyle(() => ({ transform: [{ translateX: tx.value }, { translateY: hop.value }] }));
+  const walk = useAnimatedStyle(() => ({ opacity: mop.value, transform: [{ translateX: tx.value }, { translateY: ty.value + hop.value }, { scale: sc.value }] }));
+  const sacStyle = useAnimatedStyle(() => ({ opacity: sacOp.value }));
   // mise en place (retour Jeanne 4 nov 2026, « c'est un collage ») : les meubles REPOSENT sur le sol, la fenêtre est
   // sur le mur, le tapis est à plat sous Mochi, les tailles se répondent. Tout est relatif à la largeur de l'écran.
   const u = SW / 440; // unité : 1 px sur un 440 pt
@@ -140,12 +197,15 @@ export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height =
       {backdrop ? <Image source={backdrop} style={{ position: 'absolute', left: 0, top: shiftY, width: SW, height: hh }} resizeMode="cover" accessibilityIgnoresInvertColors /> : null}
       {backdrop ? null : <S l={0} r={0} b={0} h={fl2} c={c.floor} />}
       {/* la vie par la fenêtre (le jour) : un nuage qui dérive, un oiseau qui passe, un papillon qui flâne */}
-      {backdrop && !night ? (
+      {backdrop ? (
         // tout reste DERRIÈRE la vitre : une découpe en arche sur la moitié gauche (la fenêtre des décors feutrés)
         <View pointerEvents="none" style={{ position: 'absolute', left: 0, top: hh * 0.05, width: SW * 0.3, height: hh * 0.62, borderTopLeftRadius: SW * 0.15, borderTopRightRadius: SW * 0.15, overflow: 'hidden' }}>
-          <Drift source={IMG.cloud} box={{ l: 0, t: hh * 0.1, w: SW * 0.3 }} size={44} />
-          <Flyer frames={[IMG.bird1, IMG.bird2]} box={{ l: 0, t: hh * 0.08, w: SW * 0.3, h: hh * 0.26 }} size={28} every={16000} duration={5200} delay={2500} />
-          <Flyer frames={[IMG.fly1, IMG.fly2]} box={{ l: SW * 0.02, t: hh * 0.3, w: SW * 0.24, h: hh * 0.2 }} size={20} every={22000} duration={9000} delay={9000} flap={120} wander={10} />
+          {!night ? <>
+            <Drift source={IMG.cloud} box={{ l: 0, t: hh * 0.1, w: SW * 0.3 }} size={44} />
+            <Flyer frames={[IMG.bird1, IMG.bird2]} box={{ l: 0, t: hh * 0.08, w: SW * 0.3, h: hh * 0.26 }} size={28} every={16000} duration={5200} delay={2500} />
+            <Flyer frames={[IMG.fly1, IMG.fly2]} box={{ l: SW * 0.02, t: hh * 0.3, w: SW * 0.24, h: hh * 0.2 }} size={20} every={22000} duration={9000} delay={9000} flap={120} wander={10} />
+          </> : null}
+          <Walker size={W * 0.3} box={{ l: 0, t: hh * 0.62 * 0.6 - W * 0.3 * MOCHI_RATIO * 0.5, w: SW * 0.3 }} active={phase === 'away'} />
         </View>
       ) : null}
 
@@ -176,11 +236,12 @@ export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height =
       {/* objets achetés, posés aux emplacements prévus ; le tapis sous Mochi, le reste autour */}
       {backdrop && items.length ? layoutRoom(items, SW, hh).map(p => <React.Fragment key={p.key}>{p.string ? <View style={{ position: 'absolute', left: p.left + p.width / 2 - 1, top: 0, width: 2, height: p.top + 6, backgroundColor: '#8A8078', opacity: 0.8 }} /> : null}{p.photo && photo ? <Image source={{ uri: photo }} style={{ position: 'absolute', left: p.left + p.width * CADRE_WINDOW.x, top: p.top + p.height * CADRE_WINDOW.y, width: p.width * CADRE_WINDOW.w, height: p.height * CADRE_WINDOW.h }} resizeMode="cover" accessibilityIgnoresInvertColors /> : null}<Image source={SHOP[p.img]} style={{ position: 'absolute', left: p.left, top: p.top, width: p.width, height: p.height }} resizeMode="contain" accessibilityIgnoresInvertColors /></React.Fragment>) : null}
       {/* souvenirs de balade : une petite étagère qui se garnit (jusqu'à 8 visibles) */}
-      {backdrop && souvenirs > 0 ? <View pointerEvents="none" style={{ position: 'absolute', left: SW * 0.6, top: hh * 0.38, width: SW * 0.3, alignItems: 'center' }}><View style={{ flexDirection: 'row', gap: 4, paddingBottom: 3 }}>{Array.from({ length: Math.min(8, souvenirs) }).map((_, i) => <Image key={i} source={SOUVENIR} style={{ width: 16, height: 16, opacity: 0.9 }} resizeMode="contain" />)}</View><View style={{ height: 4, width: '100%', borderRadius: 2, backgroundColor: c.shelf || '#CFB08C' }} /></View> : null}
+      {backdrop && souvenirs > 0 ? <View pointerEvents="none" style={{ position: 'absolute', left: SW * 0.6, top: hh * 0.38, width: SW * 0.3, alignItems: 'center' }}><View style={{ flexDirection: 'row', gap: 4, paddingBottom: 3 }}>{Array.from({ length: Math.min(8, souvenirs) }).map((_, i) => <View key={i} style={{ width: 16, height: 16 }}>{shine && i === Math.min(8, souvenirs) - 1 ? <Shine color={c.lamp || '#F2D16B'} /> : null}<Image source={SOUVENIR} style={{ width: 16, height: 16, opacity: 0.9 }} resizeMode="contain" /></View>)}</View><View style={{ height: 4, width: '100%', borderRadius: 2, backgroundColor: c.shelf || '#CFB08C' }} /></View> : null}
       {hideMochi ? null : stage === 'egg'
         ? <><Animated.View entering={FadeInUp.duration(420).easing(Easing.out(Easing.cubic)).withInitialValues({ opacity: 0, transform: [{ translateY: 10 }] })} style={{ position: 'absolute', bottom: backdrop ? 30 : fl2 - 12, left: 0, right: 0, alignItems: 'center' }}><LiveEgg source={cracking || hatching ? IMG.eggCrack : IMG.egg} cracking={cracking && !hatching} hatching={hatching} onHatched={onHatched} /></Animated.View></>
         : <Animated.View entering={FadeInUp.duration(420).easing(Easing.out(Easing.cubic)).withInitialValues({ opacity: 0, transform: [{ translateY: 10 }] })} style={{ position: 'absolute', bottom: mochiBottom ?? (backdrop ? 26 : fl2 - 18), left: 0, right: 0 }}><Animated.View style={[{ alignItems: 'center' }, walk]}>
               <View style={{ position: 'absolute', bottom: 4, width: Math.round(W * 0.9), height: 10, borderRadius: 5, backgroundColor: c.shadow, opacity: 0.6 }} />
+              <Animated.Image pointerEvents="none" source={IMG.sac} style={[{ position: 'absolute', left: -W * 0.02, top: H * 0.22, width: W * 0.42, height: W * 0.43 }, sacStyle]} resizeMode="contain" />
               <LiveMochiImage size={W} lean={0} mood={mood} source={mochiSource} />
               {outfit && SHOP[outfit] && outfitStyle(outfit, W, H) ? <Image pointerEvents="none" source={SHOP[outfit]} style={outfitStyle(outfit, W, H)} resizeMode="contain" accessibilityIgnoresInvertColors /> : null}
             </Animated.View></Animated.View>}
