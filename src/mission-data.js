@@ -3,6 +3,7 @@
 // Charge l'occurrence + sa tâche (réelles via le store, démo en repli),
 // enregistre la règle (tasks) et la validation (occurrence + dépense).
 // ═══════════════════════════════════════════════════════════════════
+import { slotWindow } from './task-actions';
 import { read, mutate, uuid } from './store';
 import { occStore } from './demo-core';
 import { toggleOccurrence, applyRuleToOccurrences } from './occ-actions';
@@ -66,7 +67,7 @@ export async function saveRule(taskId, rule) {
   const row = rows.find(r => r.id === taskId);
   if (!row) return false;
   const next = { ...row, window_days: rule.window_days, duration_min: rule.duration_min, note: rule.note || null, ...whoToCols(rule.who, getUid()),
-    window_end: rule.deadline === 'morning' ? '12:00' : null, window_start: rule.deadline === 'evening' ? '17:00' : null };
+    ...slotWindow(rule.deadline) };
   await mutate('tasks', next);
   // l'effort = MA pénibilité (décision Jeanne 9 sept 2026 : l'effort fait partie de la règle)
   if (rule.pain && getUid()) await mutate('task_pains', { task_id: taskId, user_id: getUid(), pain: rule.pain });

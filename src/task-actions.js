@@ -26,10 +26,13 @@ const hourToDeadline = end => {
   const h = parseInt(String(end).slice(0, 2), 10);
   return h <= 12 ? 'morning' : `${String(h).padStart(2, '0')}:00`;
 };
-const deadlineToHour = dl => (dl == null || dl === 'evening' ? null : dl === 'morning' ? '12:00' : `${dl}`.slice(0, 5) + (String(dl).length === 5 ? '' : ':00'));
+// tranches (7 nov 2026, Jeanne : « mettre des tranches horaires ») : matin < 12 h · midi 11 h 30 – 14 h · après-midi 14 h – 18 h · soir ≥ 17 h
+export const SLOT_WINDOW = { morning: [null, '12:00'], noon: ['11:30', '14:00'], afternoon: ['14:00', '18:00'], evening: ['17:00', null] };
+const deadlineToHour = dl => (dl == null ? null : SLOT_WINDOW[dl] ? SLOT_WINDOW[dl][1] : `${dl}`.slice(0, 5) + (String(dl).length === 5 ? '' : ':00'));
 // « Soir » = fenêtre qui commence à 17 h (window_start), « Matin » = avant midi (window_end)
-const startToHour = dl => (dl === 'evening' ? '17:00' : null);
-const windowToDeadline = row => (row.window_start && parseInt(String(row.window_start).slice(0, 2), 10) >= 17 ? 'evening' : hourToDeadline(row.window_end));
+const startToHour = dl => (SLOT_WINDOW[dl] ? SLOT_WINDOW[dl][0] : null);
+const windowToDeadline = row => { const st = row.window_start ? parseInt(String(row.window_start).slice(0, 2), 10) : null; return st != null && st >= 17 ? 'evening' : st === 14 ? 'afternoon' : st === 11 ? 'noon' : hourToDeadline(row.window_end); };
+export const slotWindow = dl => ({ window_start: startToHour(dl), window_end: deadlineToHour(dl) });
 
 // charge une vraie tâche du store au format de la fiche ; null si inconnue (→ démo)
 export async function loadRealTask(id) {

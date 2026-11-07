@@ -12,7 +12,7 @@ import { Card, Micro, Avatar, LinkText } from '../src/components/ui';
 import { SheetHandle, CheckCircle } from '../src/components/social/extra';
 import { Animated, FadeIn, useCheckPop } from '../src/components/motion';
 import { Row, Stepper, PillChip, ConfirmRow, Arrow, Caption } from '../src/components/task/proto';
-import { RuleEditor } from '../src/components/task/rule-editor';
+import { NoteInput, RuleEditor } from '../src/components/task/rule-editor';
 import { useSheetGrow } from '../src/components/sheet-grow';
 import { loadMission, saveRule, completeMission, parseAmount } from '../src/mission-data';
 import { moveOccurrence, toggleOccurrence, takeOver, skipOccurrence, giveBack, wasPartnersTask } from '../src/occ-actions';
@@ -175,8 +175,8 @@ export default function Mission() {
         <Avatar initial={who.initial} color={who.color} photo={who.avatar_url} size={18} />
         <Text style={s.metaTxt}>{!m.occ?.assignee_id ? t.metaBoth : m.mine ? t.metaYou : who.first_name} · {dayLabel} · {done ? [fmtMin(spent), cents ? fmtAmount(cents) : null].filter(Boolean).join(' · ') : fill(t.metaApprox, { time: fmtMin(rule.duration_min) })}{m.pendingSwap ? ` · ${fill(t.metaPending, { name: partner.first_name })}` : ''}</Text>
       </View>
-      {/* la note se lit sans ouvrir « Modifier la tâche » (retour Jeanne 4 nov 2026) */}
-      {rule.note && !ruleOpen ? <Text style={s.note} numberOfLines={3}>{rule.note}</Text> : null}
+      {/* la note se lit sans ouvrir « Modifier la tâche » (retour Jeanne 4 nov 2026) ; elle s'édite ICI, en haut, au-dessus du clavier (7 nov 2026) */}
+      {noteOpen ? <NoteInput rule={rule} onPatch={patchRule} onDone={() => { setNoteOpen(false); Keyboard.dismiss(); }} /> : rule.note && !ruleOpen ? <Text style={s.note} numberOfLines={3}>{rule.note}</Text> : null}
     </View>
   );
 
@@ -231,7 +231,7 @@ export default function Mission() {
             <Row first label={t.ruleLabel} sub={ruleOpen ? null : ruleSummary} right={ruleOpen ? <Text style={s.chevDown}>›</Text> : <Arrow />} onPress={() => { Haptics.selectionAsync().catch(() => {}); setRuleOpen(o => !o); }} />
             {ruleOpen ? (
               <Animated.View entering={FadeIn.duration(motion.micro)}>
-                <RuleEditor rule={rule} onPatch={patchRule} showMoment showEffort showDuration={false} first={false} onNoteOpen={setNoteOpen}
+                <RuleEditor rule={rule} onPatch={patchRule} showMoment showEffort showDuration first={false} onNoteOpen={setNoteOpen} plannedDay={m.dueIso ? (new Date(m.dueIso + 'T12:00:00').getDay() + 6) % 7 : null} noteOutside
                   onDeleteTask={m.real && task.id ? async () => { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {}); await deleteRealTask(task.id).catch(() => {}); dirty.current = false; finish({ kind: 'moved', title: fill(t.confirmDeleted, { task: task.title }), sub: fill(t.confirmDeletedSub, { name: partner.first_name }) }); } : undefined} />
               </Animated.View>
             ) : null}
@@ -302,7 +302,7 @@ export default function Mission() {
               {ruleOpen ? (
                 <Animated.View entering={FadeIn.duration(motion.micro)}>
                   {/* pas de durée ici : « Temps passé » se règle à la coche (Jeanne, 9 sept 2026) */}
-                  <RuleEditor rule={rule} onPatch={patchRule} showMoment showEffort showDuration={false} first={false} onNoteOpen={setNoteOpen}
+                  <RuleEditor rule={rule} onPatch={patchRule} showMoment showEffort showDuration first={false} onNoteOpen={setNoteOpen} plannedDay={m.dueIso ? (new Date(m.dueIso + 'T12:00:00').getDay() + 6) % 7 : null} noteOutside
                     onSkipOnce={m.real ? async () => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {}); await skipOccurrence(String(occId || '')).catch(() => {}); dirty.current = false; finish({ kind: 'moved', title: t.confirmSkipped, sub: fill(t.confirmSkippedSub, { name: partner.first_name }) }); } : undefined}
                     onDeleteTask={m.real && task.id ? async () => { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {}); await deleteRealTask(task.id).catch(() => {}); dirty.current = false; finish({ kind: 'moved', title: fill(t.confirmDeleted, { task: task.title }), sub: fill(t.confirmDeletedSub, { name: partner.first_name }) }); } : undefined} />
                 </Animated.View>

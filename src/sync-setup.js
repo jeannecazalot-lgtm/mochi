@@ -21,6 +21,7 @@ import { placeDays, daysForTask } from './dispatch';
 import { localIso, addDaysIso } from './dates';
 import { me, partner } from './demo';
 import { getPartnerUid } from './identity';
+import { slotWindow } from './task-actions';
 
 const DAY = 86400000;
 
@@ -113,8 +114,7 @@ export async function syncSetup(result) {
       divisible: !!t.divisible, created_by: uid,
       // jours + moment choisis sur le 12 (fiche courte) — 9 sept 2026
       window_days: t.window_days?.length ? t.window_days : null,
-      window_end: t.deadline === 'morning' ? '12:00' : null,
-      window_start: t.deadline === 'evening' ? '17:00' : null,
+      ...slotWindow(t.deadline),
     });
     const pref = setup.prefs?.[t.id];
     if (pref) {

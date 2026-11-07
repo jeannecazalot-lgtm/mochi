@@ -83,12 +83,8 @@ export default function RootLayout() {
         <Stack.Screen name="task/edit" options={createV3} />
         <Stack.Screen name="note" options={createV3} />
         <Stack.Screen name="moi" options={sheetV3} />
-        <Stack.Screen name="task/page" options={{ presentation: 'card' }} />
         <Stack.Screen name="event" options={createV3} />
         <Stack.Screen name="depense" options={createV3} />
-        <Stack.Screen name="mood" options={sheetV3} />
-        <Stack.Screen name="wrapped" options={full} />
-        <Stack.Screen name="celebration" options={full} />
         <Stack.Screen name="moment" options={full} />
         <Stack.Screen name="checkin" options={sheetV3} />
         <Stack.Screen name="nom-mochi" options={sheetV3} />
