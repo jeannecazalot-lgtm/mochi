@@ -130,7 +130,9 @@ export async function syncSetup(result) {
   // 'alt' = alternance stricte en zigzag. Cache local remis à zéro d'abord :
   // rejouer « C'est parti » régénère la semaine au lieu d'empiler (côté serveur,
   // unique(task_id, due_date, kind) dédoublonne).
-  const todayDow = (new Date().getDay() + 6) % 7; // lundi = 0
+  // la première mission tombe DEMAIN au plus tôt (7 nov 2026 : un foyer créé à 18 h 20 avait des missions
+  // « en retard » et un cœur perdu dès minuit) : la grille est calée sur demain, et chaque date décalée d'un jour
+  const todayDow = (new Date().getDay() + 7) % 7; // demain, lundi = 0
   await resetLocal('occurrences');
   // les tâches du binôme suivent SES dispos, celles en alternance/commun les deux
   // grilles additionnées ; sans grille, un décalage par tâche évite que tout tombe
@@ -163,7 +165,7 @@ export async function syncSetup(result) {
         : null;
       await mutate('occurrences', {
         id: uuid(), household_id: householdId, task_id: realId[t.id],
-        kind: t.mental_load ? 'plan' : 'exec', due_date: addDaysIso(offsets[k]),
+        kind: t.mental_load ? 'plan' : 'exec', due_date: addDaysIso(offsets[k] + 1),
         assignee_id: assignee,
       });
     }
