@@ -15,6 +15,8 @@ import { CountUp } from '../../src/components/motion';
 import { Scene } from '../../src/components/mochi/scene';
 import { Bubble } from '../../src/components/mochi/bubble';
 import { Label, Num } from '../../src/components/mochi/gauges';
+import { TaskIcon } from '../../src/components/task-icon';
+import { Check } from '../../src/components/mochi/gauges';
 import { setPendingName } from '../../src/mochi-state';
 import { useTokens, type, layout } from '../../src/theme-v3';
 import copy from '../../src/data/copy.json';
@@ -26,6 +28,35 @@ function Dot({ T, on }) {
   useEffect(() => { w.value = withTiming(on ? 28 : 8, { duration: 260 }); }, [on]);
   const st = useAnimatedStyle(() => ({ width: w.value }));
   return <Animated.View style={[{ height: 4, borderRadius: 2, backgroundColor: on ? T.ink : T.seg }, st]} />;
+}
+
+// Écran 3 : la mini-démo de l'ancien onboarding, dans la DA v3 (Jeanne, 8 nov 2026 : « cet écran, tu le trouvais pas bien ? »)
+const DEMO_COLORS = { a: '#6FA8C9', b: '#B9A7E6' };
+function DemoRepartit({ T, d, active }) {
+  const w = useSharedValue(0.5);
+  useEffect(() => { w.value = active ? withTiming(d.a / 100, { duration: 900 }) : 0.5; }, [active]);
+  const left = useAnimatedStyle(() => ({ flex: w.value })); const right = useAnimatedStyle(() => ({ flex: 1 - w.value }));
+  const Dot = ({ k }) => <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: DEMO_COLORS[k] }} />;
+  return (
+    <Animated.View entering={FadeInDown.delay(150).duration(320)} style={{ marginTop: 18, borderTopWidth: StyleSheet.hairlineWidth, borderColor: T.line, paddingTop: 14 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <View><Label T={T} style={{ color: DEMO_COLORS.a }}>{d.left}</Label>{active ? <CountUp value={d.a} duration={900} format={v => `${Math.round(v)} %`} style={{ fontSize: 22, fontWeight: '600', letterSpacing: -0.5, color: T.ink }} /> : <Text style={{ fontSize: 22, fontWeight: '600', color: T.ink }}>50 %</Text>}</View>
+        <View style={{ paddingHorizontal: 12, paddingVertical: 5, borderRadius: 999, backgroundColor: T.ok }}><Text style={[type.label, { color: T.ink, fontWeight: '600' }]}>{d.pill}</Text></View>
+        <View style={{ alignItems: 'flex-end' }}><Label T={T} style={{ color: DEMO_COLORS.b }}>{d.right}</Label>{active ? <CountUp value={d.b} duration={900} format={v => `${Math.round(v)} %`} style={{ fontSize: 22, fontWeight: '600', letterSpacing: -0.5, color: T.ink }} /> : <Text style={{ fontSize: 22, fontWeight: '600', color: T.ink }}>50 %</Text>}</View>
+      </View>
+      <View style={{ flexDirection: 'row', height: 8, borderRadius: 4, overflow: 'hidden', marginTop: 10, marginBottom: 6 }}>
+        <Animated.View style={[{ backgroundColor: DEMO_COLORS.a }, left]} /><Animated.View style={[{ backgroundColor: DEMO_COLORS.b }, right]} />
+      </View>
+      {d.rows.map((r, k) => (
+        <Animated.View key={r.t} entering={FadeInDown.delay(300 + k * 110).duration(300)} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 9, borderTopWidth: StyleSheet.hairlineWidth, borderColor: T.line }}>
+          <TaskIcon emoji={r.e} size={21} />
+          <View style={{ flex: 1 }}><Text style={[type.body, { color: T.ink }]}>{r.t}</Text><Label T={T}>{r.s}</Label></View>
+          <View style={{ flexDirection: 'row' }}>{r.who.includes('a') ? <Dot k="a" /> : null}{r.who.includes('b') ? <View style={{ marginLeft: r.who.length > 1 ? -6 : 0 }}><Dot k="b" /></View> : null}</View>
+          <Check T={T} done={k === 0} />
+        </Animated.View>
+      ))}
+    </Animated.View>
+  );
 }
 
 export default function Onboarding() {
@@ -80,6 +111,7 @@ export default function Onboarding() {
           <Label T={T} style={{ marginTop: 8, textAlign: 'center' }}>{item.source}</Label>
         </View>
       ) : null}
+      {item.demo ? <DemoRepartit T={T} d={item.demo} active={i === index} /> : null}
       {item.items ? (
         <View style={{ marginTop: 18, borderTopWidth: StyleSheet.hairlineWidth, borderColor: T.line }}>
           {item.items.map((it, k) => <Animated.View key={it} entering={FadeInDown.delay(150 + k * 90).duration(300)} style={{ paddingVertical: 6, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: T.line }}><Text style={[type.body, { color: T.ink, textAlign: 'center' }]}>{it}</Text></Animated.View>)}

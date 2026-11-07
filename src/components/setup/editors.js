@@ -4,7 +4,8 @@
 // de setup et par la page « Mes dispos & préférences » du profil (retour Jeanne,
 // 8 sept 2026 : « préférences et disponibilités sur la même page »).
 // ═══════════════════════════════════════════════════════════════════
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useSharedValue, useAnimatedStyle, withSequence, withTiming } from 'react-native-reanimated';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { Card } from '../ui';
@@ -14,15 +15,24 @@ import { prefsPool, prefsMax } from '../../demo-setup';
 import copy from '../../data/copy.json';
 import { colors, alpha } from '../../theme';
 import { styles as v3Styles, currentTokens as tk } from '../../theme-v3';
+import { TaskIcon } from '../task-icon';
 
 const t = copy.setup;
 
-function Cell({ v, onPress }) {
+// onde de « tap » : un rond qui s'élargit et s'efface sur la case, comme un doigt qui vient d'appuyer (démo, 8 nov 2026)
+function TapRipple({ tick }) {
+  const sc = useSharedValue(0.4), op = useSharedValue(0);
+  useEffect(() => { if (tick == null) return; sc.value = 0.4; op.value = 0.9; sc.value = withTiming(1.6, { duration: 520 }); op.value = withSequence(withTiming(0.9, { duration: 60 }), withTiming(0, { duration: 460 })); }, [tick]);
+  const st = useAnimatedStyle(() => ({ opacity: op.value, transform: [{ scale: sc.value }] }));
+  return <Animated.View pointerEvents="none" style={[{ position: 'absolute', left: '50%', top: '50%', marginLeft: -18, marginTop: -18, width: 36, height: 36, borderRadius: 18, borderWidth: 3, borderColor: tk().bg, backgroundColor: 'transparent' }, st]} />;
+}
+function Cell({ v, onPress, demoTick = null }) {
   const pop = useTogglePop(v); // petit spring d'échelle à chaque bascule
   return (
     <Animated.View style={[{ flex: 1 }, pop]}>
       <Pressable onPress={onPress} style={[s.cell, v === 2 ? s.cellFull : v === 1 ? s.cellLight : s.cellEmpty]}>
         <Text style={[s.cellTxt, { color: v === 2 ? tk().ink : tk().ok }]}>{v === 2 ? '●' : v === 1 ? '○' : ''}</Text>
+        {demoTick != null ? <TapRipple tick={demoTick} /> : null}
       </Pressable>
     </Animated.View>
   );
@@ -49,7 +59,7 @@ export function DisposEditor({ grid, onTap, demoV = null, demoCell = null, hint 
             <View key={row} style={[s.row, { marginTop: 5 }]}>
               <Text style={[s.rowLabel, s.rowTxt]}>{t[row].toUpperCase()}</Text>
               {grid[row].map((v, i) => (
-                <Cell key={i} v={demoCell && demoCell.row === row && demoCell.col === i && demoV !== null ? demoV : v} onPress={() => onTap(row, i)} />
+                <Cell key={i} v={demoCell && demoCell.row === row && demoCell.col === i && demoV !== null ? demoV : v} demoTick={demoCell && demoCell.row === row && demoCell.col === i && demoV !== null ? demoV : null} onPress={() => onTap(row, i)} />
               ))}
             </View>
           ))}
@@ -78,13 +88,23 @@ export function cyclePref(prefs, id) {
   return null;
 }
 
-const onColor = { like: setupTokens.chipLike, hate: setupTokens.chipHate };
+// couleurs de la DA (8 nov 2026, Jeanne : « pas les mêmes partout ») : j'aime = vert de l'app, je déteste = carmin de l'app ; pictos de l'app, plus d'emoji
 function Chip({ c, state, onPress }) {
-  const bg = state === 'like' ? onColor.like : state === 'hate' ? onColor.hate : null;
+  const T = tk(); const bg = state === 'like' ? T.ok : state === 'hate' ? T.accent : null; const fg = state === 'hate' ? T.bg : T.ink;
   return (
-    <Pressable onPress={onPress} style={[s.chip, bg ? { backgroundColor: bg, borderWidth: StyleSheet.hairlineWidth, borderColor: tk().line } : s.chipOff]}>
-      <Text style={s.chipTxt}>{c.emoji} {c.label}</Text>
+    <Pressable onPress={onPress} style={[s.chip, { flexDirection: 'row', alignItems: 'center', gap: 8 }, bg ? { backgroundColor: bg, borderWidth: 1.5, borderColor: bg } : s.chipOff]}>
+      <TaskIcon emoji={c.emoji} size={18} />
+      <Text style={[s.chipTxt, { color: fg }]}>{c.label}</Text>
     </Pressable>
+  );
+}
+function PrefSwatch({ kind, label }) {
+  const T = tk();
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7 }}>
+      <View style={{ width: 22, height: 22, borderRadius: 7, backgroundColor: kind === 'like' ? T.ok : kind === 'hate' ? T.accent : T.bg, borderWidth: kind ? 0 : 1.5, borderColor: T.seg }} />
+      <Text style={{ fontSize: 12.5, fontWeight: '500', color: T.ink }}>{label}</Text>
+    </View>
   );
 }
 
@@ -96,11 +116,12 @@ export function PrefsEditor({ prefs, onChange }) {
   };
   return (
     <View>
-      <View style={s.legendPrefs}>
-        <LegendChip state={0} label={t.prefsLegendNeutral} />
-        <View style={[s.legendPill, { backgroundColor: onColor.like }]}><Text style={s.legendPillTxt}>💚 {t.prefsLegendLike}</Text></View>
-        <View style={[s.legendPill, { backgroundColor: onColor.hate }]}><Text style={s.legendPillTxt}>🙅 {t.prefsLegendHate}</Text></View>
+      <View style={[s.legendPrefs, { marginBottom: 8, gap: 18 }]}>
+        <PrefSwatch kind={null} label={t.prefsLegendNeutral} />
+        <PrefSwatch kind="like" label={t.prefsLegendLike} />
+        <PrefSwatch kind="hate" label={t.prefsLegendHate} />
       </View>
+      <Text style={s.tapHint}>{t.prefsTapHint}</Text>
       <View style={s.wrap}>
         {prefsPool.map(c => <Chip key={c.id} c={c} state={prefs[c.id]} onPress={() => tap(c.id)} />)}
       </View>

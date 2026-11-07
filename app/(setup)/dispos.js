@@ -37,7 +37,7 @@ export default function Dispos() {
   // déjà saisi (rejoignante revenue ici, ou réglage) : on repart de ce qui existe (6 sept 2026)
   useEffect(() => {
     loadSetup().then(() => {
-      if (setup.availability?.morning && setup.availability?.evening) setGrid({ morning: [...setup.availability.morning], evening: [...setup.availability.evening] });
+      if (settings && setup.availability?.morning && setup.availability?.evening) setGrid({ morning: [...setup.availability.morning], evening: [...setup.availability.evening] }); // au setup la grille part vide
     });
   }, []);
   const hintO = useSharedValue(1);

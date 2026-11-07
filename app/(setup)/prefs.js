@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GlowBg, SetupHeader, Card, CTAPrimary } from '../../src/components/ui';
 import { LiveMochi } from '../../src/components/motion';
@@ -77,7 +77,7 @@ export default function Prefs() {
           <SectionLabel style={{ marginTop: 30 }}>{t.reminderLabel}</SectionLabel>
           <Card padding={0} r={16}>
             <View style={s.remRow}>
-              <Text style={{ fontSize: 19 }}>🔔</Text>
+              <Image source={require('../../assets/icones/tabs/bell.png')} style={{ width: 28, height: 28 }} resizeMode="contain" accessibilityIgnoresInvertColors />
               <View style={{ flex: 1 }}>
                 <Text style={s.remTitle}>{t.reminderTitle}</Text>
                 <Text style={s.remSub}>{t.reminderSub}</Text>

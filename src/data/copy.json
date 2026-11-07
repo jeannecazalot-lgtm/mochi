@@ -627,7 +627,8 @@
       "showQr": "Lien sous le code",
       "saveList": "CTA de l'écran 10 quand on est seul (pré-remplir, pas répartir)",
       "tasksSubSolo": "Sous-titre écran 10 quand on est seul",
-      "goHome": "Lien sur l'écran d'invitation : aller à l'Accueil sans attendre"
+      "goHome": "Lien sur l'écran d'invitation : aller à l'Accueil sans attendre",
+      "prefsTapHint": "Phrase d'aide sous la légende des préférences"
     },
     "identityTitle": "On t'appelle comment ?",
     "firstNameLabel": "Ton prénom",
@@ -727,8 +728,8 @@
     "tapHint": "Tape une case : 1 fois = un peu, 2 fois = à fond, 3 fois = pas dispo.",
     "disposSub2": "Quand est-ce que tu peux vraiment t'occuper du foyer ? Sois honnête, Mochi s'en sert.",
     "prefsLegendNeutral": "neutre",
-    "prefsLegendLike": "j'aime · 1 tap",
-    "prefsLegendHate": "je déteste · 2 taps",
+    "prefsLegendLike": "j'aime",
+    "prefsLegendHate": "je déteste",
     "legendLightShort": "un peu",
     "legendFullShort": "à fond",
     "addTaskPlaceholder": "Nom de la tâche…",
@@ -765,7 +766,8 @@
     "showQr": "Montrer le QR",
     "saveList": "Garder la liste",
     "tasksSubSolo": "Prépare la liste. La répartition attend que ton binôme ait rejoint et donné ses dispos.",
-    "goHome": "Aller à l'Accueil"
+    "goHome": "Aller à l'Accueil",
+    "prefsTapHint": "Tape une mission : 1 fois = j'aime, 2 fois = je déteste, 3 fois = neutre."
   },
   "event": {
     "_labels": {
@@ -2394,7 +2396,7 @@
       "next": "Suivant",
       "start": "Commencer",
       "namePlaceholder": "Mochi",
-      "slides": "3 écrans : title, body, say (bulle, dernier écran), rows (chiffres), items + outro (pensées)",
+      "slides": "4 écrans : title, body, rows (chiffres) | items + outro (pensées) | demo (balance + 3 missions) | say (bulle) + champ du nom",
       "rows": "Chiffres (v affiché à la fin ; n = valeur qui compte, f = format hm minutes→1h26 / h heures)"
     },
     "skip": "Passer",
@@ -2440,7 +2442,38 @@
       },
       {
         "title": "Mochi répartit.",
-        "body": "À deux, c'est plus léger. Vos missions, vos dispos, vos goûts : il répartit la semaine et dit quand ça penche. Personne ne tient les comptes, lui si.",
+        "body": "Vos missions, vos dispos, vos goûts : il répartit la semaine et dit quand ça penche. Personne ne tient les comptes, lui si.",
+        "demo": {
+          "left": "L'un",
+          "right": "L'autre",
+          "pill": "Équilibré",
+          "a": 52,
+          "b": 48,
+          "rows": [
+            {
+              "e": "🍽",
+              "t": "Vaisselle",
+              "s": "ce soir · toi",
+              "who": "a"
+            },
+            {
+              "e": "🛒",
+              "t": "Courses",
+              "s": "demain · l'autre",
+              "who": "b"
+            },
+            {
+              "e": "🗑",
+              "t": "Poubelles",
+              "s": "jeudi · à deux",
+              "who": "ab"
+            }
+          ]
+        }
+      },
+      {
+        "title": "Et lui, on l'appelle comment ?",
+        "body": "C'est votre Mochi. Il grandit avec vous deux, alors autant bien le nommer.",
         "say": "Moi, je répartis. Vous, vous me donnez un nom ?"
       }
     ]
