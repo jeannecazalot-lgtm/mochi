@@ -286,7 +286,7 @@ export function HourSlider({ min = 2, max = 8, step = 0.5, value, onChange }) {
 // chip de légende (proposition A) : mini-case + libellé ; `on` = surlignée par la démo
 export function LegendChip({ state, label, on }) {
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, paddingVertical: 7, paddingHorizontal: 11, borderRadius: 999, backgroundColor: on ? tk().ok : tk().seg }}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7, paddingVertical: 7, paddingHorizontal: 4, opacity: on === false ? 0.45 : 1 }}>{/* légende, pas des boutons (8 nov 2026) : plus de pilule, la case d'exemple s'allume */}
       <View style={{ width: 22, height: 22, borderRadius: 7, alignItems: 'center', justifyContent: 'center', backgroundColor: state === 2 ? tk().ok : state === 1 ? tk().ok : tk().bg, borderWidth: state === 0 ? 1.5 : StyleSheet.hairlineWidth, borderColor: state === 0 ? tk().seg : tk().line }}>
         <Text style={{ fontSize: 11, fontWeight: '700', color: state === 2 ? tk().ink : tk().ok }}>{state === 2 ? '●' : state === 1 ? '○' : ''}</Text>
       </View>

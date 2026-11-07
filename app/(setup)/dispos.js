@@ -53,14 +53,14 @@ export default function Dispos() {
     let cancelled = false;
     (async () => {
       if (prefersReducedMotion() || settings) return;
-      const seen = await AsyncStorage.getItem(SEEN_KEY).catch(() => null);
-      if (seen || cancelled) return;
-      AsyncStorage.setItem(SEEN_KEY, '1').catch(() => {});
+      if (cancelled) return;
+      // la démo joue EN BOUCLE tant que personne n'a touché la grille (Jeanne, 8 nov 2026 : « on ne sait pas sur quoi cliquer ») :
+      // la case LUN/SOIR passe vide → un peu → à fond, la légende s'allume en même temps, la phrase d'aide pulse
       const at = (ms, fn) => timers.current.push(setTimeout(fn, ms));
-      at(500, () => { setDemoV(1); hintPulse(); });
-      at(733, () => setDemoV(2));
-      at(966, () => setDemoV(0));
-      at(1200, () => setDemoV(null));
+      for (let k = 0; k < 12; k++) {
+        const b0 = 600 + k * 3200;
+        at(b0, () => { setDemoV(1); hintPulse(); }); at(b0 + 700, () => setDemoV(2)); at(b0 + 1400, () => setDemoV(0)); at(b0 + 2000, () => setDemoV(null));
+      }
     })();
     return () => { cancelled = true; timers.current.forEach(clearTimeout); };
   }, []);
