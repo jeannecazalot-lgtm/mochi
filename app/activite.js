@@ -12,6 +12,7 @@ import { Label } from '../src/components/mochi/gauges';
 import { taskById, byId, occurrences, me, streak, today } from '../src/demo';
 import { activityFeed, replyPresets } from '../src/demo-social';
 import { react } from '../src/activity-actions';
+import { pushToPartner } from '../src/push';
 import { computeRealBalance } from '../src/balance-real';
 import { read } from '../src/store';
 import { loadSetup, setup, inRealMode } from '../src/setup-state';
@@ -80,6 +81,15 @@ function Item({ T, item, chosen, onChoose, variant = 'c' }) {
     </View>
   );
 
+  if (item.type === 'partner_day') {
+    const list = item.tasks.length > 3 ? `${item.tasks.slice(0, 3).join(', ')} ${fill(t.andMore, { n: item.tasks.length - 3 })}` : item.tasks.join(', ');
+    return (
+      <Wrap T={T} mine={false} highlight={false}>
+        {head(<RichText template={item.tasks.length > 1 ? t.partnerDayMany : t.partnerDayOne} vars={{ name: actor.first_name, n: item.tasks.length, task: list }} style={s.body} />)}
+        <Replies T={T} item={item} keys={['best', 'thanks']} chosen={chosen} onChoose={onChoose} name={actor.first_name} />
+      </Wrap>
+    );
+  }
   if (item.type === 'task_done') {
     return (
       <Wrap T={T} mine={mine} highlight={hi}>
@@ -153,8 +163,8 @@ export default function Activite() {
       return;
     }
     // réaction rapide réelle (table activity) sous une mission terminée par l'autre
-    const done = realItems?.find(x => x.id === id && x.type === 'task_done');
-    if (done && key) react(String(id), key).catch(() => {});
+    const done = realItems?.find(x => x.id === id && x.type === 'partner_day');
+    if (done && key) { pushToPartner('reaction', { reply: fill(t.replies[key] || key, { name: partner.first_name }).trim() }); react(String(id), key).catch(() => {}); }
   };
 
   // Branchement réel (2 sept 2026, retour Jeanne « encore du simulator ») :
@@ -174,10 +184,16 @@ export default function Activite() {
       const hhmm = d => new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' }).format(new Date(d));
       const occById = Object.fromEntries(occs.map(o => [o.id, o]));
       const titleOf = occId2 => (byTask[occById[occId2]?.task_id]?.title || '…').toLowerCase();
-      const dones = occs.filter(o => o.status === 'done' && o.done_at).map(o => ({
-        id: o.id, type: 'task_done', actor_id: o.done_by && o.done_by !== getUid() ? partner.id : me.id,
-        task_title: (byTask[o.task_id]?.title || '…').toLowerCase(),
-        at: new Date(o.done_at), time: hhmm(o.done_at),
+      // Suivi « entre vous deux » (Jeanne, 7 nov 2026) : plus la liste de ce que j'ai fait (c'est dans le Planning) ;
+      // ce que l'AUTRE a fait, groupé par jour, avec un Bravo ; ses réactions à moi ; rappels, repassages, rééquilibrages.
+      const uid0 = getUid();
+      const theirs = occs.filter(o => o.status === 'done' && o.done_at && o.done_by && o.done_by !== uid0).sort((a, b) => String(b.done_at).localeCompare(String(a.done_at)));
+      const byDay = {};
+      for (const o of theirs) { const k = String(o.done_at).slice(0, 10); (byDay[k] ||= []).push(o); }
+      const dones = Object.values(byDay).map(list => ({
+        id: list[0].id, ids: list.map(o => o.id), type: 'partner_day', actor_id: partner.id,
+        tasks: list.map(o => (byTask[o.task_id]?.title || '…').toLowerCase()),
+        at: new Date(list[0].done_at), time: hhmm(list[0].done_at),
       }));
       // repassages réels : propositions qui M'attendent (Accepter/Refuser) + acceptées
       const { pending, resolved } = await mySwaps();
@@ -189,10 +205,11 @@ export default function Activite() {
       const uid = getUid();
       const acts = await read('activity');
       const mineReact = {};
+      const received = [];
       for (const a of acts) {
         if (a.type !== 'ping_reply' || !a.occurrence_id) continue;
-        if (a.actor_id === uid) mineReact[a.occurrence_id] = a.preset_key;
-        else { const d = dones.find(x => x.id === a.occurrence_id); if (d) d.reaction = { name: partner.first_name, key: a.preset_key }; }
+        if (a.actor_id === uid) { const d = dones.find(x => x.ids.includes(a.occurrence_id)); if (d) mineReact[d.id] = a.preset_key; }
+        else received.push({ id: a.id, type: 'info', preset: 'reaction', actor_id: partner.id, text: fill(t.reactionFrom, { name: partner.first_name, reply: fill(t.replies[a.preset_key] || a.preset_key, { name: me.first_name }).trim() }), at: new Date(a.created_at), time: hhmm(a.created_at) });
       }
       if (Object.keys(mineReact).length) setChosen(c => ({ ...mineReact, ...c }));
       const infos = acts.filter(a => a.type === 'ping' && t.presets[a.preset_key]).map(a => ({
@@ -204,7 +221,7 @@ export default function Activite() {
       const moments = [];
       const sd = uid ? computeRealBalance(occs, uid).streakDays : 0;
 
-      setRealItems([...dones, ...swaps, ...infos, ...moments].sort((a, b) => b.at - a.at));
+      setRealItems([...dones, ...received, ...swaps, ...infos, ...moments].sort((a, b) => b.at - a.at));
     })();
   }, [occV]);
 

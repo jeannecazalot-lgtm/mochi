@@ -1224,10 +1224,13 @@
       "view": "Lien « Voir » de la tâche attachée",
       "mochiRebalance": "Moment Mochi : soirée équilibrée",
       "mochiStreak": "Sous-titre du moment Mochi ({n} = streak jours)",
-      "replies": "Réponses préformatées (zéro texte libre)"
+      "replies": "Réponses préformatées (zéro texte libre)",
+      "partnerDayOne": "L'autre a fait une mission ({name}, {task})",
+      "partnerDayMany": "L'autre a fait plusieurs missions dans la journée ({n}, {task} = liste)",
+      "andMore": "Suite de la liste au-delà de 3"
     },
     "title": "Suivi",
-    "emptyReal": "Rien encore — coche des missions et le fil s'animera.",
+    "emptyReal": "Rien entre vous deux pour l'instant. Quand l'autre fait ses missions, tu pourras lui dire bravo ici.",
     "today": "Aujourd'hui",
     "yesterday": "Hier",
     "taskDone": "{name} a fait {task} ✅",
@@ -1239,7 +1242,7 @@
     "view": "Voir",
     "mochiRebalance": "Soirée équilibrée 🥳",
     "mochiStreak": "+1 jour à votre streak ({n} 🔥)",
-    "reactionFrom": "{name} : {reply}",
+    "reactionFrom": "{name} te dit : {reply}",
     "presets": {
       "tookOver": "{name} s'occupe de {task} · {day}",
       "ruleChanged": "{name} a modifié {task}",
@@ -1258,11 +1261,11 @@
       "handed": "{name} te passe {task}"
     },
     "replies": {
-      "thumbs": "👍",
-      "thanks": "Merci ❤️",
+      "thumbs": "Top",
+      "thanks": "Merci",
       "best": "Bravo {name}",
-      "okTonight": "👍 Ok ce soir",
-      "alreadyDone": "Déjà fait ✓"
+      "okTonight": "Ok ce soir",
+      "alreadyDone": "Déjà fait"
     },
     "taskDoneMe": "Tu as fait {task} ✅",
     "swapAcceptedMe": "Tu reprends {task}",
@@ -1282,7 +1285,10 @@
     },
     "tagReminder": "Rappel",
     "tagTake": "Reprise",
-    "tagSwap": "Proposition"
+    "tagSwap": "Proposition",
+    "partnerDayOne": "{name} a fait {task}",
+    "partnerDayMany": "{name} a fait {n} missions : {task}",
+    "andMore": "et {n} autre(s)"
   },
   "afaire": {
     "_labels": {

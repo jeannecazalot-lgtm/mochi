@@ -27,10 +27,7 @@ export async function logActivity({ type, preset_key, occurrence_id = null, payl
 }
 
 // réaction rapide sous une mission terminée par l'autre
-export const react = (occId, key) => {
-  pushToPartner('reaction', { reply: String(copy.activity.replies[key] || key).replace('{name}', '').trim() });
-  return logActivity({ type: 'ping_reply', preset_key: key, occurrence_id: occId });
-};
+export const react = (occId, key) => logActivity({ type: 'ping_reply', preset_key: key, occurrence_id: occId }); // la notif part de l'écran (texte avec le prénom)
 
 // Ping réel vers l'autre (10 sept 2026, tâche de l'autre en retard : « je devrais pouvoir le ping ») :
 // une ligne `activity` type ping (preset = clé copy.pings) + une notification push.
