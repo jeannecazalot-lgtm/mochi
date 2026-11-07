@@ -42,7 +42,7 @@ export default function Identite() {
       await loadSetup();
       if (!setup.availability) saveDispos({ availability: { morning: [0, 0, 0, 0, 0, 0, 0], evening: [1, 1, 1, 1, 1, 1, 1] }, weekly_minutes: null });
       if (!setup.prefs) savePrefs({ prefs: {}, reminder: '19:30' });
-      if (isJoiner()) router.push('/(setup)/dispos'); else router.push('/(setup)/invite'); // rejoignant : dispos → préférences → missions à deux (8 nov 2026)
+      router.push('/(setup)/dispos'); // tout le monde passe par ses dispos et ses préférences (Jeanne, 8 nov 2026 : « je n'ai pas rempli mes disponibilités, mon énergie »)
     }
   };
 
@@ -55,7 +55,7 @@ export default function Identite() {
     <View style={{ flex: 1 }}>
       <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }}>
-        <SetupHeader hero={<EggHero />} why={t.whyIdentity} step={1} total={2} title={t.identityTitle} backFallback="/onboarding" />
+        <SetupHeader hero={<EggHero />} why={t.whyIdentity} step={1} total={4} title={t.identityTitle} backFallback="/onboarding" />
 
         {/* DA v3 (7 nov 2026, retours Jeanne) : la photo est l'élément central — grand cercle avec l'initiale en couleur,
             bouton rond + accroché dessus, puis le prénom en grand. La photo choisie remplit le cercle. */}

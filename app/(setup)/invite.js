@@ -77,7 +77,7 @@ export default function Invite() {
       <GlowBg intensity="strong" />
       <SafeAreaView style={{ flex: 1 }}>
         <View>
-          <SetupHeader hero={<EggHero />} why={t.whyInvite} step={from ? undefined : 2} total={2} title={fill(t.inviteTitle, { partner: copy.common.partner })} sub={t.inviteSub} />
+          <SetupHeader hero={<EggHero />} why={t.whyInvite} step={from ? undefined : 4} total={4} title={fill(t.inviteTitle, { partner: copy.common.partner })} sub={t.inviteSub} />
           {/* « Passer » retiré (9 sept 2026) : même porte de sortie qu'« Inviter plus tard » */}
         </View>
 
