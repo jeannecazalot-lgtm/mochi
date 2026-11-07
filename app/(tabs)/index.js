@@ -118,7 +118,9 @@ export default function Home() {
       const myCk = cks.find(c => c.user_id === uid && c.day === today && c.moment === (T.night ? 'evening' : 'morning'));
       setCheckedIn(!!myCk); setMyMood(myCk?.mood || null);
       const mine = o => !uid || !o.assignee_id || o.assignee_id === uid;
-      const todays = occs.filter(o => isLive(o) && o.due_date === today && mine(o));
+      // une mission cochée reste à l'écran (barrée, décochable) : y compris un retard rattrapé aujourd'hui (Jeanne, 7 nov 2026 : « j'ai cliqué sans faire exprès et elle a disparu »)
+      const doneToday = o => o.status === 'done' && o.done_at && localIso(new Date(o.done_at)) === today;
+      const todays = occs.filter(o => isLive(o) && mine(o) && (o.due_date === today || (o.due_date < today && doneToday(o))));
       setReal(true); setAnyOcc(occs.length > 0); setNoTask(tasks.length === 0);
       occs.forEach(o => { if (o.status === 'done' && !missionDone.has(o.id)) missionDone.set(o.id, true); });
       if (!ticked.current) { ticked.current = true; await tick().catch(() => {}); } // éclosion / retour / cœurs dès l'ouverture, pas seulement au changement de jour
@@ -220,7 +222,6 @@ export default function Home() {
                 <Pressable onPress={() => router.push('/(setup)/invite?from=home')} style={({ pressed }) => [{ marginTop: 14, paddingVertical: 13, borderRadius: 999, backgroundColor: T.accent, alignItems: 'center', opacity: pressed ? 0.85 : 1 }]}><Text style={[type.body, { color: '#FFFFFF', fontWeight: '600' }]}>{t.soloCta}</Text></Pressable>
               </View>
             ) : null}
-            {!checkedIn ? <Pressable onPress={() => router.push('/checkin')} style={{ marginHorizontal: layout.x, marginTop: 10, paddingVertical: 10, flexDirection: 'row', alignItems: 'center', gap: 10 }}><View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: T.accent }} /><Text style={[type.label, { color: T.ink, flex: 1 }]}>{T.night ? copy.checkin.homeRowEvening : copy.checkin.homeRow}</Text><Label T={T}>›</Label></Pressable> : null}
             <View style={{ marginTop: (checkedIn ? 16 : 6) * layout.air }}><Gauges T={T} t={t} energy={en} hearts={hearts} formLabel={t.formLabels[hearts] || ''} hint={m.stage !== 'egg' && !away && !full && day <= 7 ? t.energyHint : null} /></View>
             <View style={s.sectionHead}>
               <Pressable onPress={() => router.push('/(tabs)/planning')} hitSlop={6}><Text style={[type.section, { color: T.ink }]}>{t.today}</Text></Pressable>
