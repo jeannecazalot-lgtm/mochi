@@ -40,8 +40,6 @@ export default function Identite() {
       setSaving(false);
       // setup court (Jeanne 6 nov 2026) : dispos et préférences par défaut, réglables dans Profil › Mes dispos & préférences
       await loadSetup();
-      if (!setup.availability) saveDispos({ availability: { morning: [0, 0, 0, 0, 0, 0, 0], evening: [1, 1, 1, 1, 1, 1, 1] }, weekly_minutes: null });
-      if (!setup.prefs) savePrefs({ prefs: {}, reminder: '19:30' });
       router.push('/(setup)/dispos'); // tout le monde passe par ses dispos et ses préférences (Jeanne, 8 nov 2026 : « je n'ai pas rempli mes disponibilités, mon énergie »)
     }
   };

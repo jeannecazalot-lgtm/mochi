@@ -42,7 +42,7 @@ export default function Onboarding() {
     return () => { a.remove(); b.remove(); };
   }, []);
   const last = index === t.slides.length - 1;
-  const sceneH = Math.round(SH * (kb ? 0.2 : t.slides[index].items ? 0.34 : 0.46)); // l'écran des pensées a besoin de place
+  const sceneH = Math.round(SH * (kb ? 0.2 : 0.4)); // même hauteur sur les trois écrans (Jeanne, 8 nov 2026)
 
 
   const finish = useCallback(() => {
@@ -82,7 +82,7 @@ export default function Onboarding() {
       ) : null}
       {item.items ? (
         <View style={{ marginTop: 18, borderTopWidth: StyleSheet.hairlineWidth, borderColor: T.line }}>
-          {item.items.map((it, k) => <Animated.View key={it} entering={FadeInDown.delay(150 + k * 90).duration(300)} style={{ paddingVertical: 7, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: T.line }}><Text style={[type.body, { color: T.ink, textAlign: 'center' }]}>{it}</Text></Animated.View>)}
+          {item.items.map((it, k) => <Animated.View key={it} entering={FadeInDown.delay(150 + k * 90).duration(300)} style={{ paddingVertical: 6, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: T.line }}><Text style={[type.body, { color: T.ink, textAlign: 'center' }]}>{it}</Text></Animated.View>)}
           {item.outro ? <Text style={[type.sub, { color: T.ink, textAlign: 'center', marginTop: 12, fontStyle: 'italic' }]}>{item.outro}</Text> : null}
         </View>
       ) : null}

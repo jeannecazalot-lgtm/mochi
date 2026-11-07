@@ -95,7 +95,7 @@ export default function Invite() {
             <Pressable onPress={() => setQrOpen(true)} hitSlop={8}><Text style={{ fontSize: 15, fontWeight: '600', color: tk().ink }}>{t.showQr}</Text></Pressable>
             <Pressable onPress={() => router.push('/rejoindre')} hitSlop={8}><Text style={{ fontSize: 15, fontWeight: '600', color: tk().ink }}>{t.enterCode}</Text></Pressable>
           </View>
-          {waiting ? <Pressable onPress={next} hitSlop={8} style={{ marginTop: 18 }}><Text style={s.later}>{t.continueMeanwhile}</Text></Pressable> : null}
+          {waiting ? <View style={{ flexDirection: 'row', gap: 22, marginTop: 18 }}><Pressable onPress={next} hitSlop={8}><Text style={s.later}>{t.continueMeanwhile}</Text></Pressable><Pressable onPress={() => router.replace('/(tabs)')} hitSlop={8}><Text style={s.later}>{t.goHome}</Text></Pressable></View> : null}
         </View>
 
         <View style={s.bottom}>

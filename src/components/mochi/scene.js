@@ -18,6 +18,7 @@ const IMG = {
   rug: require('../../../assets/maison/rug.png'), frame: require('../../../assets/maison/frame.png'), curtain: require('../../../assets/maison/curtain.png'),
   egg: require('../../../assets/maison/egg.png'), eggCrack: require('../../../assets/maison/egg-crack.png'), eggOpen: require('../../../assets/maison/egg-open.png'),
   decorJour: require('../../../assets/maison/decor-jour.png'), decorNuit: require('../../../assets/maison/decor-nuit.png'),
+  bat1: require('../../../assets/maison/vie/bat1.png'), bat2: require('../../../assets/maison/vie/bat2.png'), star: require('../../../assets/maison/vie/star.png'),
   bird1: require('../../../assets/maison/vie/bird1.png'), bird2: require('../../../assets/maison/vie/bird2.png'), fly1: require('../../../assets/maison/vie/fly1.png'), fly2: require('../../../assets/maison/vie/fly2.png'), cloud: require('../../../assets/maison/vie/cloud.png'),
   jour: [require('../../../assets/maison/jour-vide.png'), require('../../../assets/maison/jour-moyen.png'), require('../../../assets/maison/jour-plein.png')],
   nuit: [require('../../../assets/maison/nuit-vide.png'), require('../../../assets/maison/nuit-moyen.png'), require('../../../assets/maison/nuit-plein.png')],
@@ -85,6 +86,17 @@ function Flyer({ frames, box, size, every = 18000, duration = 6500, delay = 0, f
       <Animated.Image source={frames[1]} style={[{ position: 'absolute', width: size, height: size }, b]} resizeMode="contain" />
     </Animated.View>
   );
+}
+// une étoile qui scintille (opacité et taille en douceur, chacune à son rythme)
+function Twinkle({ box, size, delay = 0, period = 2600 }) {
+  const op = useSharedValue(0.35), sc = useSharedValue(0.8);
+  useEffect(() => {
+    if (prefersReducedMotion()) { op.value = 0.8; sc.value = 1; return; }
+    op.value = withDelay(delay, withRepeat(withSequence(withTiming(1, { duration: period / 2, easing: Easing.inOut(Easing.sin) }), withTiming(0.3, { duration: period / 2, easing: Easing.inOut(Easing.sin) })), -1, false));
+    sc.value = withDelay(delay, withRepeat(withSequence(withTiming(1.15, { duration: period / 2 }), withTiming(0.8, { duration: period / 2 })), -1, false));
+  }, []);
+  const st = useAnimatedStyle(() => ({ opacity: op.value, transform: [{ scale: sc.value }] }));
+  return <Animated.Image pointerEvents="none" source={IMG.star} style={[{ position: 'absolute', left: box.l, top: box.t, width: size, height: size }, st]} resizeMode="contain" />;
 }
 // le nuage dérive très lentement, en boucle
 function Drift({ source, box, size, duration = 70000 }) {
@@ -157,12 +169,18 @@ export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height =
       {backdrop ? <Image source={backdrop} style={{ position: 'absolute', left: 0, top: shiftY, width: SW, height: hh }} resizeMode="cover" accessibilityIgnoresInvertColors /> : null}
       {backdrop ? null : <S l={0} r={0} b={0} h={fl2} c={c.floor} />}
       {/* la vie par la fenêtre (le jour) : un nuage qui dérive, un oiseau qui passe, un papillon qui flâne */}
-      {backdrop && !night ? (
+      {backdrop ? (
         // tout reste DERRIÈRE la vitre : une découpe en arche sur la moitié gauche (la fenêtre des décors feutrés)
         <View pointerEvents="none" style={{ position: 'absolute', left: 0, top: hh * 0.05, width: SW * 0.3, height: hh * 0.62, borderTopLeftRadius: SW * 0.15, borderTopRightRadius: SW * 0.15, overflow: 'hidden' }}>
-          <Drift source={IMG.cloud} box={{ l: 0, t: hh * 0.1, w: SW * 0.3 }} size={44} />
-          <Flyer frames={[IMG.bird1, IMG.bird2]} box={{ l: 0, t: hh * 0.08, w: SW * 0.3, h: hh * 0.26 }} size={28} every={16000} duration={5200} delay={2500} />
-          <Flyer frames={[IMG.fly1, IMG.fly2]} box={{ l: SW * 0.02, t: hh * 0.3, w: SW * 0.24, h: hh * 0.2 }} size={20} every={22000} duration={9000} delay={9000} flap={120} wander={10} />
+          {!night ? <>
+            <Drift source={IMG.cloud} box={{ l: 0, t: hh * 0.1, w: SW * 0.3 }} size={44} />
+            <Flyer frames={[IMG.bird1, IMG.bird2]} box={{ l: 0, t: hh * 0.08, w: SW * 0.3, h: hh * 0.26 }} size={28} every={16000} duration={5200} delay={2500} />
+            <Flyer frames={[IMG.fly1, IMG.fly2]} box={{ l: SW * 0.02, t: hh * 0.3, w: SW * 0.24, h: hh * 0.2 }} size={20} every={22000} duration={9000} delay={9000} flap={120} wander={10} />
+          </> : <>
+            {/* la nuit : des étoiles qui scintillent et une chauve-souris qui passe (Jeanne, 8 nov 2026) */}
+            {[[0.08, 0.06, 0], [0.22, 0.12, 900], [0.15, 0.22, 1700], [0.26, 0.04, 600], [0.05, 0.17, 2300]].map(([fx, fy, dl], i) => <Twinkle key={i} box={{ l: SW * fx, t: hh * fy }} size={10 + (i % 3) * 3} delay={dl} period={2200 + i * 350} />)}
+            <Flyer frames={[IMG.bat1, IMG.bat2]} box={{ l: 0, t: hh * 0.1, w: SW * 0.3, h: hh * 0.24 }} size={30} every={14000} duration={4200} delay={3000} flap={110} wander={18} />
+          </>}
         </View>
       ) : null}
 
