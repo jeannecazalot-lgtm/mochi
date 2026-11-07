@@ -29,7 +29,9 @@ const SOUVENIR = require('../../../assets/icones/generic.png');
 // un objet qu'on déplace au doigt (8 nov 2026, Jeanne) : appui long puis glisser ; relâché = position gardée et partagée
 function DragItem({ p, SW, hh, children, onMove }) {
   const tx = useSharedValue(0), ty = useSharedValue(0), lift = useSharedValue(1);
-  const pan = Gesture.Pan().activateAfterLongPress(220)
+  // glisser direct, sans appui long (8 nov 2026 : avec l'appui long, bouger le doigt trop tôt faisait échouer le geste sur l'iPhone) ;
+  // la scène de la pièce est fixe, rien ne défile dessous
+  const pan = Gesture.Pan().minDistance(3)
     .onStart(() => { lift.value = withSpring(1.08); })
     .onUpdate(e => { tx.value = e.translationX; ty.value = e.translationY; })
     .onEnd(() => {

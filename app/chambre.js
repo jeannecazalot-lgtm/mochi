@@ -18,7 +18,7 @@ import copy from '../src/data/copy.json';
 
 const fill = (s, vars) => Object.keys(vars).reduce((acc, k) => acc.replace(`{${k}}`, vars[k]), s);
 const PLACES_BY_STAGE = { egg: [], mini: ['jardin'], mochi: ['jardin', 'riviere'], maxi: ['jardin', 'riviere', 'foret', 'ville'], dore: ['jardin', 'riviere', 'foret', 'ville', 'plage', 'montagne'] };
-const DEMO = { mochi: { stage: 'mini', pearls: 128, hearts: 4 }, inv: [{ item_key: 'jardin-01', kind: 'souvenir' }, { item_key: 'jardin-03', kind: 'souvenir' }, { item_key: 'cheval', kind: 'object', placed: true }, { item_key: 'beret', kind: 'outfit', placed: true }] };
+const DEMO = { mochi: { stage: 'mini', pearls: 128, hearts: 4 }, inv: [{ item_key: 'cheval', kind: 'object', placed: true }, { item_key: 'beret', kind: 'outfit', placed: true }] };
 
 function RowItem({ it, kind, T, t, s, outfit, photoUrl, stageIdx, has: hasOf, placedOf, onBuy, onPlace, onPhoto }) {
   const has = hasOf(it.key);
@@ -104,15 +104,7 @@ export default function Chambre() {
           <View style={{ paddingHorizontal: X }}>
             {tab === 0 ? items.objects.map(it => <RowItem key={it.key} it={it} kind="object" {...rowProps} />)
               : tab === 1 ? items.outfits.map(it => <RowItem key={it.key} it={it} kind="outfit" {...rowProps} />)
-              : Object.keys(items.places).map(pl => {
-                const all = items.souvenirs.filter(sv => sv.place === pl); const mine = all.filter(sv => owned.has(sv.key)); const open = places.includes(pl); const unlockAt = STAGES.findIndex(st => (PLACES_BY_STAGE[st] || []).includes(pl));
-                return (
-                  <View key={pl} style={{ paddingVertical: 14, borderTopWidth: StyleSheet.hairlineWidth, borderColor: T.line }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' }}><Text style={[type.body, { color: open ? T.ink : T.muted }]}>{items.places[pl]}</Text><Label T={T}>{open ? fill(t.souvenirsCount, { n: mine.length, total: all.length }) : fill(t.locked, { k: unlockAt })}</Label></View>
-                    {mine.length ? <Text style={[type.sub, { color: T.muted, marginTop: 4 }]}>{mine.map(sv => sv.label).join(' · ')}</Text> : null}
-                  </View>);
-              })}
-            {tab === 2 && souvenirs === 0 ? <Text style={[type.sub, { color: T.muted, marginTop: 10 }]}>{t.empty}</Text> : null}
+              : null}
             {msg ? <Label T={T} style={{ color: T.accent, marginTop: 12 }}>{msg}</Label> : null}
             <Label T={T} style={{ marginTop: 20 }}>{t.rule}</Label>
           </View>

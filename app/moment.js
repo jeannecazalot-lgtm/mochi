@@ -63,7 +63,7 @@ export default function Moment() {
           {ev.type === 'walk_return' ? (
             <Animated.View entering={FadeInUp.delay(500).springify().damping(16)} style={[s.pearls, { borderColor: T.line }]}>
               <View style={{ flex: 1 }}>{souvenir ? <><Text style={[type.section, { color: T.ink }]}>{souvenir.label}</Text><Label T={T} style={{ marginTop: 2 }}>{items.places[souvenir.place]}</Label></> : <Label T={T}>{items.places[ev.payload?.place] || ''}</Label>}</View>
-              <Num T={T} style={{ color: T.accent }}>{fill(t.pearls, { n: PEARLS.walk })}</Num>
+              <Num T={T} style={{ color: T.accent }}>{fill(t.pearls, { n: PEARLS.fullDay })}</Num>
             </Animated.View>
           ) : null}
         </View>

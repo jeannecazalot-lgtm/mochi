@@ -13,16 +13,14 @@ import { getUid } from './identity';
 import { localIso, addDaysIso } from './dates';
 import { weekStartIso } from './malus-actions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { scheduleMochiReturn } from './notifications';
 import items from './data/mochi-items.json';
 
 export const STAGES = ['egg', 'mini', 'mochi', 'maxi', 'dore'];
 export const STAGE_AT = { mochi: 2, maxi: 6, dore: 14 };           // semaines « qui comptent » cumulées (7 nov 2026, Jeanne : Finch grandit dès 7 jours)
 export const stageFor = hw => (hw >= STAGE_AT.dore ? 'dore' : hw >= STAGE_AT.maxi ? 'maxi' : hw >= STAGE_AT.mochi ? 'mochi' : 'mini');
-export const PEARLS = { mission: 3, mental: 4, together: 5, walk: 12, smallWalk: 5, checkin: 1, quest: 30 };
-export const WALK_MS = 2 * 3600e3;
+export const PEARLS = { mission: 3, mental: 4, together: 5, fullDay: 12, checkin: 1, quest: 30 };
 const PLACES_BY_STAGE = { egg: [], mini: ['jardin'], mochi: ['jardin', 'riviere'], maxi: ['jardin', 'riviere', 'foret', 'ville'], dore: ['jardin', 'riviere', 'foret', 'ville', 'plage', 'montagne'] };
-export const MOMENTS = ['hatch', 'walk_return', 'stage_up', 'week_closed'];
+export const MOMENTS = ['hatch', 'stage_up', 'week_closed'];
 export const demoFlags = { checkin: {} }; // mode démo : mémoire de session (pas de foyer)       // montrés en plein écran à chacun
 
 let version = 0; const subs = new Set();
@@ -72,7 +70,7 @@ export async function onMissionDone(occ, task, { wasMissed = false } = {}) {
   const changes = { pearls: (m.pearls || 0) + delta };
   if (wasMissed && m.hearts < 5) { await event('heart_gained', { occurrence_id: occ.id, payload: { reason: 'rattrapage' } }); changes.hearts = m.hearts + 1; }
   await patch(changes);
-  await checkHatch(); await checkWalk();
+  await checkHatch(); await checkFullDay();
 }
 
 // ── éclosion : quand le duo est formé, c'est-à-dire dès que le foyer a deux membres (décision Jeanne 4 nov 2026 :
@@ -86,30 +84,18 @@ export async function checkHatch() {
   return true;
 }
 
-// ── balade : jauge pleine → il part 2 h (pas si patraque/malade, pas deux fois le même jour) ─
-export async function checkWalk() {
-  const m = await getMochi(); if (!m || m.stage === 'egg' || m.walk_status !== 'home' || m.hearts <= 2) return false;
+// ── journée pleine (décision Jeanne 8 nov 2026, la balade est abandonnée) : jauge pleine → saut de joie, 12 perles,
+//    puis Mochi dort jusqu'à demain. Une fois par jour. L'événement garde le type `walk_start` (contrainte en base) : c'est le marqueur du jour.
+export async function checkFullDay() {
+  const m = await getMochi(); if (!m || m.stage === 'egg') return false;
+  if (m.walk_status === 'away') await patch({ walk_status: 'home', walk_started_at: null, walk_returns_at: null }); // anciens foyers partis en balade
   const occs = await read('occurrences'); const { done, total } = energyOf(occs);
   if (!total || done < total) return false;
   const evs = await read('mochi_events'); const today = localIso();
   if (evs.some(e => e.type === 'walk_start' && String(e.created_at).slice(0, 10) === today)) return false;
-  const t = Date.now();
-  await event('walk_start', { actor_id: null, payload: { kind: 'full' } });
-  await event('pearls', { actor_id: null, payload: { delta: PEARLS.walk, reason: 'journee_pleine' } });
-  await patch({ pearls: (m.pearls || 0) + PEARLS.walk, walk_status: 'away', walk_started_at: new Date(t).toISOString(), walk_returns_at: new Date(t + WALK_MS).toISOString() });
-  scheduleMochiReturn(new Date(t + WALK_MS)).catch(() => {});
-  return true;
-}
-// ── retour : un souvenir du lieu débloqué par le stade (jamais deux fois le même) ──────────
-export async function checkReturn() {
-  const m = await getMochi(); if (!m || m.walk_status !== 'away' || !m.walk_returns_at || Date.now() < Date.parse(m.walk_returns_at)) return false;
-  const inv = await read('mochi_inventory'); const owned = new Set(inv.filter(i => i.household_id === hid()).map(i => i.item_key));
-  const places = PLACES_BY_STAGE[m.stage] || ['jardin'];
-  const pool = items.souvenirs.filter(s => places.includes(s.place) && !owned.has(s.key));
-  const pick = pool.length ? pool[Math.floor(Math.random() * pool.length)] : null;
-  const ev = await event('walk_return', { actor_id: null, payload: { souvenir_key: pick?.key || null, place: pick?.place || null } });
-  if (pick) await mutate('mochi_inventory', { id: uuid(), household_id: hid(), item_key: pick.key, kind: 'souvenir', source: 'walk', placed: true, event_id: ev.id, acquired_by: null, acquired_at: nowIso() });
-  await patch({ walk_status: 'home', walk_started_at: null, walk_returns_at: null });
+  await event('walk_start', { actor_id: null, payload: { kind: 'full_day' } });
+  await event('pearls', { actor_id: null, payload: { delta: PEARLS.fullDay, reason: 'journee_pleine' } });
+  await patch({ pearls: (m.pearls || 0) + PEARLS.fullDay });
   return true;
 }
 
@@ -179,7 +165,7 @@ export async function markSeen(ev) { const uid = getUid(); if (!uid) return; awa
 // ── à l'ouverture, au retour au premier plan, au changement de jour ────────────────────────
 export async function tick() {
   const m = await refreshMochi(); if (!m) return null;
-  await sweepHearts(); await checkHatch(); await checkReturn(); await checkWalk(); await closeWeekIfNeeded();
+  await sweepHearts(); await checkHatch(); await checkFullDay(); await closeWeekIfNeeded();
   mochiStore.bump();
   return getMochi();
 }

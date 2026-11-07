@@ -51,24 +51,6 @@ function Row({ T, vm, first, done, onToggle }) {
 }
 
 // bande de balade : une ligne de progression entre le départ et le retour, le point avance en direct
-function WalkBand({ T, t, started, returns }) {
-  const [now, setNow] = useState(Date.now());
-  useEffect(() => { const id = setInterval(() => setNow(Date.now()), 30 * 1000); return () => clearInterval(id); }, []);
-  const s0 = started ? Date.parse(started) : now - 30 * 60e3, s1 = returns ? Date.parse(returns) : s0 + 2 * 3600e3;
-  const ratio = Math.max(0.02, Math.min(1, (now - s0) / Math.max(1, s1 - s0)));
-  return (
-    <View style={{ marginHorizontal: layout.x, marginTop: 14 }}>
-      <View style={{ height: 3, borderRadius: 2, backgroundColor: T.seg }}>
-        <View style={{ width: `${ratio * 100}%`, height: 3, borderRadius: 2, backgroundColor: T.accent }} />
-        <View style={{ position: 'absolute', left: `${ratio * 100}%`, top: -5, marginLeft: -7, width: 13, height: 13, borderRadius: 7, backgroundColor: T.accent, borderWidth: 2, borderColor: T.bg }} />
-      </View>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>
-        <Label T={T}>{fill(t.walkLeft, { time: fmtTime(new Date(s0).toISOString()) })}</Label>
-        <Label T={T}>{fill(t.walkRight, { time: fmtTime(new Date(s1).toISOString()) })}</Label>
-      </View>
-    </View>
-  );
-}
 
 const demoVms = () => myToday().map(o => { const task = taskById(o.task_id); return { id: o.id, emoji: task.emoji, title: task.title, mental: task.mental_load || o.kind === 'plan', mins: task.duration_min || 0, href: `/mission?occ=${o.id}` }; });
 
@@ -96,7 +78,6 @@ export default function Home() {
   const [demoPearls, setDemoPearls] = useState(0); // perles gagnées en démo (session)
   const pearlsRef = useRef(null); const [pearlsAt, setPearlsAt] = useState(null); // position du compteur
   const { pop, style: popStyle } = usePop();
-  const [demoAway, setDemoAway] = useState(false); // en démo : Mochi part quand tout est coché
   const data = useRef({ occs: [], byId: {} });
   const shown = useRef(false); // moments plein écran : une seule ouverture par montage
   const ticked = useRef(false);
@@ -165,24 +146,22 @@ export default function Home() {
   const allDone = list.length > 0 && remaining.length === 0;
   const lateLeft = late.filter(v => !missionDone.has(v.id));
   const m = mochi || DEMO_MOCHI;
-  const away = m.walk_status === 'away' || demoAway;
   const hearts = m.hearts ?? 5;
   const day = m.hatched_at ? Math.max(1, Math.floor((Date.now() - Date.parse(m.hatched_at)) / 86400e3) + 1) : 0;
   // quand je me sens pas bien, Mochi le montre (retour Jeanne 4 nov 2026) : tête neutre + phrase, avant tout le reste
-  const heavy = myMood === 1 && !away && hearts > 1 && m.stage !== 'egg';
-  const mood = T.night || hearts <= 1 ? 'sleeping' : hearts === 2 ? 'sad' : hearts === 3 || heavy ? 'neutral' : undefined;
+  const heavy = myMood === 1 && hearts > 1 && m.stage !== 'egg';
+  const mood = T.night || hearts <= 1 || full ? 'sleeping' : hearts === 2 ? 'sad' : hearts === 3 || heavy ? 'neutral' : undefined;
   const en = real ? energy : { done: list.length - remaining.length, total: list.length };
   const full = en.total > 0 && en.done >= en.total;
+  // journée pleine (Jeanne, 8 nov 2026) : saut de joie, les 12 perles volent au compteur, puis il dort jusqu'à demain
   useEffect(() => {
     if (!full || vms === null) return;
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-    const a = setTimeout(() => { if (!real) setDemoAway(true); }, 900);
+    const a = setTimeout(() => { mochiReact(); setTimeout(mochiReact, 260); setFlight({ key: Date.now(), n: 12 }); if (!real) setDemoPearls(p => p + 12); }, 700);
     return () => clearTimeout(a);
   }, [full]);
-  useEffect(() => { if (!full && demoAway) setDemoAway(false); }, [full]);
   const line = vms === null ? ' '
     : m.stage === 'egg' ? t.egg
-    : away ? fill(t.away, { time: fmtTime(m.walk_returns_at || new Date(Date.now() + 2 * 3600e3).toISOString()) })
     : hearts <= 1 ? t.sick
     : heavy ? t.heavy
     : T.night ? t.night
@@ -193,7 +172,7 @@ export default function Home() {
 
   return (
     <View style={{ flex: 1, backgroundColor: T.bg }}>
-      <Pressable onPress={() => router.push('/chambre')} style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><Scene T={T} stage={m.stage} mood={mood} lvl={lvl} away={away} topInset={insets.top + 44} items={room.items} outfit={room.outfit} souvenirs={room.souvenirs} positions={room.positions} photo={m.photo_url || null} /></Pressable>
+      <Pressable onPress={() => router.push('/chambre')} style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><Scene T={T} stage={m.stage} mood={mood} lvl={lvl} topInset={insets.top + 44} items={room.items} outfit={room.outfit} souvenirs={room.souvenirs} positions={room.positions} photo={m.photo_url || null} /></Pressable>
       {flight && pearlsAt ? <PearlFlight key={flight.key} from={{ x: width / 2, y: layout.scene - layout.floor - 60 }} to={pearlsAt} count={Math.min(5, flight.n)} color={T.accent} onArrive={() => { pop(); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {}); }} /> : null}
       <SafeAreaView style={{ flex: 1 }} edges={['top']} pointerEvents="box-none">
         <View style={{ flex: 1, overflow: 'hidden' }} pointerEvents="box-none" onLayout={e => setAvailH(e.nativeEvent.layout.height)}>
@@ -213,7 +192,6 @@ export default function Home() {
               <View style={{ paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999, backgroundColor: T.seg }}><Text style={[type.label, { color: T.ink, fontWeight: '600' }]}>{m.stage === 'egg' ? t.eggPill : fill(t.stagePill, { day, k: Math.max(1, STAGES.indexOf(m.stage)) })}</Text></View>
             </View>
             <Text style={[type.sub, { paddingHorizontal: layout.x, marginTop: 4, color: T.muted }]}>{line}</Text>
-            {away ? <WalkBand T={T} t={t} started={m.walk_started_at} returns={m.walk_returns_at} /> : null}
             {/* seul dans le foyer : l'invitation EST l'écran (retour Jeanne 6 nov 2026 : « on ne peut rien faire sans binôme ») */}
             {real && !getPartnerUid() ? (
               <View style={{ marginHorizontal: layout.x, marginTop: 16, padding: 18, borderRadius: 18, backgroundColor: T.ink }}>
@@ -222,7 +200,7 @@ export default function Home() {
                 <Pressable onPress={() => router.push('/(setup)/invite?from=home')} style={({ pressed }) => [{ marginTop: 14, paddingVertical: 13, borderRadius: 999, backgroundColor: T.accent, alignItems: 'center', opacity: pressed ? 0.85 : 1 }]}><Text style={[type.body, { color: '#FFFFFF', fontWeight: '600' }]}>{t.soloCta}</Text></Pressable>
               </View>
             ) : null}
-            <View style={{ marginTop: (checkedIn ? 16 : 6) * layout.air }}><Gauges T={T} t={t} energy={en} hearts={hearts} formLabel={t.formLabels[hearts] || ''} hint={m.stage !== 'egg' && !away && !full && day <= 7 ? t.energyHint : null} /></View>
+            <View style={{ marginTop: (checkedIn ? 16 : 6) * layout.air }}><Gauges T={T} t={t} energy={en} hearts={hearts} formLabel={t.formLabels[hearts] || ''} hint={m.stage !== 'egg' && !full && day <= 7 ? t.energyHint : null} /></View>
             <View style={s.sectionHead}>
               <Pressable onPress={() => router.push('/(tabs)/planning')} hitSlop={6}><Text style={[type.section, { color: T.ink }]}>{t.today}</Text></Pressable>
               <Label T={T}>{meta}</Label>
