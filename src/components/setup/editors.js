@@ -92,8 +92,8 @@ export function cyclePref(prefs, id) {
 function Chip({ c, state, onPress }) {
   const T = tk(); const bg = state === 'like' ? T.ok : state === 'hate' ? T.accent : null; const fg = state === 'hate' ? T.bg : T.ink;
   return (
-    <Pressable onPress={onPress} style={[s.chip, { flexDirection: 'row', alignItems: 'center', gap: 8 }, bg ? { backgroundColor: bg, borderWidth: 1.5, borderColor: bg } : s.chipOff]}>
-      <TaskIcon emoji={c.emoji} size={18} />
+    <Pressable onPress={onPress} style={[s.chip, { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 12 }, bg ? { backgroundColor: bg, borderWidth: 1.5, borderColor: bg } : s.chipOff]}>
+      <TaskIcon emoji={c.emoji} size={11} />
       <Text style={[s.chipTxt, { color: fg }]}>{c.label}</Text>
     </Pressable>
   );
@@ -146,8 +146,8 @@ const s = v3Styles(T => StyleSheet.create({
   legendPrefs: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8, marginBottom: 18 },
   legendPill: { paddingVertical: 7, paddingHorizontal: 11, borderRadius: 999, borderWidth: StyleSheet.hairlineWidth, borderColor: T.line },
   legendPillTxt: { fontSize: 12.5, fontWeight: '500', color: T.ink },
-  wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 9 },
+  wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   chip: { paddingVertical: 10, paddingHorizontal: 15, borderRadius: 999 },
   chipOff: { backgroundColor: T.bg, borderWidth: 1.5, borderColor: T.seg },
-  chipTxt: { fontSize: 14, fontWeight: '500', color: T.ink },
+  chipTxt: { fontSize: 13.5, fontWeight: '500', color: T.ink },
 }));
