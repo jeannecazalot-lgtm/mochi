@@ -10,7 +10,7 @@ import { Label, Num } from '../src/components/mochi/gauges';
 import { useTokens, type, layout } from '../src/theme-v3';
 import { read } from '../src/store';
 import { loadSetup, setup, inRealMode } from '../src/setup-state';
-import { mochiStore, getMochi, buyItem, setPlaced, setFramePhoto, STAGES } from '../src/mochi-state';
+import { mochiStore, getMochi, buyItem, setPlaced, setFramePhoto, setItemPos, positionsOf, STAGES } from '../src/mochi-state';
 import * as ImagePicker from 'expo-image-picker';
 import { uploadFramePhoto } from '../src/profile';
 import items from '../src/data/mochi-items.json';
@@ -56,6 +56,9 @@ export default function Chambre() {
   const outfit = inv.find(i => i.kind === 'outfit' && i.placed)?.item_key || null;
   const objects = inv.filter(i => i.kind === 'object' && i.placed !== false).map(i => i.item_key);
   const placedOf = k => inv.some(i => i.item_key === k && i.placed !== false);
+  // déplacer au doigt (Jeanne, 8 nov 2026) : la position est gardée localement tout de suite, puis partagée
+  const positions = positionsOf(inv);
+  const onMove = (key, pos) => { setInv(rows => rows.map(r => r.item_key === key ? { ...r, pos_x: pos.x, pos_y: pos.y } : r)); if (!demo) setItemPos(key, pos).catch(() => {}); };
   // la photo du cadre « vous deux » : choisie dans la photothèque, visible chez les deux
   const pickPhoto = async () => {
     try {
@@ -84,16 +87,16 @@ export default function Chambre() {
   const rowProps = { T, t, s, outfit, photoUrl: m.photo_url, stageIdx, has: k => owned.has(k), placedOf, onBuy: buy, onPlace: place, onPhoto: pickPhoto };
   return (
     <View style={{ flex: 1, backgroundColor: T.bg }}>
-      <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><Scene T={T} stage={m.stage} mood={T.night ? 'sleeping' : undefined} lvl={lvl} height={layout.scene + 40} items={objects} outfit={outfit} souvenirs={souvenirs} photo={m.photo_url || null} topInset={insets.top + 30} /></View>
-      <SafeAreaView style={{ flex: 1 }} edges={['top']}>
-        <View style={{ paddingTop: 12, paddingHorizontal: X, flexDirection: 'row', alignItems: 'center' }}>
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><Scene T={T} stage={m.stage} mood={T.night ? 'sleeping' : undefined} lvl={lvl} height={layout.scene + 40} items={objects} outfit={outfit} souvenirs={souvenirs} photo={m.photo_url || null} positions={positions} onMove={onMove} topInset={insets.top + 30} /></View>
+      <SafeAreaView style={{ flex: 1 }} edges={['top']} pointerEvents="box-none">{/* box-none : les touches sur la scène (objets déplaçables) passent à travers */}
+        <View style={{ paddingTop: 12, paddingHorizontal: X, flexDirection: 'row', alignItems: 'center' }} pointerEvents="box-none">
           <Pressable onPress={() => router.back()} hitSlop={10}><Label T={T} style={{ color: T.ink }}>‹ Retour</Label></Pressable>
           <View style={{ flex: 1 }} />
           <Num T={T}>{m.pearls ?? 0}</Num><Label T={T} style={{ marginLeft: 6 }}>perles</Label>
         </View>
         {/* la scène reste fixe (Jeanne, 6 nov 2026 : « la partie écrite rogne sur l'animation ») : seule la liste défile dessous */}
         <View pointerEvents="none" style={{ height: Math.max(8, layout.scene + 40 - insets.top - 44) }} />
-        <View style={{ paddingHorizontal: X, paddingTop: 12 }}><Text style={[type.name, { color: T.ink }]}>{t.title}</Text></View>
+        <View style={{ paddingHorizontal: X, paddingTop: 12 }}><Text style={[type.name, { color: T.ink }]}>{t.title}</Text>{objects.length ? <Label T={T} style={{ marginTop: 4 }}>{t.dragHint}</Label> : null}</View>
         <View style={{ flexDirection: 'row', gap: 22, paddingHorizontal: X, marginTop: 18, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: T.line }}>
           {t.tabs.map((lab, i) => <Pressable key={lab} onPress={() => setTab(i)} style={{ paddingBottom: 10, borderBottomWidth: 2, borderColor: tab === i ? T.ink : 'transparent' }}><Text style={[type.label, { color: tab === i ? T.ink : T.muted, fontWeight: '600' }]}>{lab}</Text></Pressable>)}
         </View>

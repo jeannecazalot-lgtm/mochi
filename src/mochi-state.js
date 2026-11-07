@@ -216,5 +216,12 @@ export async function applyPendingName() {
     await AsyncStorage.removeItem(NAME_K); return true;
   } catch (e) { return false; }
 }
+// position choisie au doigt (fractions de la scène) ; null = retour à l'emplacement automatique
+export async function setItemPos(itemKey, pos) {
+  const inv = (await read('mochi_inventory')).filter(i => i.household_id === hid() && i.item_key === itemKey);
+  for (const row of inv) await mutate('mochi_inventory', { ...row, pos_x: pos ? pos.x : null, pos_y: pos ? pos.y : null });
+  mochiStore.bump(); return inv.length > 0;
+}
+export const positionsOf = rows => Object.fromEntries(rows.filter(r => r.kind === 'object' && r.pos_x != null && r.pos_y != null).map(r => [r.item_key, { x: r.pos_x, y: r.pos_y }]));
 export async function setFramePhoto(url) { await patch({ photo_url: url || null }); return true; } // photo du cadre (colonne mochi_state.photo_url, migration 0015)
 export async function renameMochi(name) { const m = await getMochi(); if (!m) return false; await patch({ name: String(name || 'Mochi').trim() || 'Mochi' }); return true; }

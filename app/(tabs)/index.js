@@ -24,7 +24,7 @@ import { toggleOccurrence, isLive, skipOccurrence } from '../../src/occ-actions'
 import { clearMalusFor } from '../../src/malus-actions';
 import { groupLate, lateCaption, daysBetweenIso } from '../../src/late-groups';
 import { mochiReact } from '../../src/components/mochi-img';
-import { mochiStore, getMochi, energyOf, onMissionDone, STAGES, unseenMoments, demoFlags, applyPendingName, pearlsFor, tick } from '../../src/mochi-state';
+import { mochiStore, getMochi, energyOf, onMissionDone, STAGES, unseenMoments, demoFlags, applyPendingName, pearlsFor, tick, positionsOf } from '../../src/mochi-state';
 import copy from '../../src/data/copy.json';
 import { TaskIcon } from '../../src/components/task-icon';
 
@@ -89,7 +89,7 @@ export default function Home() {
   const [mochi, setMochi] = useState(null);
   const [energy, setEnergy] = useState({ done: 0, total: 0 });
   const [lvl, setLvl] = useState(1);
-  const [room, setRoom] = useState({ items: [], outfit: null, souvenirs: 0 }); // ce qui a été acheté / ramené
+  const [room, setRoom] = useState({ items: [], outfit: null, souvenirs: 0, positions: {} }); // ce qui a été acheté / ramené
   const [checkedIn, setCheckedIn] = useState(true); // ligne check-in masquée tant qu'on ne sait pas
   const [myMood, setMyMood] = useState(null); // mon check-in du jour (1 chargé·e, 2 ça va, 3 léger·ère)
   const [flight, setFlight] = useState(null); // perles qui volent de Mochi au compteur ({ key, n })
@@ -129,7 +129,7 @@ export default function Home() {
       setEnergy(energyOf(occs));
       const souvenirs = inv.filter(i => i.household_id === setup.householdId && i.kind === 'souvenir').length;
       const mineInv = inv.filter(i => i.household_id === setup.householdId); const outfits = mineInv.filter(i => i.kind === 'outfit').sort((a, b) => String(a.acquired_at).localeCompare(String(b.acquired_at)));
-      setRoom({ items: mineInv.filter(i => i.kind === 'object' && i.placed !== false).map(i => i.item_key), outfit: (outfits.find(o => o.placed) || null)?.item_key || null, souvenirs });
+      setRoom({ items: mineInv.filter(i => i.kind === 'object' && i.placed !== false).map(i => i.item_key), outfit: (outfits.find(o => o.placed) || null)?.item_key || null, souvenirs, positions: positionsOf(mineInv) });
       setLvl(!m || m.stage === 'egg' ? 0 : souvenirs === 0 ? 1 : m.stage === 'mini' ? 2 : m.stage === 'mochi' ? 3 : 4);
       const swaps = await read('swap_requests').catch(() => []); const pendingIds = new Set(swaps.filter(sw => sw.status === 'pending' && sw.from_user === uid).map(sw => sw.occurrence_id));
       const refusedIds = new Set(swaps.filter(sw => sw.status === 'refused' && sw.from_user === uid && String(sw.resolved_at || '').slice(0, 10) === today).map(sw => sw.occurrence_id));
@@ -193,7 +193,7 @@ export default function Home() {
 
   return (
     <View style={{ flex: 1, backgroundColor: T.bg }}>
-      <Pressable onPress={() => router.push('/chambre')} style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><Scene T={T} stage={m.stage} mood={mood} lvl={lvl} away={away} topInset={insets.top + 44} items={room.items} outfit={room.outfit} souvenirs={room.souvenirs} photo={m.photo_url || null} /></Pressable>
+      <Pressable onPress={() => router.push('/chambre')} style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><Scene T={T} stage={m.stage} mood={mood} lvl={lvl} away={away} topInset={insets.top + 44} items={room.items} outfit={room.outfit} souvenirs={room.souvenirs} positions={room.positions} photo={m.photo_url || null} /></Pressable>
       {flight && pearlsAt ? <PearlFlight key={flight.key} from={{ x: width / 2, y: layout.scene - layout.floor - 60 }} to={pearlsAt} count={Math.min(5, flight.n)} color={T.accent} onArrive={() => { pop(); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {}); }} /> : null}
       <SafeAreaView style={{ flex: 1 }} edges={['top']} pointerEvents="box-none">
         <View style={{ flex: 1, overflow: 'hidden' }} pointerEvents="box-none" onLayout={e => setAvailH(e.nativeEvent.layout.height)}>

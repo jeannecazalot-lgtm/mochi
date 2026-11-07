@@ -609,7 +609,9 @@
       "photoHint": "Sous la ligne photo (optionnelle)",
       "photoChange": "Ligne photo quand une photo est choisie",
       "codeLabel": "Étiquette au-dessus du grand code",
-      "showQr": "Lien sous le code"
+      "showQr": "Lien sous le code",
+      "saveList": "CTA de l'écran 10 quand on est seul (pré-remplir, pas répartir)",
+      "tasksSubSolo": "Sous-titre écran 10 quand on est seul"
     },
     "identityTitle": "Comment tu t'appelles ?",
     "firstNameLabel": "Ton prénom",
@@ -744,7 +746,9 @@
     "photoHint": "Optionnel. {name} te verra comme ça.",
     "photoChange": "Changer la photo",
     "codeLabel": "Votre code",
-    "showQr": "Montrer le QR"
+    "showQr": "Montrer le QR",
+    "saveList": "Enregistrer la liste",
+    "tasksSubSolo": "Prépare la liste. La répartition se fera quand ton binôme aura rejoint et donné ses dispos."
   },
   "event": {
     "_labels": {
@@ -2152,7 +2156,7 @@
     "inviteRow": "Inviter ton binôme",
     "inviteRowSub": "Mochi éclot quand vous êtes deux. Ton code et ton lien sont ici.",
     "soloTitle": "Mochi attend ton binôme.",
-    "soloSub": "Tout se joue à deux : les missions, la balance, et Mochi qui éclot. Envoie-lui le lien ou donne-lui ton code.",
+    "soloSub": "Tout se joue à deux : les missions, la balance, et Mochi qui éclot. Envoie-lui le lien ou donne-lui ton code. En attendant, tu peux préparer la liste des missions.",
     "soloSubHatched": "Tout se joue à deux : les missions, la balance, et Mochi qui grandit. Envoie-lui le lien ou donne-lui ton code.",
     "soloCta": "Inviter ton binôme",
     "soloCode": "Ton code : {code}"
@@ -2327,7 +2331,8 @@
       "photoPick": "Lien sous le cadre : choisir la photo de vous deux",
       "photoChange": "Lien sous le cadre : changer la photo",
       "photoError": "Message si l'envoi de la photo échoue",
-      "souvenirsShelf": "Titre de l'étagère à souvenirs dans la pièce"
+      "souvenirsShelf": "Titre de l'étagère à souvenirs dans la pièce",
+      "dragHint": "Aide sous le titre de la pièce : déplacer un objet au doigt"
     },
     "title": "La pièce de Mochi",
     "pearls": "{n} perles",
@@ -2351,7 +2356,8 @@
     "store": "Ranger",
     "photoPick": "Choisir votre photo",
     "photoChange": "Changer la photo",
-    "photoError": "La photo n'a pas pu être envoyée. Réessaie avec du réseau."
+    "photoError": "La photo n'a pas pu être envoyée. Réessaie avec du réseau.",
+    "dragHint": "Appuie longuement sur un objet pour le déplacer."
   },
   "mochiNotifs": {
     "_labels": {

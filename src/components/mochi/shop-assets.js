@@ -57,7 +57,8 @@ const LAYOUTS = {
 const ORDER = items.objects.map(o => o.key);
 
 // keys posées → [{ key, left, top, width, height, string }] en points écran, pour une scène SW × hh
-export function layoutRoom(keys, SW, hh, boost = 1.15) {
+// positions : { clé → { x, y } } fractions de la scène (centre de l'objet), posées au doigt (8 nov 2026) ; elles priment sur l'emplacement automatique
+export function layoutRoom(keys, SW, hh, boost = 1.15, positions = {}) {
   const s = Math.max(SW / 1536, hh / 1024); const ox = (SW - 1536 * s) / 2, oy = (hh - 1024 * s) / 2;
   const ks = keys.filter((k, i) => OBJ[k] && SHOP[k] && k !== 'table' && keys.indexOf(k) === i).sort((a, b) => ORDER.indexOf(a) - ORDER.indexOf(b));
   const t = Math.max(0, Math.min(1, (8 - ks.length) / 7)); // 1 = presque seul → grand ; 0 = pièce pleine
@@ -79,7 +80,7 @@ export function layoutRoom(keys, SW, hh, boost = 1.15) {
   });
   const used = {};
   tops.forEach(([k, host]) => { const H = out[host]; if (!H) return; const kind = host.replace(/\d+$/, ''); const spec = HOSTS[kind]; const i = used[host] || 0; used[host] = i + 1; const sc = H.w / OBJ[kind].w; const dx = (spec.dx[i] ?? 0) * sc; const w = px(OBJ[k]), h = w * R[k]; out[k] = { x: H.x + H.w / 2 + dx - w / 2, y: H.y + spec.sink * sc - h, w, h }; });
-  return Object.entries(out).map(([key, p]) => ({ key, img: key.replace(/\d+$/, ''), left: ox + p.x * s, top: oy + p.y * s, width: p.w * s, height: p.h * s, string: !!p.string, photo: key === 'cadre' }));
+  return Object.entries(out).map(([key, p]) => { const w = p.w * s, h = p.h * s; const m = positions[key]; const left = m ? m.x * SW - w / 2 : ox + p.x * s, top = m ? m.y * hh - h / 2 : oy + p.y * s; return { key, img: key.replace(/\d+$/, ''), left, top, width: w, height: h, string: !!p.string && !m, photo: key === 'cadre' }; });
 }
 
 // tenues : largeur relative à Mochi (W), ancre (center / bottom), y relatif à sa hauteur (H), décalage x relatif

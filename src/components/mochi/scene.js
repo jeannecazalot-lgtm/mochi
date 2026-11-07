@@ -6,7 +6,8 @@
 import React, { useEffect } from 'react';
 import { View, Image, useWindowDimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming, withDelay, withSequence, withRepeat, Easing, ZoomIn, FadeIn, FadeInUp } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming, withDelay, withSequence, withRepeat, Easing, ZoomIn, FadeIn, FadeInUp, runOnJS } from 'react-native-reanimated';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { LiveMochiImage, MOCHI_RATIO } from '../mochi-img';
 import { prefersReducedMotion } from '../motion';
 import { layout } from '../../theme-v3';
@@ -25,6 +26,20 @@ const S = ({ l, r, t, b, w, h, rad = 0, c, op }) => <View style={{ position: 'ab
 const Im = ({ k, l, r, t, b, w, h, op = 1 }) => <Image source={IMG[k]} style={{ position: 'absolute', left: l, right: r, top: t, bottom: b, width: w, height: h, opacity: op }} resizeMode="contain" accessibilityIgnoresInvertColors />;
 import { SHOP, layoutRoom, outfitStyle, CADRE_WINDOW } from './shop-assets';
 const SOUVENIR = require('../../../assets/icones/generic.png');
+// un objet qu'on déplace au doigt (8 nov 2026, Jeanne) : appui long puis glisser ; relâché = position gardée et partagée
+function DragItem({ p, SW, hh, children, onMove }) {
+  const tx = useSharedValue(0), ty = useSharedValue(0), lift = useSharedValue(1);
+  const pan = Gesture.Pan().activateAfterLongPress(220)
+    .onStart(() => { lift.value = withSpring(1.08); })
+    .onUpdate(e => { tx.value = e.translationX; ty.value = e.translationY; })
+    .onEnd(() => {
+      const cx = Math.max(p.width / 2, Math.min(SW - p.width / 2, p.left + p.width / 2 + tx.value));
+      const cy = Math.max(p.height / 2, Math.min(hh - p.height / 2, p.top + p.height / 2 + ty.value));
+      lift.value = withSpring(1); runOnJS(onMove)(p.key, { x: cx / SW, y: cy / hh });
+    });
+  const st = useAnimatedStyle(() => ({ transform: [{ translateX: tx.value }, { translateY: ty.value }, { scale: lift.value }] }));
+  return <GestureDetector gesture={pan}><Animated.View style={[{ position: 'absolute', left: p.left, top: p.top, width: p.width, height: p.height }, st]}>{children}</Animated.View></GestureDetector>;
+}
 export const SIZE_BY_STAGE = { egg: 0.6, mini: 0.75, mochi: 1, maxi: 1.15, dore: 1.25 };
 
 // la plante se balance très lentement (±1,5°, 2,8 s), depuis sa base
@@ -108,7 +123,7 @@ function LiveEgg({ source, cracking, size = 96, hatching = false, onHatched }) {
 }
 const Layer = ({ children, delay = 0, fade }) => <Animated.View entering={FadeIn.delay(delay).duration(400)} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} pointerEvents="none">{children}</Animated.View>;
 
-export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height = layout.scene, hideMochi = false, cracking = false, hatching = false, onHatched = null, topInset = 0, backdrop = undefined, mochiSource = null, mochiBottom = null, shiftY = 0, items = [], outfit = null, souvenirs = 0, photo = null }) {
+export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height = layout.scene, hideMochi = false, cracking = false, hatching = false, onHatched = null, topInset = 0, backdrop = undefined, mochiSource = null, mochiBottom = null, shiftY = 0, items = [], outfit = null, souvenirs = 0, photo = null, positions = {}, onMove = null }) {
   const c = T.scene, hh = height, fl = layout.floor, night = !!c.moon;
   const { width: SW } = useWindowDimensions();
   // décision Jeanne 5 nov 2026 (« je préfère l'ancien ») : la pièce est le décor entier de ChatGPT, B le jour, D la nuit
@@ -174,12 +189,18 @@ export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height =
       {night ? <S l={0} r={0} t={0} b={0} c={c.wall} op={0.5} /> : null}
       </>}
       {/* objets achetés, posés aux emplacements prévus ; le tapis sous Mochi, le reste autour */}
-      {backdrop && items.length ? layoutRoom(items, SW, hh).map(p => <React.Fragment key={p.key}>{p.string ? <View style={{ position: 'absolute', left: p.left + p.width / 2 - 1, top: 0, width: 2, height: p.top + 6, backgroundColor: '#8A8078', opacity: 0.8 }} /> : null}{p.photo && photo ? <Image source={{ uri: photo }} style={{ position: 'absolute', left: p.left + p.width * CADRE_WINDOW.x, top: p.top + p.height * CADRE_WINDOW.y, width: p.width * CADRE_WINDOW.w, height: p.height * CADRE_WINDOW.h }} resizeMode="cover" accessibilityIgnoresInvertColors /> : null}<Image source={SHOP[p.img]} style={{ position: 'absolute', left: p.left, top: p.top, width: p.width, height: p.height }} resizeMode="contain" accessibilityIgnoresInvertColors /></React.Fragment>) : null}
+      {backdrop && items.length ? layoutRoom(items, SW, hh, 1.15, positions).map(p => {
+        const body = <>{p.photo && photo ? <Image source={{ uri: photo }} style={{ position: 'absolute', left: p.width * CADRE_WINDOW.x, top: p.height * CADRE_WINDOW.y, width: p.width * CADRE_WINDOW.w, height: p.height * CADRE_WINDOW.h }} resizeMode="cover" accessibilityIgnoresInvertColors /> : null}<Image source={SHOP[p.img]} style={{ position: 'absolute', left: 0, top: 0, width: p.width, height: p.height }} resizeMode="contain" accessibilityIgnoresInvertColors /></>;
+        return <React.Fragment key={p.key}>
+          {p.string ? <View style={{ position: 'absolute', left: p.left + p.width / 2 - 1, top: 0, width: 2, height: p.top + 6, backgroundColor: '#8A8078', opacity: 0.8 }} /> : null}
+          {onMove && !p.key.startsWith('table') ? <DragItem key={`${p.key}@${Math.round(p.left)},${Math.round(p.top)}`} p={p} SW={SW} hh={hh} onMove={onMove}>{body}</DragItem> : <View pointerEvents="none" style={{ position: 'absolute', left: p.left, top: p.top, width: p.width, height: p.height }}>{body}</View>}
+        </React.Fragment>;
+      }) : null}
       {/* souvenirs de balade : une petite étagère qui se garnit (jusqu'à 8 visibles) */}
       {backdrop && souvenirs > 0 ? <View pointerEvents="none" style={{ position: 'absolute', left: SW * 0.6, top: hh * 0.38, width: SW * 0.3, alignItems: 'center' }}><View style={{ flexDirection: 'row', gap: 4, paddingBottom: 3 }}>{Array.from({ length: Math.min(8, souvenirs) }).map((_, i) => <Image key={i} source={SOUVENIR} style={{ width: 16, height: 16, opacity: 0.9 }} resizeMode="contain" />)}</View><View style={{ height: 4, width: '100%', borderRadius: 2, backgroundColor: c.shelf || '#CFB08C' }} /></View> : null}
       {hideMochi ? null : stage === 'egg'
-        ? <><Animated.View entering={FadeInUp.duration(420).easing(Easing.out(Easing.cubic)).withInitialValues({ opacity: 0, transform: [{ translateY: 10 }] })} style={{ position: 'absolute', bottom: backdrop ? 30 : fl2 - 12, left: 0, right: 0, alignItems: 'center' }}><LiveEgg source={cracking || hatching ? IMG.eggCrack : IMG.egg} cracking={cracking && !hatching} hatching={hatching} onHatched={onHatched} /></Animated.View></>
-        : <Animated.View entering={FadeInUp.duration(420).easing(Easing.out(Easing.cubic)).withInitialValues({ opacity: 0, transform: [{ translateY: 10 }] })} style={{ position: 'absolute', bottom: mochiBottom ?? (backdrop ? 26 : fl2 - 18), left: 0, right: 0 }}><Animated.View style={[{ alignItems: 'center' }, walk]}>
+        ? <><Animated.View pointerEvents="none" entering={FadeInUp.duration(420).easing(Easing.out(Easing.cubic)).withInitialValues({ opacity: 0, transform: [{ translateY: 10 }] })} style={{ position: 'absolute', bottom: backdrop ? 30 : fl2 - 12, left: 0, right: 0, alignItems: 'center' }}><LiveEgg source={cracking || hatching ? IMG.eggCrack : IMG.egg} cracking={cracking && !hatching} hatching={hatching} onHatched={onHatched} /></Animated.View></>
+        : <Animated.View pointerEvents="none" entering={FadeInUp.duration(420).easing(Easing.out(Easing.cubic)).withInitialValues({ opacity: 0, transform: [{ translateY: 10 }] })} style={{ position: 'absolute', bottom: mochiBottom ?? (backdrop ? 26 : fl2 - 18), left: 0, right: 0 }}><Animated.View style={[{ alignItems: 'center' }, walk]}>
               <View style={{ position: 'absolute', bottom: 4, width: Math.round(W * 0.9), height: 10, borderRadius: 5, backgroundColor: c.shadow, opacity: 0.6 }} />
               <LiveMochiImage size={W} lean={0} mood={mood} source={mochiSource} />
               {outfit && SHOP[outfit] && outfitStyle(outfit, W, H) ? <Image pointerEvents="none" source={SHOP[outfit]} style={outfitStyle(outfit, W, H)} resizeMode="contain" accessibilityIgnoresInvertColors /> : null}

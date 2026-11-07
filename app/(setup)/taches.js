@@ -112,11 +112,15 @@ export default function Taches() {
   };
   // branchement réel (1er sept 2026) : les tâches cochées partent dans setup-state,
   // le 11 calcule dessus (customs : 20 min · 1×/sem par défaut, ajustables sur 12)
+  // seul dans le foyer (Jeanne, 8 nov 2026) : on PRÉ-REMPLIT la liste, rien de plus — la répartition (alternance, jours)
+  // se calcule quand le binôme a rejoint et donné ses dispos ; la liste l'attend dans setup_drafts
+  const solo = shared && !getPartnerUid();
   const launch = () => {
     saveTasks([
       ...catalogue.filter(c => on.includes(c.id)).map(c => ({ id: c.id, label: c.label, emoji: c.emoji, duration_min: c.mins, per_week: freqPerWeek(c.freq), pain: c.pain, mental_load: !!c.mental, divisible: !!c.divisible })),
       ...customs.filter(c => on.includes(c.id)).map(c => ({ id: c.id, label: c.label, emoji: c.emoji, duration_min: 20, per_week: 1, pain: 2, mental_load: false, divisible: false })),
     ]);
+    if (solo) { router.replace('/(tabs)'); return; }
     next();
   };
   const broad = catalogue.filter(c => !c.specific);
@@ -127,7 +131,7 @@ export default function Taches() {
       <SafeAreaView style={{ flex: 1 }}>
         {/* Retour Jeanne (1er sept 2026) : minimum 3 tâches pour continuer — pas de « Passer » ici. */}
         <View>
-          <SetupHeader hero={<EggHero />} why={t.whyTasks} title={t.tasksTitle} sub={shared && getPartnerUid() ? t.tasksSubDuo.replace('{name}', partner.first_name) : t.tasksSub} />
+          <SetupHeader hero={<EggHero />} why={t.whyTasks} title={t.tasksTitle} sub={shared && getPartnerUid() ? t.tasksSubDuo.replace('{name}', partner.first_name) : solo ? t.tasksSubSolo : t.tasksSub} />
         </View>
         <ScrollView ref={scrollRef} {...scrollProps} contentContainerStyle={{ paddingHorizontal: space.screenX, paddingTop: 30, paddingBottom: 110 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
           {adding ? (
@@ -147,7 +151,7 @@ export default function Taches() {
         <GrowCTA grown={atEnd} style={s.bottom}>
           <View style={{ flexDirection: 'row', gap: 8 }}>
             <AddButton label={t.addTask} onPress={startAdding} style={{ flex: 1 }} />
-            <CTAPrimary label={t.launch} onPress={launch} disabled={on.length < 3} style={{ flex: 1.6 }} />
+            <CTAPrimary label={solo ? t.saveList : t.launch} onPress={launch} disabled={on.length < 3} style={{ flex: 1.6 }} />
           </View>
         </GrowCTA>
       </SafeAreaView>
