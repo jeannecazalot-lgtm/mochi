@@ -18,6 +18,7 @@ const IMG = {
   egg: require('../../../assets/maison/egg.png'), eggCrack: require('../../../assets/maison/egg-crack.png'), eggOpen: require('../../../assets/maison/egg-open.png'),
   decorJour: require('../../../assets/maison/decor-jour.png'), decorNuit: require('../../../assets/maison/decor-nuit.png'),
   sac: require('../../../assets/maison/vie/sac.png'),
+  lieux: { jardin: require('../../../assets/maison/lieux/jardin.jpg'), riviere: require('../../../assets/maison/lieux/riviere.jpg') }, // cartes postales de balade (7 nov 2026)
   bird1: require('../../../assets/maison/vie/bird1.png'), bird2: require('../../../assets/maison/vie/bird2.png'), fly1: require('../../../assets/maison/vie/fly1.png'), fly2: require('../../../assets/maison/vie/fly2.png'), cloud: require('../../../assets/maison/vie/cloud.png'),
   jour: [require('../../../assets/maison/jour-vide.png'), require('../../../assets/maison/jour-moyen.png'), require('../../../assets/maison/jour-plein.png')],
   nuit: [require('../../../assets/maison/nuit-vide.png'), require('../../../assets/maison/nuit-moyen.png'), require('../../../assets/maison/nuit-plein.png')],
@@ -70,15 +71,16 @@ function Flyer({ frames, box, size, every = 18000, duration = 6500, delay = 0, f
     </Animated.View>
   );
 }
-// Balade (proposition du 7 nov 2026) : pendant la sortie, Mochi trottine en tout petit sur les collines, derrière la vitre
-function Walker({ size, box, active }) {
-  const x = useSharedValue(box.w * 0.45), bob = useSharedValue(0), f = useSharedValue(0);
+// Balade « carte postale » (choix Jeanne, 8 nov 2026) : pendant la sortie, la fenêtre montre le lieu du jour et Mochi
+// s'y promène en grand, comme un gros plan sur sa balade. Le paysage dérive doucement.
+function Stroller({ size, box, active }) {
+  const x = useSharedValue(box.w * 0.5 - size / 2), bob = useSharedValue(0), f = useSharedValue(0);
   useEffect(() => {
     if (!active) return;
-    if (prefersReducedMotion()) { x.value = box.w * 0.45; return; }
-    x.value = withRepeat(withSequence(withTiming(box.w * 0.72, { duration: 9000, easing: Easing.inOut(Easing.sin) }), withTiming(box.w * 0.12, { duration: 9000, easing: Easing.inOut(Easing.sin) })), -1, false);
-    bob.value = withRepeat(withSequence(withTiming(-3, { duration: 220 }), withTiming(0, { duration: 220 })), -1, false);
-    f.value = withRepeat(withTiming(1, { duration: 440 }), -1, true);
+    if (prefersReducedMotion()) return;
+    x.value = withRepeat(withSequence(withTiming(box.w - size * 0.9, { duration: 7000, easing: Easing.inOut(Easing.sin) }), withTiming(-size * 0.1, { duration: 7000, easing: Easing.inOut(Easing.sin) })), -1, false);
+    bob.value = withRepeat(withSequence(withTiming(-4, { duration: 240 }), withTiming(0, { duration: 240 })), -1, false);
+    f.value = withRepeat(withTiming(1, { duration: 480 }), -1, true);
     return () => { cancelAnimation(x); cancelAnimation(bob); cancelAnimation(f); };
   }, [active]);
   const st = useAnimatedStyle(() => ({ transform: [{ translateX: x.value }, { translateY: bob.value }] }));
@@ -88,8 +90,20 @@ function Walker({ size, box, active }) {
   const h = size * MOCHI_RATIO;
   return (
     <Animated.View pointerEvents="none" style={[{ position: 'absolute', left: box.l, top: box.t, width: size, height: h }, st]}>
+      <View style={{ position: 'absolute', bottom: 2, left: size * 0.1, width: size * 0.8, height: 8, borderRadius: 4, backgroundColor: '#000', opacity: 0.18 }} />
       <Animated.Image source={papierFor(-1)} style={[{ position: 'absolute', width: size, height: h }, a]} resizeMode="contain" />
       <Animated.Image source={papierFor(1)} style={[{ position: 'absolute', width: size, height: h }, b]} resizeMode="contain" />
+    </Animated.View>
+  );
+}
+function Postcard({ source, visible, night, w, h }) {
+  const op = useSharedValue(visible ? 1 : 0), pan = useSharedValue(0);
+  useEffect(() => { op.value = withTiming(visible ? 1 : 0, { duration: 600 }); if (visible && !prefersReducedMotion()) pan.value = withRepeat(withTiming(1, { duration: 16000, easing: Easing.inOut(Easing.sin) }), -1, true); else cancelAnimation(pan); }, [visible]);
+  const st = useAnimatedStyle(() => ({ opacity: op.value, transform: [{ scale: 1.08 }, { translateX: (pan.value - 0.5) * w * 0.06 }] }));
+  return (
+    <Animated.View pointerEvents="none" style={[{ position: 'absolute', left: 0, top: 0, width: w, height: h }, st]}>
+      <Image source={source} style={{ width: w, height: h }} resizeMode="cover" accessibilityIgnoresInvertColors />
+      {night ? <View style={{ position: 'absolute', left: 0, top: 0, width: w, height: h, backgroundColor: '#1B1636', opacity: 0.45 }} /> : null}
     </Animated.View>
   );
 }
@@ -139,7 +153,7 @@ function LiveEgg({ source, cracking, size = 96, hatching = false, onHatched }) {
 }
 const Layer = ({ children, delay = 0, fade }) => <Animated.View entering={FadeIn.delay(delay).duration(400)} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} pointerEvents="none">{children}</Animated.View>;
 
-export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height = layout.scene, hideMochi = false, cracking = false, hatching = false, onHatched = null, topInset = 0, backdrop = undefined, mochiSource = null, mochiBottom = null, shiftY = 0, items = [], outfit = null, souvenirs = 0, photo = null }) {
+export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height = layout.scene, hideMochi = false, cracking = false, hatching = false, onHatched = null, topInset = 0, backdrop = undefined, mochiSource = null, mochiBottom = null, shiftY = 0, items = [], outfit = null, souvenirs = 0, photo = null, place = 'jardin' }) {
   const c = T.scene, hh = height, fl = layout.floor, night = !!c.moon;
   const { width: SW } = useWindowDimensions();
   // décision Jeanne 5 nov 2026 (« je préfère l'ancien ») : la pièce est le décor entier de ChatGPT, B le jour, D la nuit
@@ -156,7 +170,8 @@ export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height =
   const firstRun = useRef(true);
   const tx = useSharedValue(0), ty = useSharedValue(0), sc = useSharedValue(1), hop = useSharedValue(0), mop = useSharedValue(away ? 0 : 1), sacOp = useSharedValue(away ? 1 : 0);
   const bottomM = mochiBottom ?? (backdrop ? 26 : fl + 10 - 18);
-  const toX = -(SW / 2 - SW * 0.15), toY = (hh * 0.05 + hh * 0.62 * 0.6) - (hh - bottomM - H / 2); // le centre de la fenêtre, vu du tapis
+  const toX = SW * 0.5 + W * 0.7, toY = 0; // hors champ, par la droite (la porte)
+  const souvOp = useSharedValue(0);
   useEffect(() => {
     if (firstRun.current) { firstRun.current = false; return; }
     const rm = prefersReducedMotion(); const ease = Easing.inOut(Easing.cubic);
@@ -165,27 +180,25 @@ export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height =
       setPhase('leaving');
       sacOp.value = withTiming(1, { duration: 350 });
       hop.value = withSequence(withTiming(-14, { duration: 140 }), withTiming(0, { duration: 140 }), withTiming(-10, { duration: 120 }), withTiming(0, { duration: 120 }), withDelay(80, withRepeat(withSequence(withTiming(-6, { duration: 160 }), withTiming(0, { duration: 160 })), 3, false)));
-      tx.value = withDelay(600, withTiming(toX, { duration: 1100, easing: ease }));
-      ty.value = withDelay(600, withTiming(toY, { duration: 1100, easing: ease }));
-      sc.value = withDelay(600, withTiming(0.3, { duration: 1100, easing: ease }));
-      mop.value = withDelay(1600, withTiming(0, { duration: 150 }));
-      const t = setTimeout(() => setPhase('away'), 1750);
+      tx.value = withDelay(600, withTiming(toX, { duration: 1000, easing: Easing.in(Easing.quad) }));
+      mop.value = withDelay(1500, withTiming(0, { duration: 100 }));
+      const t = setTimeout(() => setPhase('away'), 1650);
       return () => clearTimeout(t);
     }
     if (rm) { mop.value = 1; sacOp.value = 0; tx.value = 0; ty.value = 0; sc.value = 1; setPhase('home'); return; }
     setPhase('returning');
-    tx.value = toX; ty.value = toY; sc.value = 0.3; mop.value = withTiming(1, { duration: 150 });
-    tx.value = withDelay(150, withTiming(0, { duration: 1100, easing: ease }));
-    ty.value = withDelay(150, withTiming(0, { duration: 1100, easing: ease }));
-    sc.value = withDelay(150, withTiming(1, { duration: 1100, easing: ease }));
-    hop.value = withDelay(150, withRepeat(withSequence(withTiming(-6, { duration: 160 }), withTiming(0, { duration: 160 })), 3, false));
-    sacOp.value = withDelay(1300, withTiming(0, { duration: 300 }));
-    const t = setTimeout(() => { setPhase('home'); setShine(true); }, 1400);
-    const t2 = setTimeout(() => setShine(false), 3600);
+    tx.value = toX; ty.value = 0; sc.value = 1; mop.value = 1; souvOp.value = 1;
+    tx.value = withDelay(500, withTiming(0, { duration: 1100, easing: Easing.out(Easing.quad) }));
+    hop.value = withDelay(500, withRepeat(withSequence(withTiming(-6, { duration: 160 }), withTiming(0, { duration: 160 })), 3, false));
+    sacOp.value = withDelay(1700, withTiming(0, { duration: 300 }));
+    souvOp.value = withDelay(1700, withTiming(0, { duration: 250 })); // le souvenir file sur l'étagère
+    const t = setTimeout(() => { setPhase('home'); setShine(true); }, 1950);
+    const t2 = setTimeout(() => setShine(false), 4200);
     return () => { clearTimeout(t); clearTimeout(t2); };
   }, [away]);
   const walk = useAnimatedStyle(() => ({ opacity: mop.value, transform: [{ translateX: tx.value }, { translateY: ty.value + hop.value }, { scale: sc.value }] }));
   const sacStyle = useAnimatedStyle(() => ({ opacity: sacOp.value }));
+  const souvStyle = useAnimatedStyle(() => ({ opacity: souvOp.value }));
   // mise en place (retour Jeanne 4 nov 2026, « c'est un collage ») : les meubles REPOSENT sur le sol, la fenêtre est
   // sur le mur, le tapis est à plat sous Mochi, les tailles se répondent. Tout est relatif à la largeur de l'écran.
   const u = SW / 440; // unité : 1 px sur un 440 pt
@@ -205,7 +218,8 @@ export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height =
             <Flyer frames={[IMG.bird1, IMG.bird2]} box={{ l: 0, t: hh * 0.08, w: SW * 0.3, h: hh * 0.26 }} size={28} every={16000} duration={5200} delay={2500} />
             <Flyer frames={[IMG.fly1, IMG.fly2]} box={{ l: SW * 0.02, t: hh * 0.3, w: SW * 0.24, h: hh * 0.2 }} size={20} every={22000} duration={9000} delay={9000} flap={120} wander={10} />
           </> : null}
-          <Walker size={W * 0.3} box={{ l: 0, t: hh * 0.62 * 0.6 - W * 0.3 * MOCHI_RATIO * 0.5, w: SW * 0.3 }} active={phase === 'away'} />
+          <Postcard source={IMG.lieux[place] || IMG.lieux.jardin} visible={phase === 'away' || phase === 'leaving'} night={night} w={SW * 0.3} h={hh * 0.62} />
+          <Stroller size={SW * 0.3 * 0.62} box={{ l: 0, t: hh * 0.62 - SW * 0.3 * 0.62 * MOCHI_RATIO - hh * 0.11, w: SW * 0.3 }} active={phase === 'away'} />
         </View>
       ) : null}
 
@@ -241,8 +255,9 @@ export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height =
         ? <><Animated.View entering={FadeInUp.duration(420).easing(Easing.out(Easing.cubic)).withInitialValues({ opacity: 0, transform: [{ translateY: 10 }] })} style={{ position: 'absolute', bottom: backdrop ? 30 : fl2 - 12, left: 0, right: 0, alignItems: 'center' }}><LiveEgg source={cracking || hatching ? IMG.eggCrack : IMG.egg} cracking={cracking && !hatching} hatching={hatching} onHatched={onHatched} /></Animated.View></>
         : <Animated.View entering={FadeInUp.duration(420).easing(Easing.out(Easing.cubic)).withInitialValues({ opacity: 0, transform: [{ translateY: 10 }] })} style={{ position: 'absolute', bottom: mochiBottom ?? (backdrop ? 26 : fl2 - 18), left: 0, right: 0 }}><Animated.View style={[{ alignItems: 'center' }, walk]}>
               <View style={{ position: 'absolute', bottom: 4, width: Math.round(W * 0.9), height: 10, borderRadius: 5, backgroundColor: c.shadow, opacity: 0.6 }} />
-              <Animated.Image pointerEvents="none" source={IMG.sac} style={[{ position: 'absolute', left: -W * 0.02, top: H * 0.22, width: W * 0.42, height: W * 0.43 }, sacStyle]} resizeMode="contain" />
+              <Animated.Image pointerEvents="none" source={IMG.sac} style={[{ position: 'absolute', left: '50%', marginLeft: -W * 0.52, top: H * 0.22, width: W * 0.42, height: W * 0.43 }, sacStyle]} resizeMode="contain" />
               <LiveMochiImage size={W} lean={0} mood={mood} source={mochiSource} />
+              <Animated.Image pointerEvents="none" source={SOUVENIR} style={[{ position: 'absolute', left: '50%', marginLeft: -W * 0.42, top: H * 0.55, width: W * 0.3, height: W * 0.3 }, souvStyle]} resizeMode="contain" />
               {outfit && SHOP[outfit] && outfitStyle(outfit, W, H) ? <Image pointerEvents="none" source={SHOP[outfit]} style={outfitStyle(outfit, W, H)} resizeMode="contain" accessibilityIgnoresInvertColors /> : null}
             </Animated.View></Animated.View>}
     </View>

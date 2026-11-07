@@ -42,7 +42,7 @@ export default function Identite() {
       await loadSetup();
       if (!setup.availability) saveDispos({ availability: { morning: [0, 0, 0, 0, 0, 0, 0], evening: [1, 1, 1, 1, 1, 1, 1] }, weekly_minutes: null });
       if (!setup.prefs) savePrefs({ prefs: {}, reminder: '19:30' });
-      if (isJoiner()) { syncJoinerPrefs().catch(() => {}); router.replace('/(setup)/taches'); } else router.push('/(setup)/invite');
+      if (isJoiner()) router.push('/(setup)/dispos'); else router.push('/(setup)/invite'); // rejoignant : dispos → préférences → missions à deux (8 nov 2026)
     }
   };
 

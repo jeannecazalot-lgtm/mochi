@@ -41,7 +41,9 @@ export default function DuoForme() {
   const sceneH = Math.round(SH * 0.48);
   const go = () => {
     if (!joiner) { router.push('/(setup)/avant-taches'); return; }
-    if (prefilled) { syncJoinerPrefs().catch(() => {}); router.replace('/(setup)/taches'); } else router.push('/(setup)/identite');
+    // celui qui rejoint passe TOUJOURS par ses dispos, ses préférences et le choix des missions (Jeanne, 8 nov 2026 :
+    // « il faut que ce soit fait à chaque fois, même quand on change de foyer ») ; le prénom seulement s'il manque
+    router.push(realMe?.first_name ? '/(setup)/dispos' : '/(setup)/identite');
   };
   return (
     <View style={{ flex: 1, backgroundColor: T.bg }}>
