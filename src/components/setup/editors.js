@@ -46,11 +46,11 @@ export function DisposEditor({ grid, onTap, demoV = null, demoCell = null, hint 
       <Card padding={0} r={18} style={{ marginBottom: 10 }}>
         <View style={{ paddingVertical: 14, paddingHorizontal: 16 }}>
           <View style={s.legendTop}>
-            <LegendChip state={0} label={t.legendNone} on={legendOn === 0} />
             <LegendChip state={1} label={t.legendLightShort} on={legendOn === 1} />
             <LegendChip state={2} label={t.legendFullShort} on={legendOn === 2} />
+            <LegendChip state={0} label={t.legendNone} on={legendOn === 0} />
           </View>
-          {hint || <Text style={s.tapHint}>{t.tapHint}</Text>}
+          {hint ? hint : <View style={{ height: 10 }} />}{/* plus de phrase d'aide par défaut : la légende porte l'instruction (8 nov 2026) */}
           <View style={s.row}>
             <View style={s.rowLabel} />
             {t.days.map((d, i) => <Text key={i} style={[s.day, { color: i >= 5 ? tk().ink : tk().muted }]}>{d}</Text>)}
@@ -117,11 +117,10 @@ export function PrefsEditor({ prefs, onChange }) {
   return (
     <View>
       <View style={[s.legendPrefs, { marginBottom: 8, gap: 18 }]}>
-        <PrefSwatch kind={null} label={t.prefsLegendNeutral} />
         <PrefSwatch kind="like" label={t.prefsLegendLike} />
         <PrefSwatch kind="hate" label={t.prefsLegendHate} />
+        <PrefSwatch kind={null} label={t.prefsLegendNeutral} />
       </View>
-      <Text style={s.tapHint}>{t.prefsTapHint}</Text>
       <View style={s.wrap}>
         {prefsPool.map(c => <Chip key={c.id} c={c} state={prefs[c.id]} onPress={() => tap(c.id)} />)}
       </View>

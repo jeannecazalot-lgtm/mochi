@@ -142,7 +142,7 @@ const mk = T => StyleSheet.create({
 });
 export function SetupHeader({ step, total = 3, title, sub, hero, backFallback, why }) {
   const T = useTokens();
-  const kicker = [step ? copy.setup.stepOf.replace('{n}', step).replace('{total}', total) : null, why].filter(Boolean).join(' · ');
+  const kicker = step ? copy.setup.stepOf.replace('{n}', step).replace('{total}', total) : null; // le « pourquoi » (why) n'est plus affiché : le titre le porte (8 nov 2026)
   // backFallback : chevron affiché même sans historique (ex. 06 → onboarding,
   // retour Jeanne du 2 sept « pas de retour en arrière sur le 06 »)
   const canBack = router.canGoBack() || !!backFallback;

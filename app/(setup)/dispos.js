@@ -79,7 +79,7 @@ export default function Dispos() {
           <DisposEditor
             grid={grid} onTap={tap}
             demoV={demoV} demoCell={DEMO_CELL} legendOn={demoV}
-            hint={<Animated.Text style={[s.tapHint, hintStyle]}>{t.tapHint}</Animated.Text>}
+            hint={null}
           />
         </Animated.View>
 
