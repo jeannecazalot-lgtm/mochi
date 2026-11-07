@@ -3,7 +3,10 @@
     "name": "Mindpair",
     "slug": "mochi",
     "version": "1.0.0",
-    "scheme": ["mindpair", "mochi"],
+    "scheme": [
+      "mindpair",
+      "mochi"
+    ],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -11,7 +14,7 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#FBF7F2"
+      "backgroundColor": "#F5F1EA"
     },
     "ios": {
       "supportsTablet": false,
@@ -64,7 +67,9 @@
       "policy": "appVersion"
     },
     "updates": {
-      "url": "https://u.expo.dev/4c878ab4-58da-4b7a-a546-ff3046e9bf88"
+      "url": "https://u.expo.dev/4c878ab4-58da-4b7a-a546-ff3046e9bf88",
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 8000
     }
   }
 }
