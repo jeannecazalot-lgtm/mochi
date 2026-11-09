@@ -1,14 +1,14 @@
-# Captures App Store v2 (9 nov 2026) : une grille fixe (titre au même endroit, téléphone même taille / même hauteur),
-# une couleur franche de la pièce de Mochi par écran, Mochi qui réagit au titre, un élément qui ressort du téléphone.
+# Captures App Store v3 (9 nov 2026) : une grille fixe, UN fond (le rose du mur de la pièce, en feutre) pour les six,
+# titres courts et piquants, et ce qui ressort du téléphone raconte : vraies notifications de l'app, pensées en vrac, perles.
 # Captures brutes : design/app-store/brut/ (simulateur iPhone 16 Pro Max, Metro avec EXPO_PUBLIC_CAPTURE=1).
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 M='/Users/jeannecazalot/mochi/'; B=M+'design/app-store/brut/'; O=M+'design/app-store/'
 W,H=1320,2868; INK=(31,42,88); CREAM=(250,244,236)
 SF='/System/Library/Fonts/SFNS.ttf'
-TITLE_Y=250; TITLES=['Partagez la charge mentale,','en vous amusant.','Souvent, une seule','personne y pense.','Vous listez tout ce qui','tourne dans vos t\u00eates.','Mochi r\u00e9partit,','\u00e9quitablement.','Chacun ses missions.','Plus besoin de relancer.','Et vous \u00e9levez Mochi,','ensemble.']; PHONE_Y=760; PHONE_W=int(W*0.80); MOCHI_W=270
+TITLE_Y=250; TITLES=['La charge mentale,','\u00e7a se partage.','Qui pense \u00e0 tout,','chez vous ?','Videz vos t\u00eates.','\u00c0 deux.','Mochi r\u00e9partit.','Sans d\u00e9bat.','Fini les','\u00ab t\u2019as pens\u00e9 \u00e0\u2026 ? \u00bb','Une mission coch\u00e9e,','une perle gagn\u00e9e.']; PHONE_Y=760; PHONE_W=int(W*0.80); MOCHI_W=270
 def font(sz,w):
     f=ImageFont.truetype(SF,sz); f.set_variation_by_name(w); return f
-_d=ImageDraw.Draw(Image.new('RGB',(10,10))); TITLE_SZ=104
+_d=ImageDraw.Draw(Image.new('RGB',(10,10))); TITLE_SZ=118
 while max(_d.textlength(l,font=font(TITLE_SZ,'Bold')) for l in TITLES)>W-200: TITLE_SZ-=2  # une seule taille pour les six titres
 FELT=Image.open(M+'assets/splash/feutre.jpg').convert('L').resize((H,H)).crop(((H-W)//2,0,(H-W)//2+W,H))
 def bg(col):
@@ -49,49 +49,71 @@ def mochi(im,face):
     x=(W+PHONE_W)//2-MOCHI_W-40; y=PHONE_Y-16-m.height+30
     im.alpha_composite(m,(x,y)); return im
 
-ROSE=(246,196,192); CIEL=(158,207,236); VERT=(166,206,128); JAUNE=(248,214,104); ROUGE=(214,74,64); NUIT=(31,42,88)
+WALL=(244,206,199)
+ICON=Image.open(M+'design/icone/H-meme-cadrage.png').convert('RGBA')
+def notif(im,x,y,w,title_,body_,when='maintenant'):
+    # bannière de notification iOS, textes réels de l'app (copy.push), corps sur 2 lignes au besoin
+    fb=font(42,'Regular'); d0=ImageDraw.Draw(Image.new('RGB',(1,1))); fx=172; maxw=w-fx-40
+    words=body_.split(' '); lines=['']
+    for wd in words:
+        t=(lines[-1]+' '+wd).strip()
+        if d0.textlength(t,font=fb)<=maxw: lines[-1]=t
+        else: lines.append(wd)
+    h=190+56*len(lines); card=Image.new('RGBA',(w,h),(0,0,0,0)); d=ImageDraw.Draw(card)
+    d.rounded_rectangle((0,0,w-1,h-1),56,fill=(252,250,247,250))
+    ic=ICON.resize((104,104),Image.LANCZOS); card.paste(ic,(36,(h-104)//2),rounded(ic,24))
+    d.text((fx,44),title_,font=font(44,'Semibold'),fill=(20,20,24))
+    fw=font(34,'Regular'); tw=d.textlength(when,font=fw); d.text((w-40-tw,50),when,font=fw,fill=(120,120,128))
+    for i,l in enumerate(lines): d.text((fx,108+56*i),l,font=fb,fill=(30,30,36))
+    im=shadow(im,(x,y,x+w,y+h),56,a=110,blur=36,dy=20); im.paste(card,(x,y),card); return im
+def chip(im,x,y,text,angle):
+    f=font(50,'Medium'); d0=ImageDraw.Draw(Image.new('RGB',(1,1))); w=int(d0.textlength(text,font=f))+90; h=120
+    c=Image.new('RGBA',(w,h),(0,0,0,0)); d=ImageDraw.Draw(c); d.rounded_rectangle((0,0,w-1,h-1),60,fill=(252,250,247,255))
+    d.text((45,30),text,font=f,fill=INK); c=c.rotate(angle,expand=True,resample=Image.BICUBIC)
+    im=shadow(im,(x+10,y+10,x+c.width-10,y+c.height-10),60,a=90,blur=26,dy=14); im.alpha_composite(c,(x,y)); return im
 
 # 1 · la promesse
-im=bg(ROSE); title(im,['Partagez la charge mentale,','en vous amusant.'],INK)
-im,g=phone(im,'accueil.png'); im=pop(im,'accueil.png',(40,1170,1280,1260),g,zoom=1.16); im=mochi(im,'happy')
+im=bg(WALL); title(im,['La charge mentale,','\u00e7a se partage.'],INK)
+im,g=phone(im,'accueil.png'); im=pop(im,'accueil.png',(40,1170,1280,1260),g,zoom=1.16)
+im=notif(im,90,PHONE_Y+1180,W-180,'Mindpair','Ketley a termin\u00e9 Vaisselle')
 im.convert('RGB').save(O+'01-promesse.png')
 
-# 2 · le problème : une « carte » à la place du téléphone, même gabarit
-im=bg(CIEL); title(im,['Souvent, une seule','personne y pense.'],INK)
+# 2 · le problème : la carte Insee, et les pensées en vrac qui débordent
+im=bg(WALL); title(im,['Qui pense \u00e0 tout,','chez vous ?'],INK)
 px=(W-PHONE_W)//2; py=PHONE_Y; im=shadow(im,(px,py,px+PHONE_W,H+200),110)
 card=Image.new('RGBA',(PHONE_W,H-py+200),(0xF5,0xF1,0xEA,255)); im.paste(card,(px,py),rounded(card,110))
 d=ImageDraw.Draw(im)
 def ctext(y,t,f,fill):
     w=d.textlength(t,font=f); d.text(((W-w)/2,y),t,font=f,fill=fill)
-ctext(py+170,'Dans la plupart des couples,',font(52,'Medium'),INK+(170,)); ctext(py+240,'l’un des deux porte en plus',font(52,'Medium'),INK+(170,))
-ctext(py+360,'+1h26',font(300,'Bold'),INK); ctext(py+700,'par jour.',font(84,'Bold'),INK)
-y=py+900; fr=font(54,'Medium'); fv=font(54,'Bold')
-for t,v in [('Chaque semaine','≈ 10 h'),('Sur l’année','≈ 260 h')]:
-    d.line((px+90,y,px+PHONE_W-90,y),fill=INK+(40,),width=3); d.text((px+90,y+38),t,font=fr,fill=INK+(180,))
-    w=d.textlength(v,font=fv); d.text((px+PHONE_W-90-w,y+38),v,font=fv,fill=INK); y+=140
-d.line((px+90,y,px+PHONE_W-90,y),fill=INK+(40,),width=3)
-ctext(y+60,'De tâches domestiques et d’organisation.',font(44,'Medium'),INK+(150,))
-ctext(y+130,'Insee · Enquête emploi du temps',font(38,'Medium'),INK+(120,))
-im=mochi(im,'sad'); im.convert('RGB').save(O+'02-probleme.png')
+ctext(py+520,'+1h26',font(300,'Bold'),INK); ctext(py+860,'par jour, pour la m\u00eame personne.',font(56,'Bold'),INK)
+ctext(py+960,'T\u00e2ches domestiques et organisation, dans la plupart des couples.',font(36,'Medium'),INK+(150,))
+ctext(py+1020,'Insee \u00b7 Enqu\u00eate emploi du temps',font(36,'Medium'),INK+(120,))
+for (x,y,t,a) in [(60,PHONE_Y+90,'RDV p\u00e9diatre \u00b7 mardi 14 h',-4),(460,PHONE_Y+300,'Racheter du caf\u00e9 \u00b7 avant demain',5),(110,PHONE_Y+1320,'Cadeau d\u2019anniversaire \u00b7 30 ans',3),(520,PHONE_Y+1560,'Appeler le plombier \u00b7 la fuite',-5),(90,PHONE_Y+1800,'Renouveler la carte Vitale',-2)]:
+    im=chip(im,x,y,t,a)
+im.convert('RGB').save(O+'02-probleme.png')
 
 # 3 · vous listez à deux
-im=bg(VERT); title(im,['Vous listez tout ce qui','tourne dans vos têtes.'],INK)
-im,g=phone(im,'taches.png'); im=pop(im,'taches.png',(56,848,1264,1040),g); im=pop(im,'taches.png',(56,1052,1264,1240),g); im=mochi(im,'surprised')
+im=bg(WALL); title(im,['Videz vos t\u00eates.','\u00c0 deux.'],INK)
+im,g=phone(im,'taches.png'); im=pop(im,'taches.png',(56,848,1264,1040),g); im=pop(im,'taches.png',(56,1052,1264,1240),g)
+im=notif(im,90,PHONE_Y+1500,W-180,'Mindpair','Ketley choisit vos missions. Viens les choisir avec elle ou lui.')
 im.convert('RGB').save(O+'03-lister.png')
 
 # 4 · Mochi répartit
-im=bg(JAUNE); title(im,['Mochi répartit,','équitablement.'],INK)
-im,g=phone(im,'dispatch.png'); im=pop(im,'dispatch.png',(60,872,1260,1144),g,zoom=1.16); im=mochi(im,'happy')
+im=bg(WALL); title(im,['Mochi r\u00e9partit.','Sans d\u00e9bat.'],INK)
+im,g=phone(im,'dispatch.png'); im=pop(im,'dispatch.png',(60,872,1260,1144),g,zoom=1.2)
+im=notif(im,90,PHONE_Y+1560,W-180,'Mindpair','Ketley a r\u00e9parti la semaine : 12 missions. Va voir le Planning.')
 im.convert('RGB').save(O+'04-repartir.png')
 
-# 5 · chacun ses missions
-im=bg(ROUGE); title(im,['Chacun ses missions.','Plus besoin de relancer.'],CREAM)
-im,g=phone(im,'planning.png'); im=pop(im,'planning.png',(40,960,1290,1080),g,zoom=1.16); im=mochi(im,'wink')
+# 5 · plus besoin de relancer : l'app relance à votre place
+im=bg(WALL); title(im,['Fini les','\u00ab t\u2019as pens\u00e9 \u00e0\u2026 ? \u00bb'],INK)
+im,g=phone(im,'planning.png')
+im=notif(im,90,PHONE_Y+760,W-180,'Vaisselle','C\u2019est l\u2019heure. 15 min suffisent.','20:30')
+im=notif(im,90,PHONE_Y+1060,W-180,'Mindpair','Ketley : c\u2019est ton tour pour \u00ab Lessive \u00bb')
 im.convert('RGB').save(O+'05-chacun.png')
 
-# 6 · vous élevez Mochi
-im=bg(NUIT); title(im,['Et vous élevez Mochi,','ensemble.'],CREAM)
-im,g=phone(im,'chambre.png'); im=pop(im,'chambre.png',(60,1300,1264,1515),g,zoom=1.16); im=mochi(im,'happy')
+# 6 · le jeu
+im=bg(WALL); title(im,['Une mission coch\u00e9e,','une perle gagn\u00e9e.'],INK)
+im,g=phone(im,'chambre.png'); im=pop(im,'chambre.png',(1010,190,1270,300),g,zoom=2.0,r=60); im=pop(im,'chambre.png',(60,1300,1264,1515),g,zoom=1.18)
 im.convert('RGB').save(O+'06-mochi.png')
 
 fs=['01-promesse','02-probleme','03-lister','04-repartir','05-chacun','06-mochi']
