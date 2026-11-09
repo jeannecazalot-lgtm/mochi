@@ -47,6 +47,6 @@ export default function Index() {
   // jamais vu l'onboarding et pas encore de compte ni de prénom → l'onboarding d'abord
   if (!onboarded && !isRealUser(session) && !guest && !profile?.first_name) return <Redirect href="/onboarding" />;
   if (!isRealUser(session) && !guest) return <Redirect href="/(auth)/login" />; // invité : on avance sans compte
-  if (profile?.first_name && house === 'missing') return <Redirect href="/(setup)/invite" />; // compte sans foyer : on en crée un en invitant
+  if (profile?.first_name && house === 'missing') return <Redirect href="/(setup)/invite-choix" />; // compte sans foyer : inviter OU rejoindre (9 nov 2026)
   return <Redirect href={profile?.first_name ? '/(tabs)' : '/(setup)/identite'} />;
 }

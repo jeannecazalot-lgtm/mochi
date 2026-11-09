@@ -50,7 +50,7 @@ export default function Invite() {
   useIdentity(); // mon prénom/photo dans la carte et le message
   // Lien universel façon Tricount (demande Jeanne, 3 sept 2026) : le tap sur le
   // lien fait entrer directement dans le foyer ; la page web montre le code sinon.
-  const message = realCode ? fill(t.shareMsg, { name: me.first_name, link: inviteUrl(realCode) }) : `https://${inviteLink}`;
+  const message = realCode ? fill(t.shareMsg, { name: me.first_name, link: inviteUrl(realCode), code: realCode }) : `https://${inviteLink}`;
   const send = async () => {
     try { await Share.share({ message }); } catch (e) {}
     if (realCode) setWaiting(true); // réel : on attend — démo : on simule l'acceptation

@@ -12,7 +12,7 @@ import { mochiStore } from '../src/mochi-state';
 
 const GROUPS = [
   ['Onboarding', [['Onboarding v3 (3 slides)', '/onboarding'], ['01-05 · Onboarding (ancien)', '/onboarding/ancien']]],
-  ['Setup', [['06 · Identité', '/(setup)/identite'], ['07 · Dispos & énergie', '/(setup)/dispos'], ['07 · rejouer l’animation d’intro', 'replay07'],['08 · Préférences', '/(setup)/prefs'], ['09 · Inviter son binôme', '/(setup)/invite'], ['Rejoindre avec un code (sheet)', '/rejoindre'],['09b · Duo formé', '/(setup)/duo-forme'], ['09c · Avant les tâches', '/(setup)/avant-taches'], ['10 · Choisir les tâches', '/(setup)/taches'], ['11 · Mochi calcule', '/(setup)/calcul'], ['12 · Proposition de dispatch', '/(setup)/dispatch']]],
+  ['Setup', [['06 · Identité', '/(setup)/identite'], ['07 · Dispos & énergie', '/(setup)/dispos'], ['07 · rejouer l’animation d’intro', 'replay07'],['08 · Préférences', '/(setup)/prefs'], ['09a · Qui invite qui', '/(setup)/invite-choix'], ['09 · Inviter son binôme', '/(setup)/invite'], ['Rejoindre avec un code (sheet)', '/rejoindre'],['09b · Duo formé', '/(setup)/duo-forme'], ['09c · Avant les tâches', '/(setup)/avant-taches'], ['10 · Choisir les tâches', '/(setup)/taches'], ['11 · Mochi calcule', '/(setup)/calcul'], ['12 · Proposition de dispatch', '/(setup)/dispatch']]],
   ['Onglets', [['17 · Accueil', '/(tabs)'], ['19 · Planning', '/(tabs)/planning'], ['Jour (sheet, vue mois)', '/jour'],['21 · Balance', '/(tabs)/balance'], ['23 · Budget', '/(tabs)/budget']]],
   ['Tâches', [['14 · Fiche tâche', '/task/edit?id=t-courses'], ['Mission (sheet, tap Accueil)', '/mission'], ['21 · Tâche en retard (sheet)', '/retard?title=Courses&emoji=🛒&mins=45']]],
   ['Social', [['18 · Ping (sheet)', '/ping?occ=o2'], ['22 · Fil Activité', '/activite']]],

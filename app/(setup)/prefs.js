@@ -99,7 +99,7 @@ export default function Prefs() {
             await loadSetup();
             if (settings) { syncMyPains().catch(() => {}); router.back(); }
             else if (isJoiner()) { syncJoinerPrefs().catch(() => {}); router.replace('/(setup)/taches'); }
-            else router.push('/(setup)/invite');
+            else router.push('/(setup)/invite-choix');
           }} big />
         </View>
       </SafeAreaView>
