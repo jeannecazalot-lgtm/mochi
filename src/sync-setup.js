@@ -22,6 +22,7 @@ import { localIso, addDaysIso } from './dates';
 import { me, partner } from './demo';
 import { getPartnerUid } from './identity';
 import { slotWindow } from './task-actions';
+import { pushToPartner } from './push';
 
 const DAY = 86400000;
 
@@ -171,6 +172,7 @@ export async function syncSetup(result) {
     }
   }
 
+  pushToPartner('dispatched', { n: (result?.items || []).length }, '/(tabs)/planning'); // l'autre est prévenu que la semaine est répartie (9 nov 2026)
   const ok = await drain();
   if (!ok) console.warn('[sync] file non vidée — rejouée au retour réseau');
   // ce que l'autre a déjà posé redescend tout de suite (tâches + occurrences)

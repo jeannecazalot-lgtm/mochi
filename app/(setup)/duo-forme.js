@@ -43,6 +43,8 @@ export default function DuoForme() {
     if (!joiner) { router.push('/(setup)/avant-taches'); return; }
     // celui qui rejoint passe TOUJOURS par ses dispos, ses préférences et le choix des missions (Jeanne, 8 nov 2026 :
     // « il faut que ce soit fait à chaque fois, même quand on change de foyer ») ; le prénom seulement s'il manque
+    // déjà rempli par la personne avant de saisir le code (plus de valeurs par défaut depuis le 8 nov) : on ne redemande pas, on va au choix à deux
+    if (realMe?.first_name && setup.availability && setup.prefs) { syncJoinerPrefs().catch(() => {}); router.replace('/(setup)/taches'); return; }
     router.push(realMe?.first_name ? '/(setup)/dispos' : '/(setup)/identite');
   };
   return (

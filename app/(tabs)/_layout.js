@@ -13,6 +13,7 @@ import { sweepMissed } from '../../src/malus-actions';
 import { pull } from '../../src/store';
 import { occStore } from '../../src/demo-core';
 import { registerPushToken } from '../../src/push';
+import { askNotificationPermission } from '../../src/notifications';
 import { read } from '../../src/store';
 import { loadNightMode } from '../../src/theme-v3';
 
@@ -37,7 +38,7 @@ export default function TabsLayout() {
       startRealtime(setup.householdId);
       loadPartner(setup.householdId);
       loadThresholds(setup.householdId); // seuils d'alerte du duo
-      registerPushToken(); // jeton push → mon profil (téléphone réel)
+      registerPushToken().then(tok => { if (!tok) askNotificationPermission().then(ok => { if (ok) registerPushToken(); }).catch(() => {}); }); // jeton push → mon profil ; permission demandée si jamais posée (9 nov 2026 : aucune notification entre Jeanne et Ketley)
       refresh();
     });
     const sub = AppState.addEventListener('change', st => { if (st === 'active') loadSetup().then(refresh); });
@@ -45,7 +46,7 @@ export default function TabsLayout() {
   }, []);
   return (
     <View style={{ flex: 1 }}>
-      <Tabs tabBar={props => <TabBar {...props} onFab={fab.toggle} />} screenOptions={{ headerShown: false, animation: 'shift' /* ChatGPT n°6, validée 14 sept 2026 : fondu + léger décalage entre onglets */ }}>
+      <Tabs tabBar={props => <TabBar {...props} onFab={fab.toggle} />} screenOptions={{ headerShown: false, freezeOnBlur: false, animation: 'shift' /* ChatGPT n°6, validée 14 sept 2026 : fondu + léger décalage entre onglets */ }}>
         <Tabs.Screen name="index" />
         <Tabs.Screen name="planning" />
         <Tabs.Screen name="balance" />

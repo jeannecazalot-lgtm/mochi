@@ -4,7 +4,7 @@
 import { RouteError } from '../../src/components/route-error';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { router } from 'expo-router';
-import { View, Text, Pressable, StyleSheet, useWindowDimensions, Image } from 'react-native';
+import { View, Text, Pressable, StyleSheet, useWindowDimensions, Image, ScrollView } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { LinearTransition, FadeInDown, Easing } from 'react-native-reanimated';
@@ -82,6 +82,7 @@ export default function Home() {
   const data = useRef({ occs: [], byId: {} });
   const shown = useRef(false); // moments plein écran : une seule ouverture par montage
   const ticked = useRef(false);
+  const [bgTop, setBgTop] = useState(0);
   const [availH, setAvailH] = useState(0); const [topH, setTopH] = useState(0); const [headH, setHeadH] = useState(0); const [gh, setGh] = useState({});
   const fitDays = useMemo(() => { let left = availH - topH - headH - 12; const out = []; for (const g of upcoming) { const hgt = gh[g.iso]; if (hgt == null || hgt + 8 > left) break; left -= hgt + 8; out.push(g); } return out; }, [availH, topH, headH, gh, upcoming]);
   const occV = occStore.useVersion();
@@ -176,7 +177,9 @@ export default function Home() {
       <Pressable onPress={() => router.push('/chambre')} style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><Scene T={T} stage={m.stage} mood={mood} lvl={lvl} topInset={insets.top + 44} items={room.items} outfit={room.outfit} souvenirs={room.souvenirs} positions={room.positions} photo={m.photo_url || null} /></Pressable>
       {flight && pearlsAt ? <PearlFlight key={flight.key} from={{ x: width / 2, y: layout.scene - layout.floor - 60 }} to={pearlsAt} count={Math.min(5, flight.n)} color={T.accent} onArrive={() => { pop(); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {}); }} /> : null}
       <SafeAreaView style={{ flex: 1 }} edges={['top']} pointerEvents="box-none">
-        <View style={{ flex: 1, overflow: 'hidden' }} pointerEvents="box-none" onLayout={e => setAvailH(e.nativeEvent.layout.height)}>
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 24 }} showsVerticalScrollIndicator={false} onLayout={e => setAvailH(e.nativeEvent.layout.height)}>{/* défile quand la journée est chargée (9 nov 2026) */}
+          {/* sous la scène, le contenu a un fond plein : il glisse sur la pièce sans la traverser */}
+          {bgTop ? <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, top: bgTop, height: 4000, backgroundColor: T.bg }} /> : null}
           <View pointerEvents="box-none" onLayout={e => setTopH(e.nativeEvent.layout.height)}>
             <View style={s.header}>
               {/* sur la pièce (sombre), l'en-tête est en blanc cassé quel que soit le mode */}
@@ -187,7 +190,7 @@ export default function Home() {
               <Pressable onPress={() => router.push('/activite')} accessibilityLabel={h.activityA11y} hitSlop={8} style={{ marginRight: 4 }}><Image source={require('../../assets/icones/tabs/bubble.png')} style={{ width: 34, height: 34 }} resizeMode="contain" accessibilityIgnoresInvertColors /></Pressable>
               <Pressable onPress={() => router.push('/profil')} accessibilityLabel={h.profileA11y}><Avatar initial={me.initial} color={me.color} photo={me.avatar_url} size={36} /></Pressable>
             </View>
-            <Pressable onPress={() => router.push('/chambre')} accessibilityLabel={t.roomA11y} style={{ height: Math.max(8, layout.scene + 12 - insets.top - 48) }} />{/* la scène se tape ici : vers la pièce de Mochi */}
+            <Pressable onPress={() => router.push('/chambre')} accessibilityLabel={t.roomA11y} onLayout={e => setBgTop(e.nativeEvent.layout.y + e.nativeEvent.layout.height)} style={{ height: Math.max(8, layout.scene + 12 - insets.top - 48) }} />{/* la scène se tape ici : vers la pièce de Mochi */}
             <View style={{ paddingHorizontal: layout.x, paddingTop: 18, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
               <Text style={[type.name, { color: T.ink, flex: 1 }]}>{m.name || 'Mochi'}</Text>
               <View style={{ paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999, backgroundColor: T.seg }}><Text style={[type.label, { color: T.ink, fontWeight: '600' }]}>{m.stage === 'egg' ? t.eggPill : fill(t.stagePill, { day, k: Math.max(1, STAGES.indexOf(m.stage)) })}</Text></View>
@@ -216,18 +219,18 @@ export default function Home() {
               {real && noTask ? <View style={{ marginTop: 14 }}><CTAPrimary label={isJoiner() ? fill(h.chooseWithCta, { name: partner.first_name }) : h.chooseTasksCta} onPress={() => router.push('/(setup)/taches')} /></View> : null}
             </View>
           </View>
-          {real && fitDays.length ? (
+          {real && upcoming.length ? (
             <>
               <View style={s.sectionHead} onLayout={e => setHeadH(e.nativeEvent.layout.height)}><Text style={[type.section, { color: T.ink }]}>{t.upcoming}</Text></View>
               <View style={{ marginHorizontal: layout.x }}>
-                {fitDays.map(g => (<View key={g.iso}><Label T={T} style={{ paddingTop: 10, paddingBottom: 2 }}>{g.label}</Label>{g.items.map((v, i) => <Row key={v.id} T={T} vm={v} first={i === 0} done={missionDone.has(v.id)} onToggle={() => toggle(v.id, true)} />)}</View>))}
+                {upcoming.map(g => (<View key={g.iso}><Label T={T} style={{ paddingTop: 10, paddingBottom: 2 }}>{g.label}</Label>{g.items.map((v, i) => <Row key={v.id} T={T} vm={v} first={i === 0} done={missionDone.has(v.id)} onToggle={() => toggle(v.id, true)} />)}</View>))}
               </View>
               <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, top: 0, opacity: 0, paddingHorizontal: layout.x }}>
                 {upcoming.map(g => (<View key={g.iso} onLayout={e => { const hgt = e.nativeEvent.layout.height; setGh(mm => (mm[g.iso] === hgt ? mm : { ...mm, [g.iso]: hgt })); }}><Label T={T} style={{ paddingTop: 10, paddingBottom: 2 }}>{g.label}</Label>{g.items.map((v, i) => <Row key={v.id} T={T} vm={v} first={i === 0} done={missionDone.has(v.id)} onToggle={() => {}} />)}</View>))}
               </View>
             </>
           ) : null}
-        </View>
+        </ScrollView>
       </SafeAreaView>
     </View>
   );

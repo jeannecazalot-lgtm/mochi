@@ -341,7 +341,7 @@ export default function Planning() {
               {who !== 0 && !shownGroups.length ? <Text style={[type.sub, { color: T.muted, textAlign: 'center', paddingVertical: 24 }]}>{t.filterEmpty}</Text> : null}
               {realGroups
                 ? shownGroups.map((g, gi) => (
-                  <Animated.View key={g.iso} entering={gi < 8 ? FadeInDown.delay(gi * 40).duration(260) : undefined} layout={LinearTransition.duration(240)} style={{ marginBottom: 11 }} onLayout={e => { groupY.current[g.iso] = e.nativeEvent.layout.y; }}>
+                  <Animated.View key={g.iso} layout={LinearTransition.duration(240)} style={{ marginBottom: 11 }} onLayout={e => { groupY.current[g.iso] = e.nativeEvent.layout.y; }}>
                     <Label T={T} style={[s.groupLabel, { color: g.late ? T.accent : T.ink, fontWeight: '600' }]}>{g.late ? t.lateGroup : fmtDayLabel(g.date)}{g.iso === todayIso ? ` · ${t.todaySuffix}` : ''}</Label>
                     {g.items.map(vm => <RealRow key={vm.id} T={T} vm={vm} onToggle={() => toggleOcc(vm.id)} />)}
                   </Animated.View>

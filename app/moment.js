@@ -14,6 +14,7 @@ import { unseenMoments, markSeen, getMochi, PEARLS, STAGES } from '../src/mochi-
 import items from '../src/data/mochi-items.json';
 import { read } from '../src/store';
 import { isLive } from '../src/occ-actions';
+import { partner } from '../src/demo';
 import copy from '../src/data/copy.json';
 
 const fill = (s, vars) => Object.keys(vars).reduce((acc, k) => acc.replace(`{${k}}`, vars[k]), s);
@@ -34,6 +35,8 @@ export default function Moment() {
   const [queue, setQueue] = useState(demo ? [DEMO[demo] || DEMO.hatch] : null);
   const [mochi, setMochi] = useState(null);
   useEffect(() => { if (!demo) unseenMoments().then(q => { if (!q.length) router.back(); else setQueue(q); }); getMochi().then(setMochi); }, []);
+  const [already, setAlready] = useState(null); // éclosion : l'autre a déjà choisi N missions (9 nov 2026, Jeanne : « j'ai pas eu le récap de ce qu'elle avait mis »)
+  useEffect(() => { const ev0 = queue?.[0]; if (demo || !ev0 || ev0.type !== 'hatch') return; (async () => { try { const [occs, tasks] = await Promise.all([read('occurrences'), read('tasks')]); if (occs.some(isLive)) setAlready({ n: tasks.length, list: tasks.slice(0, 4).map(x => x.title.toLowerCase()).join(', ') }); } catch (e) { /* rien */ } })(); }, [queue?.[0]?.id]);
   if (!queue) return <View style={{ flex: 1, backgroundColor: T.bg }} />;
   const ev = queue[0];
   const m = mochi || { stage: ev.payload?.to || 'mini', hearts: 5 };
@@ -44,7 +47,7 @@ export default function Moment() {
   const lvl = ev.type === 'hatch' ? 1 : ev.type === 'walk_return' ? 2 : k >= 3 ? 4 : 3;
   const wk = ev.payload || {};
   const title = ev.type === 'hatch' ? t.hatchTitle : ev.type === 'walk_return' ? t.returnTitle : ev.type === 'week_closed' ? (wk.healthy ? t.weekTitleOk : t.weekTitleKo) : t.stageTitle;
-  const sub = ev.type === 'hatch' ? t.hatchSub
+  const sub = ev.type === 'hatch' ? (already ? fill(t.hatchSubReady, { name: partner.first_name, n: already.n, list: already.list }) : t.hatchSub)
     : ev.type === 'week_closed' ? (wk.done_pct == null ? t.weekSubEmpty : wk.sick ? fill(t.weekSubSick, { done: wk.done_pct }) : fill(t.weekSub, { done: wk.done_pct, gap: wk.gap_pct }))
     : ev.type === 'walk_return' ? (souvenir ? fill(t.returnSub, { place, label: souvenir.label.toLowerCase() }) : fill(t.returnEmpty, { place }))
     : fill(t.stageSub, { weeks: m.healthy_weeks || k, k });
@@ -53,7 +56,7 @@ export default function Moment() {
     const rest = queue.slice(1);
     if (rest.length) { setQueue(rest); return; }
     // éclosion réelle et rien d'encore réparti : on enchaîne sur le choix des missions à deux (8 nov 2026, Jeanne : « ça m'a pas proposé de remplir des missions »)
-    if (!demo && ev.type === 'hatch') { try { const occs = await read('occurrences'); if (!occs.some(isLive)) { router.replace('/(setup)/taches'); return; } } catch (e) { /* retour simple */ } }
+    if (!demo && ev.type === 'hatch') { try { const occs = await read('occurrences'); if (!occs.some(isLive)) { router.replace('/(setup)/taches'); return; } router.replace('/(tabs)/planning'); return; } catch (e) { /* retour simple */ } }
     router.back();
   };
   return (

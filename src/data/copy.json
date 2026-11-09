@@ -1870,7 +1870,8 @@
     "turn": "{name} : c'est ton tour pour « {task} » 👉",
     "swapRefused": "{name} ne peut pas reprendre {task}, elle reste chez toi",
     "rebalanced": "{name} a rééquilibré la semaine : {n} missions passent chez toi",
-    "handed": "{name} te passe {task}"
+    "handed": "{name} te passe {task}",
+    "dispatched": "{name} a réparti la semaine : {n} missions. Va voir le Planning."
   },
   "mesReglages": {
     "_labels": {
@@ -2191,7 +2192,8 @@
       "weekTitleKo": "Récap du dimanche, semaine pas saine",
       "weekSub": "({done} % faites, {gap} % d'écart)",
       "weekSubSick": "Idem quand Mochi a été malade",
-      "weekSubEmpty": "Semaine sans mission"
+      "weekSubEmpty": "Semaine sans mission",
+      "hatchSubReady": "Éclosion quand l'autre a déjà réparti ({name}, {n}, {list})"
     },
     "kicker": "{time}",
     "hatchTitle": "Mochi a éclos.",
@@ -2208,7 +2210,8 @@
     "weekTitleKo": "Semaine un peu bancale.",
     "weekSub": "{done} % des missions faites, {gap} % d'écart entre vous. Une semaine saine, c'est au moins 80 % et moins de 10 %.",
     "weekSubSick": "{done} % des missions faites, et Mochi a été malade. Pas de semaine saine cette fois, mais il va mieux.",
-    "weekSubEmpty": "Rien de prévu cette semaine. Elle ne compte pas."
+    "weekSubEmpty": "Rien de prévu cette semaine. Elle ne compte pas.",
+    "hatchSubReady": "Vous êtes deux. {name} a déjà choisi {n} missions ({list}…). Tout est dans le Planning, et tout se modifie."
   },
   "balanceV3": {
     "_labels": {
