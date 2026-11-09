@@ -3,7 +3,7 @@
 // + intertitre « Selon ton foyer », pop + haptique au cochage, entrée en cascade.
 import React, { useState, useEffect, useRef } from 'react';
 import { TextInput } from 'react-native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
@@ -65,7 +65,8 @@ export default function Taches() {
   // ─── à deux en direct (15 sept 2026) : la sélection vit dans setup_drafts, l'autre la voit bouger ───
   useIdentity();
   const [by, setBy] = useState({});             // id → uid de qui a coché (pour l'avatar)
-  const shared = !!setup.householdId;
+  const { demo } = useLocalSearchParams(); // ?demo=1 : choix à deux figé, sans écrire en base (captures App Store)
+  const shared = !!setup.householdId && !demo;
   const occV = occStore.useVersion();
   const lastRemote = useRef('');
   const localAt = useRef(0);
@@ -84,6 +85,7 @@ export default function Taches() {
     setBy(Object.fromEntries(ts.map(x => [x.id, x.by?.[0] || null])));
   };
   useEffect(() => { if (shared) loadDraft().then(applyDraft).catch(() => {}); }, []);
+  useEffect(() => { if (!demo) return; const me_ = getUid(), pa = getPartnerUid(); setOn(['t-vaisselle', 't-cuisiner', 't-courses', 't-lessive', 't-linge-plier', 't-draps']); setBy({ 't-vaisselle': pa, 't-cuisiner': me_, 't-courses': me_, 't-lessive': pa, 't-linge-plier': me_, 't-draps': pa }); }, [demo]);
   // le direct n'était branché que depuis les onglets (9 nov 2026, test à deux simulateurs : un foyer recréé
   // gardait l'abonnement de l'ancien, les coches de l'autre n'arrivaient pas) → abonnement ici + relecture de filet
   useEffect(() => {
@@ -168,7 +170,7 @@ export default function Taches() {
       <SafeAreaView style={{ flex: 1 }}>
         {/* Retour Jeanne (1er sept 2026) : minimum 3 tâches pour continuer — pas de « Passer » ici. */}
         <View>
-          <SetupHeader hero={<EggHero />} why={t.whyTasks} title={t.tasksTitle} sub={duo ? (otherReady && !meReady ? fill(t.otherReady, { name: partner.first_name }) : meReady ? fill(t.meReady, { name: partner.first_name }) : t.tasksSubDuo.replace('{name}', partner.first_name)) : solo ? t.tasksSubSolo : t.tasksSub} />
+          <SetupHeader hero={<EggHero />} why={t.whyTasks} title={t.tasksTitle} sub={demo ? t.tasksSubDuo.replace('{name}', partner.first_name) : duo ? (otherReady && !meReady ? fill(t.otherReady, { name: partner.first_name }) : meReady ? fill(t.meReady, { name: partner.first_name }) : t.tasksSubDuo.replace('{name}', partner.first_name)) : solo ? t.tasksSubSolo : t.tasksSub} />
         </View>
         <ScrollView ref={scrollRef} {...scrollProps} contentContainerStyle={{ paddingHorizontal: space.screenX, paddingTop: 30, paddingBottom: 110 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
           {adding ? (

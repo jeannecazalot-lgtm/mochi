@@ -26,7 +26,7 @@ export function GlowBg({ intensity = 'normal' }) {
 // présent sur tous les écrans et recevoir les taps.
 function PlanFab() {
   const pathname = usePathname();
-  if (!__DEV__ || pathname === '/plan') return null;
+  if (!__DEV__ || pathname === '/plan' || process.env.EXPO_PUBLIC_CAPTURE === '1') return null; // captures App Store : Metro lancé avec EXPO_PUBLIC_CAPTURE=1
   return (
     <Pressable onPress={() => router.push('/plan')} hitSlop={10}
       style={({ pressed }) => ({ position: 'absolute', left: 12, bottom: 110, width: 40, height: 40, borderRadius: 20, backgroundColor: alpha(colors.ink, pressed ? 0.75 : 1), alignItems: 'center', justifyContent: 'center', zIndex: 99 })}

@@ -2,7 +2,7 @@
 // tenues contre des perles communes, Mochi+ pour les collections. Données : mochi_inventory / mochi_state.
 import { RouteError } from '../src/components/route-error';
 import React, { useEffect, useState } from 'react';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { View, Text, Pressable, ScrollView, StyleSheet, Image } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Scene } from '../src/components/mochi/scene';
@@ -19,7 +19,7 @@ import copy from '../src/data/copy.json';
 
 const fill = (s, vars) => Object.keys(vars).reduce((acc, k) => acc.replace(`{${k}}`, vars[k]), s);
 const PLACES_BY_STAGE = { egg: [], mini: ['jardin'], mochi: ['jardin', 'riviere'], maxi: ['jardin', 'riviere', 'foret', 'ville'], dore: ['jardin', 'riviere', 'foret', 'ville', 'plage', 'montagne'] };
-const DEMO = { mochi: { stage: 'mini', pearls: 128, hearts: 4 }, inv: [{ item_key: 'cheval', kind: 'object', placed: true }, { item_key: 'beret', kind: 'outfit', placed: true }] };
+const DEMO = { mochi: { stage: 'mochi', pearls: 214, hearts: 5 }, inv: [{ item_key: 'cheval', kind: 'object', placed: true }, { item_key: 'aquarium', kind: 'object', placed: true }, { item_key: 'tournedisque', kind: 'object', placed: true }, { item_key: 'lave', kind: 'object', placed: true }, { item_key: 'beret', kind: 'outfit', placed: true }] }; // foyer d'exemple, quelques semaines d'usage
 
 function RowItem({ it, kind, T, t, s, outfit, photoUrl, stageIdx, has: hasOf, placedOf, onBuy, onPlace, onPhoto }) {
   const has = hasOf(it.key);
@@ -46,7 +46,8 @@ export default function Chambre() {
   const [inv, setInv] = useState([]);
   const [msg, setMsg] = useState('');
   const [demo, setDemo] = useState(false);
-  useEffect(() => { (async () => { await loadSetup(); if (!inRealMode()) { setDemo(true); setMochi(DEMO.mochi); setInv(DEMO.inv); return; } setMochi(await getMochi()); setInv((await read('mochi_inventory')).filter(i => i.household_id === setup.householdId)); })(); }, [v]);
+  const { demo: forceDemo } = useLocalSearchParams(); // ?demo=1 : données d'exemple (captures App Store)
+  useEffect(() => { (async () => { await loadSetup(); if (!inRealMode() || forceDemo) { setDemo(true); setMochi(DEMO.mochi); setInv(DEMO.inv); return; } setMochi(await getMochi()); setInv((await read('mochi_inventory')).filter(i => i.household_id === setup.householdId)); })(); }, [v]);
   const m = mochi || DEMO.mochi;
   const owned = new Set(inv.map(i => i.item_key));
   const souvenirs = inv.filter(i => i.kind === 'souvenir').length;

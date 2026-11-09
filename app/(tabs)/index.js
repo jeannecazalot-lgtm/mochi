@@ -30,6 +30,7 @@ import copy from '../../src/data/copy.json';
 import { TaskIcon } from '../../src/components/task-icon';
 
 const fill = (s, vars) => Object.keys(vars).reduce((acc, k) => acc.replace(`{${k}}`, vars[k]), s);
+const CAPTURE = process.env.EXPO_PUBLIC_CAPTURE === '1'; // captures App Store : foyer d'exemple (Jeanne, 9 nov 2026)
 const DEMO_MOCHI = { stage: 'mini', hearts: 4, pearls: 128, walk_status: 'home', hatched_at: new Date(Date.now() - 12 * 86400e3).toISOString() };
 const fmtDate = d => { const s = d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }); return s.charAt(0).toUpperCase() + s.slice(1); };
 const headOn = T => (T.night ? '#F4EFE8' : T.ink); // en-tête posé sur la pièce : clair la nuit, encre le jour
@@ -90,7 +91,7 @@ export default function Home() {
   useEffect(() => {
     (async () => {
       await loadSetup();
-      if (!inRealMode()) { setVms(demoVms()); setMochi(DEMO_MOCHI); setLvl(2); setRoom({ items: ['cheval', 'lave'], outfit: 'beret', souvenirs: 3 }); setEnergy({ done: 0, total: 0 }); const dm = demoFlags.checkin[T.night ? 'evening' : 'morning']; setCheckedIn(!!dm); setMyMood(dm || null); return; }
+      if (!inRealMode() || CAPTURE) { setVms(demoVms()); setMochi(CAPTURE ? { ...DEMO_MOCHI, stage: 'mochi', hearts: 5, pearls: 214 } : DEMO_MOCHI); setLvl(2); setRoom({ items: CAPTURE ? ['cheval', 'aquarium', 'tournedisque', 'lave'] : ['cheval', 'lave'], outfit: 'beret', souvenirs: 3 }); setEnergy(CAPTURE ? { done: 2, total: 3 } : { done: 0, total: 0 }); const dm = demoFlags.checkin[T.night ? 'evening' : 'morning']; setCheckedIn(!!dm); setMyMood(dm || null); return; }
       const [occs, tasks, inv, cks] = await Promise.all([read('occurrences'), read('tasks'), read('mochi_inventory'), read('mochi_checkins')]);
       if (setup.householdId && occs.some(o => !tasks.some(tk => tk.id === o.task_id))) healMissingTasks(setup.householdId).then(ok => { if (ok) occStore.bump(); }).catch(() => {});
       const byId = Object.fromEntries(tasks.map(tk => [tk.id, tk]));

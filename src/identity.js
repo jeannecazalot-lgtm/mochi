@@ -51,7 +51,7 @@ export async function loadIdentity() {
   try {
     const { data: p } = await supabase.from('profiles').select('first_name, avatar_url').eq('id', session.user.id).maybeSingle();
     if (p && (p.first_name || p.avatar_url)) {
-      const name = (p.first_name || '').trim();
+      const name = process.env.EXPO_PUBLIC_CAPTURE === '1' ? 'Jeanne' : (p.first_name || '').trim(); // captures App Store : prénom propre du compte de test
       real = { first_name: name || demoMe.first_name, avatar_url: p.avatar_url || null, initial: (name || demoMe.initial)[0].toUpperCase() };
       // substitution À LA SOURCE : tous les écrans qui lisent me/byId() de la démo
       // affichent le vrai prénom sans être modifiés un par un
