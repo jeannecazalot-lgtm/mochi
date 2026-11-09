@@ -21,12 +21,12 @@ x0=(room.width-W)//2; room=room.crop((x0,0,x0+W,room.height))
 mask=Image.new('L',room.size,255); md=ImageDraw.Draw(mask)
 for i in range(160): md.line((0,i,W,i),fill=int(255*i/160))
 for i in range(120): md.line((0,room.height-1-i,W,room.height-1-i),fill=int(255*i/120))
-RY=700; im.paste(room,(0,RY),mask)
+RY=820; im.paste(room,(0,RY),mask)
 d=ImageDraw.Draw(im)
 def center(y,t,f,fill):
     w=d.textlength(t,font=f); d.text(((W-w)/2,y),t,font=f,fill=fill)
-center(330,'Partagez la charge mentale,',font(96,'Bold'),INK)
-center(450,'en vous amusant.',font(96,'Bold'),INK)
+center(560,'Partagez la charge mentale,',font(84,'Bold'),INK)
+center(668,'en vous amusant.',font(84,'Bold'),INK)
 # « Mindpair » en sticker collé sur le mur de la pièce (Jeanne, 10 nov 2026 : « plus en avant, en mode stickers »)
 def sticker(txt,size,fill,angle):
     f=font(size,'Heavy'); d0=ImageDraw.Draw(Image.new('RGB',(1,1))); w=int(d0.textlength(txt,font=f)); h=int(size*1.25)
@@ -36,12 +36,12 @@ def sticker(txt,size,fill,angle):
     t=t.rotate(angle,expand=True,resample=Image.BICUBIC)
     sh=Image.new('RGBA',t.size,(0,0,0,0)); sh.paste((50,30,30,110),(0,0),t.split()[3]); sh=sh.filter(ImageFilter.GaussianBlur(14))
     out=Image.new('RGBA',(t.width+20,t.height+30),(0,0,0,0)); out.alpha_composite(sh,(10,24)); out.alpha_composite(t,(0,0)); return out
-st=sticker('Mindpair',210,INK+(255,),6)
-im.alpha_composite(st,((W-st.width)//2+70,RY+380))
+st=sticker('Mindpair',220,INK+(255,),-4)
+im.alpha_composite(st,((W-st.width)//2,150))
 # la carte « Équilibré » (capture réelle de « Mochi a réparti »), en grand, à cheval sur le bas de la pièce
 c=Image.open(B+'dispatch.png').convert('RGBA').crop((60,872,1260,1144)); pad=34
 card=Image.new('RGBA',(c.width+2*pad,c.height+2*pad),(250,247,242,255)); card.paste(c,(pad,pad),c)
-cx=(W-card.width)//2; cy=RY+room.height+30
+cx=(W-card.width)//2; cy=RY+room.height+10
 im=shadow(im,(cx,cy,cx+card.width,cy+card.height),48)
 im.paste(card,(cx,cy),rounded(card,48))
 d=ImageDraw.Draw(im)
