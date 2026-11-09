@@ -555,6 +555,12 @@
       "sendLink": "CTA envoyer le lien",
       "qr": "Bouton QR code",
       "enterCode": "Bouton saisir un code",
+      "choiceTitle": "Titre de l'étape 4 : qui invite qui (9 nov 2026)",
+      "choiceSub": "Sous-titre de l'étape 4",
+      "choiceInvite": "Carte « j'invite »",
+      "choiceInviteSub": "Sous-texte carte « j'invite »",
+      "choiceJoin": "Carte « on m'a invitée »",
+      "choiceJoinSub": "Sous-texte carte « on m'a invitée »",
       "inviteHint": "Phrase sous les boutons QR / code",
       "duoPill": "Pastille verte écran 09b",
       "duoTitle": "Titre 09b — phrase de félicitation ({name} = prénom du binôme)",
@@ -684,6 +690,12 @@
     "qrClose": "Toucher pour fermer",
     "qr": "QR code",
     "enterCode": "J'ai reçu un code",
+    "choiceTitle": "Qui invite qui ?",
+    "choiceSub": "Une seule de vous deux crée le foyer. L'autre le rejoint avec le code.",
+    "choiceInvite": "J'invite mon binôme",
+    "choiceInviteSub": "Je crée le foyer et j'envoie le lien.",
+    "choiceJoin": "J'ai reçu une invitation",
+    "choiceJoinSub": "Je rejoins le foyer avec le code à 6 caractères.",
     "inviteHint": "Vous êtes côte à côte ? Montre le QR, c’est instantané.",
     "duoPill": "Duo formé",
     "duoTitle": "{name} est là.",
@@ -2222,7 +2234,7 @@
     "weekSub": "{done} % des missions faites, {gap} % d'écart entre vous. Une semaine saine, c'est au moins 80 % et moins de 10 %.",
     "weekSubSick": "{done} % des missions faites, et Mochi a été malade. Pas de semaine saine cette fois, mais il va mieux.",
     "weekSubEmpty": "Rien de prévu cette semaine. Elle ne compte pas.",
-    "hatchSubReady": "Vous êtes deux. {name} a déjà choisi {n} missions ({list}…). Tout est dans le Planning, et tout se modifie."
+    "hatchSubReady": "Vous êtes deux. {n} missions sont déjà réparties ({list}…). Tout est dans le Planning, et tout se modifie."
   },
   "balanceV3": {
     "_labels": {

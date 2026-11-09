@@ -52,15 +52,17 @@ export async function extendHorizon({ force = false } = {}) {
     const days = task.window_days || [];
     const freq = task.frequency || 'weekly';
     if (freq === 'once') continue;
-    // jours voulus sur la fenêtre J → J+6
+    // jours voulus sur la fenêtre J+1 → J+7 : jamais aujourd'hui (9 nov 2026 : juste après la répartition, Cuisiner /
+    // Vaisselle / Lessive apparaissaient pour le jour même, donc « en retard » le soir — l'occurrence du jour existe déjà
+    // puisque la passe de la veille couvrait jusqu'à J+7)
     const wanted = [];
     if (days.length) {
-      for (let k = 0; k < 7; k++) { const iso = addDaysIso(k); if (days.includes(dowOf(iso))) wanted.push(iso); }
+      for (let k = 1; k <= 7; k++) { const iso = addDaysIso(k); if (days.includes(dowOf(iso))) wanted.push(iso); }
     } else if (freq === 'daily') {
-      for (let k = 0; k < 7; k++) wanted.push(addDaysIso(k));
+      for (let k = 1; k <= 7; k++) wanted.push(addDaysIso(k));
     } else if (freq === 'monthly') {
       const last = mine.filter(o => o.due_date < today).slice(-1)[0];
-      if (last) { const next = addDaysIso(28, new Date(last.due_date + 'T12:00:00')); if (next >= today && next <= addDaysIso(6)) wanted.push(next); }
+      if (last) { const next = addDaysIso(28, new Date(last.due_date + 'T12:00:00')); if (next > today && next <= addDaysIso(7)) wanted.push(next); }
     } else {
       // motif des 14 derniers jours (jours de semaine) ; sans historique, on garde l'espacement des dernières occurrences
       const recent = mine.filter(o => o.due_date >= addDaysIso(-14) && o.due_date < today);
@@ -68,7 +70,7 @@ export async function extendHorizon({ force = false } = {}) {
       const perWeek = PER_WEEK[freq] || 1;
       const pattern = dows.length ? dows.slice(-perWeek) : [...new Set(mine.slice(-perWeek).map(o => dowOf(o.due_date)))];
       if (!pattern.length) continue; // tâche sans aucune occurrence : rien à reconduire
-      for (let k = 0; k < 7; k++) { const iso = addDaysIso(k); if (pattern.includes(dowOf(iso))) wanted.push(iso); }
+      for (let k = 1; k <= 7; k++) { const iso = addDaysIso(k); if (pattern.includes(dowOf(iso))) wanted.push(iso); }
     }
     for (const iso of wanted) {
       if (has(iso)) continue;
