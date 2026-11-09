@@ -93,6 +93,7 @@ export default function RootLayout() {
         <Stack.Screen name="chambre" options={{ presentation: 'card' }} />{/* Mochi qu'on élève : éclosion, retour de balade, palier */}
         <Stack.Screen name="pense-bete" options={{ presentation: 'card' }} />
         <Stack.Screen name="plan" />
+        <Stack.Screen name="scene-capture" options={{ animation: "none" }} />
         <Stack.Screen name="intro" options={{ animation: 'fade' }} />
       </Stack>
       {intro ? <View style={StyleSheet.absoluteFill}><IntroView onDone={() => setIntro(false)} /></View> : null}
