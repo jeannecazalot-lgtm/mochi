@@ -6,6 +6,9 @@ W,H=1320,2868; INK=(31,42,88); CREAM=(245,241,234)
 SF='/System/Library/Fonts/SFNS.ttf'
 def font(sz,w):
     f=ImageFont.truetype(SF,sz); f.set_variation_by_name(w); return f
+FELT=Image.open(M+'assets/splash/feutre.jpg').convert('RGB').resize((H,H))
+def felt_bg():
+    base=Image.new('RGB',(W,H),(0xF3,0xEA,0xDF)); lay=base.copy(); lay.paste(FELT,((W-H)//2,0)); return Image.blend(base,lay,0.55).convert('RGBA')
 def rounded(img,r):
     m=Image.new('L',img.size,0); ImageDraw.Draw(m).rounded_rectangle((0,0,img.width-1,img.height-1),r,fill=255); return m
 def shadow(im,box,r,a=90,blur=40,dy=22):
@@ -13,7 +16,7 @@ def shadow(im,box,r,a=90,blur=40,dy=22):
     ImageDraw.Draw(sh).rounded_rectangle((x0,y0+dy,x1,y1+dy),r,fill=(60,35,30,a))
     return Image.alpha_composite(im,sh.filter(ImageFilter.GaussianBlur(blur)))
 
-im=Image.new('RGBA',(W,H),CREAM+(255,))
+im=felt_bg()
 # la pièce, agrandie de 18 % et recadrée au centre (Mochi au milieu), fondue en haut et en bas dans le crème
 room=Image.open(B+'scene.png').convert('RGBA').crop((0,741,1320,2067))
 k=1.0; room=room.resize((int(room.width*k),int(room.height*k)),Image.LANCZOS)
@@ -46,5 +49,5 @@ im=shadow(im,(cx,cy,cx+card.width,cy+card.height),48)
 im.paste(card,(cx,cy),rounded(card,48))
 d=ImageDraw.Draw(im)
 center(cy+card.height+90,'Mochi répartit les tâches du foyer entre vous deux.',font(46,'Medium'),INK+(170,))
-im.convert('RGB').save(O+'v4-01.png')
+im.convert('RGB').save(O+'v6-01.png')
 im.convert('RGB').resize((440,956)).save('/private/tmp/claude-501/-Users-jeannecazalot-Desktop-mochi-kickoff/17a8d86e-cb64-456e-8b82-3e270de20b35/scratchpad/v4.png')

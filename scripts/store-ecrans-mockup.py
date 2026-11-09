@@ -5,6 +5,9 @@ W,H=1320,2868; INK=(31,42,88); CREAM=(245,241,234)
 SF='/System/Library/Fonts/SFNS.ttf'
 def font(sz,w):
     f=ImageFont.truetype(SF,sz); f.set_variation_by_name(w); return f
+FELT=Image.open(M+'assets/splash/feutre.jpg').convert('RGB').resize((H,H))
+def felt_bg():
+    base=Image.new('RGB',(W,H),(0xF3,0xEA,0xDF)); lay=base.copy(); lay.paste(FELT,((W-H)//2,0)); return Image.blend(base,lay,0.55).convert('RGBA')
 def rounded(img,r):
     m=Image.new('L',img.size,0); ImageDraw.Draw(m).rounded_rectangle((0,0,img.width-1,img.height-1),r,fill=255); return m
 def shadow(im,box,r,a=90,blur=44,dy=26):
@@ -15,7 +18,7 @@ ICON=Image.open(M+'design/icone/H-meme-cadrage.png').convert('RGBA')
 PW=int(W*0.74); PY=600; R=118; BZ=14
 
 def screen(out,title,shot,pops,notif=None):
-    im=Image.new('RGBA',(W,H),CREAM+(255,)); d=ImageDraw.Draw(im)
+    im=felt_bg(); d=ImageDraw.Draw(im)
     for i,l in enumerate(title):
         f=font(96,'Bold'); w=d.textlength(l,font=f); d.text(((W-w)/2,250+116*i),l,font=f,fill=INK)
     s=Image.open(B+shot).convert('RGBA'); sc=PW/s.width; PH=int(s.height*sc); s2=s.resize((PW,PH),Image.LANCZOS)
@@ -38,14 +41,15 @@ def screen(out,title,shot,pops,notif=None):
     im.convert('RGB').save(O+out+'.png')
 
 CARD=(250,247,242); NUIT=(46,33,64)
-screen('v5-02',['Souvent, une seule','personne y pense.'],'onb1.png',[((40,1822,1280,1938),1.16,NUIT)])
-screen('v5-03',['Vous listez tout ce qui','tourne dans vos têtes.'],'taches.png',[((56,848,1264,1040),1.14,CARD),((56,1052,1264,1240),1.14,CARD)])
-screen('v5-04',['Mochi répartit,','équitablement.'],'dispatch.png',[((60,1330,1264,1600),1.14,CARD),((60,1610,1264,1880),1.14,CARD)])
-screen('v5-05',['Chacun ses missions.','Plus besoin de relancer.'],'planning.png',[((40,960,1290,1080),1.16,CARD)],notif=('Vaisselle','C’est l’heure. 15 min suffisent.','20:30'))
-screen('v5-06',['Et vous élevez Mochi,','ensemble.'],'chambre.png',[((1010,190,1270,300),1.9,CARD),((60,1300,1264,1515),1.16,CARD)])
+# screen('v5-02',['Souvent, une seule','personne y pense.'],'onb1.png',[((40,1822,1280,1938),1.16,NUIT)])
+screen('v6-03',['Vous listez tout ce qui','tourne dans vos têtes.'],'taches.png',[((56,848,1264,1040),1.14,CARD),((56,1052,1264,1240),1.14,CARD)])
+screen('v6-04',['Mochi répartit,','équitablement.'],'dispatch.png',[((60,1330,1264,1600),1.14,CARD),((60,1610,1264,1880),1.14,CARD)])
+# screen('v5-05',['Chacun ses missions.','Plus besoin de relancer.'],'planning.png',[((40,960,1290,1080),1.16,CARD)],notif=('Vaisselle','C’est l’heure. 15 min suffisent.','20:30'))
+screen('v6-05',['Chaque mission','coch\u00e9e nourrit Mochi.'],'accueil.png',[((40,1170,1280,1260),1.18,CARD),((740,225,990,320),1.9,CARD)])
+screen('v6-06',['Et vous élevez Mochi,','ensemble.'],'chambre.png',[((1010,190,1270,300),1.9,CARD),((60,1300,1264,1515),1.16,CARD)])
 
-fs=['v4-01','v5-02','v5-03','v5-04','v5-05','v5-06']
+fs=['v6-01','v6-02','v6-03','v6-04','v6-05','v6-06']
 k=0.25; w,h=int(W*k),int(H*k); g=24
 P=Image.new('RGB',(6*w+7*g,h+2*g),(226,220,212))
 for i,f in enumerate(fs): P.paste(Image.open(O+f+'.png').resize((w,h)),(g+i*(w+g),g))
-P.save(O+'planche-v5.png')
+P.save(O+'planche-v6.png')
