@@ -10,7 +10,7 @@ export default function SceneCapture() {
   const { width: W } = useWindowDimensions();
   return (
     <View style={{ flex: 1, backgroundColor: T.bg, justifyContent: 'center' }}>
-      <Scene T={T} stage="mochi" mood="happy" lvl={2} height={W * 1.05} items={['cheval', 'aquarium', 'tournedisque', 'lave']} outfit="beret" souvenirs={3} />
+      <Scene T={T} stage="mochi" mood="happy" lvl={2} height={W * 1.05} items={['cheval', 'aquarium', 'lave']} outfit="beret" souvenirs={3} positions={{ cheval: { x: 0.17, y: 0.78 } }} />
     </View>
   );
 }
