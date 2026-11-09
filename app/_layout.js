@@ -57,7 +57,9 @@ const s = StyleSheet.create({
 });
 
 import { useTokens } from '../src/theme-v3';
+import { IntroView } from './intro';
 export default function RootLayout() {
+  const [intro, setIntro] = React.useState(true); // ouverture Mindpair à chaque lancement à froid (Jeanne, 9 nov 2026)
   const T = useTokens(); const sheetV3 = { ...sheet, contentStyle: { backgroundColor: T.bg } }; // sheets de la DA v3 : fond jour / nuit
   const tallV3 = { ...tallSheet, contentStyle: { backgroundColor: T.bg } }, createV3 = { ...createSheet, contentStyle: { backgroundColor: T.bg } }, baseV3 = { ...base, contentStyle: { backgroundColor: T.bg } };
   // identité réelle (prénom + photo du profil Supabase) chargée dès la racine
@@ -91,7 +93,9 @@ export default function RootLayout() {
         <Stack.Screen name="chambre" options={{ presentation: 'card' }} />{/* Mochi qu'on élève : éclosion, retour de balade, palier */}
         <Stack.Screen name="pense-bete" options={{ presentation: 'card' }} />
         <Stack.Screen name="plan" />
+        <Stack.Screen name="intro" options={{ animation: 'fade' }} />
       </Stack>
+      {intro ? <View style={StyleSheet.absoluteFill}><IntroView onDone={() => setIntro(false)} /></View> : null}
     </GestureHandlerRootView>
   );
 }

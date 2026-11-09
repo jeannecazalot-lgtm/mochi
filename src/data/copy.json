@@ -2503,5 +2503,6 @@
         "say": "Moi, je répartis. Vous, vous me donnez un nom ?"
       }
     ]
-  }
+  },
+  "intro": { "l1": "La charge mentale,", "l2": "à deux." }
 }
