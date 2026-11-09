@@ -15,7 +15,7 @@ import { fill } from '../../src/components/setup/extra';
 import { me, partner } from '../../src/demo';
 import { loadSetup, isJoiner, setup } from '../../src/setup-state';
 import { syncJoinerPrefs } from '../../src/sync-setup';
-import { useIdentity } from '../../src/identity';
+import { useIdentity, loadPartner } from '../../src/identity';
 import { useTokens, type, layout } from '../../src/theme-v3';
 import copy from '../../src/data/copy.json';
 
@@ -30,7 +30,7 @@ export default function DuoForme() {
   const [phase, setPhase] = useState('cracking'); // cracking → hatching → hatched (éclosion = duo formé)
   const hatched = phase === 'hatched';
   useEffect(() => {
-    loadSetup().then(() => { setJoiner(isJoiner()); setReady(true); });
+    loadSetup().then(() => { setJoiner(isJoiner()); setReady(true); if (setup.householdId) loadPartner(setup.householdId); }); // le prénom de l'autre, tout de suite (9 nov 2026 : « ton binôme est là »)
     const id = setTimeout(() => setPhase('hatching'), 1200);
     return () => clearTimeout(id);
   }, []);

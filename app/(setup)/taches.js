@@ -20,6 +20,8 @@ import { me, partner } from '../../src/demo';
 import { Avatar } from '../../src/components/ui';
 import { read } from '../../src/store';
 import { pushToPartner } from '../../src/push';
+import { startRealtime } from '../../src/realtime';
+import { pull } from '../../src/store';
 import copy from '../../src/data/copy.json';
 import { Egg } from '../../src/components/mochi/scene';
 import { useTokens as useT3 } from '../../src/theme-v3';
@@ -66,6 +68,7 @@ export default function Taches() {
   const shared = !!setup.householdId;
   const occV = occStore.useVersion();
   const lastRemote = useRef('');
+  const localAt = useRef(0);
   const [ready, setReady] = useState([]); // qui a validé la liste (9 nov 2026 : la répartition attend les deux)
   const applyDraft = d => {
     if (!d) return;
@@ -73,6 +76,7 @@ export default function Taches() {
     if (d.status === 'done') { router.replace(d.updated_by === getUid() ? '/(tabs)' : '/(tabs)/planning'); return; } // l'autre a lancé la répartition : on va voir le Planning
     const key = JSON.stringify(d.tasks);
     if (key === lastRemote.current) return;
+    if (Date.now() - localAt.current < 2500) return; // ma coche n'est pas encore partie : ne pas la faire clignoter avec l'ancienne liste
     lastRemote.current = key;
     const ts = d.tasks || [];
     setCustoms(ts.filter(x => String(x.id).startsWith('custom-')).map(x => ({ id: x.id, emoji: x.emoji || '📝', label: x.label })));
@@ -80,17 +84,26 @@ export default function Taches() {
     setBy(Object.fromEntries(ts.map(x => [x.id, x.by?.[0] || null])));
   };
   useEffect(() => { if (shared) loadDraft().then(applyDraft).catch(() => {}); }, []);
+  // le direct n'était branché que depuis les onglets (9 nov 2026, test à deux simulateurs : un foyer recréé
+  // gardait l'abonnement de l'ancien, les coches de l'autre n'arrivaient pas) → abonnement ici + relecture de filet
+  useEffect(() => {
+    if (!shared) return;
+    startRealtime(setup.householdId);
+    const id = setInterval(() => { pull('setup_drafts', setup.householdId).then(() => occStore.bump()).catch(() => {}); }, 4000);
+    return () => clearInterval(id);
+  }, [shared]);
   useEffect(() => { if (shared) read('setup_drafts').then(rows => applyDraft(rows.find(d => d.household_id === setup.householdId))).catch(() => {}); }, [occV]);
   // mes changements partent (groupés) ; `by` garde qui a coché quoi
-  const share = (onIds, cs, byMap) => {
+  const share = (onIds, cs, byMap, op) => {
     if (!shared) return;
     const rows = [
       ...catalogue.filter(c => onIds.includes(c.id)).map(c => ({ id: c.id, label: c.label, emoji: c.emoji, duration_min: c.mins, per_week: freqPerWeek(c.freq), pain: c.pain, mental_load: !!c.mental, by: [byMap[c.id] || getUid()] })),
       ...cs.filter(c => onIds.includes(c.id)).map(c => ({ id: c.id, label: c.label, emoji: c.emoji, duration_min: 20, per_week: 1, pain: 2, mental_load: false, by: [byMap[c.id] || getUid()] })),
     ];
-    lastRemote.current = JSON.stringify(rows);
+    lastRemote.current = JSON.stringify(rows); localAt.current = Date.now();
     setReady([]); // la liste a changé : chacune revalide
-    pushDraft(rows);
+    const row = op?.add ? rows.find(x => x.id === op.add) : null;
+    pushDraft(rows, 'open', op?.add ? (row ? { add: row } : null) : op);
     if (!told.current && getPartnerUid()) { told.current = true; pushToPartner('choosing', {}, '/(setup)/taches'); } // une fois : « viens choisir avec moi »
   };
   const told = useRef(false);
@@ -108,14 +121,14 @@ export default function Taches() {
     if (!label) { setAdding(false); return; }
     const id = `custom-${Date.now()}`;
     const cs = [...customs, { id, emoji: '📝', label }]; const onIds = [...on, id]; const byMap = { ...by, [id]: getUid() };
-    setCustoms(cs); setOn(onIds); setBy(byMap); share(onIds, cs, byMap);
+    setCustoms(cs); setOn(onIds); setBy(byMap); share(onIds, cs, byMap, { add: id });
     draftRef.current = ''; setDraft(''); setAdding(false);
   };
   const toggle = id => {
     if (!on.includes(id)) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
     const onIds = on.includes(id) ? on.filter(x => x !== id) : [...on, id];
     const byMap = { ...by }; if (onIds.includes(id)) byMap[id] = byMap[id] || getUid(); else delete byMap[id];
-    setOn(onIds); setBy(byMap); share(onIds, customs, byMap);
+    setOn(onIds); setBy(byMap); share(onIds, customs, byMap, onIds.includes(id) ? { add: id } : { remove: id });
   };
   // branchement réel (1er sept 2026) : les tâches cochées partent dans setup-state,
   // le 11 calcule dessus (customs : 20 min · 1×/sem par défaut, ajustables sur 12)
@@ -129,17 +142,22 @@ export default function Taches() {
     ...customs.filter(c => on.includes(c.id)).map(c => ({ id: c.id, label: c.label, emoji: c.emoji, duration_min: 20, per_week: 1, pain: 2, mental_load: false, by: [by[c.id] || getUid()] })),
   ];
   const launch = async () => {
-    saveTasks([
+    const local = [
       ...catalogue.filter(c => on.includes(c.id)).map(c => ({ id: c.id, label: c.label, emoji: c.emoji, duration_min: c.mins, per_week: freqPerWeek(c.freq), pain: c.pain, mental_load: !!c.mental, divisible: !!c.divisible })),
       ...customs.filter(c => on.includes(c.id)).map(c => ({ id: c.id, label: c.label, emoji: c.emoji, duration_min: 20, per_week: 1, pain: 2, mental_load: false, divisible: false })),
-    ]);
-    if (solo) { router.replace('/(tabs)'); return; }
+    ];
     if (duo) {
-      // à deux : la première valide et attend ; la seconde lance la répartition (9 nov 2026)
+      // à deux : la première valide et attend ; la seconde lance la répartition (9 nov 2026).
+      // La liste retenue est celle du serveur (coches de l'autre comprises), pas seulement ce que j'affiche.
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-      const r = await markReady(draftRows()); setReady(r);
-      if (!r.includes(getPartnerUid())) { pushToPartner('readyToDispatch', {}, '/(setup)/taches'); return; }
+      const r = await markReady(draftRows()); setReady(r.ready);
+      const div = id => !!catalogue.find(c => c.id === id)?.divisible;
+      saveTasks(r.tasks.map(({ by: _by, ...x }) => ({ ...x, divisible: div(x.id) })));
+      if (!r.ready.includes(getPartnerUid())) { pushToPartner('readyToDispatch', {}, '/(setup)/taches'); return; }
+      next(); return;
     }
+    saveTasks(local);
+    if (solo) { router.replace('/(tabs)'); return; }
     next();
   };
   const broad = catalogue.filter(c => !c.specific);

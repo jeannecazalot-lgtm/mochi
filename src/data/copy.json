@@ -724,7 +724,7 @@
     "calcStep2": "Je pèse chaque tâche…",
     "calcStep3": "J’équilibre…",
     "dispatchSubTap": "Tape le prénom d'une tâche pour la donner à l'autre, l'alterner ou la faire à deux. Tape son nom pour changer la durée et la fréquence.",
-    "dispatchShared": "Ton binôme verra cette répartition en arrivant, et pourra l'ajuster depuis le Planning.",
+    "dispatchShared": "{name} reçoit cette répartition dès que tu valides, et pourra l'ajuster depuis le Planning.",
     "reminderHours": "Heure",
     "reminderMinutes": "Minutes",
     "tagSunday": "dimanche",

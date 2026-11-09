@@ -204,7 +204,7 @@ export default function Dispatch() {
             </Card>
           </Animated.View>
           {/* décision Jeanne 7 sept 2026 : une seule personne répartit, l'autre découvre et ajuste */}
-          <Text style={s.shared}>{t.dispatchShared}</Text>
+          <Text style={s.shared}>{t.dispatchShared.replace('{name}', partner.first_name || 'Ton binôme')}</Text>
         </View>
 
         <ScrollView {...scrollProps} contentContainerStyle={{ paddingHorizontal: space.screenX, paddingBottom: 110 }} showsVerticalScrollIndicator={false}>
