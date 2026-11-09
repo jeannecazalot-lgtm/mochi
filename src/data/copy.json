@@ -628,7 +628,11 @@
       "saveList": "CTA de l'écran 10 quand on est seul (pré-remplir, pas répartir)",
       "tasksSubSolo": "Sous-titre écran 10 quand on est seul",
       "goHome": "Lien sur l'écran d'invitation : aller à l'Accueil sans attendre",
-      "prefsTapHint": "Phrase d'aide sous la légende des préférences"
+      "prefsTapHint": "Phrase d'aide sous la légende des préférences",
+      "readyCta": "CTA du choix à deux : je valide la liste",
+      "waitingOther": "CTA désactivé en attendant l'autre",
+      "otherReady": "Sous-titre quand l'autre a validé",
+      "meReady": "Sous-titre quand j'ai validé"
     },
     "identityTitle": "On t'appelle comment ?",
     "firstNameLabel": "Ton prénom",
@@ -767,7 +771,11 @@
     "saveList": "Garder la liste",
     "tasksSubSolo": "Prépare la liste. La répartition attend que ton binôme ait rejoint et donné ses dispos.",
     "goHome": "Aller à l'Accueil",
-    "prefsTapHint": "Tape une mission : 1 fois = j'aime, 2 fois = je déteste, 3 fois = neutre."
+    "prefsTapHint": "Tape une mission : 1 fois = j'aime, 2 fois = je déteste, 3 fois = neutre.",
+    "readyCta": "C'est bon pour moi",
+    "waitingOther": "En attente de {name}…",
+    "otherReady": "{name} a validé la liste. Si c'est bon pour toi aussi, Mochi répartit.",
+    "meReady": "Tu as validé. Dès que {name} valide aussi, Mochi répartit."
   },
   "event": {
     "_labels": {
@@ -1871,7 +1879,10 @@
     "swapRefused": "{name} ne peut pas reprendre {task}, elle reste chez toi",
     "rebalanced": "{name} a rééquilibré la semaine : {n} missions passent chez toi",
     "handed": "{name} te passe {task}",
-    "dispatched": "{name} a réparti la semaine : {n} missions. Va voir le Planning."
+    "dispatched": "{name} a réparti la semaine : {n} missions. Va voir le Planning.",
+    "joined": "{name} a rejoint le foyer. Venez choisir vos missions ensemble.",
+    "choosing": "{name} choisit vos missions. Viens les choisir avec elle ou lui.",
+    "readyToDispatch": "{name} a validé la liste des missions. À toi de valider, et Mochi répartit."
   },
   "mesReglages": {
     "_labels": {

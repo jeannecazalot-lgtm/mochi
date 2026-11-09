@@ -13,12 +13,13 @@ import { CheckDot, AddButton } from '../../src/components/setup/extra';
 import { Animated, FadeInDown, prefersReducedMotion } from '../../src/components/motion';
 import { catalogue } from '../../src/demo-setup';
 import { saveTasks, freqPerWeek, setup } from '../../src/setup-state';
-import { loadDraft, pushDraft } from '../../src/draft-sync';
+import { loadDraft, pushDraft, markReady } from '../../src/draft-sync';
 import { getUid, getPartnerUid, useIdentity } from '../../src/identity';
 import { occStore } from '../../src/demo-core';
 import { me, partner } from '../../src/demo';
 import { Avatar } from '../../src/components/ui';
 import { read } from '../../src/store';
+import { pushToPartner } from '../../src/push';
 import copy from '../../src/data/copy.json';
 import { Egg } from '../../src/components/mochi/scene';
 import { useTokens as useT3 } from '../../src/theme-v3';
@@ -28,6 +29,7 @@ import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';
 import { TaskIcon } from '../../src/components/task-icon';
 
 const t = copy.setup;
+const fill = (str, vars) => String(str || '').replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
 const next = () => router.push('/(setup)/calcul');
 
 // une rangée du catalogue : cascade FadeInDown (~25 ms d'écart), rond de sélection qui pop
@@ -64,9 +66,11 @@ export default function Taches() {
   const shared = !!setup.householdId;
   const occV = occStore.useVersion();
   const lastRemote = useRef('');
+  const [ready, setReady] = useState([]); // qui a validé la liste (9 nov 2026 : la répartition attend les deux)
   const applyDraft = d => {
     if (!d) return;
-    if (d.status === 'done') { router.replace('/(tabs)'); return; } // l'autre a validé : son dispatch arrive à l'Accueil
+    setReady(d.ready || []);
+    if (d.status === 'done') { router.replace(d.updated_by === getUid() ? '/(tabs)' : '/(tabs)/planning'); return; } // l'autre a lancé la répartition : on va voir le Planning
     const key = JSON.stringify(d.tasks);
     if (key === lastRemote.current) return;
     lastRemote.current = key;
@@ -85,8 +89,11 @@ export default function Taches() {
       ...cs.filter(c => onIds.includes(c.id)).map(c => ({ id: c.id, label: c.label, emoji: c.emoji, duration_min: 20, per_week: 1, pain: 2, mental_load: false, by: [byMap[c.id] || getUid()] })),
     ];
     lastRemote.current = JSON.stringify(rows);
+    setReady([]); // la liste a changé : chacune revalide
     pushDraft(rows);
+    if (!told.current && getPartnerUid()) { told.current = true; pushToPartner('choosing', {}, '/(setup)/taches'); } // une fois : « viens choisir avec moi »
   };
+  const told = useRef(false);
   const whoFor = id => (by[id] ? (by[id] === getUid() ? me : by[id] === getPartnerUid() ? partner : null) : null);
   const [adding, setAdding] = useState(false);
   const [draft, setDraft] = useState('');
@@ -115,12 +122,24 @@ export default function Taches() {
   // seul dans le foyer (Jeanne, 8 nov 2026) : on PRÉ-REMPLIT la liste, rien de plus — la répartition (alternance, jours)
   // se calcule quand le binôme a rejoint et donné ses dispos ; la liste l'attend dans setup_drafts
   const solo = shared && !getPartnerUid();
-  const launch = () => {
+  const duo = shared && !!getPartnerUid();
+  const meReady = ready.includes(getUid()); const otherReady = !!getPartnerUid() && ready.includes(getPartnerUid());
+  const draftRows = () => [
+    ...catalogue.filter(c => on.includes(c.id)).map(c => ({ id: c.id, label: c.label, emoji: c.emoji, duration_min: c.mins, per_week: freqPerWeek(c.freq), pain: c.pain, mental_load: !!c.mental, by: [by[c.id] || getUid()] })),
+    ...customs.filter(c => on.includes(c.id)).map(c => ({ id: c.id, label: c.label, emoji: c.emoji, duration_min: 20, per_week: 1, pain: 2, mental_load: false, by: [by[c.id] || getUid()] })),
+  ];
+  const launch = async () => {
     saveTasks([
       ...catalogue.filter(c => on.includes(c.id)).map(c => ({ id: c.id, label: c.label, emoji: c.emoji, duration_min: c.mins, per_week: freqPerWeek(c.freq), pain: c.pain, mental_load: !!c.mental, divisible: !!c.divisible })),
       ...customs.filter(c => on.includes(c.id)).map(c => ({ id: c.id, label: c.label, emoji: c.emoji, duration_min: 20, per_week: 1, pain: 2, mental_load: false, divisible: false })),
     ]);
     if (solo) { router.replace('/(tabs)'); return; }
+    if (duo) {
+      // à deux : la première valide et attend ; la seconde lance la répartition (9 nov 2026)
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+      const r = await markReady(draftRows()); setReady(r);
+      if (!r.includes(getPartnerUid())) { pushToPartner('readyToDispatch', {}, '/(setup)/taches'); return; }
+    }
     next();
   };
   const broad = catalogue.filter(c => !c.specific);
@@ -131,7 +150,7 @@ export default function Taches() {
       <SafeAreaView style={{ flex: 1 }}>
         {/* Retour Jeanne (1er sept 2026) : minimum 3 tâches pour continuer — pas de « Passer » ici. */}
         <View>
-          <SetupHeader hero={<EggHero />} why={t.whyTasks} title={t.tasksTitle} sub={shared && getPartnerUid() ? t.tasksSubDuo.replace('{name}', partner.first_name) : solo ? t.tasksSubSolo : t.tasksSub} />
+          <SetupHeader hero={<EggHero />} why={t.whyTasks} title={t.tasksTitle} sub={duo ? (otherReady && !meReady ? fill(t.otherReady, { name: partner.first_name }) : meReady ? fill(t.meReady, { name: partner.first_name }) : t.tasksSubDuo.replace('{name}', partner.first_name)) : solo ? t.tasksSubSolo : t.tasksSub} />
         </View>
         <ScrollView ref={scrollRef} {...scrollProps} contentContainerStyle={{ paddingHorizontal: space.screenX, paddingTop: 30, paddingBottom: 110 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
           {adding ? (
@@ -151,7 +170,7 @@ export default function Taches() {
         <GrowCTA grown={atEnd} style={s.bottom}>
           <View style={{ flexDirection: 'row', gap: 8 }}>
             <AddButton label={t.addTask} onPress={startAdding} style={{ flex: 1 }} />
-            <CTAPrimary label={solo ? t.saveList : t.launch} onPress={launch} disabled={on.length < 3} style={{ flex: 1.6 }} />
+            <CTAPrimary label={solo ? t.saveList : duo ? (meReady ? fill(t.waitingOther, { name: partner.first_name }) : otherReady ? t.launch : t.readyCta) : t.launch} onPress={launch} disabled={on.length < 3 || meReady} style={{ flex: 1.6 }} />
           </View>
         </GrowCTA>
       </SafeAreaView>

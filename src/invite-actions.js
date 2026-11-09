@@ -3,6 +3,7 @@
 // accept_invitation (migration 0001) fait entrer le binôme dans le foyer.
 // En ligne uniquement : partager une invitation sans réseau n'a pas de sens.
 // ═══════════════════════════════════════════════════════════════════
+import { pushToPartner } from './push';
 import { supabase } from './supabase';
 import { ensureSession } from './profile';
 import { uuid, pull, resetAll } from './store';
@@ -83,7 +84,8 @@ export async function joinWithCode(code) {
     await loadIdentity(); // uid + profil de LA session qui vient de rejoindre
     await resetAll(); // nouveau foyer : cache, filigranes et file repartent de zéro
     await Promise.all(['tasks', 'occurrences', 'task_pains', 'swap_requests', 'malus'].map(tb => pull(tb, hid)));
-    loadPartner(hid); // le prénom/photo de l'autre remplace le binôme simulé
+    await loadPartner(hid); // le prénom/photo de l'autre remplace le binôme simulé
+    pushToPartner('joined', {}, '/(setup)/taches'); // l'autre est prévenu : on choisit les missions ensemble (9 nov 2026)
     return { ok: true, householdId: hid };
   } catch (e) { return { ok: false, reason: e?.message || 'réseau' }; }
 }

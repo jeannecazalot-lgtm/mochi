@@ -23,7 +23,19 @@ export function pushDraft(tasks, status = 'open') {
     await loadSetup();
     const hid = setup.householdId; const uid = getUid();
     if (!hid || !uid) return;
-    await mutate('setup_drafts', { household_id: hid, tasks, status, updated_by: uid, updated_at: new Date().toISOString() });
+    await mutate('setup_drafts', { household_id: hid, tasks, status, ...(status === 'open' ? { ready: [] } : {}), updated_by: uid, updated_at: new Date().toISOString() });
   }, status === 'done' ? 0 : 400);
+}
+// « C'est bon pour moi » (9 nov 2026) : la liste telle que je la vois + ma validation, sans attendre le regroupement
+export async function markReady(tasks) {
+  clearTimeout(timer);
+  await loadSetup();
+  const hid = setup.householdId; const uid = getUid();
+  if (!hid || !uid) return [];
+  try { await pull('setup_drafts', hid); } catch (e) { /* cache */ }
+  const cur = (await read('setup_drafts')).find(d => d.household_id === hid);
+  const ready = Array.from(new Set([...(cur?.ready || []), uid]));
+  await mutate('setup_drafts', { household_id: hid, tasks, status: 'open', ready, updated_by: uid, updated_at: new Date().toISOString() });
+  return ready;
 }
 export const draftIsMine = d => !!d && d.updated_by === getUid();
