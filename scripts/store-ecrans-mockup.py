@@ -25,8 +25,8 @@ def screen(out,title,shot,pops,notif=None,kicker=None,sub=None):
     else:  # les trois piliers : repère numéroté, titre sur une ligne, bénéfice dessous
         if kicker:
             fk=font(46,'Semibold'); w=d.textlength(kicker,font=fk); d.text(((W-w)/2,205),kicker,font=fk,fill=(217,72,62))
-        f=font(TSZ,'Bold'); w=d.textlength(title[0],font=f); d.text(((W-w)/2,280),title[0],font=f,fill=INK)
-        fs=font(50,'Medium'); w=d.textlength(sub,font=fs); d.text(((W-w)/2,415),sub,font=fs,fill=INK+(175,))
+        f=font(TSZ,'Bold'); w=d.textlength(title[0],font=f); d.text(((W-w)/2,250),title[0],font=f,fill=INK)
+        fs=font(50,'Medium'); w=d.textlength(sub,font=fs); d.text(((W-w)/2,385),sub,font=fs,fill=INK+(175,))
     s=Image.open(B+shot).convert('RGBA'); sc=PW/s.width; PH=int(s.height*sc); s2=s.resize((PW,PH),Image.LANCZOS)
     PX=(W-PW)//2
     im=shadow(im,(PX-BZ,PY-BZ,PX+PW+BZ,PY+PH+BZ),R+BZ)
@@ -50,10 +50,10 @@ CARD=(250,247,242); NUIT=(46,33,64)
 _d=ImageDraw.Draw(Image.new('RGB',(1,1))); TSZ=96
 while max(_d.textlength(t,font=font(TSZ,'Bold')) for t in ['Préparez vos to-do à deux.', 'Partagées équitablement.', 'Un suivi qui se joue.', 'Mochi grandit avec vous.'])>W-150: TSZ-=2
 # screen('v5-02',['Souvent, une seule','personne y pense.'],'onb1.png',[((40,1822,1280,1938),1.16,NUIT)])
-screen('v6-03',['Pr\u00e9parez vos to-do \u00e0 deux.'],'taches.png',[((56,848,1264,1040),1.16,CARD),((56,1052,1264,1240),1.16,CARD)],kicker='1 \u00b7 Pr\u00e9parer ensemble',sub='Tout est list\u00e9 : moins de charge mentale.')
-screen('v6-04',['Partag\u00e9es \u00e9quitablement.'],'dispatch.png',[((60,872,1260,1144),1.32,CARD)],kicker='2 \u00b7 Diviser \u00e9quitablement',sub='Selon vos envies, vos besoins, vos dispos.')
-screen('v6-05',['Un suivi qui se joue.'],'accueil.png',[((40,1170,1280,1260),1.18,CARD),((740,225,990,320),1.9,CARD)],kicker='3 \u00b7 Avancer ensemble',sub='Moins de prises de t\u00eate, plus de missions faites.')
-screen('v6-06',['Mochi grandit avec vous.'],'chambre.png',[((1010,190,1270,300),1.9,CARD),((60,1300,1264,1515),1.16,CARD)],kicker='3 \u00b7 Avancer ensemble',sub='Chaque mission rapporte des perles pour sa pi\u00e8ce.')
+screen('v6-03',['Pr\u00e9parez vos to-do \u00e0 deux.'],'taches.png',[((56,848,1264,1040),1.16,CARD),((56,1052,1264,1240),1.16,CARD)],kicker=None,sub='Tout est list\u00e9 : moins de charge mentale.')
+screen('v6-04',['Partag\u00e9es \u00e9quitablement.'],'dispatch.png',[((60,872,1260,1144),1.32,CARD)],kicker=None,sub='Selon vos envies, vos besoins, vos dispos.')
+screen('v6-05',['Un suivi qui se joue.'],'accueil.png',[((40,1170,1280,1260),1.18,CARD),((740,225,990,320),1.9,CARD)],kicker=None,sub='Moins de prises de t\u00eate, plus de missions faites.')
+screen('v6-06',['Mochi grandit avec vous.'],'chambre.png',[((1010,190,1270,300),1.9,CARD),((60,1300,1264,1515),1.16,CARD)],kicker=None,sub='Chaque mission rapporte des perles pour sa pi\u00e8ce.')
 
 fs=['v6-01','v6-02','v6-03','v6-04','v6-05','v6-06']
 k=0.25; w,h=int(W*k),int(H*k); g=24
