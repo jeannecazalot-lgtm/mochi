@@ -333,74 +333,57 @@
   },
   "paywall": {
     "_labels": {
-      "title": "Titre paywall Mochi+",
-      "monthly": "Libellé abo mensuel ({price} = prix storefront RevenueCat)",
-      "yearly": "Libellé abo annuel ({price})",
-      "disclosure": "Divulgation complète AU-DESSUS du CTA ({name}, {price}, {period})",
-      "cta": "Bouton d'achat",
-      "restore": "Lien restaurer",
-      "privacy": "Lien politique de confidentialité",
-      "terms": "Lien conditions (EULA)",
-      "subtitle": "Sous-titre sous le titre Mochi+",
-      "features": "Liste des avantages Mochi+ (ce qui est réellement réservé dans l’app : tenues/objets plus, vue mois, budget)",
-      "planYearly": "Libellé de la carte annuelle",
-      "planMonthly": "Libellé de la carte mensuelle",
-      "perYear": "Suffixe prix annuel",
-      "perMonth": "Suffixe prix mensuel",
-      "yearlyHint": "Sous la carte annuelle : équivalent mensuel calculé ({price} = prix annuel ÷ 12, calculé depuis le storefront)",
-      "monthlyHint": "Sous la carte mensuelle",
-      "monthsFree": "Pastille de la carte annuelle, {n} calculé depuis les prix storefront (jamais affiché en mode simulé)",
-      "priceUnavailable": "Prix affiché à la place du montant quand le storefront ne répond pas (mode simulé) — ne jamais inventer un chiffre",
-      "periodMonth": "Mot période mensuel dans la divulgation",
-      "periodYear": "Mot période annuel dans la divulgation",
-      "trialDays": "Durée d’essai ({n} jours), uniquement si le storefront annonce un essai gratuit",
-      "ctaTrial": "Bouton d’achat quand un essai gratuit existe ({trial})",
-      "disclosureTrial": "Divulgation AU-DESSUS du CTA quand un essai existe ({name}, {trial}, {price}, {period})",
-      "disclosureNoPrice": "Divulgation AU-DESSUS du CTA quand le prix storefront est indisponible ({name}, {period})",
-      "footnote": "Ligne sous le CTA",
-      "buying": "Texte du CTA pendant l’achat",
-      "error": "Erreur générique d’achat",
-      "restoreNone": "Message quand la restauration ne trouve aucun abonnement",
-      "restored": "Message après restauration réussie",
-      "close": "Accessibilité du bouton fermer ×",
-      "soft": "Lien sous le CTA quand le paywall est montré après l'onboarding (ferme sans acheter)"
+      "_": "Paywall v4 (10 nov 2026) façon BellySafe : Pass 1 an en paiement unique recommandé + mensuel renouvelable"
     },
     "title": "Mochi+",
-    "monthly": "{price} / mois",
-    "yearly": "{price} / an",
-    "disclosure": "Abonnement {name}, {price} par {period}, renouvelé automatiquement. Annulable à tout moment dans Réglages › Apple Account › Abonnements.",
-    "cta": "Passer à Mochi+",
-    "restore": "Restaurer un achat",
-    "privacy": "Politique de confidentialité",
-    "terms": "Conditions d'utilisation",
-    "subtitle": "Sa pièce, ses tenues, le planning sans limite. Pour vous deux, un seul abonnement.",
-    "features": [
-      "Tenues et objets Mochi+ pour sa pièce",
-      "Planning et calendrier en vue mois",
-      "Budget partagé sans limite",
-      "Partagé à deux, un seul abonnement"
+    "headline": "Tout Mochi+,\npour vous deux",
+    "benefits": [
+      {
+        "icon": "gift",
+        "t": "Objets et tenues Mochi+",
+        "s": "Six exclusivités pour sa pièce et son look."
+      },
+      {
+        "icon": "calendar",
+        "t": "Planning en vue mois",
+        "s": "Toute l'année d'un coup d'œil."
+      },
+      {
+        "icon": "coins",
+        "t": "Budget partagé sans limite",
+        "s": "Dépenses communes, qui doit quoi."
+      },
+      {
+        "icon": "ring",
+        "t": "Un seul paiement pour le foyer",
+        "s": "Vous en profitez tous les deux."
+      }
     ],
-    "planYearly": "Annuel",
-    "planMonthly": "Mensuel",
-    "perYear": "/an",
-    "perMonth": "/mois",
-    "yearlyHint": "soit {price}/mois",
-    "monthlyHint": "sans engagement",
-    "monthsFree": "{n} mois offerts",
-    "priceUnavailable": "Prix dans l’App Store",
-    "periodMonth": "mois",
-    "periodYear": "an",
-    "trialDays": "{n} jours",
-    "ctaTrial": "Essayer {trial} gratuits",
-    "disclosureTrial": "Abonnement {name} : essai gratuit de {trial}, puis {price} par {period}, renouvelé automatiquement sauf annulation au moins 24 h avant la fin de la période. Annulable à tout moment dans Réglages › Apple Account › Abonnements.",
-    "disclosureNoPrice": "Abonnement {name}, facturé par {period} au prix affiché dans l’App Store au moment de l’achat, renouvelé automatiquement sauf annulation au moins 24 h avant la fin de la période. Annulable à tout moment dans Réglages › Apple Account › Abonnements.",
-    "footnote": "Annulable à tout moment · partagé à deux",
+    "passName": "Pass 1 an",
+    "passPrice": "{price}, une seule fois",
+    "passHint": "soit {price}/mois",
+    "passBadge": "−{n} % sur un an",
+    "recommended": "Recommandé",
+    "monthName": "Mensuel",
+    "monthPrice": "{price} / mois",
+    "monthHint": "renouvelable, sans engagement",
+    "disclosurePass": "Paiement unique de {price} pour 12 mois de Mochi+ pour le foyer. Aucun abonnement : rien ne se renouvelle, rien à résilier.",
+    "disclosureMonth": "Abonnement Mochi+ à {price} par mois, renouvelé automatiquement sauf annulation au moins 24 h avant la fin de la période. Annulable à tout moment dans Réglages › Apple Account › Abonnements.",
+    "disclosureNoPrice": "Mochi+ est proposé en paiement unique pour un an ou en abonnement mensuel, au prix affiché dans l'App Store au moment de l'achat.",
+    "underPass": "Aucun abonnement · rien à résilier",
+    "underMonth": "Sans engagement · annulable à tout moment",
+    "cta": "Débloquer Mochi+",
+    "restore": "Restaurer",
+    "privacy": "Confidentialité",
+    "terms": "Conditions",
+    "priceUnavailable": "Prix dans l'App Store",
     "buying": "Un instant…",
-    "error": "L’achat n’a pas abouti. Rien n’a été débité.",
-    "restoreNone": "Aucun abonnement à restaurer sur ce compte.",
-    "restored": "Abonnement restauré.",
+    "error": "L'achat n'a pas abouti. Rien n'a été débité.",
+    "restoreNone": "Aucun achat Mochi+ à restaurer sur ce compte.",
+    "restored": "Mochi+ restauré.",
     "close": "Fermer",
-    "soft": "Plus tard"
+    "soft": "Plus tard",
+    "passUntil": "Mochi+ actif jusqu'au {date}"
   },
   "mission": {
     "_labels": {
@@ -2504,5 +2487,8 @@
       }
     ]
   },
-  "intro": { "l1": "La charge mentale,", "l2": "à deux." }
+  "intro": {
+    "l1": "La charge mentale,",
+    "l2": "à deux."
+  }
 }
