@@ -5,6 +5,8 @@ import React from 'react';
 import { View, Text, Image, Pressable, StyleSheet, useWindowDimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { CTAPrimary } from '../ui';
+import { Scene } from '../mochi/scene';
+import { useTokens } from '../../theme-v3';
 import copy from '../../data/copy.json';
 
 const t = copy.paywall;
@@ -72,30 +74,33 @@ function TopBar({ d, color = INK, bg = 'rgba(255,255,255,0.7)' }) {
   );
 }
 
-// ── A · carte douce ─────────────────────────────────────────────────────────────
+// ── A · la pièce de Mochi + frise (première proposition, retenue par Jeanne le 10 nov 2026) ─────
 export function LayoutA({ d }) {
+  const T = useTokens();
+  const { height: SH } = useWindowDimensions();
+  const sceneH = Math.max(120 + d.insets.top, SH - 650);
   return (
-    <LinearGradient colors={['#F4CEC7', '#F3E3EE', CREAM]} locations={[0, 0.45, 1]} style={{ flex: 1 }}>
-      <TopBar d={d} />
-      <View style={{ flex: 1, justifyContent: 'flex-end', paddingHorizontal: 16, paddingBottom: d.insets.bottom + 6 }}>
-        <View style={{ backgroundColor: 'rgba(255,255,255,0.92)', borderRadius: 30, paddingHorizontal: 18, paddingBottom: 14, paddingTop: 70 }}>
-          <View style={{ position: 'absolute', top: -100, alignSelf: 'center' }}><CrownedMochi w={150} /></View>
-          <Text style={{ fontSize: 26, lineHeight: 30, fontWeight: '700', letterSpacing: -0.7, color: INK, textAlign: 'center' }}>{t.headline}</Text>
-          <Text style={{ fontSize: 14, color: '#6E7591', textAlign: 'center', marginTop: 4 }}>{t.subheadline}</Text>
-          <View style={{ marginTop: 14 }}>
-            <View style={{ position: 'absolute', left: 17, top: 20, bottom: 20, width: 2, backgroundColor: 'rgba(31,42,88,0.12)' }} />
-            {t.benefits.map(b => (
-              <View key={b.t} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 5 }}>
-                <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' }}><Image source={ICONS[b.icon]} style={{ width: 30, height: 30 }} /></View>
-                <View style={{ flex: 1 }}><Text style={{ fontSize: 15, fontWeight: '600', color: INK }}>{b.t}</Text><Text style={{ fontSize: 12.5, color: '#6E7591', marginTop: 1 }}>{b.s}</Text></View>
-              </View>
-            ))}
-          </View>
-          <View style={{ marginTop: 18 }}><SideOffers d={d} /></View>
-          <Footer d={d} />
-        </View>
+    <View style={{ flex: 1, backgroundColor: T.bg }}>
+      <View>
+        <Scene T={T} stage="mochi" mood="happy" lvl={4} height={sceneH} items={['montgolfiere', 'piano']} outfit="couronne" />
+        <TopBar d={d} />
       </View>
-    </LinearGradient>
+      <View style={{ paddingHorizontal: 20, paddingTop: 12 }}>
+        <Text style={{ fontSize: 27, lineHeight: 31, fontWeight: '700', letterSpacing: -0.8, color: T.ink, textAlign: 'center' }}>{t.headline}</Text>
+        <Text style={{ fontSize: 14, color: T.muted, textAlign: 'center', marginTop: 4 }}>{t.subheadline}</Text>
+        <View style={{ marginTop: 12 }}>
+          <View style={{ position: 'absolute', left: 17, top: 20, bottom: 20, width: 2, backgroundColor: T.line }} />
+          {t.benefits.map(b => (
+            <View key={b.t} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 4 }}>
+              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: T.bg, alignItems: 'center', justifyContent: 'center' }}><Image source={ICONS[b.icon]} style={{ width: 30, height: 30 }} /></View>
+              <View style={{ flex: 1 }}><Text style={{ fontSize: 15, fontWeight: '600', color: T.ink }}>{b.t}</Text><Text style={{ fontSize: 12.5, color: T.muted, marginTop: 1 }}>{b.s}</Text></View>
+            </View>
+          ))}
+        </View>
+        <View style={{ marginTop: 16 }}><SideOffers d={d} ink={T.ink} muted={T.muted} line={T.line} cardBg={T.bg} /></View>
+        <Footer d={d} ink={T.ink} muted={T.muted} />
+      </View>
+    </View>
   );
 }
 
