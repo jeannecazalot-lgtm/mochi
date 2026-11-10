@@ -37,7 +37,12 @@ export default function TabBar({ state, navigation, onFab }) {
         const on = active === name;
         const c = on ? T.ink : T.muted;
         return (
-          <Pressable key={name} onPress={() => navigation.navigate(name)} style={s.tab}>
+          <Pressable key={name} onPress={() => {
+            // émet tabPress comme la barre native : les écrans peuvent l'intercepter (Budget sans Mochi+ → paywall, 11 nov 2026)
+            const route = state.routes.find(r => r.name === name);
+            const ev = navigation.emit({ type: 'tabPress', target: route?.key, canPreventDefault: true });
+            if (!ev.defaultPrevented) navigation.navigate(name);
+          }} style={s.tab}>
             <Image source={TAB_IMG[name]} style={{ width: 26, height: 26, opacity: on ? 1 : 0.5 }} resizeMode="contain" accessibilityIgnoresInvertColors />
             <Text style={{ fontSize: 11, color: c, fontWeight: on ? '600' : '400' }}>{LABELS[name]}</Text>
           </Pressable>

@@ -2,7 +2,8 @@
 // Le FAB ouvre le sheet d'ajout (tâche / événement / dépense / pense-bête).
 import React from 'react';
 import { View, AppState } from 'react-native';
-import { Tabs } from 'expo-router';
+import { Tabs, router } from 'expo-router';
+import { isPremium } from '../../src/demo-premium';
 import TabBar from '../../src/components/TabBar';
 import FabSheet, { useFabSheet } from '../../src/components/FabSheet';
 import { loadSetup, setup } from '../../src/setup-state';
@@ -50,7 +51,8 @@ export default function TabsLayout() {
         <Tabs.Screen name="index" />
         <Tabs.Screen name="planning" />
         <Tabs.Screen name="balance" />
-        <Tabs.Screen name="budget" />
+        {/* sans Mochi+, l'onglet Budget ouvre le paywall en page à fermer (Jeanne, 11 nov 2026) */}
+        <Tabs.Screen name="budget" listeners={{ tabPress: e => { if (!isPremium()) { e.preventDefault(); router.push('/paywall?from=budget'); } } }} />
       </Tabs>
       <FabSheet open={fab.open} onClose={fab.hide} />
     </View>

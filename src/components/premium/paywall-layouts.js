@@ -78,7 +78,7 @@ function TopBar({ d, color = INK, bg = 'rgba(255,255,255,0.7)' }) {
 export function LayoutA({ d }) {
   const T = useTokens();
   const { height: SH } = useWindowDimensions();
-  const sceneH = Math.max(120 + d.insets.top, SH - 640);
+  const sceneH = Math.max(120 + d.insets.top, SH - (d.embedded ? 640 : 590));
   return (
     <View style={{ flex: 1, backgroundColor: T.bg }}>
       <View>
@@ -90,7 +90,7 @@ export function LayoutA({ d }) {
         <View style={{ marginTop: 12 }}>
           <View style={{ position: 'absolute', left: 17, top: 20, bottom: 20, width: 2, backgroundColor: T.line }} />
           {(d.benefits || t.benefits).map((b, i) => (
-            <View key={b.t} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 2 }}>
+            <View key={b.t} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: d.embedded ? 2 : 4 }}>
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: T.bg, alignItems: 'center', justifyContent: 'center' }}><Image source={ICONS[b.icon]} style={{ width: 30, height: 30 }} /></View>
               <View style={{ flex: 1 }}><Text style={{ fontSize: 15.5, fontWeight: '600', color: T.ink }}>{b.t}</Text>{d.context && i === 0 && !d.embedded ? <Text style={{ fontSize: 12.5, color: T.muted, marginTop: 1 }}>{b.s}</Text> : null}</View>
             </View>
