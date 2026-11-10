@@ -37,7 +37,7 @@ const minutes = hhmm => { const [h, m] = String(hhmm || '22:00').split(':').map(
 function compute() {
   const d = new Date(); const now = d.getHours() * 60 + d.getMinutes();
   const auto = now >= minutes(bedtime) || now < 7 * 60; // du coucher du foyer à 7 h
-  const next = mode === 'on' ? true : mode === 'off' ? false : auto;
+  const next = process.env.EXPO_PUBLIC_CAPTURE === '1' ? false : mode === 'on' ? true : mode === 'off' ? false : auto; // captures App Store : toujours le jour
   if (next !== night) { night = next; notify(); }
 }
 export const isNight = () => night;

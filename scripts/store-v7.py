@@ -31,16 +31,18 @@ def titles(im,lines,sub,y0=230):
     d=ImageDraw.Draw(im); f=font(92,'Bold'); y=y0
     for l in lines: w=d.textlength(l,font=f); d.text(((W-w)/2,y),l,font=f,fill=INK); y+=110
     fs=font(50,'Medium'); w=d.textlength(sub,font=fs); d.text(((W-w)/2,y+18),sub,font=fs,fill=INK+(175,)); return y+100
+FACE={'J':M+'design/app-store/visages/me.jpg','K':M+'design/app-store/visages/sam.jpg'}  # visages des captures iky
 def avatar(im,cx,cy,r,col,letter):
-    d=ImageDraw.Draw(im); d.ellipse((cx-r-8,cy-r-8,cx+r+8,cy+r+8),fill=(255,255,255)); d.ellipse((cx-r,cy-r,cx+r,cy+r),fill=col)
-    f=font(int(r*1.0),'Semibold'); w=d.textlength(letter,font=f); d.text((cx-w/2,cy-r*0.66),letter,font=f,fill=(255,255,255))
+    d=ImageDraw.Draw(im); d.ellipse((cx-r-9,cy-r-9,cx+r+9,cy+r+9),fill=(255,255,255))
+    ph=Image.open(FACE[letter]).convert('RGB'); s_=min(ph.size); ph=ph.crop(((ph.width-s_)//2,0,(ph.width-s_)//2+s_,s_)).resize((2*r,2*r),Image.LANCZOS)
+    m=Image.new('L',(2*r,2*r),0); ImageDraw.Draw(m).ellipse((0,0,2*r-1,2*r-1),fill=255); im.paste(ph,(cx-r,cy-r),m)
 
 # ── 3 · Préparer à deux : deux téléphones, la même liste, en direct
 im=bg(); top=titles(im,['Préparez vos missions','à deux.'],'Tout est listé : moins de charge mentale.')
 pA,_,_,_=phone('taches.png',int(W*0.60)); pB=pA.copy()
 pA=pA.rotate(6,expand=True,resample=Image.BICUBIC); pB=pB.rotate(-6,expand=True,resample=Image.BICUBIC)
 y=top+170; im=drop(im,pA,-90,y+60); im=drop(im,pB,W-pB.width+90,y)
-avatar(im,int(W*0.22),y+40,70,(125,179,213),'J'); avatar(im,int(W*0.78),y-10,70,(184,165,217),'K')
+avatar(im,int(W*0.22),y+40,84,(125,179,213),'J'); avatar(im,int(W*0.78),y-10,84,(184,165,217),'K')
 d=ImageDraw.Draw(im); pill='Synchronisé en direct'; f=font(46,'Semibold'); pw=int(d.textlength(pill,font=f))+80
 pl=Image.new('RGBA',(pw,104),(0,0,0,0)); ImageDraw.Draw(pl).rounded_rectangle((0,0,pw-1,103),52,fill=INK+(255,)); ImageDraw.Draw(pl).text((40,26),pill,font=f,fill=(255,255,255))
 im=drop(im,pl,(W-pw)//2,y+1250,a=80,blur=24,dy=12)
@@ -51,7 +53,7 @@ im=bg(); top=titles(im,['Partagées','équitablement.'],'Selon vos envies, vos b
 ph,sc,bz,src=phone('dispatch.png',int(W*0.82)); px=(W-ph.width)//2; py=top+520
 im=drop(im,ph,px,py)
 c=card(src,(60,872,1260,1144),W-170); im=drop(im,c,(W-c.width)//2,top+170,a=110)
-avatar(im,150,top+150,58,(125,179,213),'J'); avatar(im,W-150,top+150,58,(184,165,217),'K')
+avatar(im,150,top+150,74,(125,179,213),'J'); avatar(im,W-150,top+150,74,(184,165,217),'K')
 im.convert('RGB').save(O+'v7-04.png')
 
 # ── 5 · Le jeu : le téléphone à gauche, Mochi géant qui déborde à droite, la jauge d'énergie qui ressort

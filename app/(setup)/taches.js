@@ -85,7 +85,7 @@ export default function Taches() {
     setBy(Object.fromEntries(ts.map(x => [x.id, x.by?.[0] || null])));
   };
   useEffect(() => { if (shared) loadDraft().then(applyDraft).catch(() => {}); }, []);
-  useEffect(() => { if (!demo) return; const me_ = getUid(), pa = getPartnerUid(); setOn(['t-vaisselle', 't-cuisiner', 't-courses', 't-lessive', 't-linge-plier', 't-draps']); setBy({ 't-vaisselle': pa, 't-cuisiner': me_, 't-courses': me_, 't-lessive': pa, 't-linge-plier': me_, 't-draps': pa }); }, [demo]);
+  useEffect(() => { if (!demo) return; setOn(['t-vaisselle', 't-cuisiner', 't-courses', 't-lessive', 't-linge-plier', 't-draps']); setBy({ 't-vaisselle': '__pa', 't-cuisiner': '__me', 't-courses': '__me', 't-lessive': '__pa', 't-linge-plier': '__me', 't-draps': '__pa' }); }, [demo]);
   // le direct n'était branché que depuis les onglets (9 nov 2026, test à deux simulateurs : un foyer recréé
   // gardait l'abonnement de l'ancien, les coches de l'autre n'arrivaient pas) → abonnement ici + relecture de filet
   useEffect(() => {
@@ -109,7 +109,7 @@ export default function Taches() {
     if (!told.current && getPartnerUid()) { told.current = true; pushToPartner('choosing', {}, '/(setup)/taches'); } // une fois : « viens choisir avec moi »
   };
   const told = useRef(false);
-  const whoFor = id => (by[id] ? (by[id] === getUid() ? me : by[id] === getPartnerUid() ? partner : null) : null);
+  const whoFor = id => (by[id] ? (by[id] === '__me' || by[id] === getUid() ? me : by[id] === '__pa' || by[id] === getPartnerUid() ? partner : null) : null);
   const [adding, setAdding] = useState(false);
   const [draft, setDraft] = useState('');
   const draftRef = React.useRef(''); // valeur la plus fraîche : Entrée arrive parfois avant le re-rendu du dernier caractère (test du 6 sept 2026 : « jardin » → « jardi »)

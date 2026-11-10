@@ -51,8 +51,8 @@ export async function loadIdentity() {
   try {
     const { data: p } = await supabase.from('profiles').select('first_name, avatar_url').eq('id', session.user.id).maybeSingle();
     if (p && (p.first_name || p.avatar_url)) {
-      const name = process.env.EXPO_PUBLIC_CAPTURE === '1' ? 'Jeanne' : (p.first_name || '').trim(); // captures App Store : prénom propre du compte de test
-      real = { first_name: name || demoMe.first_name, avatar_url: p.avatar_url || null, initial: (name || demoMe.initial)[0].toUpperCase() };
+      const name = CAPTURE ? CAPTURE_ME.first_name : (p.first_name || '').trim(); // captures App Store : couple d'exemple
+      real = { first_name: name || demoMe.first_name, avatar_url: CAPTURE ? CAPTURE_ME.avatar_url : (p.avatar_url || null), initial: (name || demoMe.initial)[0].toUpperCase() };
       // substitution À LA SOURCE : tous les écrans qui lisent me/byId() de la démo
       // affichent le vrai prénom sans être modifiés un par un
       demoMe.first_name = real.first_name;
@@ -84,6 +84,10 @@ export function setLocalIdentity({ firstName, avatarUrl }) {
 // L'id de démo est conservé (les calculs d'affichage s'y réfèrent) ; l'uid réel
 // vit à côté pour les écritures (repassage, assignations).
 let partnerUidVal = null;
+// captures App Store (Metro lancé avec EXPO_PUBLIC_CAPTURE=1) : le couple d'exemple Kathleen et Julian, photos locales du Mac
+const CAPTURE = process.env.EXPO_PUBLIC_CAPTURE === '1';
+const CAPTURE_ME = { first_name: 'Kathleen', avatar_url: 'file:///Users/jeannecazalot/mochi/design/app-store/visages/me.jpg' };
+const CAPTURE_PARTNER = { first_name: 'Julian', avatar_url: 'file:///Users/jeannecazalot/mochi/design/app-store/visages/sam.jpg' };
 export const getPartnerUid = () => partnerUidVal;
 
 export async function loadPartner(householdId) {
@@ -97,10 +101,10 @@ export async function loadPartner(householdId) {
     if (!other) { partnerUidVal = null; Object.assign(demoPartner, SOLO_PARTNER); notify(); return null; }
     partnerUidVal = other.user_id;
     const { data: p } = await supabase.from('profiles').select('first_name, avatar_url').eq('id', other.user_id).maybeSingle();
-    const name = (p?.first_name || '').trim();
+    const name = CAPTURE ? CAPTURE_PARTNER.first_name : (p?.first_name || '').trim();
     if (name || p?.avatar_url) {
       if (name) { demoPartner.first_name = name; demoPartner.initial = name[0].toUpperCase(); }
-      demoPartner.avatar_url = p?.avatar_url || null;
+      demoPartner.avatar_url = CAPTURE ? CAPTURE_PARTNER.avatar_url : (p?.avatar_url || null);
     } else {
       Object.assign(demoPartner, DEFAULT_PARTNER); // binôme sans profil : jamais le prénom d'un ancien binôme
     }
