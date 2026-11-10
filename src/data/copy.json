@@ -336,12 +336,12 @@
       "_": "Paywall v4 (10 nov 2026) façon BellySafe : Pass 1 an en paiement unique recommandé + mensuel renouvelable"
     },
     "title": "Mochi+",
-    "headline": "Tout Mochi+,\npour vous deux",
+    "headline": "Tout Mochi+,\nsans rien refaire",
     "benefits": [
       {
         "icon": "list",
         "t": "Votre semaine déjà prête",
-        "s": "Les missions reviennent toutes seules : tout est pré-rempli."
+        "s": "Vos missions reviennent toutes seules. En gratuit, on repart de zéro chaque semaine."
       },
       {
         "icon": "gift",
@@ -350,13 +350,13 @@
       },
       {
         "icon": "calendar",
-        "t": "Vue mois et budget partagé",
-        "s": "Toute l'année d'un coup d'œil, et qui doit quoi."
+        "t": "Planning en vue mois",
+        "s": "Toute l'année d'un coup d'œil."
       },
       {
-        "icon": "ring",
-        "t": "Un seul paiement pour le foyer",
-        "s": "Vous en profitez tous les deux."
+        "icon": "coins",
+        "t": "Budget partagé",
+        "s": "Les dépenses communes, et qui doit quoi."
       }
     ],
     "passName": "Pass 1 an",
@@ -390,11 +390,7 @@
     "comparePlus": "Mochi+",
     "compare": [
       [
-        "Préparer vos missions à deux",
-        1
-      ],
-      [
-        "Répartition équitable",
+        "À deux, répartition équitable",
         1
       ],
       [
@@ -402,7 +398,7 @@
         1
       ],
       [
-        "Semaine pré-remplie, sans tout refaire",
+        "Semaine pré-remplie",
         0
       ],
       [
@@ -431,7 +427,8 @@
         "icon": "ring",
         "t": "Pour vous deux"
       }
-    ]
+    ],
+    "subheadline": "Un seul paiement, pour vous deux."
   },
   "mission": {
     "_labels": {

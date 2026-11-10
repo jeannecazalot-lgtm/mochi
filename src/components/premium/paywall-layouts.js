@@ -81,6 +81,7 @@ export function LayoutA({ d }) {
         <View style={{ backgroundColor: 'rgba(255,255,255,0.92)', borderRadius: 30, paddingHorizontal: 18, paddingBottom: 14, paddingTop: 70 }}>
           <View style={{ position: 'absolute', top: -100, alignSelf: 'center' }}><CrownedMochi w={150} /></View>
           <Text style={{ fontSize: 26, lineHeight: 30, fontWeight: '700', letterSpacing: -0.7, color: INK, textAlign: 'center' }}>{t.headline}</Text>
+          <Text style={{ fontSize: 14, color: '#6E7591', textAlign: 'center', marginTop: 4 }}>{t.subheadline}</Text>
           <View style={{ marginTop: 14 }}>
             <View style={{ position: 'absolute', left: 17, top: 20, bottom: 20, width: 2, backgroundColor: 'rgba(31,42,88,0.12)' }} />
             {t.benefits.map(b => (
@@ -161,6 +162,7 @@ export function LayoutC({ d }) {
       <View style={{ marginTop: d.insets.top + 80, paddingHorizontal: 22 }}>
         <StickerText size={64}>Mochi+</StickerText>
         <Text style={{ fontSize: 19, lineHeight: 25, fontWeight: '600', color: INK, marginTop: 14, maxWidth: W * 0.62 }}>{t.headlineC}</Text>
+        <Text style={{ fontSize: 14, color: '#6E7591', marginTop: 4 }}>{t.subheadline}</Text>
       </View>
       <View style={{ marginHorizontal: 20, marginTop: 18, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.85)', overflow: 'hidden' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 9, paddingHorizontal: 14 }}>
