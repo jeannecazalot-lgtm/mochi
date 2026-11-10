@@ -11,6 +11,7 @@ import { BackButton, SettingRow } from '../src/components/premium/extra';
 import { me, partner, household, streak, balance } from '../src/demo';
 import { duoSince, daysSince, lifetime, duoRules, prefs, isPremium, ALL_FREE } from '../src/demo-premium';
 import { signOut, currentAccount } from '../src/auth';
+import { supabase } from '../src/supabase';
 import { clearSetup, loadSetup, inRealMode, setup , thresholdsOf } from '../src/setup-state';
 import { occStore } from '../src/demo-core';
 import { resetIdentity, getUid, loadIdentity, useIdentity } from '../src/identity';
@@ -77,6 +78,15 @@ export default function Profil() {
   const onLeave = () => Alert.alert(t.leaveTitle, t.leaveBody, [
     { text: t.leaveCancel, style: 'cancel' },
     { text: t.leaveOk, style: 'destructive', onPress: async () => { const r = await leaveHousehold(); if (r.ok) { try { router.dismissAll(); } catch (e) { /* rien à fermer */ } router.replace('/(setup)/invite-choix?from=leave'); } } },
+  ]);
+  // supprimer son compte (Apple 5.1.1(v), 10 nov 2026) : fonction delete_my_account (migration 0018), puis comme une déconnexion
+  const onDelete = () => Alert.alert(t.deleteTitle, t.deleteBody, [
+    { text: t.leaveCancel, style: 'cancel' },
+    { text: t.deleteOk, style: 'destructive', onPress: async () => {
+      const { error } = await supabase.rpc('delete_my_account');
+      if (error) { Alert.alert(t.deleteError); return; }
+      await onLogout();
+    } },
   ]);
   const onLogout = async () => {
     try { await signOut(); } catch (e) { /* mode démo */ }
@@ -147,6 +157,11 @@ export default function Profil() {
             <Pressable onPress={onLogout} style={({ pressed }) => ({ paddingVertical: 10, alignItems: 'center', opacity: pressed ? 0.6 : 1 })}>
               <Text style={s.logout}>{t.logout}</Text>
             </Pressable>
+            {real ? (
+              <Pressable onPress={onDelete} style={({ pressed }) => ({ paddingVertical: 10, alignItems: 'center', opacity: pressed ? 0.6 : 1 })}>
+                <Text style={[s.logout, { opacity: 0.7 }]}>{t.deleteAccount}</Text>
+              </Pressable>
+            ) : null}
           </View>
         </ScrollView>
       </SafeAreaView>

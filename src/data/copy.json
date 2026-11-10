@@ -1278,7 +1278,12 @@
       "off": "Jamais"
     },
     "mochiName": "Nom de Mochi",
-    "mochiNameSub": "Comme vous l'appelez à la maison"
+    "mochiNameSub": "Comme vous l'appelez à la maison",
+    "deleteAccount": "Supprimer mon compte",
+    "deleteTitle": "Supprimer ton compte ?",
+    "deleteBody": "Ton profil et tes données sont effacés. Si ton binôme reste, il garde le foyer et les missions ; sinon le foyer est supprimé. C'est définitif.",
+    "deleteOk": "Supprimer",
+    "deleteError": "La suppression n'a pas abouti. Vérifie ta connexion et réessaie."
   },
   "activity": {
     "_labels": {
