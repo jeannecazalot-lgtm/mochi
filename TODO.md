@@ -471,3 +471,5 @@ Décisions Jeanne (tableau de bord, 4 nov 2026) : coucher du foyer 22 h (migrati
 11 nov 2026 — Budget sans Mochi+ = le paywall validé (A) directement dans l'onglet (`PaywallView embedded` : pas de croix, place pour la barre d'onglets). Vu au simulateur.
 
 11 nov 2026 — Paywall : croix partout (dans l'onglet Budget, elle ramène à l'Accueil) ; version adaptée selon l'origine (`?from=budget|mois`, `context`) : titre et premier avantage parlent de ce qu'on a ouvert. Vu au simulateur : croix → Accueil, Budget, vue mois.
+
+11 nov 2026 — Paywall allégé (Jeanne : « trop d'info ») : avantages en une ligne (seul le premier garde sa phrase quand on vient d'un écran précis), sous-titre retiré, « pour vous deux » dans le bouton, texte légal raccourci (pass : « Paiement unique de X pour 12 mois. Rien ne se renouvelle. » ; mensuel : renouvellement + annulation), ligne sous le bouton retirée.

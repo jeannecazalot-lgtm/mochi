@@ -51,14 +51,14 @@ function SideOffers({ d, ink = INK, muted = '#6E7591', line = 'rgba(31,42,88,0.1
   );
 }
 // pied commun : divulgation AU-DESSUS du CTA, CTA, mentions, liens
-function Footer({ d, ink = INK, muted = '#6E7591' }) {
+function Footer({ d, ink = INK, muted = '#6E7591', short = false }) {
   return (
     <View>
       <Text style={{ fontSize: 11.5, lineHeight: 15, color: muted, marginTop: 12, textAlign: 'center' }}>{d.disclosure}</Text>
       <View style={{ marginTop: 10 }}><CTAPrimary big label={d.ctaLabel} onPress={d.onBuy} disabled={d.busy} /></View>
       {d.msg ? <Text style={{ fontSize: 13, color: CORAL, textAlign: 'center', marginTop: 8 }}>{d.msg}</Text> : null}
-      <Text style={{ fontSize: 12.5, color: muted, textAlign: 'center', marginTop: 8 }}>{d.under}</Text>
-      <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 18, marginTop: 6 }}>
+      {short ? null : <Text style={{ fontSize: 12.5, color: muted, textAlign: 'center', marginTop: 8 }}>{d.under}</Text>}
+      <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 18, marginTop: short ? 12 : 6 }}>
         <Pressable onPress={d.openPrivacy} hitSlop={8}><Text style={{ fontSize: 12.5, color: muted, textDecorationLine: 'underline' }}>{t.privacy}</Text></Pressable>
         <Pressable onPress={d.openTerms} hitSlop={8}><Text style={{ fontSize: 12.5, color: muted, textDecorationLine: 'underline' }}>{t.terms}</Text></Pressable>
       </View>
@@ -78,7 +78,7 @@ function TopBar({ d, color = INK, bg = 'rgba(255,255,255,0.7)' }) {
 export function LayoutA({ d }) {
   const T = useTokens();
   const { height: SH } = useWindowDimensions();
-  const sceneH = Math.max(120 + d.insets.top, SH - (d.embedded ? 705 : 650));
+  const sceneH = Math.max(120 + d.insets.top, SH - (d.embedded ? 660 : 590));
   return (
     <View style={{ flex: 1, backgroundColor: T.bg }}>
       <View>
@@ -87,18 +87,17 @@ export function LayoutA({ d }) {
       </View>
       <View style={{ paddingHorizontal: 20, paddingTop: 12 }}>
         <Text style={{ fontSize: 27, lineHeight: 31, fontWeight: '700', letterSpacing: -0.8, color: T.ink, textAlign: 'center' }}>{d.headline || t.headline}</Text>
-        <Text style={{ fontSize: 14, color: T.muted, textAlign: 'center', marginTop: 4 }}>{t.subheadline}</Text>
         <View style={{ marginTop: 12 }}>
           <View style={{ position: 'absolute', left: 17, top: 20, bottom: 20, width: 2, backgroundColor: T.line }} />
-          {(d.benefits || t.benefits).map(b => (
+          {(d.benefits || t.benefits).map((b, i) => (
             <View key={b.t} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 4 }}>
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: T.bg, alignItems: 'center', justifyContent: 'center' }}><Image source={ICONS[b.icon]} style={{ width: 30, height: 30 }} /></View>
-              <View style={{ flex: 1 }}><Text style={{ fontSize: 15, fontWeight: '600', color: T.ink }}>{b.t}</Text><Text style={{ fontSize: 12.5, color: T.muted, marginTop: 1 }}>{b.s}</Text></View>
+              <View style={{ flex: 1 }}><Text style={{ fontSize: 15.5, fontWeight: '600', color: T.ink }}>{b.t}</Text>{d.context && i === 0 ? <Text style={{ fontSize: 12.5, color: T.muted, marginTop: 1 }}>{b.s}</Text> : null}</View>
             </View>
           ))}
         </View>
         <View style={{ marginTop: 16 }}><SideOffers d={d} ink={T.ink} muted={T.muted} line={T.line} cardBg={T.bg} /></View>
-        <Footer d={d} ink={T.ink} muted={T.muted} />
+        <Footer d={d} ink={T.ink} muted={T.muted} short />
         {d.embedded ? <View style={{ height: 70 }} /> : null}
       </View>
     </View>

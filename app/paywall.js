@@ -58,7 +58,7 @@ export function PaywallView({ embedded = false, context = null }) {
   };
   const open = url => { if (url) Linking.openURL(url).catch(() => {}); };
   const d = {
-    insets: embedded ? { ...insets, bottom: insets.bottom + 84 } : insets, next, embedded, plan, setPlan, busy, msg, leave, onBuy, onRestore,
+    context, insets: embedded ? { ...insets, bottom: insets.bottom + 84 } : insets, next, embedded, plan, setPlan, busy, msg, leave, onBuy, onRestore,
     openPrivacy: () => open(LEGAL_URLS.privacy), openTerms: () => open(LEGAL_URLS.eula),
     badge: saving > 0 ? fill(t.passBadge, { n: saving }) : null,
     passPrice: pass ? fill(t.passPrice, { price: pass.priceString }) : t.priceUnavailable,
