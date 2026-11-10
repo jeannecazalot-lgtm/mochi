@@ -58,6 +58,7 @@ const s = StyleSheet.create({
 
 import { useTokens } from '../src/theme-v3';
 import { IntroView } from './intro';
+import { initPurchases } from '../src/purchases';
 export default function RootLayout() {
   const [intro, setIntro] = React.useState(true); // ouverture Mindpair à chaque lancement à froid (Jeanne, 9 nov 2026)
   const T = useTokens(); const sheetV3 = { ...sheet, contentStyle: { backgroundColor: T.bg } }; // sheets de la DA v3 : fond jour / nuit
@@ -65,7 +66,7 @@ export default function RootLayout() {
   // identité réelle (prénom + photo du profil Supabase) chargée dès la racine
   // le binôme (prénom/photo) se charge aussi à la racine : une arrivée directe (notification,
   // lien) sans passer par l'Accueil affichait encore le prénom de démo (audit 8 sept 2026)
-  React.useEffect(() => { loadIdentity().then(() => loadSetup()).then(() => { if (setup.householdId) return loadPartner(setup.householdId); }).then(() => extendHorizon({ force: true })).catch(() => {}); const stopDay = startDayWatch(); const stopTaps = listenNotificationTaps(url => router.push(url)); return () => { stopDay(); stopTaps && stopTaps(); }; }, []);
+  React.useEffect(() => { loadIdentity().then(() => loadSetup()).then(() => { initPurchases(setup.householdId); if (setup.householdId) return loadPartner(setup.householdId); }).then(() => extendHorizon({ force: true })).catch(() => {}); const stopDay = startDayWatch(); const stopTaps = listenNotificationTaps(url => router.push(url)); return () => { stopDay(); stopTaps && stopTaps(); }; }, []);
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.bg }}>
       <StatusBar style="dark" />

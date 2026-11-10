@@ -1,3 +1,4 @@
+import { purchasesPremium } from './purchases';
 // ═══════════════════════════════════════════════════════════════════
 // DONNÉES DE DÉMO — complément premium (écrans 35 Calendrier, 36 Analyse,
 // 38 Profil). Même règle que demo.js : tout disparaît au profit de Supabase.
@@ -50,5 +51,6 @@ export function monthOccurrences(year, month) {
 // Décision Jeanne (8 sept 2026) : TOUT est gratuit le temps du test — « on statuera sur
 // ce qui est payant et on fera les paywalls plus tard ». Repasser ALL_FREE à false
 // (et brancher RevenueCat) pour réactiver les verrous Duo+ (vue Mois, Budget…).
-export const ALL_FREE = true;
-export const isPremium = () => ALL_FREE || (Boolean(household.premium_until) && new Date(household.premium_until) > today);
+// 10 nov 2026 : Mochi+ réactivé (Jeanne, option B) — vue Mois, Budget, objets et tenues Mochi+. Droit lu chez RevenueCat.
+export const ALL_FREE = false;
+export const isPremium = () => ALL_FREE || purchasesPremium() || (Boolean(household.premium_until) && new Date(household.premium_until) > today);

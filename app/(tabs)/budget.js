@@ -1,5 +1,6 @@
 // Écran 23 · Budget. Recette : docs/recettes/23-budget.md — DA v3 « l'instrument » (4 nov 2026) : solde en gros chiffre, hairlines, jour/nuit
 import { RouteError } from '../../src/components/route-error';
+import { usePremiumVersion } from '../../src/purchases';
 import React, { useEffect, useState } from 'react';
 import { router } from 'expo-router';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
@@ -83,12 +84,13 @@ async function loadRealBudget() {
 }
 
 export default function Budget() {
+  usePremiumVersion(); // re-rend quand l'abonnement Mochi+ change
   const T = useTokens();
   // Décision Jeanne (1er sept 2026) : le Budget est une fonctionnalité Duo+ —
   // sans abonnement, l'onglet montre sa promesse verrouillée + l'accès au paywall (37).
   // 5 sept 2026 : « mets-le gratuit pour le moment » — verrou désactivé le temps
   // du test, à réactiver (BUDGET_FREE = false) quand RevenueCat sera branché.
-  const BUDGET_FREE = true; // redondant avec ALL_FREE (demo-premium) — gardé pour un verrou Budget seul
+  const BUDGET_FREE = false; // redondant avec ALL_FREE (demo-premium) — gardé pour un verrou Budget seul
   useIdentity();
   const occV = occStore.useVersion();
   const [real, setReal] = useState(null);

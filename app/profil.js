@@ -1,5 +1,6 @@
 // Écran 38 · Profil & réglages (accès par l'avatar). Recette : docs/recettes/38-profil.md
 import { RouteError } from '../src/components/route-error';
+import { usePremiumVersion } from '../src/purchases';
 import React, { useState, useEffect } from 'react';
 import { router, useFocusEffect } from 'expo-router';
 import { View, Text, Pressable, ScrollView, StyleSheet, Alert } from 'react-native';
@@ -26,6 +27,7 @@ const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
 const fmtDate = d => new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short' }).format(new Date(d));
 
 export default function Profil() {
+  usePremiumVersion(); // re-rend quand l'abonnement Mochi+ change
   occStore.useVersion(); // seuils modifiés dans la sheet → ligne à jour
   useTokens(); const nightMode = getNightMode(); // re-rend quand le mode nuit change
   const th = thresholdsOf();

@@ -1,3 +1,4 @@
+import { linkPurchasesHousehold } from './purchases';
 // ═══════════════════════════════════════════════════════════════════
 // État RÉEL du setup — remplace la démo figée pour la chaîne
 // 07 (dispos) → 08 (préférences) → 10 (tâches) → 11 (calcul) → 12 (dispatch).
@@ -42,7 +43,7 @@ export function savePrefs({ prefs, reminder }) { state.prefs = prefs; state.remi
 export function saveTasks(tasks) { state.tasks = tasks; persist(); }
 export function saveResult(result) { state.result = result; persist(); }
 export function saveRealTaskIds(map) { state.realTaskIds = map; persist(); }
-export function saveHouseholdId(id) { state.householdId = id; persist(); }
+export function saveHouseholdId(id) { state.householdId = id; persist(); linkPurchasesHousehold(id).catch(() => {}); } // l'abonnement Mochi+ suit le foyer
 export function saveThresholds(th) { state.thresholds = th; persist(); }
 export function saveCrossReminder(v) { state.crossReminder = !!v; persist(); }
 // seuils d'alerte (SPECS §3 : 10 / 25 par défaut) — toujours lisibles, même sans foyer

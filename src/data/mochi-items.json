@@ -287,13 +287,13 @@
       "key": "piano",
       "label": "Piano",
       "price": 320,
-      "stage": "maxi"
+      "plus": true
     },
     {
       "key": "montgolfiere",
       "label": "Montgolfière",
       "price": 350,
-      "stage": "dore"
+      "plus": true
     },
     {
       "key": "cheminee",
@@ -305,7 +305,7 @@
       "key": "jukebox",
       "label": "Jukebox",
       "price": 450,
-      "stage": "dore"
+      "plus": true
     },
     {
       "key": "baignoire",
@@ -361,13 +361,13 @@
       "key": "couronne",
       "label": "Couronne",
       "price": 200,
-      "stage": "maxi"
+      "plus": true
     },
     {
       "key": "pirate",
       "label": "Chapeau de pirate",
       "price": 200,
-      "stage": "maxi"
+      "plus": true
     },
     {
       "key": "cire",
@@ -379,7 +379,7 @@
       "key": "astronaute",
       "label": "Casque d'astronaute",
       "price": 300,
-      "stage": "dore"
+      "plus": true
     }
   ],
   "placeTo": {

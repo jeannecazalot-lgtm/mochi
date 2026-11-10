@@ -14,6 +14,8 @@ import { loadSetup, setup, inRealMode } from '../src/setup-state';
 import { mochiStore, getMochi, buyItem, setPlaced, setFramePhoto, setItemPos, positionsOf, STAGES } from '../src/mochi-state';
 import * as ImagePicker from 'expo-image-picker';
 import { uploadFramePhoto } from '../src/profile';
+import { usePremiumVersion } from '../src/purchases';
+import { isPremium } from '../src/demo-premium';
 import items from '../src/data/mochi-items.json';
 import copy from '../src/data/copy.json';
 
@@ -21,17 +23,18 @@ const fill = (s, vars) => Object.keys(vars).reduce((acc, k) => acc.replace(`{${k
 const PLACES_BY_STAGE = { egg: [], mini: ['jardin'], mochi: ['jardin', 'riviere'], maxi: ['jardin', 'riviere', 'foret', 'ville'], dore: ['jardin', 'riviere', 'foret', 'ville', 'plage', 'montagne'] };
 const DEMO = { mochi: { stage: 'mochi', pearls: 214, hearts: 5 }, inv: [{ item_key: 'cheval', kind: 'object', placed: true }, { item_key: 'aquarium', kind: 'object', placed: true }, { item_key: 'tournedisque', kind: 'object', placed: true }, { item_key: 'lave', kind: 'object', placed: true }, { item_key: 'beret', kind: 'outfit', placed: true }] }; // foyer d'exemple, quelques semaines d'usage
 
-function RowItem({ it, kind, T, t, s, outfit, photoUrl, stageIdx, has: hasOf, placedOf, onBuy, onPlace, onPhoto }) {
+function RowItem({ it, kind, T, t, s, outfit, photoUrl, stageIdx, premium, has: hasOf, placedOf, onBuy, onPlace, onPhoto }) {
   const has = hasOf(it.key);
   const locked = it.stage && STAGES.indexOf(it.stage) > stageIdx;
+  const plusLocked = it.plus && !premium; // Mochi+ : réservé aux abonnés, ouvre le paywall
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 12, borderTopWidth: StyleSheet.hairlineWidth, borderColor: T.line, opacity: locked ? 0.5 : 1 }}>
       <Image source={SHOP[it.key]} style={{ width: 52, height: 52 }} resizeMode="contain" accessibilityIgnoresInvertColors />
-      <View style={{ flex: 1, minWidth: 0 }}><Text style={[type.body, { color: T.ink }]}>{it.label}</Text>{has && it.key === 'cadre' ? <Pressable onPress={onPhoto} hitSlop={6}><Label T={T} style={{ marginTop: 2, color: T.accent }}>{photoUrl ? t.photoChange : t.photoPick}</Label></Pressable> : locked ? <Label T={T} style={{ marginTop: 2 }}>{fill(t.locked, { k: STAGES.indexOf(it.stage) })}</Label> : it.plus ? <Label T={T} style={{ marginTop: 2 }}>{t.plus}</Label> : null}</View>
+      <View style={{ flex: 1, minWidth: 0 }}><Text style={[type.body, { color: T.ink }]}>{it.label}</Text>{has && it.key === 'cadre' ? <Pressable onPress={onPhoto} hitSlop={6}><Label T={T} style={{ marginTop: 2, color: T.accent }}>{photoUrl ? t.photoChange : t.photoPick}</Label></Pressable> : locked ? <Label T={T} style={{ marginTop: 2 }}>{fill(t.locked, { k: STAGES.indexOf(it.stage) })}</Label> : it.plus ? <Label T={T} style={{ marginTop: 2, color: T.accent }}>{t.plus}</Label> : null}</View>
       {has && kind === 'outfit' ? (outfit === it.key ? <Pressable onPress={() => onPlace(it, kind, false)} style={[s.pill, { borderColor: T.line }]}><Label T={T}>{t.remove}</Label></Pressable> : <Pressable onPress={() => onPlace(it, kind, true)} style={[s.pill, { borderColor: T.ink }]}><Label T={T} style={{ color: T.ink }}>{t.wear}</Label></Pressable>)
         : has ? (placedOf(it.key) ? <Pressable onPress={() => onPlace(it, kind, false)} style={[s.pill, { borderColor: T.line }]}><Label T={T}>{t.store}</Label></Pressable> : <Pressable onPress={() => onPlace(it, kind, true)} style={[s.pill, { borderColor: T.ink }]}><Label T={T} style={{ color: T.ink }}>{t.place}</Label></Pressable>)
         : locked ? null
-        : it.plus ? <View style={[s.pill, { borderColor: T.accent }]}><Label T={T} style={{ color: T.accent }}>{t.plus}</Label></View>
+        : plusLocked ? <Pressable onPress={() => router.push('/paywall')} style={[s.pill, { borderColor: T.accent }]}><Label T={T} style={{ color: T.accent }}>{t.plus}</Label></Pressable>
         : <Pressable onPress={() => onBuy(it, kind)} style={[s.pill, { borderColor: T.ink }]}><Num T={T}>{it.price}</Num><Label T={T} style={{ marginLeft: 4 }}>perles</Label></Pressable>}
     </View>);
 }
@@ -41,6 +44,7 @@ export default function Chambre() {
   const T = useTokens();
   const insets = useSafeAreaInsets();
   const v = mochiStore.useVersion();
+  usePremiumVersion();
   const [tab, setTab] = useState(0);
   const [mochi, setMochi] = useState(null);
   const [inv, setInv] = useState([]);
@@ -86,7 +90,7 @@ export default function Chambre() {
   const X = layout.x;
   // rangée hissée hors du composant (7 nov 2026) : définie à l'intérieur, chaque rafraîchissement temps réel
   // la remontait entièrement et avalait les touches (« Poser » / « Choisir votre photo » sans effet)
-  const rowProps = { T, t, s, outfit, photoUrl: m.photo_url, stageIdx, has: k => owned.has(k), placedOf, onBuy: buy, onPlace: place, onPhoto: pickPhoto };
+  const rowProps = { T, t, s, outfit, photoUrl: m.photo_url, stageIdx, premium: isPremium(), has: k => owned.has(k), placedOf, onBuy: buy, onPlace: place, onPhoto: pickPhoto };
   return (
     <View style={{ flex: 1, backgroundColor: T.bg }}>
       <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><Scene T={T} stage={m.stage} mood={T.night ? 'sleeping' : undefined} lvl={lvl} height={layout.scene + 40} items={objects} outfit={outfit} souvenirs={souvenirs} photo={m.photo_url || null} positions={positions} onMove={onMove} topInset={insets.top + 30} /></View>

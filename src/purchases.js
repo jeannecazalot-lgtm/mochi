@@ -9,6 +9,7 @@
 //  packages $rc_monthly et $rc_annual de l'offering « default ».
 // ═══════════════════════════════════════════════════════════════════
 import { Platform } from 'react-native';
+import { useSyncExternalStore } from 'react';
 
 const KEY = process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY;
 const ENTITLEMENT = 'duoplus';   // NE PAS renommer sans changer le dashboard en même temps
@@ -20,15 +21,35 @@ if (REAL_PURCHASES) Purchases = require('react-native-purchases').default;
 
 const isActive = info => Boolean(info?.entitlements?.active?.[ENTITLEMENT]);
 
-// boot : config + resynchronisation du droit (appelé une fois au démarrage)
-export function initPurchases(onPremiumChange, appUserId) {
-  if (!REAL_PURCHASES) return;
+// ── état « Mochi+ » du foyer (10 nov 2026) ─────────────────────────────────────────────
+// L'abonnement est PARTAGÉ à deux : l'identifiant RevenueCat = l'id du foyer (logIn), donc les deux
+// téléphones du foyer lisent le même droit, quel que soit celui qui a payé.
+let premium = false, premiumUntil = null, configured = false, linkedHid = null;
+const subs = new Set();
+const setPremium = (on, until) => { if (on === premium && until === premiumUntil) return; premium = on; premiumUntil = until; subs.forEach(f => f()); };
+export const purchasesPremium = () => premium;
+export const purchasesPremiumUntil = () => premiumUntil;
+export const onPremiumChange = f => (subs.add(f), () => subs.delete(f));
+// re-rend un écran quand le droit change (achat, restauration, l'autre a payé)
+export const usePremiumVersion = () => useSyncExternalStore(onPremiumChange, () => `${premium}|${premiumUntil}`);
+const sync = info => setPremium(isActive(info), info?.entitlements?.active?.[ENTITLEMENT]?.expirationDate || null);
+
+// boot : config + resynchronisation du droit (appelé une fois au démarrage, app/_layout.js)
+export function initPurchases(householdId) {
+  if (!REAL_PURCHASES || configured) return;
   try {
-    Purchases.configure({ apiKey: KEY, appUserID: appUserId || null });
-    const sync = info => onPremiumChange(isActive(info), info?.entitlements?.active?.[ENTITLEMENT]?.expirationDate || null);
+    Purchases.configure({ apiKey: KEY, appUserID: householdId || null });
+    configured = true; linkedHid = householdId || null;
     Purchases.getCustomerInfo().then(sync).catch(() => {});
     Purchases.addCustomerInfoUpdateListener(sync);
   } catch (e) { /* jamais bloquant */ }
+}
+// le foyer change (création, invitation acceptée, départ) : l'abonnement suit le foyer
+export async function linkPurchasesHousehold(householdId) {
+  if (!REAL_PURCHASES) return;
+  if (!configured) { initPurchases(householdId); return; }
+  if (!householdId || householdId === linkedHid) return;
+  try { const { customerInfo } = await Purchases.logIn(householdId); linkedHid = householdId; sync(customerInfo); } catch (e) { /* réessayé au prochain lancement */ }
 }
 
 // offres : [{ id:'monthly'|'yearly', priceString, period }] — null en simulé
@@ -48,6 +69,7 @@ export async function getOffers() {
 export async function purchase(offerId = 'monthly') {
   if (!REAL_PURCHASES) {
     await new Promise(r => setTimeout(r, 700));
+    setPremium(true, null);
     return { success: true, simulated: true };
   }
   try {
@@ -55,6 +77,7 @@ export async function purchase(offerId = 'monthly') {
     const o = offers?.find(x => x.id === offerId);
     if (!o) return { success: false, error: 'no-offering' };
     const { customerInfo } = await Purchases.purchasePackage(o.pkg);
+    sync(customerInfo);
     return { success: isActive(customerInfo) };
   } catch (e) {
     return { success: false, cancelled: Boolean(e?.userCancelled), error: e?.message };
@@ -65,6 +88,7 @@ export async function restore() {
   if (!REAL_PURCHASES) return { success: false };
   try {
     const info = await Purchases.restorePurchases();
+    sync(info);
     return { success: isActive(info) };
   } catch (e) { return { success: false, error: e?.message }; }
 }
