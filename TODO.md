@@ -469,3 +469,5 @@ Décisions Jeanne (tableau de bord, 4 nov 2026) : coucher du foyer 22 h (migrati
 11 nov 2026 — **Budget payant partout** (Jeanne) : en gratuit, « Une dépense » du « + » porte un badge Mochi+ et ouvre le paywall ; `app/depense.js` renvoie au paywall sans Mochi+ (garde hors des hooks) ; écran Budget verrouillé refait (aperçu estompé, promesse, picto pièces, bouton pleine largeur). Vu au simulateur : badge, paywall ouvert depuis le +. Au simulateur, RevenueCat affiche un avertissement de configuration (pas de produits StoreKit en local) : à vérifier sur TestFlight.
 
 11 nov 2026 — Budget sans Mochi+ = le paywall validé (A) directement dans l'onglet (`PaywallView embedded` : pas de croix, place pour la barre d'onglets). Vu au simulateur.
+
+11 nov 2026 — Paywall : croix partout (dans l'onglet Budget, elle ramène à l'Accueil) ; version adaptée selon l'origine (`?from=budget|mois`, `context`) : titre et premier avantage parlent de ce qu'on a ouvert. Vu au simulateur : croix → Accueil, Budget, vue mois.

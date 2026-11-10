@@ -6,7 +6,7 @@
 // (jamais un chiffre inventé en réel), Restaurer · Confidentialité · Conditions.
 // `?next=` : paywall doux après la création du foyer. Dev seulement : `?demo=1` prix d'exemple, `?v=A|B|C` mise en page.
 import React, { useState, useEffect } from 'react';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { View, Linking } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
@@ -22,11 +22,12 @@ const DEMO_OFFERS = [{ id: 'pass', priceString: '49,99 €', price: 49.99, curre
 const money = (v, cur) => { try { return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: cur }).format(v); } catch (e) { return null; } };
 const LAYOUT = 'A'; // mise en page retenue (à fixer quand Jeanne aura choisi)
 
-export default function Paywall() { return <PaywallView />; }
+export default function Paywall() { const { from } = useLocalSearchParams(); return <PaywallView context={from ? String(from) : null} />; }
 
-// embedded : affiché dans un onglet (Budget sans Mochi+, Jeanne 11 nov 2026) — pas de croix, place pour la barre d'onglets
-export function PaywallView({ embedded = false }) {
+// embedded : affiché dans un onglet (Budget sans Mochi+, Jeanne 11 nov 2026) — croix vers l'Accueil (Jeanne : « il faut toujours une croix »), place pour la barre d'onglets
+export function PaywallView({ embedded = false, context = null }) {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
   const { next, demo, v } = useLocalSearchParams();
   const V = __DEV__ && v ? String(v) : LAYOUT;
   const [offers, setOffers] = useState(null);
@@ -40,7 +41,7 @@ export function PaywallView({ embedded = false }) {
   const current = plan === 'pass' ? pass : monthly;
   const saving = pass?.price && monthly?.price ? Math.round((1 - pass.price / (12 * monthly.price)) * 100) : 0;
   const perMonth = pass?.price ? money(pass.price / 12, pass.currencyCode) : null;
-  const leave = () => { if (embedded) return; if (next) router.replace(String(next)); else router.back(); };
+  const leave = () => { if (embedded) { navigation.navigate('index'); return; } if (next) router.replace(String(next)); else router.back(); }; // dans un onglet, la croix ramène à l'Accueil
   const onBuy = async () => {
     if (__DEV__ && demo) return;
     setBusy(true); setMsg(null);
@@ -66,6 +67,9 @@ export function PaywallView({ embedded = false }) {
     monthPrice: monthly ? fill(t.monthPrice, { price: monthly.priceString }) : t.priceUnavailable,
     disclosure: !current ? t.disclosureNoPrice : plan === 'pass' ? fill(t.disclosurePass, { price: current.priceString }) : fill(t.disclosureMonth, { price: current.priceString }),
     ctaLabel: busy ? t.buying : t.cta,
+    // d'où l'on vient (Jeanne, 11 nov 2026) : le titre et le premier avantage parlent de ce qu'on a ouvert
+    headline: (t.context[context] || {}).headline || t.headline,
+    benefits: t.context[context] ? [t.context[context].first, ...t.benefits.filter(b => b.icon !== t.context[context].drop)] : t.benefits,
     under: plan === 'pass' ? t.underPass : t.underMonth,
   };
   const L = V === 'B' ? LayoutB : V === 'C' ? LayoutC : LayoutA;

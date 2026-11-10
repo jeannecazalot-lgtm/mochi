@@ -68,7 +68,7 @@ function Footer({ d, ink = INK, muted = '#6E7591' }) {
 function TopBar({ d, color = INK, bg = 'rgba(255,255,255,0.7)' }) {
   return (
     <View style={{ position: 'absolute', top: d.insets.top + 8, left: 20, right: 20, flexDirection: 'row', justifyContent: 'space-between', zIndex: 5 }}>
-      {d.embedded ? <View /> : <Pressable onPress={d.leave} hitSlop={12} style={[s.chip, { backgroundColor: bg }]}><Text style={{ fontSize: 14, fontWeight: '600', color }}>{d.next ? t.soft : '×'}</Text></Pressable>}
+      <Pressable onPress={d.leave} hitSlop={12} accessibilityLabel={t.close} style={[s.chip, { backgroundColor: bg }]}><Text style={{ fontSize: 14, fontWeight: '600', color }}>{d.next ? t.soft : '×'}</Text></Pressable>
       <Pressable onPress={d.onRestore} hitSlop={12} style={[s.chip, { backgroundColor: bg }]}><Text style={{ fontSize: 14, fontWeight: '600', color }}>{t.restore}</Text></Pressable>
     </View>
   );
@@ -86,11 +86,11 @@ export function LayoutA({ d }) {
         <TopBar d={d} />
       </View>
       <View style={{ paddingHorizontal: 20, paddingTop: 12 }}>
-        <Text style={{ fontSize: 27, lineHeight: 31, fontWeight: '700', letterSpacing: -0.8, color: T.ink, textAlign: 'center' }}>{t.headline}</Text>
+        <Text style={{ fontSize: 27, lineHeight: 31, fontWeight: '700', letterSpacing: -0.8, color: T.ink, textAlign: 'center' }}>{d.headline || t.headline}</Text>
         <Text style={{ fontSize: 14, color: T.muted, textAlign: 'center', marginTop: 4 }}>{t.subheadline}</Text>
         <View style={{ marginTop: 12 }}>
           <View style={{ position: 'absolute', left: 17, top: 20, bottom: 20, width: 2, backgroundColor: T.line }} />
-          {t.benefits.map(b => (
+          {(d.benefits || t.benefits).map(b => (
             <View key={b.t} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 4 }}>
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: T.bg, alignItems: 'center', justifyContent: 'center' }}><Image source={ICONS[b.icon]} style={{ width: 30, height: 30 }} /></View>
               <View style={{ flex: 1 }}><Text style={{ fontSize: 15, fontWeight: '600', color: T.ink }}>{b.t}</Text><Text style={{ fontSize: 12.5, color: T.muted, marginTop: 1 }}>{b.s}</Text></View>

@@ -69,7 +69,7 @@ export default function FabSheet({ open, onClose }) {
         {ENTRIES.map((e, i) => (
           <View key={e.k}>
             {i ? <Divider /> : null}
-            <Pressable onPress={() => go(e.plus && !isPremium() ? '/paywall' : e.route)} style={({ pressed }) => [s.row, { opacity: pressed ? 0.7 : 1 }]}>
+            <Pressable onPress={() => go(e.plus && !isPremium() ? '/paywall?from=budget' : e.route)} style={({ pressed }) => [s.row, { opacity: pressed ? 0.7 : 1 }]}>
               <View style={[s.bullet, { backgroundColor: alpha(e.tint, 0.16) }]}><Icon d={e.icon} size={20} color={e.deep} /></View>
               <View style={{ flex: 1 }}>
                 <Text style={[font.body, { color: tk().ink }, { color: tk().ink }]}>{t[e.k]}</Text>

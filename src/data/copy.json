@@ -434,7 +434,27 @@
         "t": "Pour vous deux"
       }
     ],
-    "subheadline": "Un seul paiement, pour vous deux."
+    "subheadline": "Un seul paiement, pour vous deux.",
+    "context": {
+      "budget": {
+        "headline": "Le budget à deux,\nc'est Mochi+",
+        "first": {
+          "icon": "coins",
+          "t": "Budget partagé",
+          "s": "Notez une dépense en un geste : Mindpair vous dit qui doit quoi, et « On est à zéro » quand c'est réglé."
+        },
+        "drop": "coins"
+      },
+      "mois": {
+        "headline": "Toute l'année,\nc'est Mochi+",
+        "first": {
+          "icon": "calendar",
+          "t": "Planning en vue mois",
+          "s": "Les douze mois d'un coup d'œil : qui fait quoi, et quand."
+        },
+        "drop": "calendar"
+      }
+    }
   },
   "mission": {
     "_labels": {

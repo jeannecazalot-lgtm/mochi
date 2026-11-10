@@ -32,7 +32,7 @@ const EXPENSE_EMOJIS = ['💶', '🛒', '🍽️', '🏠', '🧸', '💊', '🚗
 const fmtDate = iso => new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }).format(new Date(iso + 'T12:00:00'));
 
 // Budget = Mochi+ partout (Jeanne, 11 nov 2026) : sans Mochi+, la saisie renvoie au paywall (garde hors des hooks)
-export default function Depense() { return isPremiumGate() ? <DepenseScreen /> : <Redirect href="/paywall" />; }
+export default function Depense() { return isPremiumGate() ? <DepenseScreen /> : <Redirect href="/paywall?from=budget" />; }
 function DepenseScreen() {
   const { id, demo } = useLocalSearchParams(); // demo=1 : dépense factice (captures)
   const insets = useSafeAreaInsets();

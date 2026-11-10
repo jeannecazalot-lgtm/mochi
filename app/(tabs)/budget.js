@@ -122,7 +122,7 @@ export default function Budget() {
   };
   const now = real ? real.now : today;
   // sans Mochi+ : l'onglet montre directement le paywall validé (Jeanne, 11 nov 2026)
-  if (!BUDGET_FREE && !isPremium()) return <PaywallView embedded />;
+  if (!BUDGET_FREE && !isPremium()) return <PaywallView embedded context="budget" />;
   const Btn = ({ label, dark, onPress }) => <Pressable onPress={onPress} style={{ paddingVertical: 10, paddingHorizontal: 18, borderRadius: 999, borderWidth: 1.5, borderColor: T.ink, backgroundColor: dark ? T.ink : 'transparent' }}><Text style={[type.label, { color: dark ? T.bg : T.ink, fontWeight: '600' }]}>{label}</Text></Pressable>;
   return (
     <View style={{ flex: 1, backgroundColor: T.bg }}>

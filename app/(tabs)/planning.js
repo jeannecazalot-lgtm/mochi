@@ -306,7 +306,7 @@ export default function Planning() {
   const W = useWindowDimensions().width;
   const slide = useSharedValue(view === 'month' ? 1 : 0); // 0 = semaine, 1 = mois
   // décision Jeanne 7 sept 2026 : la vue Mois est Duo+ (le gratuit = 7 jours glissants)
-  const onSegment = v => { if (v === 'month' && !isPremium()) { router.push('/paywall'); return; } setMode(v); slide.value = withTiming(v === 'month' ? 1 : 0, { duration: 320, easing: Easing.inOut(Easing.cubic) }); };
+  const onSegment = v => { if (v === 'month' && !isPremium()) { router.push('/paywall?from=mois'); return; } setMode(v); slide.value = withTiming(v === 'month' ? 1 : 0, { duration: 320, easing: Easing.inOut(Easing.cubic) }); };
   useEffect(() => { if (view === 'month' && mode !== 'month') onSegment('month'); }, [view]); // lien reçu alors que l'onglet est déjà monté
   const weekStyle = useAnimatedStyle(() => ({ transform: [{ translateX: -slide.value * W }] }));
   const monthStyle = useAnimatedStyle(() => ({ transform: [{ translateX: (1 - slide.value) * W }] }));
