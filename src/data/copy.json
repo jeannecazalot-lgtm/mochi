@@ -1922,7 +1922,8 @@
     "dispatched": "{name} a réparti la semaine : {n} missions. Va voir le Planning.",
     "joined": "{name} a rejoint le foyer. Venez choisir vos missions ensemble.",
     "choosing": "{name} choisit vos missions. Viens les choisir avec elle ou lui.",
-    "readyToDispatch": "{name} a validé la liste des missions. À toi de valider, et Mochi répartit."
+    "readyToDispatch": "{name} a validé la liste des missions. À toi de valider, et Mochi répartit.",
+    "weekRestarted": "{name} a lancé la semaine : {n} missions. Va voir le Planning."
   },
   "mesReglages": {
     "_labels": {
@@ -2535,5 +2536,20 @@
   "intro": {
     "l1": "La charge mentale,",
     "l2": "à deux."
+  },
+  "semaine": {
+    "_labels": {
+      "_": "Écran Semaine (10 nov 2026) : en gratuit, relancer sa semaine à la main ; Mochi+ le fait tout seul"
+    },
+    "cardTitle": "Nouvelle semaine",
+    "cardSub": "Vos missions ne reviennent pas toutes seules. Relancez la semaine en un geste.",
+    "cardCta": "Préparer la semaine",
+    "title": "Votre nouvelle semaine",
+    "sub": "Les missions de la semaine dernière, prêtes à repartir. Décochez ce qui ne revient pas.",
+    "cta": "Lancer la semaine ({n})",
+    "none": "Aucune mission à relancer. Ajoutez-en depuis le +.",
+    "plus": "Avec Mochi+, votre semaine se remplit toute seule.",
+    "plusCta": "Découvrir Mochi+",
+    "done": "C'est parti : {n} missions pour la semaine."
   }
 }

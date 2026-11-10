@@ -27,6 +27,9 @@ import { groupLate, lateCaption, daysBetweenIso } from '../../src/late-groups';
 import { mochiReact } from '../../src/components/mochi-img';
 import { mochiStore, getMochi, energyOf, onMissionDone, STAGES, unseenMoments, demoFlags, applyPendingName, pearlsFor, tick, positionsOf } from '../../src/mochi-state';
 import copy from '../../src/data/copy.json';
+import { isPremium } from '../../src/demo-premium';
+import { weekNeedsRestart } from '../../src/horizon';
+import { usePremiumVersion } from '../../src/purchases';
 import { TaskIcon } from '../../src/components/task-icon';
 
 const fill = (s, vars) => Object.keys(vars).reduce((acc, k) => acc.replace(`{${k}}`, vars[k]), s);
@@ -87,6 +90,9 @@ export default function Home() {
   const [availH, setAvailH] = useState(0); const [topH, setTopH] = useState(0); const [headH, setHeadH] = useState(0); const [gh, setGh] = useState({});
   const fitDays = useMemo(() => { let left = availH - topH - headH - 12; const out = []; for (const g of upcoming) { const hgt = gh[g.iso]; if (hgt == null || hgt + 8 > left) break; left -= hgt + 8; out.push(g); } return out; }, [availH, topH, headH, gh, upcoming]);
   const occV = occStore.useVersion();
+  usePremiumVersion();
+  const [needWeek, setNeedWeek] = useState(false); // gratuit : plus rien de prévu → carte « Nouvelle semaine »
+  useEffect(() => { weekNeedsRestart().then(setNeedWeek).catch(() => {}); }, [occV]);
 
   useEffect(() => {
     (async () => {
@@ -204,6 +210,13 @@ export default function Home() {
                 <Text style={{ fontSize: 14.5, lineHeight: 20, color: T.bg, opacity: 0.8, marginTop: 6 }}>{m.stage === 'egg' ? t.soloSub : t.soloSubHatched}</Text>
                 <Pressable onPress={() => router.push('/(setup)/invite?from=home')} style={({ pressed }) => [{ marginTop: 14, paddingVertical: 13, borderRadius: 999, backgroundColor: T.accent, alignItems: 'center', opacity: pressed ? 0.85 : 1 }]}><Text style={[type.body, { color: '#FFFFFF', fontWeight: '600' }]}>{t.soloCta}</Text></Pressable>
               </View>
+            ) : null}
+            {real && getPartnerUid() && needWeek && !isPremium() ? (
+              <Pressable onPress={() => router.push('/semaine')} style={({ pressed }) => [{ marginHorizontal: layout.x, marginTop: 16, padding: 18, borderRadius: 18, backgroundColor: T.ink, opacity: pressed ? 0.9 : 1 }]}>
+                <Text style={{ fontSize: 20, fontWeight: '600', letterSpacing: -0.5, color: T.bg }}>{copy.semaine.cardTitle}</Text>
+                <Text style={{ fontSize: 14.5, lineHeight: 20, color: T.bg, opacity: 0.8, marginTop: 6 }}>{copy.semaine.cardSub}</Text>
+                <View style={{ marginTop: 14, paddingVertical: 13, borderRadius: 999, backgroundColor: T.accent, alignItems: 'center' }}><Text style={[type.body, { color: '#FFFFFF', fontWeight: '600' }]}>{copy.semaine.cardCta}</Text></View>
+              </Pressable>
             ) : null}
             <View style={{ marginTop: (checkedIn ? 16 : 6) * layout.air }}><Gauges T={T} t={t} energy={en} hearts={hearts} formLabel={t.formLabels[hearts] || ''} hint={m.stage !== 'egg' && !full && day <= 7 ? t.energyHint : null} /></View>
             <View style={s.sectionHead}>

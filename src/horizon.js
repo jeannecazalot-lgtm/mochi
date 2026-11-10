@@ -17,6 +17,7 @@ import { getUid, getPartnerUid } from './identity';
 import { localIso, addDaysIso } from './dates';
 import { occStore } from './demo-core';
 import { rescheduleReminders } from './reminders';
+import { isPremium } from './demo-premium';
 
 const PER_WEEK = { daily: 7, twiceWeek: 2, weekly: 1, monthly: 1, once: 0 };
 const dowOf = iso => (new Date(iso + 'T12:00:00').getDay() + 6) % 7;
@@ -35,10 +36,13 @@ export function lighterMember(occs, tasks, uid, puid, from = localIso(), to = ad
 }
 
 let lastRun = 0;
-export async function extendHorizon({ force = false } = {}) {
+// Mochi+ (Jeanne, 10 nov 2026) : « en gratuit on repart de zéro chaque semaine, en payant tout est pré-rempli ».
+// Sans Mochi+, rien ne se reconduit tout seul : le foyer relance sa semaine depuis l'écran Semaine (`manual`, `only`).
+export async function extendHorizon({ force = false, manual = false, only = null } = {}) {
   const uid = getUid();
   if (!uid) return 0;
-  if (!force && Date.now() - lastRun < 30 * 60 * 1000) return 0; // au plus toutes les 30 min
+  if (!manual && !isPremium()) return 0;
+  if (!force && !manual && Date.now() - lastRun < 30 * 60 * 1000) return 0; // au plus toutes les 30 min
   lastRun = Date.now();
   const puid = getPartnerUid() || null;
   const [tasks, occs] = await Promise.all([read('tasks'), read('occurrences')]);
@@ -46,6 +50,7 @@ export async function extendHorizon({ force = false } = {}) {
   let created = 0;
   for (const task of tasks) {
     if (task.deleted_at || task.archived_at || task.active === false || !task.household_id) continue;
+    if (only && !only.includes(task.id)) continue;
     const mine = occs.filter(o => o.task_id === task.id && o.status !== 'skipped').sort((a, b) => a.due_date.localeCompare(b.due_date));
     const kind = task.mental_load ? 'plan' : 'exec';
     const has = iso => mine.some(o => o.due_date === iso && o.kind === kind);
@@ -88,4 +93,15 @@ export async function extendHorizon({ force = false } = {}) {
   }
   if (created) { occStore.bump(); rescheduleReminders(); }
   return created;
+}
+
+// semaine à relancer ? (gratuit) : plus aucune mission prévue à partir de demain
+export async function weekNeedsRestart() {
+  const occs = await read('occurrences'); const tomorrow = addDaysIso(1);
+  return !occs.some(o => o.status !== 'skipped' && o.due_date >= tomorrow);
+}
+// les missions qu'on peut relancer : tâches vivantes du foyer (hors « une fois »)
+export async function restartableTasks() {
+  const tasks = await read('tasks');
+  return tasks.filter(t => !t.deleted_at && !t.archived_at && t.active !== false && t.household_id && t.frequency !== 'once');
 }
