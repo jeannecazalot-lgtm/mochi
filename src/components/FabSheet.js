@@ -13,6 +13,7 @@ import { Divider } from './ui';
 import { Animated, useFabRotation } from './motion';
 import { Icon, ICON, SheetHandle } from './core/extra';
 import copy from '../data/copy.json';
+import { isPremium } from '../demo-premium';
 import { colors, gradients, radius, space, font, motion, shadows, tabBar, alpha } from '../theme';
 import { styles as v3Styles, currentTokens as tk } from '../theme-v3';
 
@@ -20,7 +21,7 @@ const SHEET_TRAVEL = 420;
 const ENTRIES = [
   { k: 'task', icon: ICON.task, tint: tk().ok, deep: tk().ok, route: '/task/edit' },
   { k: 'event', icon: ICON.event, tint: '#7DB3D5', deep: '#7DB3D5', route: '/event' },
-  { k: 'expense', icon: ICON.expense, tint: tk().scene.lamp, deep: tk().accent, route: '/depense' },
+  { k: 'expense', icon: ICON.expense, tint: tk().scene.lamp, deep: tk().accent, route: '/depense', plus: true }, // Budget = Mochi+ (Jeanne, 11 nov 2026) : en gratuit, ouvre le paywall
   { k: 'note', icon: ICON.note, tint: '#9A7BC8', deep: '#9A7BC8', route: '/note' },
 ];
 
@@ -68,12 +69,13 @@ export default function FabSheet({ open, onClose }) {
         {ENTRIES.map((e, i) => (
           <View key={e.k}>
             {i ? <Divider /> : null}
-            <Pressable onPress={() => go(e.route)} style={({ pressed }) => [s.row, { opacity: pressed ? 0.7 : 1 }]}>
+            <Pressable onPress={() => go(e.plus && !isPremium() ? '/paywall' : e.route)} style={({ pressed }) => [s.row, { opacity: pressed ? 0.7 : 1 }]}>
               <View style={[s.bullet, { backgroundColor: alpha(e.tint, 0.16) }]}><Icon d={e.icon} size={20} color={e.deep} /></View>
               <View style={{ flex: 1 }}>
                 <Text style={[font.body, { color: tk().ink }, { color: tk().ink }]}>{t[e.k]}</Text>
                 <Text style={[font.secondary, { color: tk().muted }, { fontSize: 13, marginTop: 2 }]}>{t[`${e.k}Sub`]}</Text>
               </View>
+              {e.plus && !isPremium() ? <View style={{ paddingHorizontal: 8, paddingVertical: 3, borderRadius: 999, borderWidth: 1, borderColor: tk().accent }}><Text style={{ fontSize: 11.5, fontWeight: '700', color: tk().accent }}>Mochi+</Text></View> : null}
               <Text style={{ fontSize: 16, color: tk().muted }}>›</Text>
             </Pressable>
           </View>

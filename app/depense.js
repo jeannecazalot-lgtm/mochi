@@ -1,3 +1,5 @@
+import { Redirect } from 'expo-router';
+import { isPremium as isPremiumGate } from '../src/demo-premium';
 // Dépense (sheet) — même langage que la sheet Tâche (Jeanne 14 sept 2026). `?id=` = édition
 // (retour Jeanne 13 sept : « je ne peux pas modifier les dépenses »). Table `expenses`, parts égales.
 import React, { useState, useEffect, useRef } from 'react';
@@ -29,7 +31,9 @@ const parseAmount = s => Math.round(parseFloat(String(s).replace(',', '.')) * 10
 const EXPENSE_EMOJIS = ['💶', '🛒', '🍽️', '🏠', '🧸', '💊', '🚗', '🎁', '☕', '🎟️', '🐶', '👕'];
 const fmtDate = iso => new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }).format(new Date(iso + 'T12:00:00'));
 
-export default function Depense() {
+// Budget = Mochi+ partout (Jeanne, 11 nov 2026) : sans Mochi+, la saisie renvoie au paywall (garde hors des hooks)
+export default function Depense() { return isPremiumGate() ? <DepenseScreen /> : <Redirect href="/paywall" />; }
+function DepenseScreen() {
   const { id, demo } = useLocalSearchParams(); // demo=1 : dépense factice (captures)
   const insets = useSafeAreaInsets();
   useIdentity();
