@@ -3,9 +3,11 @@ import { RouteError } from '../../src/components/route-error';
 import { usePremiumVersion } from '../../src/purchases';
 import React, { useEffect, useState } from 'react';
 import { router } from 'expo-router';
-import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Avatar } from '../../src/components/ui';
+import { Avatar, CTAPrimary } from '../../src/components/ui';
+import { LinearGradient } from 'expo-linear-gradient';
+const COINS = require('../../assets/icones/coins.png');
 import { useTokens, type, layout } from '../../src/theme-v3';
 import { Label, Num } from '../../src/components/mochi/gauges';
 import { CountUp } from '../../src/components/motion';
@@ -120,17 +122,42 @@ export default function Budget() {
   };
   const now = real ? real.now : today;
   if (!BUDGET_FREE && !isPremium()) {
+    // écran verrouillé (refait le 11 nov 2026, Jeanne : « horrible cet écran ») : un aperçu réel du Budget en fond,
+    // estompé, et la promesse en bas — pictos feutre, jamais d'emoji, un seul bouton pleine largeur
+    const demoOwes = budget.owes;
     return (
       <View style={{ flex: 1, backgroundColor: T.bg }}>
         <SafeAreaView style={{ flex: 1 }} edges={['top']}>
           <View style={s.header}>
             <Text style={[type.name, { color: T.ink }]}>{t.title}</Text>
           </View>
-          <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: space.headerX, paddingBottom: 90 }}>
-            <View style={{ alignItems: 'center', marginBottom: 18 }}>
-              <Text style={{ fontSize: 44 }}>🔒</Text>
+          <View pointerEvents="none" style={{ paddingHorizontal: layout.x, opacity: 0.5 }}>
+            <Label T={T}>{t.gatePreview}</Label>
+            <Text style={{ fontSize: 30, lineHeight: 36, fontWeight: '700', letterSpacing: -0.8, color: T.ink, marginTop: 6 }}>{partner.first_name} te doit {fmtMoney(demoOwes.cents)}</Text>
+            <View style={{ marginTop: 14 }}>
+              {expenses.map(e => (
+                <View key={e.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 11, borderTopWidth: StyleSheet.hairlineWidth, borderColor: T.line }}>
+                  <TaskIcon emoji={e.emoji} size={24} />
+                  <Text style={[type.body, { color: T.ink, flex: 1 }]}>{e.title}</Text>
+                  <Num T={T}>{fmtMoney(e.amount_cents)}</Num>
+                </View>
+              ))}
             </View>
-            <PremiumGate title={t.gateTitle} sub={t.gateSub} cta={t.gateCta} />
+          </View>
+          <LinearGradient pointerEvents="none" colors={[T.bg + '00', T.bg]} style={{ height: 90, marginTop: -90 }} />
+          <View style={{ flex: 1, justifyContent: 'flex-end', paddingHorizontal: layout.x, paddingBottom: 110 }}>
+            <Image source={COINS} style={{ width: 64, height: 64 }} />
+            <Text style={{ fontSize: 26, lineHeight: 31, fontWeight: '700', letterSpacing: -0.7, color: T.ink, marginTop: 10 }}>{t.gateTitle}</Text>
+            <Text style={[type.sub, { color: T.muted, marginTop: 6 }]}>{t.gateSub}</Text>
+            <View style={{ marginTop: 14, gap: 8 }}>
+              {t.gatePoints.map(p => (
+                <View key={p} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                  <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: T.ok }} />
+                  <Text style={[type.body, { color: T.ink }]}>{p}</Text>
+                </View>
+              ))}
+            </View>
+            <View style={{ marginTop: 20 }}><CTAPrimary big label={t.gateCta} onPress={() => router.push('/paywall')} /></View>
           </View>
         </SafeAreaView>
       </View>

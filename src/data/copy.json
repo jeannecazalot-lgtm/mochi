@@ -326,10 +326,16 @@
     "viaTaskDesc": "en cochant « {task} »",
     "paidBy": "payé par {name}",
     "you": "toi",
-    "gateTitle": "Le budget, c'est Mochi+",
-    "gateSub": "Dépenses partagées, solde du foyer et « On est à zéro » — inclus dans Mochi+.",
-    "gateCta": "Découvrir",
-    "emptyReal": "Aucune dépense pour l'instant — elles arriveront en cochant une tâche avec dépense, ou via le ➕."
+    "gateTitle": "Le budget à deux, sans calculs",
+    "gateSub": "Notez vos dépenses communes : Mindpair tient les comptes et vous dit qui doit quoi.",
+    "gateCta": "Débloquer avec Mochi+",
+    "emptyReal": "Aucune dépense pour l'instant — elles arriveront en cochant une tâche avec dépense, ou via le ➕.",
+    "gatePoints": [
+      "Chaque dépense, en un geste",
+      "Le solde du foyer, toujours à jour",
+      "« On est à zéro » quand c'est réglé"
+    ],
+    "gatePreview": "Aperçu"
   },
   "paywall": {
     "_labels": {
