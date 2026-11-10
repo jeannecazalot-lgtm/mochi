@@ -339,19 +339,19 @@
     "headline": "Tout Mochi+,\npour vous deux",
     "benefits": [
       {
+        "icon": "list",
+        "t": "Votre semaine déjà prête",
+        "s": "Les missions reviennent toutes seules : tout est pré-rempli."
+      },
+      {
         "icon": "gift",
         "t": "Objets et tenues Mochi+",
         "s": "Six exclusivités pour sa pièce et son look."
       },
       {
         "icon": "calendar",
-        "t": "Planning en vue mois",
-        "s": "Toute l'année d'un coup d'œil."
-      },
-      {
-        "icon": "coins",
-        "t": "Budget partagé sans limite",
-        "s": "Dépenses communes, qui doit quoi."
+        "t": "Vue mois et budget partagé",
+        "s": "Toute l'année d'un coup d'œil, et qui doit quoi."
       },
       {
         "icon": "ring",
@@ -402,30 +402,30 @@
         1
       ],
       [
+        "Semaine pré-remplie, sans tout refaire",
+        0
+      ],
+      [
         "Objets et tenues Mochi+",
         0
       ],
       [
-        "Planning en vue mois",
-        0
-      ],
-      [
-        "Budget partagé sans limite",
+        "Vue mois et budget partagé",
         0
       ]
     ],
     "tiles": [
+      {
+        "icon": "list",
+        "t": "Semaine pré-remplie"
+      },
       {
         "icon": "gift",
         "t": "Objets et tenues"
       },
       {
         "icon": "calendar",
-        "t": "Vue mois"
-      },
-      {
-        "icon": "coins",
-        "t": "Budget partagé"
+        "t": "Vue mois et budget"
       },
       {
         "icon": "ring",
