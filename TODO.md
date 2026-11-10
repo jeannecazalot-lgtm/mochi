@@ -477,3 +477,9 @@ Décisions Jeanne (tableau de bord, 4 nov 2026) : coucher du foyer 22 h (migrati
 11 nov 2026 — Onglet Budget sans Mochi+ : le toucher ouvre le paywall en page à fermer (`tabPress` intercepté ; la barre d'onglets personnalisée émet maintenant tabPress). Croix → retour à l'écran d'avant. Vu au simulateur.
 
 11 nov 2026 — **Passe iPad** (simulateur iPad Air 11", app iPhone agrandie, même binaire que le sim iPhone) : 8 écrans parcourus. Corrigé : onboarding (titre coupé par la scène → scène plus basse sur écrans < 760 pt + diapo défilante), paywall (bouton et liens légaux hors écran → page défilante). OK : Qui invite qui, choix, répartition, Budget, pièce, Semaine. Non vu sur iPad : achat sandbox (simulateur sans produits StoreKit).
+
+## Feuille de route v1.1 (décisions Jeanne, 11 nov 2026)
+La v1 (duo, iPhone, iPad en compatibilité) part à la revue dès l'achat test validé. Ensuite, v1.1 :
+1. **Foyers de 2 à 6 personnes** — public : couple + enfants ados / colocs → vocabulaire « foyer / membres / ensemble » partout (plus de « binôme » / « à deux »). Validation de la liste des missions : **tout le monde** valide (`setup_drafts.ready` déjà par uid). Budget : **parts égales entre tous**, règlement façon Tricount (minimiser les virements). Base : lever la limite à 6 (`check_household_size`, `accept_invitation`, migration 0005), slots 1→6 + couleurs. Écrans à repenser pour n membres (~45 fichiers) : répartition (alternance = rotation), Balance (n barres), Budget (qui doit à qui), choix à plusieurs, notifications (« un membre »), éclosion de Mochi (dès 2), Planning (filtre par membre), avatars empilés. Estimation 4 à 6 sessions + tests à 3-4 appareils.
+2. **iPad plein écran** — `supportsTablet: true` (nouveau build), mises en page larges (~15 écrans, colonne centrée max ~600 pt ou deux colonnes), captures App Store iPad 13". Estimation 2 à 3 sessions.
+3. Fiche App Store et captures à revoir (« à deux » → « ensemble »).
