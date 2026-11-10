@@ -44,10 +44,62 @@ function Offer({ T, on, name, price, hint, badge, ribbon, onPress }) {
   );
 }
 
+// B : quatre tuiles d'avantages (icône feutre en grand)
+function Tiles({ T, X }) {
+  return (
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, paddingHorizontal: X, marginTop: 16 }}>
+      {t.tiles.map(b => (
+        <View key={b.t} style={{ width: '48%', flexGrow: 1, flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, paddingHorizontal: 12, borderRadius: 16, backgroundColor: 'rgba(31,42,88,0.05)' }}>
+          <Image source={ICONS[b.icon]} style={{ width: 34, height: 34 }} />
+          <Text style={{ fontSize: 14.5, fontWeight: '600', color: T.ink, flex: 1 }}>{b.t}</Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+// B : offre en ligne pleine largeur
+function Row({ T, on, name, sub, price, badge, onPress }) {
+  return (
+    <Pressable onPress={onPress} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, borderWidth: 1.5, borderColor: on ? T.ink : T.line, borderRadius: 18, paddingVertical: 14, paddingHorizontal: 16, backgroundColor: on ? T.bg : 'transparent' }}>
+      <View style={{ width: 18, height: 18, borderRadius: 9, borderWidth: 1.5, borderColor: on ? T.ink : T.muted, alignItems: 'center', justifyContent: 'center' }}>{on ? <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: T.ink }} /> : null}</View>
+      <View style={{ flex: 1 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <Text style={{ fontSize: 16, fontWeight: '700', color: T.ink }}>{name}</Text>
+          {badge ? <View style={{ paddingHorizontal: 8, paddingVertical: 2, borderRadius: 999, backgroundColor: T.scene.lamp }}><Text style={{ fontSize: 11.5, fontWeight: '700', color: T.ink }}>{badge}</Text></View> : null}
+        </View>
+        <Text style={{ fontSize: 12.5, color: T.muted, marginTop: 2 }}>{sub}</Text>
+      </View>
+      <Text style={{ fontSize: 15, fontWeight: '600', color: T.ink, fontVariant: ['tabular-nums'] }}>{price}</Text>
+    </Pressable>
+  );
+}
+// C : comparatif gratuit / Mochi+
+function Compare({ T, X }) {
+  const cell = { width: 74, alignItems: 'center' };
+  const mark = on => <Text style={{ fontSize: 17, fontWeight: '700', color: on ? T.ok : T.muted, opacity: on ? 1 : 0.5 }}>{on ? '✓' : '–'}</Text>;
+  return (
+    <View style={{ marginHorizontal: X, marginTop: 16, borderRadius: 18, borderWidth: 1, borderColor: T.line, overflow: 'hidden' }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 14, backgroundColor: 'rgba(31,42,88,0.05)' }}>
+        <View style={{ flex: 1 }} />
+        <View style={cell}><Text style={{ fontSize: 12.5, fontWeight: '600', color: T.muted }}>{t.compareFree}</Text></View>
+        <View style={[cell, { backgroundColor: T.ink, borderRadius: 999, paddingVertical: 3 }]}><Text style={{ fontSize: 12.5, fontWeight: '700', color: T.bg }}>{t.comparePlus}</Text></View>
+      </View>
+      {t.compare.map(([label, free]) => (
+        <View key={label} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 9, paddingHorizontal: 14, borderTopWidth: StyleSheet.hairlineWidth, borderColor: T.line }}>
+          <Text style={{ flex: 1, fontSize: 14, color: T.ink }}>{label}</Text>
+          <View style={cell}>{mark(free)}</View>
+          <View style={cell}>{mark(true)}</View>
+        </View>
+      ))}
+    </View>
+  );
+}
+
 export default function Paywall() {
   const T = useTokens();
   const insets = useSafeAreaInsets();
-  const { next, demo } = useLocalSearchParams();
+  const { next, demo, v } = useLocalSearchParams();
+  const V = __DEV__ && v ? String(v) : 'A'; // propositions du 10 nov 2026 : A frise · B Mochi en héros · C comparatif
   const [offers, setOffers] = useState(null);
   const [plan, setPlan] = useState('pass');
   const [busy, setBusy] = useState(false);
@@ -78,7 +130,7 @@ export default function Paywall() {
   };
   const open = url => { if (url) Linking.openURL(url).catch(() => {}); };
   const { height: SH } = useWindowDimensions();
-  const sceneH = Math.max(120 + insets.top, SH - 620); // tient sur un écran : la pièce prend ce qui reste
+  const sceneH = V === 'B' ? Math.max(160 + insets.top, SH - 560) : V === 'C' ? 210 + insets.top : Math.max(120 + insets.top, SH - 620); // tient sur un écran
   const X = layout.x;
 
   return (
@@ -94,9 +146,10 @@ export default function Paywall() {
         </View>
 
         <Animated.View entering={FadeInDown.delay(100).duration(320)} style={{ paddingHorizontal: X, paddingTop: 14 }}>
-          <Text style={{ fontSize: 28, lineHeight: 32, fontWeight: '700', letterSpacing: -0.8, color: T.ink, textAlign: 'center' }}>{t.headline}</Text>
+          <Text style={{ fontSize: 28, lineHeight: 32, fontWeight: '700', letterSpacing: -0.8, color: T.ink, textAlign: 'center' }}>{V === 'B' ? t.headlineB : V === 'C' ? t.headlineC : t.headline}</Text>
         </Animated.View>
 
+        {V === 'B' ? <Tiles T={T} X={X} /> : V === 'C' ? <Compare T={T} X={X} /> : <>
         {/* avantages en frise : une icône feutre par ligne, un trait qui les relie */}
         <View style={{ paddingHorizontal: X + 4, marginTop: 14 }}>
           <View style={{ position: 'absolute', left: X + 4 + 17, top: 20, bottom: 20, width: 2, backgroundColor: T.line }} />
@@ -111,6 +164,14 @@ export default function Paywall() {
           ))}
         </View>
 
+        </>}
+
+        {V === 'B' ? (
+          <View style={{ paddingHorizontal: X, marginTop: 18, gap: 10 }}>
+            <Row T={T} on={plan === 'pass'} onPress={() => setPlan('pass')} name={t.passName} sub={perMonth ? fill(t.passHint, { price: perMonth }) : t.underPass} price={pass ? pass.priceString : t.priceUnavailable} badge={saving > 0 ? fill(t.passBadge, { n: saving }) : null} />
+            <Row T={T} on={plan === 'monthly'} onPress={() => setPlan('monthly')} name={t.monthName} sub={t.monthHint} price={monthly ? fill(t.monthPrice, { price: monthly.priceString }) : t.priceUnavailable} />
+          </View>
+        ) : <>
         <View style={{ flexDirection: 'row', gap: 10, paddingHorizontal: X, marginTop: 22 }}>
           <Offer T={T} on={plan === 'pass'} onPress={() => setPlan('pass')} ribbon={t.recommended} badge={saving > 0 ? fill(t.passBadge, { n: saving }) : null}
             name={t.passName} price={pass ? fill(t.passPrice, { price: pass.priceString }) : t.priceUnavailable} hint={perMonth ? fill(t.passHint, { price: perMonth }) : null} />
@@ -118,6 +179,7 @@ export default function Paywall() {
             name={t.monthName} price={monthly ? fill(t.monthPrice, { price: monthly.priceString }) : t.priceUnavailable} hint={t.monthHint} />
         </View>
 
+        </>}
         {/* divulgation complète AU-DESSUS du CTA (Apple 3.1.2) */}
         <Text style={{ fontSize: 11.5, lineHeight: 15, color: T.muted, paddingHorizontal: X, marginTop: 12, textAlign: 'center' }}>{disclosure}</Text>
         <View style={{ paddingHorizontal: X, marginTop: 10 }}>

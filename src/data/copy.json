@@ -383,7 +383,55 @@
     "restored": "Mochi+ restauré.",
     "close": "Fermer",
     "soft": "Plus tard",
-    "passUntil": "Mochi+ actif jusqu'au {date}"
+    "passUntil": "Mochi+ actif jusqu'au {date}",
+    "headlineB": "Mochi+\npour votre foyer",
+    "headlineC": "Gratuit, c'est déjà bien.\nMochi+, c'est tout.",
+    "compareFree": "Gratuit",
+    "comparePlus": "Mochi+",
+    "compare": [
+      [
+        "Préparer vos missions à deux",
+        1
+      ],
+      [
+        "Répartition équitable",
+        1
+      ],
+      [
+        "Mochi et sa pièce",
+        1
+      ],
+      [
+        "Objets et tenues Mochi+",
+        0
+      ],
+      [
+        "Planning en vue mois",
+        0
+      ],
+      [
+        "Budget partagé sans limite",
+        0
+      ]
+    ],
+    "tiles": [
+      {
+        "icon": "gift",
+        "t": "Objets et tenues"
+      },
+      {
+        "icon": "calendar",
+        "t": "Vue mois"
+      },
+      {
+        "icon": "coins",
+        "t": "Budget partagé"
+      },
+      {
+        "icon": "ring",
+        "t": "Pour vous deux"
+      }
+    ]
   },
   "mission": {
     "_labels": {
