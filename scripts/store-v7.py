@@ -69,7 +69,20 @@ ph,sc,bz,src=phone('chambre.png',int(W*0.66)); px=(W-ph.width)//2; py=top+150
 im=drop(im,ph,px,py)
 for (k,w,a,x,y) in [('montgolfiere',300,-8,10,top+90),('disco',230,10,W-250,top+120),('couronne',250,-12,0,top+900),('aquarium',290,8,W-300,top+820),('cheval',330,-6,-10,H-620),('lunettesrouges',260,12,W-290,H-560)]:
     s=sticker(M+f'assets/boutique/{k}.png',w,a); im=drop(im,s,x,y,a=70,blur=20,dy=12)
-c=card(src,(1010,190,1270,300),420,r=50); im=drop(im,c,(W-c.width)//2,top+60,a=110)
+def pearl(r):
+    # perle nacrée : dégradé crème → rose pâle, reflet blanc
+    p=Image.new('RGBA',(2*r,2*r),(0,0,0,0)); dp=ImageDraw.Draw(p)
+    for i in range(r,0,-1):
+        t=i/r; col=(int(232+20*(1-t)),int(214+30*(1-t)),int(220+28*(1-t)),255); dp.ellipse((r-i,r-i,r+i,r+i),fill=col)
+    dp.ellipse((int(r*0.45),int(r*0.35),int(r*0.95),int(r*0.8)),fill=(255,255,255,230))
+    ring=Image.new('RGBA',p.size,(0,0,0,0)); ImageDraw.Draw(ring).ellipse((1,1,2*r-2,2*r-2),outline=(200,170,180,255),width=3); p.alpha_composite(ring); return p
+f=font(88,'Bold'); d0=ImageDraw.Draw(Image.new('RGB',(1,1))); label='+3 perles'; tw=int(d0.textlength(label,font=f))
+bw=tw+340; bh=170; badge=Image.new('RGBA',(bw,bh),(0,0,0,0)); db=ImageDraw.Draw(badge)
+db.rounded_rectangle((0,0,bw-1,bh-1),85,fill=INK+(255,))
+for i,x in enumerate([34,112,190]): pr=pearl(34); badge.alpha_composite(pr,(x,bh//2-34))
+db.text((280,bh//2-56),label,font=f,fill=(255,255,255))
+badge=badge.rotate(-5,expand=True,resample=Image.BICUBIC)
+im=drop(im,badge,(W-badge.width)//2+60,top+40,a=100,blur=26,dy=14)
 im.convert('RGB').save(O+'v7-06.png')
 
 fs=['v6-01','v6-02','v7-03','v7-04','v7-05','v7-06']
