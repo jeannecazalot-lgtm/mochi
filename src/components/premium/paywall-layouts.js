@@ -68,7 +68,7 @@ function Footer({ d, ink = INK, muted = '#6E7591' }) {
 function TopBar({ d, color = INK, bg = 'rgba(255,255,255,0.7)' }) {
   return (
     <View style={{ position: 'absolute', top: d.insets.top + 8, left: 20, right: 20, flexDirection: 'row', justifyContent: 'space-between', zIndex: 5 }}>
-      <Pressable onPress={d.leave} hitSlop={12} style={[s.chip, { backgroundColor: bg }]}><Text style={{ fontSize: 14, fontWeight: '600', color }}>{d.next ? t.soft : '×'}</Text></Pressable>
+      {d.embedded ? <View /> : <Pressable onPress={d.leave} hitSlop={12} style={[s.chip, { backgroundColor: bg }]}><Text style={{ fontSize: 14, fontWeight: '600', color }}>{d.next ? t.soft : '×'}</Text></Pressable>}
       <Pressable onPress={d.onRestore} hitSlop={12} style={[s.chip, { backgroundColor: bg }]}><Text style={{ fontSize: 14, fontWeight: '600', color }}>{t.restore}</Text></Pressable>
     </View>
   );
@@ -78,7 +78,7 @@ function TopBar({ d, color = INK, bg = 'rgba(255,255,255,0.7)' }) {
 export function LayoutA({ d }) {
   const T = useTokens();
   const { height: SH } = useWindowDimensions();
-  const sceneH = Math.max(120 + d.insets.top, SH - 650);
+  const sceneH = Math.max(120 + d.insets.top, SH - (d.embedded ? 705 : 650));
   return (
     <View style={{ flex: 1, backgroundColor: T.bg }}>
       <View>
@@ -99,6 +99,7 @@ export function LayoutA({ d }) {
         </View>
         <View style={{ marginTop: 16 }}><SideOffers d={d} ink={T.ink} muted={T.muted} line={T.line} cardBg={T.bg} /></View>
         <Footer d={d} ink={T.ink} muted={T.muted} />
+        {d.embedded ? <View style={{ height: 70 }} /> : null}
       </View>
     </View>
   );

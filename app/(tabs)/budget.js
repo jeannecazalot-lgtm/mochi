@@ -12,7 +12,7 @@ import { useTokens, type, layout } from '../../src/theme-v3';
 import { Label, Num } from '../../src/components/mochi/gauges';
 import { CountUp } from '../../src/components/motion';
 import { Pressable } from 'react-native';
-import { PremiumGate } from '../../src/components/premium/extra';
+import { PaywallView } from '../paywall';
 import { isPremium } from '../../src/demo-premium';
 import { me, partner, byId, taskById, expenses, budget, fmtMoney, today } from '../../src/demo';
 import { monthLong, daysBetween, fmtDayLower, sortedByDate, occStore } from '../../src/demo-core';
@@ -121,48 +121,8 @@ export default function Budget() {
     pushToPartner('budgetRemind', vars, '/(tabs)/budget');
   };
   const now = real ? real.now : today;
-  if (!BUDGET_FREE && !isPremium()) {
-    // écran verrouillé (refait le 11 nov 2026, Jeanne : « horrible cet écran ») : un aperçu réel du Budget en fond,
-    // estompé, et la promesse en bas — pictos feutre, jamais d'emoji, un seul bouton pleine largeur
-    const demoOwes = budget.owes;
-    return (
-      <View style={{ flex: 1, backgroundColor: T.bg }}>
-        <SafeAreaView style={{ flex: 1 }} edges={['top']}>
-          <View style={s.header}>
-            <Text style={[type.name, { color: T.ink }]}>{t.title}</Text>
-          </View>
-          <View pointerEvents="none" style={{ paddingHorizontal: layout.x, opacity: 0.5 }}>
-            <Label T={T}>{t.gatePreview}</Label>
-            <Text style={{ fontSize: 30, lineHeight: 36, fontWeight: '700', letterSpacing: -0.8, color: T.ink, marginTop: 6 }}>{partner.first_name} te doit {fmtMoney(demoOwes.cents)}</Text>
-            <View style={{ marginTop: 14 }}>
-              {expenses.map(e => (
-                <View key={e.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 11, borderTopWidth: StyleSheet.hairlineWidth, borderColor: T.line }}>
-                  <TaskIcon emoji={e.emoji} size={24} />
-                  <Text style={[type.body, { color: T.ink, flex: 1 }]}>{e.title}</Text>
-                  <Num T={T}>{fmtMoney(e.amount_cents)}</Num>
-                </View>
-              ))}
-            </View>
-          </View>
-          <LinearGradient pointerEvents="none" colors={[T.bg + '00', T.bg]} style={{ height: 90, marginTop: -90 }} />
-          <View style={{ flex: 1, justifyContent: 'flex-end', paddingHorizontal: layout.x, paddingBottom: 110 }}>
-            <Image source={COINS} style={{ width: 64, height: 64 }} />
-            <Text style={{ fontSize: 26, lineHeight: 31, fontWeight: '700', letterSpacing: -0.7, color: T.ink, marginTop: 10 }}>{t.gateTitle}</Text>
-            <Text style={[type.sub, { color: T.muted, marginTop: 6 }]}>{t.gateSub}</Text>
-            <View style={{ marginTop: 14, gap: 8 }}>
-              {t.gatePoints.map(p => (
-                <View key={p} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                  <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: T.ok }} />
-                  <Text style={[type.body, { color: T.ink }]}>{p}</Text>
-                </View>
-              ))}
-            </View>
-            <View style={{ marginTop: 20 }}><CTAPrimary big label={t.gateCta} onPress={() => router.push('/paywall')} /></View>
-          </View>
-        </SafeAreaView>
-      </View>
-    );
-  }
+  // sans Mochi+ : l'onglet montre directement le paywall validé (Jeanne, 11 nov 2026)
+  if (!BUDGET_FREE && !isPremium()) return <PaywallView embedded />;
   const Btn = ({ label, dark, onPress }) => <Pressable onPress={onPress} style={{ paddingVertical: 10, paddingHorizontal: 18, borderRadius: 999, borderWidth: 1.5, borderColor: T.ink, backgroundColor: dark ? T.ink : 'transparent' }}><Text style={[type.label, { color: dark ? T.bg : T.ink, fontWeight: '600' }]}>{label}</Text></Pressable>;
   return (
     <View style={{ flex: 1, backgroundColor: T.bg }}>

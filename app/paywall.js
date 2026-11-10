@@ -22,7 +22,10 @@ const DEMO_OFFERS = [{ id: 'pass', priceString: '49,99 €', price: 49.99, curre
 const money = (v, cur) => { try { return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: cur }).format(v); } catch (e) { return null; } };
 const LAYOUT = 'A'; // mise en page retenue (à fixer quand Jeanne aura choisi)
 
-export default function Paywall() {
+export default function Paywall() { return <PaywallView />; }
+
+// embedded : affiché dans un onglet (Budget sans Mochi+, Jeanne 11 nov 2026) — pas de croix, place pour la barre d'onglets
+export function PaywallView({ embedded = false }) {
   const insets = useSafeAreaInsets();
   const { next, demo, v } = useLocalSearchParams();
   const V = __DEV__ && v ? String(v) : LAYOUT;
@@ -37,7 +40,7 @@ export default function Paywall() {
   const current = plan === 'pass' ? pass : monthly;
   const saving = pass?.price && monthly?.price ? Math.round((1 - pass.price / (12 * monthly.price)) * 100) : 0;
   const perMonth = pass?.price ? money(pass.price / 12, pass.currencyCode) : null;
-  const leave = () => { if (next) router.replace(String(next)); else router.back(); };
+  const leave = () => { if (embedded) return; if (next) router.replace(String(next)); else router.back(); };
   const onBuy = async () => {
     if (__DEV__ && demo) return;
     setBusy(true); setMsg(null);
@@ -54,7 +57,7 @@ export default function Paywall() {
   };
   const open = url => { if (url) Linking.openURL(url).catch(() => {}); };
   const d = {
-    insets, next, plan, setPlan, busy, msg, leave, onBuy, onRestore,
+    insets: embedded ? { ...insets, bottom: insets.bottom + 84 } : insets, next, embedded, plan, setPlan, busy, msg, leave, onBuy, onRestore,
     openPrivacy: () => open(LEGAL_URLS.privacy), openTerms: () => open(LEGAL_URLS.eula),
     badge: saving > 0 ? fill(t.passBadge, { n: saving }) : null,
     passPrice: pass ? fill(t.passPrice, { price: pass.priceString }) : t.priceUnavailable,
