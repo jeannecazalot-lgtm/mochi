@@ -2,7 +2,7 @@
 // A · carte douce (dégradé rose, carte, Mochi couronné qui dépasse) · B · nuit étoilée · C · sticker feutre + comparatif.
 // Les données (offres, divulgation, actions) viennent de app/paywall.js : seule l'apparence change ici.
 import React from 'react';
-import { View, Text, Image, Pressable, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, Text, Image, Pressable, StyleSheet, useWindowDimensions, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { CTAPrimary } from '../ui';
 import { Scene } from '../mochi/scene';
@@ -78,9 +78,9 @@ function TopBar({ d, color = INK, bg = 'rgba(255,255,255,0.7)' }) {
 export function LayoutA({ d }) {
   const T = useTokens();
   const { height: SH } = useWindowDimensions();
-  const sceneH = Math.max(120 + d.insets.top, SH - (d.embedded ? 640 : 590));
+  const sceneH = Math.max((SH < 760 ? 150 : 120) + d.insets.top, SH - (d.embedded ? 640 : 590));
   return (
-    <View style={{ flex: 1, backgroundColor: T.bg }}>
+    <ScrollView style={{ flex: 1, backgroundColor: T.bg }} bounces={false} showsVerticalScrollIndicator={false}>{/* petits écrans et iPad : tout reste atteignable, liens légaux compris (Apple 3.1.2) */}
       <View>
         <Scene T={T} stage="mochi" mood="happy" lvl={4} height={sceneH} items={['montgolfiere', 'piano']} outfit="couronne" />
         <TopBar d={d} />
@@ -100,7 +100,7 @@ export function LayoutA({ d }) {
         <Footer d={d} ink={T.ink} muted={T.muted} short />
         {d.embedded ? <View style={{ height: 20 }} /> : null}
       </View>
-    </View>
+    </ScrollView>
   );
 }
 

@@ -5,7 +5,7 @@
 // L'ancien onboarding reste à /onboarding/ancien.
 import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { router } from 'expo-router';
-import { View, Text, Pressable, FlatList, TextInput, Keyboard, useWindowDimensions, StyleSheet } from 'react-native';
+import { View, Text, Pressable, FlatList, TextInput, Keyboard, useWindowDimensions, StyleSheet, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -73,7 +73,8 @@ export default function Onboarding() {
     return () => { a.remove(); b.remove(); };
   }, []);
   const last = index === t.slides.length - 1;
-  const sceneH = Math.round(SH * (kb ? 0.2 : 0.4)); // même hauteur sur les trois écrans (Jeanne, 8 nov 2026)
+  // même hauteur sur les trois écrans (Jeanne, 8 nov 2026) ; petits écrans et iPad (app iPhone agrandie, moins haute) : scène plus basse
+  const sceneH = Math.round(SH * (kb ? 0.2 : SH < 760 ? 0.3 : 0.4));
 
 
   const finish = useCallback(() => {
@@ -94,7 +95,7 @@ export default function Onboarding() {
 
   const say = t.slides[index].say ? t.slides[index].say.replace('Mochi', name.trim() || 'Mochi') : null;
   const renderItem = useCallback(({ item, index: i }) => (
-    <View style={{ width, paddingHorizontal: layout.x, flex: 1, justifyContent: 'center' }}>
+    <ScrollView style={{ width }} contentContainerStyle={{ flexGrow: 1, paddingHorizontal: layout.x, justifyContent: 'center', paddingVertical: 8 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
       <Animated.View entering={FadeInDown.duration(320)} style={{ alignItems: 'center' }}>
         <Text style={{ fontSize: kb ? 20 : 28, fontWeight: '600', letterSpacing: -0.8, lineHeight: kb ? 26 : 34, color: T.ink, textAlign: 'center' }}>{item.title}</Text>
         {kb ? null : <Text style={{ fontSize: 17, lineHeight: 24, color: T.muted, textAlign: 'center', marginTop: 12, maxWidth: 360 }}>{item.body}</Text>}
@@ -123,7 +124,7 @@ export default function Onboarding() {
           <TextInput value={name} onChangeText={setName} placeholder={t.namePlaceholder} placeholderTextColor={T.muted} maxLength={18} returnKeyType="done" onSubmitEditing={next} textAlign="center" style={{ fontSize: 26, fontWeight: '600', color: T.ink, padding: 0 }} />
         </View>
       ) : null}
-    </View>
+    </ScrollView>
   ), [width, T, name, next, index, kb]);
 
   return (
