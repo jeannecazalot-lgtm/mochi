@@ -352,8 +352,8 @@
     "benefits": [
       {
         "icon": "list",
-        "t": "Votre semaine déjà prête",
-        "s": "Vos missions reviennent toutes seules. En gratuit, on repart de zéro chaque semaine."
+        "t": "Planifiez sans limite",
+        "s": "Vos tâches reviennent toutes seules, semaine après semaine. En gratuit, on prépare une semaine à la fois."
       },
       {
         "icon": "gift",
@@ -410,7 +410,7 @@
         1
       ],
       [
-        "Semaine pré-remplie",
+        "Planifier sans limite",
         0
       ],
       [
@@ -425,7 +425,7 @@
     "tiles": [
       {
         "icon": "list",
-        "t": "Semaine pré-remplie"
+        "t": "Sans limite"
       },
       {
         "icon": "gift",
@@ -459,6 +459,15 @@
           "s": "Les douze mois d'un coup d'œil : qui fait quoi, et quand."
         },
         "drop": "calendar"
+      },
+      "plan": {
+        "headline": "Planifier plus loin ?\nC'est Mochi+",
+        "first": {
+          "icon": "list",
+          "t": "Planifiez sans limite",
+          "s": "Un rendez-vous dans trois semaines, une tâche du mois prochain : posez-les quand vous y pensez. En gratuit, on prépare une semaine à la fois."
+        },
+        "drop": "list"
       }
     }
   },
@@ -2611,7 +2620,14 @@
     "_labels": {
       "_": "Sheet Forme de Mochi (toucher la ligne Forme sur l'Accueil). {name} = nom de Mochi, {state} = malade / en forme…, {task} = mission, {who} = qui, {day} = jour"
     },
-    "titles": ["{name}", "{name} est malade", "{name} est patraque", "{name} boude", "{name} est en forme", "{name} est en pleine forme"],
+    "titles": [
+      "{name}",
+      "{name} est malade",
+      "{name} est patraque",
+      "{name} boude",
+      "{name} est en forme",
+      "{name} est en pleine forme"
+    ],
     "whyTitle": "Pourquoi",
     "lost": "{task} pas faite ({who}) · {day}",
     "gained": "{task} rattrapée · {day}",
@@ -2636,5 +2652,46 @@
       }
     ],
     "floor": "Il ne descend jamais sous un cœur. À un cœur, il est malade."
+  },
+  "recap": {
+    "_labels": {
+      "_": "Récap de la semaine (13 nov 2026, Jeanne : « une page qui s'ouvre sur la home », option a : gratuit = une semaine à la fois, Mochi+ = sans limite). Ouvert le dimanche à 20 h (notification) et depuis la Balance."
+    },
+    "kicker": "Semaine du {from} au {to}",
+    "gainTitle": "Ce que Mochi y gagne",
+    "heartUp": "+1 cœur",
+    "heartSick": "Mochi a été malade",
+    "heartNone": "Pas de cœur cette fois",
+    "heartLabel": "Cœurs",
+    "stageLabel": "Palier",
+    "stageNext": "Encore {n} semaines avant le palier {k}",
+    "stageMax": "Palier le plus haut",
+    "stageNotCounted": "Cette semaine ne compte pas pour grandir",
+    "pearlsLabel": "Perles gagnées",
+    "pearls": "+{n}",
+    "splitTitle": "Qui a porté quoi",
+    "splitLine": "{time} · {n} tâches",
+    "splitNone": "Rien de coché",
+    "doneTitle": "Ce qui a été fait",
+    "doneLine": "{done} tâches sur {total}",
+    "missed": "À rattraper : {list}",
+    "nextTitle": "La semaine qui vient",
+    "nextReady": "Votre semaine est prête : {n} tâches.",
+    "nextReadyPlus": "Avec Mochi+, votre semaine s'est préparée toute seule : {n} tâches.",
+    "nextEmpty": "Rien n'est encore prévu pour lundi.",
+    "nextCta": "Préparer la semaine",
+    "nextPlanner": "Voir le Planner",
+    "nextPlus": "Avec Mochi+, elle se prépare toute seule.",
+    "nextPlusCta": "Découvrir Mochi+",
+    "cta": "C'est noté",
+    "close": "Fermer",
+    "balanceRow": "Récap de la semaine",
+    "balanceRowSub": "Le bilan de dimanche dernier",
+    "none": "Pas encore de récap : le premier arrive dimanche à 20 h.",
+    "pushTitle": "Le récap de la semaine est prêt",
+    "pushBody": "Mochi a fait les comptes. Venez voir comment s'est passée votre semaine.",
+    "stageNextOne": "Encore 1 semaine avant le palier {k}",
+    "splitLineOne": "{time} · 1 tâche",
+    "later": "Plus tard"
   }
 }

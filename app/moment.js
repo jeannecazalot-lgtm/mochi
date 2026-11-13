@@ -17,6 +17,7 @@ import { isLive } from '../src/occ-actions';
 import { partner } from '../src/demo';
 import copy from '../src/copy';
 import { LOCALE, fmtClock } from '../src/lang';
+import { WeekRecap } from '../src/components/recap/week-recap';
 
 const fill = (s, vars) => Object.keys(vars).reduce((acc, k) => acc.replace(`{${k}}`, vars[k]), s);
 const DEMO = {
@@ -60,6 +61,8 @@ export default function Moment() {
     if (!demo && ev.type === 'hatch') { try { const occs = await read('occurrences'); if (!occs.some(isLive)) { router.replace('/(setup)/taches'); return; } router.replace('/(tabs)/planning'); return; } catch (e) { /* retour simple */ } }
     router.back();
   };
+  // récap du dimanche : une vraie page (13 nov 2026), la croix comme le bouton passent au moment suivant
+  if (ev.type === 'week_closed') return <WeekRecap ev={ev} demo={!!demo} onDone={next} ctaLabel={queue.length > 1 ? t.cta : null} />;
   return (
     <View style={{ flex: 1, backgroundColor: T.bg }}>
       <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><Scene T={T} stage={stageAfter} mood={ev.type === 'week_closed' && !wk.healthy ? 'neutral' : T.night ? 'sleeping' : 'wink'} lvl={lvl} height={sceneH} />{ev.type !== 'walk_return' && !(ev.type === 'week_closed' && !wk.healthy) ? <View style={{ position: 'absolute', left: 0, right: 0, top: 0, height: sceneH }}><Burst count={18} colors={[T.accent, T.ok, T.scene.lamp, T.ink]} dist={150} delay={200} /></View> : null}</View>

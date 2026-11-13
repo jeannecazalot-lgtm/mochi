@@ -18,6 +18,7 @@ import copy from '../src/copy';
 import { colors, space, font, alpha } from '../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 import { LOCALE } from '../src/lang';
+import { canPlanOn } from '../src/week';
 
 const t = copy.notes;
 const NOTE_EMOJIS = ['📌', '💡', '🔑', '📞', '🎁', '🩺', '🏠', '🚗', '🧾', '🎂', '✈️', '📝'];
@@ -65,7 +66,7 @@ export default function NoteSheet() {
           <Row label={t.dateLabel} sub={date ? fmtDate(date) : t.noDate} right={<PillChip label={date ? fmtDate(date) : t.pickDate} selected={!!date} onPress={() => setDateOpen(o => !o)} />} onPress={() => setDateOpen(o => !o)} />
           {dateOpen ? (
             <View>
-              <DateGrid value={date} onChange={iso => { setDate(iso); setDateOpen(false); }} />
+              <DateGrid value={date} canPick={canPlanOn} onLocked={() => router.push('/paywall?from=plan')} onChange={iso => { setDate(iso); setDateOpen(false); }} />
               {date ? <Pressable onPress={() => { setDate(null); setRemind(false); setDateOpen(false); }} style={{ alignSelf: 'center', paddingBottom: 12 }}><Text style={s.link}>{t.clearDate}</Text></Pressable> : null}
             </View>
           ) : null}

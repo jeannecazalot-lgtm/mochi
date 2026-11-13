@@ -9,7 +9,7 @@ import * as Haptics from 'expo-haptics';
 import { CTAPrimary } from '../src/components/ui';
 import { CheckDot } from '../src/components/setup/extra';
 import { TaskIcon } from '../src/components/task-icon';
-import { extendHorizon, restartableTasks } from '../src/horizon';
+import { extendHorizon, restartableTasks, restartWindow } from '../src/horizon';
 import { pushToPartner } from '../src/push';
 import { occStore } from '../src/demo-core';
 import { useTokens, type, layout } from '../src/theme-v3';
@@ -29,7 +29,7 @@ export default function Semaine() {
   const toggle = id => setOn(o => (o.includes(id) ? o.filter(x => x !== id) : [...o, id]));
   const launch = async () => {
     setBusy(true);
-    const n = await extendHorizon({ manual: true, force: true, only: on }).catch(() => 0);
+    const n = await extendHorizon({ manual: true, force: true, only: on, ...restartWindow() }).catch(() => 0); // une semaine calendaire (src/week.js)
     setBusy(false); occStore.bump();
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
     pushToPartner('weekRestarted', { n }, '/(tabs)/planning');

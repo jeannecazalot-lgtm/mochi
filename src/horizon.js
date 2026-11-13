@@ -20,8 +20,7 @@ import { rescheduleReminders } from './reminders';
 import { isPremium } from './demo-premium';
 
 const PER_WEEK = { daily: 7, twiceWeek: 2, weekly: 1, monthly: 1, once: 0 };
-const dowOf = iso => (new Date(iso + 'T12:00:00').getDay() + 6) % 7;
-const daysBetween = (a, b) => Math.round((new Date(b + 'T12:00:00') - new Date(a + 'T12:00:00')) / 86400000);
+import { dowOf, daysBetween, planWeekEnd } from './week';
 
 // la personne la moins chargée sur la fenêtre (minutes des occurrences à faire)
 export function lighterMember(occs, tasks, uid, puid, from = localIso(), to = addDaysIso(6)) {
@@ -38,7 +37,9 @@ export function lighterMember(occs, tasks, uid, puid, from = localIso(), to = ad
 let lastRun = 0;
 // Mochi+ (Jeanne, 10 nov 2026) : « en gratuit on repart de zéro chaque semaine, en payant tout est pré-rempli ».
 // Sans Mochi+, rien ne se reconduit tout seul : le foyer relance sa semaine depuis l'écran Semaine (`manual`, `only`).
-export async function extendHorizon({ force = false, manual = false, only = null } = {}) {
+// `from` / `to` : fenêtre en jours depuis aujourd'hui (par défaut J+1 → J+7, Mochi+ en continu) ; le gratuit
+// relance une semaine calendaire (src/week.js : lundi → dimanche), la création du foyer pose sa semaine de rodage.
+export async function extendHorizon({ force = false, manual = false, only = null, from = 1, to = null } = {}) {
   const uid = getUid();
   if (!uid) return 0;
   if (!manual && !isPremium()) return 0;
@@ -47,6 +48,8 @@ export async function extendHorizon({ force = false, manual = false, only = null
   const puid = getPartnerUid() || null;
   const [tasks, occs] = await Promise.all([read('tasks'), read('occurrences')]);
   const today = localIso();
+  const last = Math.max(from, to ? daysBetween(today, to) : 7);
+  const ks = []; for (let k = from; k <= last; k++) ks.push(k);
   let created = 0;
   for (const task of tasks) {
     if (task.deleted_at || task.archived_at || task.active === false || !task.household_id) continue;
@@ -62,12 +65,12 @@ export async function extendHorizon({ force = false, manual = false, only = null
     // puisque la passe de la veille couvrait jusqu'à J+7)
     const wanted = [];
     if (days.length) {
-      for (let k = 1; k <= 7; k++) { const iso = addDaysIso(k); if (days.includes(dowOf(iso))) wanted.push(iso); }
+      for (const k of ks) { const iso = addDaysIso(k); if (days.includes(dowOf(iso))) wanted.push(iso); }
     } else if (freq === 'daily') {
-      for (let k = 1; k <= 7; k++) wanted.push(addDaysIso(k));
+      for (const k of ks) wanted.push(addDaysIso(k));
     } else if (freq === 'monthly') {
       const last = mine.filter(o => o.due_date < today).slice(-1)[0];
-      if (last) { const next = addDaysIso(28, new Date(last.due_date + 'T12:00:00')); if (next > today && next <= addDaysIso(7)) wanted.push(next); }
+      if (last) { const next = addDaysIso(28, new Date(last.due_date + 'T12:00:00')); if (next >= addDaysIso(from) && next <= addDaysIso(last)) wanted.push(next); }
     } else {
       // motif des 14 derniers jours (jours de semaine) ; sans historique, on garde l'espacement des dernières occurrences
       const recent = mine.filter(o => o.due_date >= addDaysIso(-14) && o.due_date < today);
@@ -75,7 +78,7 @@ export async function extendHorizon({ force = false, manual = false, only = null
       const perWeek = PER_WEEK[freq] || 1;
       const pattern = dows.length ? dows.slice(-perWeek) : [...new Set(mine.slice(-perWeek).map(o => dowOf(o.due_date)))];
       if (!pattern.length) continue; // tâche sans aucune occurrence : rien à reconduire
-      for (let k = 1; k <= 7; k++) { const iso = addDaysIso(k); if (pattern.includes(dowOf(iso))) wanted.push(iso); }
+      for (const k of ks) { const iso = addDaysIso(k); if (pattern.includes(dowOf(iso))) wanted.push(iso); }
     }
     for (const iso of wanted) {
       if (has(iso)) continue;
@@ -95,11 +98,16 @@ export async function extendHorizon({ force = false, manual = false, only = null
   return created;
 }
 
-// semaine à relancer ? (gratuit) : plus aucune mission prévue à partir de demain
+// semaine à relancer ? (gratuit) : le dimanche, rien n'est prévu pour la semaine qui vient ; les autres jours,
+// plus rien n'est prévu à partir de demain (dimanche manqué)
 export async function weekNeedsRestart() {
-  const occs = await read('occurrences'); const tomorrow = addDaysIso(1);
-  return !occs.some(o => o.status !== 'skipped' && o.due_date >= tomorrow);
+  const occs = await read('occurrences'); const live = o => o.status !== 'skipped';
+  if (dowOf(localIso()) === 6) { const a = addDaysIso(1), b = addDaysIso(7); return !occs.some(o => live(o) && o.due_date >= a && o.due_date <= b); }
+  const tomorrow = addDaysIso(1);
+  return !occs.some(o => live(o) && o.due_date >= tomorrow);
 }
+// la fenêtre de la relance gratuite : le dimanche → toute la semaine suivante ; sinon → d'aujourd'hui à dimanche
+export const restartWindow = () => ({ from: dowOf(localIso()) === 6 ? 1 : 0, to: planWeekEnd() });
 // les missions qu'on peut relancer : tâches vivantes du foyer (hors « une fois »)
 export async function restartableTasks() {
   const tasks = await read('tasks');

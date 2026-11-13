@@ -24,6 +24,7 @@ import copy from '../src/copy';
 import { colors, space, font, alpha } from '../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 import { LOCALE } from '../src/lang';
+import { canPlanOn } from '../src/week';
 
 const t = copy.event;
 const ph = tk().seg;
@@ -109,7 +110,7 @@ export default function Evenement() {
 
         <Card r={16} padding={0} style={s.block}>
           <Row first label={t.dateLabel} right={<PillChip label={date ? fmtDate(date) : copy.notes.pickDate} selected={!!date} onPress={() => setDateOpen(o => !o)} />} onPress={() => setDateOpen(o => !o)} />
-          {dateOpen ? <DateGrid value={date} onChange={iso => { setDate(iso); setDateOpen(false); Haptics.selectionAsync().catch(() => {}); }} /> : null}
+          {dateOpen ? <DateGrid value={date} canPick={canPlanOn} onLocked={() => router.push('/paywall?from=plan')} onChange={iso => { setDate(iso); setDateOpen(false); Haptics.selectionAsync().catch(() => {}); }} /> : null}
           <Row label={t.timeLabel} right={<TextInput value={time} onChangeText={setTime} placeholder={t.timePlaceholder} placeholderTextColor={ph} keyboardType="numbers-and-punctuation" returnKeyType="done" style={s.inline} cursorColor={tk().accent} selectionColor={tk().accent} />} />
           <Row label={t.placeLabel} right={<TextInput value={place} onChangeText={setPlace} placeholder={t.placePlaceholder} placeholderTextColor={ph} returnKeyType="done" style={[s.inline, { minWidth: 140 }]} cursorColor={tk().accent} selectionColor={tk().accent} />} />
         </Card>

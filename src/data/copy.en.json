@@ -1436,8 +1436,8 @@
   "benefits": [
    {
     "icon": "list",
-    "t": "Your week, ready to go",
-    "s": "Your tasks come back on their own. On Free, you start from scratch every week."
+    "t": "Plan without limits",
+    "s": "Your tasks come back on their own, week after week. On Free, you plan one week at a time."
    },
    {
     "icon": "gift",
@@ -1494,7 +1494,7 @@
     1
    ],
    [
-    "Your week, ready to go",
+    "Plan without limits",
     0
    ],
    [
@@ -1509,7 +1509,7 @@
   "tiles": [
    {
     "icon": "list",
-    "t": "Week ready to go"
+    "t": "No limits"
    },
    {
     "icon": "gift",
@@ -1543,6 +1543,15 @@
      "s": "All twelve months at a glance: who does what, and when."
     },
     "drop": "calendar"
+   },
+   "plan": {
+    "headline": "Planning further ahead?\nThat's Mochi+",
+    "first": {
+     "icon": "list",
+     "t": "Plan without limits",
+     "s": "An appointment three weeks out, a task for next month: add them whenever they come to mind. On Free, you plan one week at a time."
+    },
+    "drop": "list"
    }
   }
  },
@@ -1787,7 +1796,14 @@
   "t-chien-matin": "Morning dog walk"
  },
  "forme": {
-  "titles": ["{name}", "{name} is sick", "{name} is feeling off", "{name} is sulking", "{name} is doing well", "{name} is thriving"],
+  "titles": [
+   "{name}",
+   "{name} is sick",
+   "{name} is feeling off",
+   "{name} is sulking",
+   "{name} is doing well",
+   "{name} is thriving"
+  ],
   "whyTitle": "Why",
   "lost": "{task} not done ({who}) · {day}",
   "gained": "{task} caught up · {day}",
@@ -1812,5 +1828,43 @@
    }
   ],
   "floor": "He never drops below one heart. At one heart, he’s sick."
+ },
+ "recap": {
+  "kicker": "Week of {from} – {to}",
+  "gainTitle": "What Mochi got out of it",
+  "heartUp": "+1 heart",
+  "heartSick": "Mochi got sick",
+  "heartNone": "No heart this time",
+  "heartLabel": "Hearts",
+  "stageLabel": "Stage",
+  "stageNext": "{n} more weeks to stage {k}",
+  "stageMax": "Top stage reached",
+  "stageNotCounted": "This week doesn't count toward growing",
+  "pearlsLabel": "Pearls earned",
+  "pearls": "+{n}",
+  "splitTitle": "Who carried what",
+  "splitLine": "{time} · {n} tasks",
+  "splitNone": "Nothing checked off",
+  "doneTitle": "What got done",
+  "doneLine": "{done} of {total} tasks",
+  "missed": "To catch up on: {list}",
+  "nextTitle": "The week ahead",
+  "nextReady": "Your week is ready: {n} tasks.",
+  "nextReadyPlus": "With Mochi+, your week set itself up: {n} tasks.",
+  "nextEmpty": "Nothing planned for Monday yet.",
+  "nextCta": "Plan the week",
+  "nextPlanner": "Open the Planner",
+  "nextPlus": "With Mochi+, it plans itself.",
+  "nextPlusCta": "Explore Mochi+",
+  "cta": "Got it",
+  "close": "Close",
+  "balanceRow": "Weekly recap",
+  "balanceRowSub": "Last Sunday's wrap-up",
+  "none": "No recap yet: the first one lands Sunday at 8 PM.",
+  "pushTitle": "Your weekly recap is ready",
+  "pushBody": "Mochi did the math. Come see how your week went.",
+  "stageNextOne": "1 more week to stage {k}",
+  "splitLineOne": "{time} · 1 task",
+  "later": "Later"
  }
 }

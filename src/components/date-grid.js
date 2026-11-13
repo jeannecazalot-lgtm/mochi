@@ -11,7 +11,8 @@ import copy from '../copy';
 import { colors } from '../theme';
 import { styles as v3Styles, currentTokens as tk } from '../theme-v3';
 
-export function DateGrid({ value, onChange, allowPast = false }) {
+// `canPick` / `onLocked` : jours hors de la semaine gratuite (src/week.js) → visibles, grisés, ouvrent Mochi+
+export function DateGrid({ value, onChange, allowPast = false, canPick = null, onLocked = null }) {
   const tc = copy.calendar;
   const [offset, setOffset] = useState(0);
   const base = new Date();
@@ -34,9 +35,10 @@ export function DateGrid({ value, onChange, allowPast = false }) {
           if (!d) return <View key={i} style={s.cell} />;
           const iso = localIso(new Date(year, month, d));
           const on = iso === value, off = allowPast ? iso > todayIso : iso < todayIso;
+          const locked = !off && canPick && !canPick(iso);
           return (
             <View key={i} style={s.cell}>
-              <Pressable disabled={off} onPress={() => onChange(iso)} style={[s.day, on && s.dayOn, off && { opacity: 0.3 }]}>
+              <Pressable disabled={off} onPress={() => (locked ? onLocked?.() : onChange(iso))} style={[s.day, on && s.dayOn, (off || locked) && { opacity: 0.3 }]}>
                 <Text style={[s.dayNum, on && { color: tk().bg }]}>{d}</Text>
               </Pressable>
             </View>
