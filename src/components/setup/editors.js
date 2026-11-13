@@ -110,9 +110,12 @@ function PrefSwatch({ kind, label }) {
 
 // légende + liste unique de chips à bascule (08 v2)
 export function PrefsEditor({ prefs, onChange }) {
+  // limite de 3 par côté gardée (Jeanne, 13 nov 2026) ; au-delà, on le DIT au lieu de seulement vibrer
+  // (Ketley, TestFlight 10 nov : « je peux pas avoir plus de trois tâches que j'aime, on peut enlever ? »)
+  const [atLimit, setAtLimit] = React.useState(false);
   const tap = id => {
     const next = cyclePref(prefs, id);
-    if (next) onChange(next); else Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
+    if (next) { onChange(next); setAtLimit(false); } else { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {}); setAtLimit(true); }
   };
   return (
     <View>
@@ -124,6 +127,7 @@ export function PrefsEditor({ prefs, onChange }) {
       <View style={s.wrap}>
         {prefsPool.map(c => <Chip key={c.id} c={c} state={prefs[c.id]} onPress={() => tap(c.id)} />)}
       </View>
+      {atLimit ? <Text style={{ fontSize: 13, color: tk().accent, marginTop: 10 }}>{t.prefsLimit}</Text> : null}
     </View>
   );
 }

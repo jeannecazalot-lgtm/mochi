@@ -103,6 +103,7 @@
   "legendNone": "not free",
   "tapHint": "Tap a box: once = a little, twice = all in, three times = not free.",
   "disposSub2": "Tap a box: once for a little, twice for all in. Be honest — Mochi uses it.",
+  "prefsLimit": "3 max on each side: remove one to pick another.",
   "prefsLegendNeutral": "neutral",
   "prefsLegendLike": "I like it · 1 tap",
   "prefsLegendHate": "I hate it · 2 taps",

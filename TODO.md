@@ -494,7 +494,7 @@ Décisions Jeanne (13 nov) :
 - **Balance** : ordre = qui en fait le plus → pourquoi → comment rééquilibrer.
 - **Rappel envoyé** : affiché sur la mission (proposition Claude : « Rappel envoyé · 9 h » chez l'envoyeur, « Jeanne te l'a rappelée » chez l'autre) + visible dans Suivi côté envoyeur (demande Ketley : « je ne vois que les tiens »).
 - **Tâches avec dépense** (Courses…) : mettre en avant qu'on peut ajouter la dépense → levier Mochi+ (sans Mochi+ : paywall).
-- À trancher : limite de 3 « j'aime » / 3 « je déteste » (Ketley veut l'enlever ; règle du 23 août).
+- **Limite de 3 « j'aime » / 3 « je déteste » gardée** (Jeanne, 13 nov). Au-delà, une phrase le dit (« 3 max de chaque côté… ») au lieu d'une simple vibration. Non vu à l'écran (les touches du simulateur ne passent pas).
 
 Backlog (P1 = bug, P2 = clarté, P3 = ajout) :
 - [x] P1 Notification « X te propose de reprendre » : app fermée, le toucher n'ouvrait rien → la dernière notification touchée est lue au lancement (`src/push.js`, doc Expo). **Correction sur hypothèse, non reproduite** (pas de push sur simulateur) : à vérifier sur iPhone.
