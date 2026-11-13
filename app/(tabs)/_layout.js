@@ -47,7 +47,7 @@ export default function TabsLayout() {
   }, []);
   return (
     <View style={{ flex: 1 }}>
-      <Tabs tabBar={props => <TabBar {...props} onFab={fab.toggle} />} screenOptions={{ headerShown: false, freezeOnBlur: false, animation: 'shift' /* ChatGPT n°6, validée 14 sept 2026 : fondu + léger décalage entre onglets */ }}>
+      <Tabs tabBar={props => <TabBar {...props} onFab={fab.toggle} />} screenOptions={{ headerShown: false, freezeOnBlur: false, animation: 'none' /* 13 nov 2026 : l'animation « shift » (fondu + décalage, validée le 14 sept) laissait le Planning tout blanc quand une synchro tombait pendant le changement d'onglet — reproduit 3 fois sur 7 au simulateur, 0 sur 7 sans animation (vidéo de Jeanne du 13 nov) */ }}>
         <Tabs.Screen name="index" />
         <Tabs.Screen name="planning" />
         <Tabs.Screen name="balance" />
