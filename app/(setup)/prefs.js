@@ -16,6 +16,7 @@ import { syncJoinerPrefs, syncMyPains } from '../../src/sync-setup';
 import { askNotificationPermission } from '../../src/notifications';
 import { registerPushToken } from '../../src/push';
 import copy from '../../src/copy';
+import { isEN } from '../../src/lang';
 import { Egg } from '../../src/components/mochi/scene';
 import { useTokens as useT3 } from '../../src/theme-v3';
 const EggHero = () => <Egg T={useT3()} />;
@@ -40,7 +41,7 @@ export function TimeStepper({ time, onChange }) {
           <Text style={s.timeLabel}>{label}</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
             <Pressable onPress={() => bump(k, -step)} hitSlop={8} style={s.stepBtn}><Text style={s.stepTxt}>−</Text></Pressable>
-            <Text style={s.stepVal}>{k === 'h' ? `${h} h` : String(m).padStart(2, '0')}</Text>
+            <Text style={s.stepVal}>{k === 'h' ? (isEN ? `${h % 12 || 12} ${h < 12 ? 'AM' : 'PM'}` : `${h} h`) : String(m).padStart(2, '0')}</Text>
             <Pressable onPress={() => bump(k, step)} hitSlop={8} style={s.stepBtn}><Text style={s.stepTxt}>+</Text></Pressable>
           </View>
         </View>

@@ -17,6 +17,7 @@ import { rescheduleReminders } from '../src/reminders';
 import { askNotificationPermission } from '../src/notifications';
 import { registerPushToken } from '../src/push';
 import copy from '../src/copy';
+import { isEN, fmtHHMM } from '../src/lang';
 import { colors, space, font, alpha } from '../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 
@@ -51,7 +52,7 @@ export default function Notifs() {
                 <Text style={s.sub}>{t.dailySub}</Text>
               </View>
               <Pressable onPress={() => setOpen(o => !o)} style={[s.time, open && { backgroundColor: tk().ink }]}>
-                <Text style={[s.timeTxt, open && { color: tk().bg }]}>{time}</Text>
+                <Text style={[s.timeTxt, open && { color: tk().bg }]}>{isEN ? fmtHHMM(time) : time}</Text>
               </Pressable>
             </View>
             {open ? <TimeStepper time={time} onChange={changeTime} /> : null}

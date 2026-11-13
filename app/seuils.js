@@ -11,6 +11,7 @@ import { SheetHandle } from '../src/components/social/extra';
 import { loadSetup, thresholdsOf } from '../src/setup-state';
 import { saveThresholdsEverywhere } from '../src/thresholds';
 import copy from '../src/copy';
+import { isEN } from '../src/lang';
 import { colors, space, radius, font, alpha } from '../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 
@@ -23,7 +24,7 @@ function Row({ label, value, onMinus, onPlus, first }) {
       <Text style={s.label}>{label}</Text>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
         <Pressable onPress={onMinus} hitSlop={8} style={s.stepBtn}><Text style={s.stepTxt}>−</Text></Pressable>
-        <Text style={s.val}>{value} %</Text>
+        <Text style={s.val}>{value}{isEN ? '%' : ' %'}</Text>
         <Pressable onPress={onPlus} hitSlop={8} style={s.stepBtn}><Text style={s.stepTxt}>+</Text></Pressable>
       </View>
     </View>
