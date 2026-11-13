@@ -9,7 +9,7 @@ import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
 import { GlowBg } from '../src/components/ui';
 import { joinWithCode } from '../src/invite-actions';
 import { supabase } from '../src/supabase';
-import copy from '../src/data/copy.json';
+import copy from '../src/copy';
 import { colors } from '../src/theme';
 
 export default function LienInvitation() {

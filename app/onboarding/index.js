@@ -19,7 +19,8 @@ import { TaskIcon } from '../../src/components/task-icon';
 import { Check } from '../../src/components/mochi/gauges';
 import { setPendingName } from '../../src/mochi-state';
 import { useTokens, type, layout } from '../../src/theme-v3';
-import copy from '../../src/data/copy.json';
+import copy from '../../src/copy';
+import { isEN } from '../../src/lang';
 
 const t = copy.onbV5;
 
@@ -106,7 +107,7 @@ export default function Onboarding() {
             <Animated.View key={r.t} entering={FadeInDown.delay(150 + k * 90).duration(300)} style={{ flexDirection: 'row', alignItems: 'baseline', paddingVertical: 10, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: T.line }}>
               <Label T={T} style={{ flex: 1 }}>{r.t}</Label>
               {/* les chiffres comptent sous les yeux (retour Jeanne 7 nov 2026), en cascade */}
-              {i === index && r.n ? <CountUp value={r.n} duration={900 + k * 250} format={v => (r.f === 'hm' ? `+${Math.floor(v / 60)}h${String(Math.round(v % 60)).padStart(2, '0')}` : `≈ ${Math.round(v)}h`)} style={{ fontSize: 22, fontWeight: '600', letterSpacing: -0.4, color: T.accent, fontVariant: ['tabular-nums'] }} /> : <Num T={T} style={{ fontSize: 22, color: T.accent }}>{r.v}</Num>}
+              {i === index && r.n ? <CountUp value={r.n} duration={900 + k * 250} format={v => (r.f === 'm' ? `+${Math.round(v)} min` : r.f === 'hm' ? (isEN ? `+${Math.floor(v / 60)}h ${Math.round(v % 60)}m` : `+${Math.floor(v / 60)}h${String(Math.round(v % 60)).padStart(2, '0')}`) : (isEN ? `≈ ${Math.round(v)} hrs` : `≈ ${Math.round(v)}h`))} style={{ fontSize: 22, fontWeight: '600', letterSpacing: -0.4, color: T.accent, fontVariant: ['tabular-nums'] }} /> : <Num T={T} style={{ fontSize: 22, color: T.accent }}>{r.v}</Num>}
             </Animated.View>
           ))}
           <Label T={T} style={{ marginTop: 8, textAlign: 'center' }}>{item.source}</Label>

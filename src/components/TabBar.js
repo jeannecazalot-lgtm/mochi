@@ -5,7 +5,7 @@ import { View, Text, Pressable, StyleSheet, Image } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTokens } from '../theme-v3';
-import copy from '../data/copy.json';
+import copy from '../copy';
 
 const ICONS = {
   index: 'M4 11.5L12 4l8 7.5V20a1 1 0 01-1 1h-4v-6h-6v6H5a1 1 0 01-1-1v-8.5z',
@@ -27,7 +27,7 @@ export default function TabBar({ state, navigation, onFab }) {
       {ORDER.map(name => {
         if (name === 'fab') {
           return (
-            <Pressable key="fab" onPress={onFab} style={s.fabWrap} accessibilityLabel="Ajouter">
+            <Pressable key="fab" onPress={onFab} style={s.fabWrap} accessibilityLabel={copy.common.add || "Ajouter"}>
               <View style={[s.fab, { backgroundColor: T.accent }]}>
                 <Svg width={20} height={20} viewBox="0 0 24 24" fill="none"><Path d="M12 5v14M5 12h14" stroke={T.bg} strokeWidth={2.4} strokeLinecap="round" /></Svg>
               </View>

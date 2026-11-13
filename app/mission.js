@@ -24,9 +24,10 @@ import { mochiReact } from '../src/components/mochi-img';
 import { me, partner, fmtMin } from '../src/demo';
 import { fmtWeekday } from '../src/demo-task';
 import { localIso } from '../src/dates';
-import copy from '../src/data/copy.json';
+import copy from '../src/copy';
 import { space, alpha, motion } from '../src/theme';
 import { useTokens } from '../src/theme-v3';
+import { dayWord } from '../src/lang';
 
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
 const fmtAmount = cents => `${(cents / 100).toFixed(2).replace('.', ',')} €`;
@@ -154,7 +155,7 @@ export default function Mission() {
   const cents = parseAmount(amount);
   const days = Array.from({ length: 6 }, (_, i) => {
     const d = new Date(Date.now() + (i + 1) * 86400000);
-    return { iso: localIso(d), label: copy.calendar.dowsLong[(d.getDay() + 6) % 7].toLowerCase(), long: fmtWeekday(d) };
+    return { iso: localIso(d), label: dayWord(copy.calendar.dowsLong[(d.getDay() + 6) % 7]), long: fmtWeekday(d) };
   });
 
   const head = (
@@ -181,7 +182,7 @@ export default function Mission() {
   );
 
   // résumé de la règle (une ligne) : jours · qui
-  const ruleSummary = [rule.window_days.length ? rule.window_days.map(i => copy.calendar.dowsLong[i].toLowerCase()).join(', ') : t.ruleAnyDay, t.who[rule.who] || partner.first_name].join(' · ');
+  const ruleSummary = [rule.window_days.length ? rule.window_days.map(i => dayWord(copy.calendar.dowsLong[i])).join(', ') : t.ruleAnyDay, t.who[rule.who] || partner.first_name].join(' · ');
 
   if (confirm) {
     const props = typeof confirm === 'object' ? confirm : confirm === 'done'

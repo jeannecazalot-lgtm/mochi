@@ -1,0 +1,14 @@
+{
+  "places": { "jardin": "The garden", "riviere": "The river", "foret": "The forest", "ville": "The city", "plage": "The beach", "montagne": "The mountains" },
+  "placeTo": { "jardin": "to the garden", "riviere": "to the river", "foret": "into the forest", "ville": "into town", "plage": "to the beach", "montagne": "up the mountain" },
+  "labels": {
+    "jardin-01": "A smooth pebble", "jardin-02": "A gray feather", "jardin-03": "A pine cone", "jardin-04": "A rust-red leaf", "jardin-05": "A four-leaf clover", "jardin-06": "An empty snail shell", "jardin-07": "A white stone", "jardin-08": "A crooked twig",
+    "riviere-01": "A striped pebble", "riviere-02": "A piece of sea glass", "riviere-03": "A bit of driftwood", "riviere-04": "A heart-shaped stone", "riviere-05": "A tiny crayfish shell", "riviere-06": "A reed", "riviere-07": "A heron feather", "riviere-08": "A jar of fine sand",
+    "foret-01": "An acorn", "foret-02": "A tuft of soft moss", "foret-03": "A dried mushroom", "foret-04": "An owl feather", "foret-05": "A scrap of lichen", "foret-06": "A hazelnut",
+    "ville-01": "A subway ticket", "ville-02": "A foreign coin", "ville-03": "A soda bottle cap", "ville-04": "A postcard", "ville-05": "A golden button", "ville-06": "A little mirror",
+    "plage-01": "A pearly seashell", "plage-02": "A starfish", "plage-03": "A bit of rope", "plage-04": "A piece of blue sea glass", "plage-05": "An empty sea urchin", "plage-06": "An ammonite",
+    "montagne-01": "A dried edelweiss", "montagne-02": "A quartz crystal", "montagne-03": "A giant pine cone", "montagne-04": "A little bell", "montagne-05": "A snowball pebble", "montagne-06": "An eagle feather",
+    "chewinggum": "Gumball machine", "cheval": "Rocking horse", "lave": "Lava lamp", "cadre": "Photo of you two", "lampe": "Mushroom lamp", "aquarium": "Fish tank (fish included)", "cage": "Birdcage (bird included)", "tournedisque": "Record player", "coucou": "Cuckoo clock", "disco": "Disco ball", "mobile": "Cloud and star mobile", "maisonpoupee": "Dollhouse", "piano": "Piano", "montgolfiere": "Hot-air balloon", "cheminee": "Fireplace", "jukebox": "Jukebox", "baignoire": "Bubble bath",
+    "lunettesrouges": "Sunglasses", "noeud": "Bow tie", "beret": "Beret", "fete": "Party hat", "lunettesecolier": "Round glasses", "lapin": "Bunny ears", "fleurs": "Flower crown", "couronne": "Crown", "pirate": "Pirate hat", "cire": "Rain hood", "astronaute": "Astronaut helmet"
+  }
+}

@@ -13,7 +13,7 @@ import { getUid } from './identity';
 import { localIso, addDaysIso } from './dates';
 import { weekStartIso } from './malus-actions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import items from './data/mochi-items.json';
+import items from './items';
 
 export const STAGES = ['egg', 'mini', 'mochi', 'maxi', 'dore'];
 export const STAGE_AT = { mochi: 2, maxi: 6, dore: 14 };           // semaines « qui comptent » cumulées (7 nov 2026, Jeanne : Finch grandit dès 7 jours)

@@ -8,7 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { GlowBg, SetupHeader } from '../../src/components/ui';
 import { Egg } from '../../src/components/mochi/scene';
 import { useTokens, layout } from '../../src/theme-v3';
-import copy from '../../src/data/copy.json';
+import copy from '../../src/copy';
 
 const t = copy.setup;
 const ICON = { invite: require('../../assets/icones/mail.png'), join: require('../../assets/icones/key.png') };

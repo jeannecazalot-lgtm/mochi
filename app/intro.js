@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, Pressable, useWindowDimensions } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withDelay, withTiming, Easing, runOnJS } from 'react-native-reanimated';
-import copy from '../src/data/copy.json';
+import copy from '../src/copy';
 
 const FELT = require('../assets/splash/feutre.jpg');
 const FACE = { sleeping: require('../assets/splash/mochi-sleeping.png'), neutral: require('../assets/splash/mochi-neutral.png'), happy: require('../assets/splash/mochi-happy.png') };

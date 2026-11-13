@@ -5,11 +5,12 @@
 // Les chiffres ne sont PAS des chiffres publics.
 // ═══════════════════════════════════════════════════════════════════
 import { me, partner, streak, balance, tasks, today } from './demo';
+import { LOCALE, isEN } from './lang';
 
 // catalogue des badges (SPECS §streak) : seuil en jours équilibrés d'affilée
 export const badges = [
-  { id: 'b-semaine', days: 7, emoji: '🥇', title: 'Première semaine fluide' },
-  { id: 'b-duo', days: 14, emoji: '🏅', title: 'Duo huilé' },
+  { id: 'b-semaine', days: 7, emoji: '🥇', title: isEN ? 'First smooth week' : 'Première semaine fluide' },
+  { id: 'b-duo', days: 14, emoji: '🏅', title: isEN ? 'Well-oiled duo' : 'Duo huilé' },
 ];
 export const badgeById = id => badges.find(b => b.id === id);
 export const nextBadge = days => badges.find(b => b.days > days) || null;
@@ -63,6 +64,6 @@ export const bilan = {
 export const celebration = { badge_id: 'b-duo', days: badgeById('b-duo').days, is_record: true };
 
 // formats
-export const fmtMonth = d => { const m = d.toLocaleDateString('fr-FR', { month: 'long' }); return m.charAt(0).toUpperCase() + m.slice(1); };
-export const fmtDay = d => d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+export const fmtMonth = d => { const m = d.toLocaleDateString(LOCALE, { month: 'long' }); return m.charAt(0).toUpperCase() + m.slice(1); };
+export const fmtDay = d => d.toLocaleDateString(LOCALE, { day: 'numeric', month: 'short' });
 export const taskTitle = id => (tasks.find(t => t.id === id) || {}).title || '';

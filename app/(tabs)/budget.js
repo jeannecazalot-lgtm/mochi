@@ -24,7 +24,7 @@ import Animated, { FadeInDown, LinearTransition } from 'react-native-reanimated'
 import { mochiReact } from '../../src/components/mochi-img';
 import { loadSetup, setup, inRealMode } from '../../src/setup-state';
 import { getUid, getPartnerUid, loadIdentity, useIdentity } from '../../src/identity';
-import copy from '../../src/data/copy.json';
+import copy from '../../src/copy';
 import { space } from '../../src/theme';
 import { TaskIcon } from '../../src/components/task-icon';
 

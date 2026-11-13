@@ -11,11 +11,12 @@ import { Scene } from '../src/components/mochi/scene';
 import { Label, Num } from '../src/components/mochi/gauges';
 import { useTokens, type, layout } from '../src/theme-v3';
 import { unseenMoments, markSeen, getMochi, PEARLS, STAGES } from '../src/mochi-state';
-import items from '../src/data/mochi-items.json';
+import items from '../src/items';
 import { read } from '../src/store';
 import { isLive } from '../src/occ-actions';
 import { partner } from '../src/demo';
-import copy from '../src/data/copy.json';
+import copy from '../src/copy';
+import { LOCALE, fmtClock } from '../src/lang';
 
 const fill = (s, vars) => Object.keys(vars).reduce((acc, k) => acc.replace(`{${k}}`, vars[k]), s);
 const DEMO = {
@@ -24,7 +25,7 @@ const DEMO = {
   stage_up: { type: 'stage_up', payload: { from: 'mini', to: 'mochi' }, created_at: new Date().toISOString() },
   week_closed: { type: 'week_closed', payload: { healthy: true, done_pct: 86, gap_pct: 6, sick: false }, created_at: new Date().toISOString() },
 };
-const fmtTime = iso => new Date(iso).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }).replace(':', ' h ');
+const fmtTime = iso => fmtClock(new Date(iso));
 
 export default function Moment() {
   const t = copy.moments;
@@ -41,7 +42,7 @@ export default function Moment() {
   const ev = queue[0];
   const m = mochi || { stage: ev.payload?.to || 'mini', hearts: 5 };
   const souvenir = ev.type === 'walk_return' && ev.payload?.souvenir_key ? items.souvenirs.find(s => s.key === ev.payload.souvenir_key) : null;
-  const place = items.placeTo[ev.payload?.place] || 'dehors';
+  const place = items.placeTo[ev.payload?.place] || copy.moments.outside || 'dehors';
   const stageAfter = ev.type === 'hatch' ? 'mini' : ev.type === 'stage_up' ? ev.payload?.to || m.stage : m.stage;
   const k = Math.max(1, STAGES.indexOf(stageAfter));
   const lvl = ev.type === 'hatch' ? 1 : ev.type === 'walk_return' ? 2 : k >= 3 ? 4 : 3;

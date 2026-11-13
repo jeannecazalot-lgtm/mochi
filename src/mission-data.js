@@ -13,7 +13,8 @@ import { occurrences as demoOccs, taskById, me, partner } from './demo';
 import { localIso } from './dates';
 import { logActivity } from './activity-actions';
 import { pushToPartner } from './push';
-import copy from './data/copy.json';
+import copy from './copy';
+import { dayWord } from './lang';
 
 // « Qui s'en occupe » de la sheet ↔ colonnes assign_mode / fixed_assignee
 export const whoOf = (task, uid) => task.assign_mode === 'alternate' ? 'alt'
@@ -74,7 +75,7 @@ export async function saveRule(taskId, rule) {
   await applyRuleToOccurrences(next, rule); // les prochaines occurrences suivent (7 sept 2026)
   // l'autre voit la modif dans son fil (décision Jeanne 7 sept 2026)
   const t = copy.mission;
-  const days = rule.window_days?.length ? rule.window_days.map(i => copy.calendar.dowsLong[i].toLowerCase()).join(', ') : t.ruleAnyDay;
+  const days = rule.window_days?.length ? rule.window_days.map(i => dayWord(copy.calendar.dowsLong[i])).join(', ') : t.ruleAnyDay;
   const who = t.who[rule.who] || partner.first_name;
   const vars = { task: (row.title || '…').toLowerCase(), rule: `${days} · ${who} · ${rule.duration_min} min` };
   logActivity({ type: 'ping', preset_key: 'ruleChanged', payload: vars }).catch(() => {});

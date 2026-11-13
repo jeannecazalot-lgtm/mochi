@@ -12,9 +12,10 @@ import { addDaysIso, localIso } from './dates';
 import { logActivity } from './activity-actions';
 import { pushToPartner } from './push';
 import { lighterMember } from './horizon';
-import copy from './data/copy.json';
+import copy from './copy';
+import { dayWord } from './lang';
 
-const dayLabelOf = iso => (iso === localIso() ? copy.mission.metaToday : copy.calendar.dowsLong[(new Date(iso + 'T12:00:00').getDay() + 6) % 7].toLowerCase());
+const dayLabelOf = iso => (iso === localIso() ? copy.mission.metaToday : dayWord(copy.calendar.dowsLong[(new Date(iso + 'T12:00:00').getDay() + 6) % 7]));
 
 // une occurrence « skipped » a été retirée par une règle (jours changés) : invisible partout,
 // mais la ligne reste en base pour que l'autre appareil la voie disparaître (pas de delete)

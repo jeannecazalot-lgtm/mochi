@@ -1,6 +1,6 @@
 // Retards groupés (décision Jeanne 14 sept 2026) : une ligne par tâche et par personne,
 // « Vaisselle · En retard · 5 jours » au lieu de cinq lignes. Partagé par Accueil, Planning, À faire.
-import copy from './data/copy.json';
+import copy from './copy';
 const fill = (str, vars) => String(str).replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
 
 // occs : occurrences en retard (toute date < aujourd'hui, pas faites), n'importe quel ordre

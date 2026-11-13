@@ -10,7 +10,7 @@ import { Card, CTAPrimary } from '../src/components/ui';
 import { SheetHandle } from '../src/components/social/extra';
 import { loadSetup, thresholdsOf } from '../src/setup-state';
 import { saveThresholdsEverywhere } from '../src/thresholds';
-import copy from '../src/data/copy.json';
+import copy from '../src/copy';
 import { colors, space, radius, font, alpha } from '../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 

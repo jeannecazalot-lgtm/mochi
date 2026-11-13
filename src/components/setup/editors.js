@@ -12,7 +12,7 @@ import { Card } from '../ui';
 import { Animated } from '../motion';
 import { useTogglePop, LegendChip, setupTokens } from './extra';
 import { prefsPool, prefsMax } from '../../demo-setup';
-import copy from '../../data/copy.json';
+import copy from '../../copy';
 import { colors, alpha } from '../../theme';
 import { styles as v3Styles, currentTokens as tk } from '../../theme-v3';
 import { TaskIcon } from '../task-icon';

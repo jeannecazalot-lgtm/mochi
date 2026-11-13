@@ -11,7 +11,7 @@ import Constants from 'expo-constants';
 import { supabase } from './supabase';
 import { getUid, getPartnerUid } from './identity';
 import { me } from './demo';
-import copy from './data/copy.json';
+import copy from './copy';
 
 const fill = (str, vars) => String(str || '').replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
 const EXPO_PUSH = 'https://exp.host/--/api/v2/push/send';

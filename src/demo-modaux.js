@@ -3,6 +3,7 @@
 // Complète src/demo.js sans le modifier. Disparaît au branchement Supabase.
 // ═══════════════════════════════════════════════════════════════════
 import { me, partner, today, taskById, streak } from './demo';
+import { LOCALE } from './lang';
 
 const d = (offset) => { const x = new Date(today); x.setDate(x.getDate() + offset); return x; };
 
@@ -20,7 +21,7 @@ export const demoEvent = {
     { id: 'ev4', label: 'Carte de la part des deux', who: me.id, minutes: 15 },
   ],
 };
-export const fmtEventWhen = (ev) => `${new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }).format(ev.date)} · ${ev.time} · ${ev.place}`;
+export const fmtEventWhen = (ev) => `${new Intl.DateTimeFormat(LOCALE, { weekday: 'short', day: 'numeric', month: 'short' }).format(ev.date)} · ${ev.time} · ${ev.place}`;
 
 // 32 · pense-bête partagé — `tone` = index dans extraColors.notes
 export const demoNotes = [
@@ -48,4 +49,4 @@ export const lockscreen = {
     { id: 'nt3', kind: 'streak', days: streak.days, record: streak.record, when: 'thisMorning' },
   ],
 };
-export const fmtLongDate = (date) => new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }).format(date);
+export const fmtLongDate = (date) => new Intl.DateTimeFormat(LOCALE, { weekday: 'long', day: 'numeric', month: 'long' }).format(date);

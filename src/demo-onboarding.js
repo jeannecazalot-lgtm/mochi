@@ -6,6 +6,7 @@
 // avant toute capture ASC. Les libellés associés sont dans data/copy.json.
 // ═══════════════════════════════════════════════════════════════════
 import { fmtMin } from './demo';
+import { isEN } from './lang';
 
 // 01 · le constat : écart hebdo porté par la personne en charge du foyer
 export const weeklyGapHours = 10;       // « 10h /sem. »  — chiffre de pitch à sourcer
@@ -27,5 +28,5 @@ export const avoidedPerYear = [
 ];
 export const coupleBreathing = 1;       // « +1 couple qui respire »
 
-export const fmtHours = h => `${Math.round(h)}h`;
+export const fmtHours = h => (isEN ? `${Math.round(h)} hrs` : `${Math.round(h)}h`);
 export const dailyGapLabel = () => fmtMin(dailyGapMin); // « 1h26 »

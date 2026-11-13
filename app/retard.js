@@ -25,9 +25,10 @@ import { read } from '../src/store';
 import { requestSwap } from '../src/swap-actions';
 import { localIso, addDaysIso } from '../src/dates';
 import { lateCaption } from '../src/late-groups';
-import copy from '../src/data/copy.json';
+import copy from '../src/copy';
 import { colors, space, font, motion } from '../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
+import { dayWord } from '../src/lang';
 
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
 const CLOSE_AFTER = 1700; // la confirmation reste lisible avant la fermeture (comme la sheet Tâche)
@@ -85,7 +86,7 @@ export default function Retard() {
   const finish = c => { setConfirm(c); setTimeout(close, CLOSE_AFTER); };
   const days = Array.from({ length: 6 }, (_, i) => {
     const d = new Date(Date.now() + (i + 1) * 86400000);
-    return { iso: localIso(d), label: copy.calendar.dowsLong[(d.getDay() + 6) % 7].toLowerCase(), long: fmtWeekday(d) };
+    return { iso: localIso(d), label: dayWord(copy.calendar.dowsLong[(d.getDay() + 6) % 7]), long: fmtWeekday(d) };
   });
   const pop = useCheckPop(!!confirm && confirm.kind === 'done');
   const doToday = async () => {
@@ -204,7 +205,7 @@ export default function Retard() {
 
       {rule ? (
         <Card r={16} padding={0} style={{ marginTop: 8 }}>
-          <Row first label={copy.mission.ruleLabel} sub={ruleOpen ? null : [rule.window_days.length ? rule.window_days.map(i => copy.calendar.dowsLong[i].toLowerCase()).join(', ') : copy.mission.ruleAnyDay, copy.mission.who[rule.who] || partner.first_name].join(' · ')} right={<Text style={[s.chev, ruleOpen && { transform: [{ rotate: '90deg' }] }]}>›</Text>} onPress={() => { Haptics.selectionAsync().catch(() => {}); setRuleOpen(o => !o); setAsking(false); }} />
+          <Row first label={copy.mission.ruleLabel} sub={ruleOpen ? null : [rule.window_days.length ? rule.window_days.map(i => dayWord(copy.calendar.dowsLong[i])).join(', ') : copy.mission.ruleAnyDay, copy.mission.who[rule.who] || partner.first_name].join(' · ')} right={<Text style={[s.chev, ruleOpen && { transform: [{ rotate: '90deg' }] }]}>›</Text>} onPress={() => { Haptics.selectionAsync().catch(() => {}); setRuleOpen(o => !o); setAsking(false); }} />
           {ruleOpen ? (
             <Animated.View entering={FadeIn.duration(motion.micro)}>
               <RuleEditor rule={rule} onPatch={patchRule} showMoment showEffort showDuration={false} first={false} onNoteOpen={setNoteOpen}

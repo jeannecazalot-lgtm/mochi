@@ -10,6 +10,7 @@ import { colors, radius, font } from '../../theme';
 import { Card, CTAPrimary } from '../ui';
 import { styles as v3Styles, currentTokens as tk } from '../../theme-v3';
 import { TaskIcon } from '../task-icon';
+import { isEN } from '../../lang';
 
 // tokens manquants dans theme.js (append interdit ici → locaux à premium)
 export const premiumTokens = {
@@ -20,7 +21,7 @@ export const premiumTokens = {
 // liens légaux du paywall — EULA Apple standard ; privacy À HÉBERGER (legal/privacy.html) puis renseigner ici
 export const LEGAL_URLS = {
   eula: 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/',
-  privacy: 'https://jeannecazalot-lgtm.github.io/privacy.html', // hébergée sur GitHub Pages (8 sept 2026)
+  privacy: isEN ? 'https://jeannecazalot-lgtm.github.io/privacy.html#en' : 'https://jeannecazalot-lgtm.github.io/privacy.html', // hébergée sur GitHub Pages (8 sept 2026)
 };
 
 // ─── bouton rond 34 crème + hairline : retour (←), fermer (×), chevrons ‹ › ─

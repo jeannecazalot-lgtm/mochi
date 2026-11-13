@@ -9,7 +9,7 @@ import { Slide01, Slide02, Slide03, Slide04, Slide05 } from '../../src/component
 import { Slide01A, Slide01B, Slide01C } from '../../src/components/onboarding/slide01-variants';
 import { ITERATIONS, FINAL, LayoutCtx } from '../../src/components/onboarding/iterations';
 import { useLocalSearchParams } from 'expo-router';
-import copy from '../../src/data/copy.json';
+import copy from '../../src/copy';
 import { colors, space } from '../../src/theme';
 import { dailyGapLabel } from '../../src/demo-onboarding';
 import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';

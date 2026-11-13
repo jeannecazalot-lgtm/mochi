@@ -6,7 +6,7 @@ import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { PillLabel, CTAPrimary, CTASecondary } from '../ui';
 import { colors, radius, space, font, alpha } from '../../theme';
-import copy from '../../data/copy.json';
+import copy from '../../copy';
 
 export const fill = (s, vars = {}) => Object.keys(vars).reduce((acc, k) => acc.split(`{${k}}`).join(String(vars[k])), s);
 

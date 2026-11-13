@@ -9,7 +9,9 @@ import { Card, Avatar, Micro } from '../src/components/ui';
 import { SheetHandle, ReplyChip, Chevron, social } from '../src/components/social/extra';
 import { occurrences, taskById, byId, partner, me } from '../src/demo';
 import { pingOptions } from '../src/demo-social';
-import copy from '../src/data/copy.json';
+import copy from '../src/copy';
+import { isEN } from '../src/lang';
+import { fmtHour } from '../src/demo-task';
 import { colors, space, radius, font, motion } from '../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 import { TaskIcon } from '../src/components/task-icon';
@@ -24,7 +26,7 @@ export default function Ping() {
   const occ = occurrences.find(o => o.id === occId) || occurrences.find(o => o.assignee_id === partner.id && o.status === 'pending');
   const task = occ ? taskById(occ.task_id) : null;
   const who = (occ && byId(occ.assignee_id)) || partner;
-  const time = occ?.time || task?.window_end?.replace(':00', 'h') || occ?.badge || null;
+  const time = occ?.time || (task?.window_end && (isEN ? fmtHour(task.window_end) : task.window_end.replace(':00', 'h'))) || occ?.badge || null;
 
   const close = () => router.back();
   const send = (key) => {

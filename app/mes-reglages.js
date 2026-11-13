@@ -12,7 +12,7 @@ import { DisposEditor, PrefsEditor } from '../src/components/setup/editors';
 import { disposEmpty, cycleSlot } from '../src/demo-setup';
 import { saveDispos, savePrefs, loadSetup, setup } from '../src/setup-state';
 import { syncMyAvailability, syncMyPains } from '../src/sync-setup';
-import copy from '../src/data/copy.json';
+import copy from '../src/copy';
 import { space } from '../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 

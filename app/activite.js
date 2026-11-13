@@ -21,8 +21,9 @@ import { missionDone, occStore } from '../src/demo-core';
 import { useIdentity, getUid } from '../src/identity';
 import { mySwaps, resolveSwap } from '../src/swap-actions';
 import { partner } from '../src/demo';
-import copy from '../src/data/copy.json';
+import copy from '../src/copy';
 import { radius } from '../src/theme';
+import { LOCALE } from '../src/lang';
 
 const t = copy.activity;
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
@@ -43,7 +44,7 @@ const dayLabel = (date, now = today) => {
   const diff = Math.round((now - date) / 86400000);
   if (diff === 0) return t.today;
   if (diff === 1) return t.yesterday;
-  return new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }).format(date);
+  return new Intl.DateTimeFormat(LOCALE, { weekday: 'short', day: 'numeric', month: 'short' }).format(date);
 };
 
 function Replies({ T, item, keys, chosen, onChoose, name }) {
@@ -182,7 +183,7 @@ export default function Activite() {
       if (!inRealMode()) return;
       const [occs, tasks] = await Promise.all([read('occurrences'), read('tasks')]);
       const byTask = Object.fromEntries(tasks.map(tk => [tk.id, tk]));
-      const hhmm = d => new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' }).format(new Date(d));
+      const hhmm = d => new Intl.DateTimeFormat(LOCALE, { hour: '2-digit', minute: '2-digit' }).format(new Date(d));
       const occById = Object.fromEntries(occs.map(o => [o.id, o]));
       const titleOf = occId2 => (byTask[occById[occId2]?.task_id]?.title || '…').toLowerCase();
       // Suivi « entre vous deux » (Jeanne, 7 nov 2026) : plus la liste de ce que j'ai fait (c'est dans le Planning) ;

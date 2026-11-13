@@ -21,7 +21,8 @@ import { computeRealBalance, realContributors } from '../../src/balance-real';
 import { suggestRebalance, rebalanceWeek, handTask } from '../../src/rebalance';
 import * as Haptics from 'expo-haptics';
 import { mochiStore, getMochi, STAGES, STAGE_AT } from '../../src/mochi-state';
-import copy from '../../src/data/copy.json';
+import copy from '../../src/copy';
+import { isEN } from '../../src/lang';
 import { slotColors } from '../../src/theme';
 import { TaskIcon } from '../../src/components/task-icon';
 
@@ -114,7 +115,7 @@ export default function Balance() {
 
           {/* croissance : 5 paliers, pas de nom pour l'instant — rien tant que c'est un œuf */}
           {m.stage === 'egg' ? null : <View style={{ marginHorizontal: X, marginTop: 22 * A, borderTopWidth: StyleSheet.hairlineWidth, borderColor: T.line, paddingTop: 16 * A }}>
-            <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' }}><Text style={[type.section, { color: T.ink }]}>{t.growTitle}</Text><Label T={T}>{m.stage === 'egg' ? copy.homeV3.eggPill : `palier ${k}`}</Label></View>
+            <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' }}><Text style={[type.section, { color: T.ink }]}>{t.growTitle}</Text><Label T={T}>{m.stage === 'egg' ? copy.homeV3.eggPill : (isEN ? `stage ${k}` : `palier ${k}`)}</Label></View>
             <View style={{ flexDirection: 'row', gap: 6, marginTop: 12 }}>{STAGES.map((st, i) => <View key={st} style={{ flex: 1, height: 14, borderRadius: 2, backgroundColor: i <= k ? T.ink : T.seg }} />)}</View>
             <Text style={[type.sub, { color: T.muted, marginTop: 10 }]}>{growLine}</Text>
           </View>}

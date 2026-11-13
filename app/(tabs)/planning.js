@@ -25,7 +25,7 @@ import { getUid, getPartnerUid, useIdentity } from '../../src/identity';
 import { localIso } from '../../src/dates';
 import { toggleOccurrence, isLive } from '../../src/occ-actions';
 import { isPremium } from '../../src/demo-premium';
-import copy from '../../src/data/copy.json';
+import copy from '../../src/copy';
 import { groupLate, lateCaption, daysBetweenIso } from '../../src/late-groups';
 import { space, motion, radius } from '../../src/theme';
 import { TaskIcon } from '../../src/components/task-icon';

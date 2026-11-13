@@ -11,7 +11,7 @@ import Svg, { Defs, RadialGradient, Stop, Rect, Circle, Ellipse, Path, LinearGra
 import { colors, gradients, radius, space, font, shadows, alpha, ctaSpec } from '../theme';
 import { useTokens } from '../theme-v3';
 import { MochiImage } from './mochi-img';
-import copy from '../data/copy.json';
+import copy from '../copy';
 // ─── fond app : crème + 4 halos radiaux ─────────────────────────────
 export function GlowBg({ intensity = 'normal' }) {
   // v3 : plus de halos — un fond uni qui suit le mode jour / nuit (les anciens écrans en profitent sans changement)

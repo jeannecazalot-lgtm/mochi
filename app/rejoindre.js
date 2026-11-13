@@ -8,7 +8,7 @@ import * as Haptics from 'expo-haptics';
 import { Card, Micro, CTAPrimary } from '../src/components/ui';
 import { SheetHandle } from '../src/components/social/extra';
 import { joinWithCode } from '../src/invite-actions';
-import copy from '../src/data/copy.json';
+import copy from '../src/copy';
 import { colors, space, radius, font, alpha } from '../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 

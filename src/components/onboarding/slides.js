@@ -6,7 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { GlowBg, Card, PillLabel } from '../ui';
 import { CountUp, LiveMochi } from '../motion';
 import { onb, StepPill, Kicker, AccentCard, onbStyles as o } from './extra';
-import copy from '../../data/copy.json';
+import copy from '../../copy';
 import { colors, radius, alpha } from '../../theme';
 import * as pitch from '../../demo-onboarding';
 import { styles as v3Styles, currentTokens as tk } from '../../theme-v3';

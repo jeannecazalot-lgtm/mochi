@@ -14,12 +14,13 @@ import { Burst } from '../src/components/motion';
 import { LEGAL_URLS } from '../src/components/premium/extra';
 import { LayoutA, LayoutB, LayoutC } from '../src/components/premium/paywall-layouts';
 import { getOffers, purchase, restore } from '../src/purchases';
-import copy from '../src/data/copy.json';
+import copy from '../src/copy';
+import { LOCALE } from '../src/lang';
 
 const t = copy.paywall;
 const fill = (str, vars) => String(str).replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
 const DEMO_OFFERS = [{ id: 'pass', priceString: '49,99 €', price: 49.99, currencyCode: 'EUR' }, { id: 'monthly', priceString: '14,99 €', price: 14.99, currencyCode: 'EUR' }];
-const money = (v, cur) => { try { return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: cur }).format(v); } catch (e) { return null; } };
+const money = (v, cur) => { try { return new Intl.NumberFormat(LOCALE, { style: 'currency', currency: cur }).format(v); } catch (e) { return null; } };
 const LAYOUT = 'A'; // mise en page retenue (à fixer quand Jeanne aura choisi)
 
 export default function Paywall() { const { from } = useLocalSearchParams(); return <PaywallView context={from ? String(from) : null} />; }

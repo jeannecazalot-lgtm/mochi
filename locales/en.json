@@ -1,0 +1,7 @@
+{
+  "ios": {
+    "CFBundleDisplayName": "Mindpair",
+    "NSPhotoLibraryUsageDescription": "Mindpair uses your photo library so you can pick a profile photo, which your partner will see.",
+    "NSUserNotificationsUsageDescription": "Mindpair sends you a reminder at the time you choose for today's tasks."
+  }
+}

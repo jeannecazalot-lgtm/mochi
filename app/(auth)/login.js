@@ -14,7 +14,7 @@ import { sendEmailCode, verifyEmailCode, signInWithApple, appleAvailable } from 
 import { loadProfile } from '../../src/profile';
 import { loadIdentity, getUid } from '../../src/identity';
 import { loadSetup, bindSetupToUser } from '../../src/setup-state';
-import copy from '../../src/data/copy.json';
+import copy from '../../src/copy';
 import { colors, font, radius, alpha } from '../../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';
 

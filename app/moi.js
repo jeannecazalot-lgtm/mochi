@@ -12,7 +12,7 @@ import { Row, Arrow } from '../src/components/task/proto';
 import { me } from '../src/demo';
 import { setLocalIdentity, useIdentity } from '../src/identity';
 import { saveIdentity } from '../src/profile';
-import copy from '../src/data/copy.json';
+import copy from '../src/copy';
 import { colors, space, font, alpha } from '../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 

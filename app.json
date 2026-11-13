@@ -26,7 +26,12 @@
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "Mindpair utilise ta photothèque pour choisir ta photo de profil, visible par ton binôme.",
         "NSUserNotificationsUsageDescription": "Mindpair t'envoie un rappel à l'heure que tu choisis pour tes tâches du jour.",
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "CFBundleLocalizations": [
+          "fr",
+          "en"
+        ],
+        "CFBundleDevelopmentRegion": "en"
       }
     },
     "android": {
@@ -51,7 +56,8 @@
         {
           "photosPermission": "Mindpair utilise ta photothèque pour choisir ta photo de profil, visible par ton binôme."
         }
-      ]
+      ],
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": false
@@ -70,6 +76,10 @@
       "url": "https://u.expo.dev/4c878ab4-58da-4b7a-a546-ff3046e9bf88",
       "checkAutomatically": "ON_LOAD",
       "fallbackToCacheTimeout": 8000
+    },
+    "locales": {
+      "fr": "./locales/fr.json",
+      "en": "./locales/en.json"
     }
   }
 }

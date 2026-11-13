@@ -4,7 +4,7 @@ import React from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTokens, type, layout } from '../theme-v3';
-import copy from '../data/copy.json';
+import copy from '../copy';
 
 export function RouteError({ error, retry }) {
   const T = useTokens(); const t = copy.common;

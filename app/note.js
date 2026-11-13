@@ -14,13 +14,14 @@ import { DateGrid } from '../src/components/date-grid';
 import { EmojiPicker } from '../src/components/emoji-picker';
 import { useSheetGrow, CREATE_SHEET_MIN } from '../src/components/sheet-grow';
 import { loadNotes, saveNote, deleteNote } from '../src/notes-actions';
-import copy from '../src/data/copy.json';
+import copy from '../src/copy';
 import { colors, space, font, alpha } from '../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
+import { LOCALE } from '../src/lang';
 
 const t = copy.notes;
 const NOTE_EMOJIS = ['📌', '💡', '🔑', '📞', '🎁', '🩺', '🏠', '🚗', '🧾', '🎂', '✈️', '📝'];
-const fmtDate = iso => new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }).format(new Date(iso + 'T12:00:00'));
+const fmtDate = iso => new Intl.DateTimeFormat(LOCALE, { weekday: 'short', day: 'numeric', month: 'short' }).format(new Date(iso + 'T12:00:00'));
 
 export default function NoteSheet() {
   const { id } = useLocalSearchParams();

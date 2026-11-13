@@ -11,7 +11,7 @@ import { occStore } from './demo-core';
 import { getUid, getPartnerUid } from './identity';
 import { loadSetup, setup } from './setup-state';
 import { pushToPartner } from './push';
-import copy from './data/copy.json';
+import copy from './copy';
 
 export async function logActivity({ type, preset_key, occurrence_id = null, payload = {} }) {
   await loadSetup();

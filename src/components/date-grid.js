@@ -7,7 +7,7 @@ import React, { useState } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { Micro } from './ui';
 import { localIso } from '../dates';
-import copy from '../data/copy.json';
+import copy from '../copy';
 import { colors } from '../theme';
 import { styles as v3Styles, currentTokens as tk } from '../theme-v3';
 

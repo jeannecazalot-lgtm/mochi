@@ -19,7 +19,9 @@
     "saveError": "Impossible d'enregistrer pour l'instant. Réessaie dans un instant.",
     "errorTitle": "Oups, cet écran a trébuché.",
     "errorSub": "Envoie une capture de cet écran à Jeanne et Claude, puis réessaie.",
-    "retry": "Réessayer"
+    "retry": "Réessayer",
+    "add": "Ajouter",
+    "pearlsWord": "perles"
   },
   "auth": {
     "_labels": {
@@ -2259,6 +2261,7 @@
     "soloCode": "Ton code : {code}"
   },
   "moments": {
+    "outside": "dehors",
     "_labels": {
       "hatchTitle": "Titre éclosion",
       "hatchSub": "Sous-titre éclosion",

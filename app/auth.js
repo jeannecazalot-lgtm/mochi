@@ -8,7 +8,7 @@ import { GlowBg } from '../src/components/ui';
 import { sessionFromUrl } from '../src/auth';
 import { loadProfile } from '../src/profile';
 import { loadIdentity } from '../src/identity';
-import copy from '../src/data/copy.json';
+import copy from '../src/copy';
 import { colors } from '../src/theme';
 
 export default function AuthReturn() {

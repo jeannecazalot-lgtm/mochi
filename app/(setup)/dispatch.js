@@ -18,13 +18,14 @@ import { syncSetup } from '../../src/sync-setup';
 import { pushDraft } from '../../src/draft-sync';
 import { rescheduleReminders } from '../../src/reminders';
 import { useIdentity } from '../../src/identity';
-import copy from '../../src/data/copy.json';
+import copy from '../../src/copy';
 import { Egg } from '../../src/components/mochi/scene';
 import { useTokens as useT3 } from '../../src/theme-v3';
 const EggHero = () => <Egg T={useT3()} />;
 import { colors, space, alpha, motion } from '../../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';
 import { TaskIcon } from '../../src/components/task-icon';
+import { dayWord } from '../../src/lang';
 
 const t = copy.setup;
 const fmtMinRound = v => fmtMin(Math.round(v));
@@ -60,7 +61,7 @@ const dayLabels = (it, index) => {
   const td = todayDow();
   const offs = daysForTask({ perWeek: it.freq, windowDays: it.window_days, availability: setup.availability, todayDow: td, seed: index });
   if (offs.length >= 7) return t.everyDay; // quotidien : inutile de lister les 7 jours
-  return offs.map(o => copy.calendar.dowsLong[(td + o) % 7].toLowerCase()).join(' · ');
+  return offs.map(o => dayWord(copy.calendar.dowsLong[(td + o) % 7])).join(' · ');
 };
 
 function Row({ it, index, onToggle, onFreq, onOpen }) {
@@ -204,7 +205,7 @@ export default function Dispatch() {
             </Card>
           </Animated.View>
           {/* décision Jeanne 7 sept 2026 : une seule personne répartit, l'autre découvre et ajuste */}
-          <Text style={s.shared}>{t.dispatchShared.replace('{name}', partner.first_name || 'Ton binôme')}</Text>
+          <Text style={s.shared}>{t.dispatchShared.replace('{name}', partner.first_name || (copy.common.partner.charAt(0).toUpperCase() + copy.common.partner.slice(1)))}</Text>
         </View>
 
         <ScrollView {...scrollProps} contentContainerStyle={{ paddingHorizontal: space.screenX, paddingBottom: 110 }} showsVerticalScrollIndicator={false}>

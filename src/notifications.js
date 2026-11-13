@@ -4,7 +4,7 @@
 // jamais au lancement. Phrase d'usage dans app.json.
 // ═══════════════════════════════════════════════════════════════════
 import * as Notifications from 'expo-notifications';
-import copy from './data/copy.json';
+import copy from './copy';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({ shouldShowBanner: true, shouldShowList: true, shouldPlaySound: false, shouldSetBadge: false }),

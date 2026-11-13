@@ -7,7 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { CTAPrimary } from '../ui';
 import { Scene } from '../mochi/scene';
 import { useTokens } from '../../theme-v3';
-import copy from '../../data/copy.json';
+import copy from '../../copy';
 
 const t = copy.paywall;
 const INK = '#1F2A58', CREAM = '#F5F1EA', NIGHT = '#2E2140', CORAL = '#E05A50', BUTTER = '#F7DFA8';

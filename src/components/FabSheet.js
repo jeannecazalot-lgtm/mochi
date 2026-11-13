@@ -12,7 +12,7 @@ import { useSharedValue, useAnimatedStyle, withTiming, withSpring, runOnJS } fro
 import { Divider } from './ui';
 import { Animated, useFabRotation } from './motion';
 import { Icon, ICON, SheetHandle } from './core/extra';
-import copy from '../data/copy.json';
+import copy from '../copy';
 import { isPremium } from '../demo-premium';
 import { colors, gradients, radius, space, font, motion, shadows, tabBar, alpha } from '../theme';
 import { styles as v3Styles, currentTokens as tk } from '../theme-v3';

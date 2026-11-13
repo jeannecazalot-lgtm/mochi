@@ -20,9 +20,10 @@ import { EmojiPicker } from '../../src/components/emoji-picker';
 import { setup, saveTasks, saveResult, freqPerWeek } from '../../src/setup-state';
 import { daysForTask } from '../../src/dispatch';
 import { catalogue } from '../../src/demo-setup';
-import copy from '../../src/data/copy.json';
+import copy from '../../src/copy';
 import { colors, alpha, font, space } from '../../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';
+import { dayWord } from '../../src/lang';
 
 const t = copy.task;
 const todayDow = () => (new Date().getDay() + 6) % 7;
@@ -47,7 +48,7 @@ const fromSetupTask = sid => {
   const who = item ? (item.assignee_id === me.id ? 'me' : item.assignee_id === partner.id ? 'partner' : item.assignee_id === 'alt' ? 'alt' : 'auto') : 'auto';
   // rien de pré-coché (Jeanne, 10 sept 2026 : « ne rien pré-remplir ») : les jours de Mochi sont montrés en légende
   const placed = tk?.window_days?.length ? [] : offs.map(o => (td + o) % 7).sort((a, b) => a - b);
-  return { ...EMPTY, title: tk?.label || '', emoji: tk?.emoji || '', window_days: tk?.window_days || [], mochiDays: placed.length >= 7 ? copy.setup.everyDay : placed.map(i => copy.calendar.dowsLong[i].toLowerCase()).join(' · '), deadline: tk?.deadline ?? null,
+  return { ...EMPTY, title: tk?.label || '', emoji: tk?.emoji || '', window_days: tk?.window_days || [], mochiDays: placed.length >= 7 ? copy.setup.everyDay : placed.map(i => dayWord(copy.calendar.dowsLong[i])).join(' · '), deadline: tk?.deadline ?? null,
     who, duration_min: tk?.duration_min || 15, note: tk?.note || '', pain: tk?.pain ?? 3, mental_load: !!tk?.mental_load };
 };
 const saveSetupTask = (sid, f) => {

@@ -10,7 +10,7 @@ import { LiveMochi } from '../../src/components/motion';
 import { fill } from '../../src/components/setup/extra';
 import { partner } from '../../src/demo';
 import { useIdentity } from '../../src/identity';
-import copy from '../../src/data/copy.json';
+import copy from '../../src/copy';
 import { colors, space, font } from '../../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';
 

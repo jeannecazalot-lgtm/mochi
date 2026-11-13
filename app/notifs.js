@@ -16,7 +16,7 @@ import { loadSetup, setup, savePrefs, saveCrossReminder } from '../src/setup-sta
 import { rescheduleReminders } from '../src/reminders';
 import { askNotificationPermission } from '../src/notifications';
 import { registerPushToken } from '../src/push';
-import copy from '../src/data/copy.json';
+import copy from '../src/copy';
 import { colors, space, font, alpha } from '../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 

@@ -20,14 +20,15 @@ import { getUid, getPartnerUid, useIdentity } from '../src/identity';
 import { occStore } from '../src/demo-core';
 import { logActivity } from '../src/activity-actions';
 import { pushToPartner } from '../src/push';
-import copy from '../src/data/copy.json';
+import copy from '../src/copy';
 import { colors, space, font, alpha } from '../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
+import { LOCALE } from '../src/lang';
 
 const t = copy.event;
 const ph = tk().seg;
 const EMOJIS = ['🎂', '🍽️', '🎉', '🎁', '✈️', '🏡', '🩺', '🎓', '💍', '🎭', '⚽', '📅'];
-const fmtDate = iso => new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }).format(new Date(iso + 'T12:00:00'));
+const fmtDate = iso => new Intl.DateTimeFormat(LOCALE, { weekday: 'short', day: 'numeric', month: 'short' }).format(new Date(iso + 'T12:00:00'));
 
 export default function Evenement() {
   const { id } = useLocalSearchParams();

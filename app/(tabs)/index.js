@@ -26,18 +26,19 @@ import { clearMalusFor } from '../../src/malus-actions';
 import { groupLate, lateCaption, daysBetweenIso } from '../../src/late-groups';
 import { mochiReact } from '../../src/components/mochi-img';
 import { mochiStore, getMochi, energyOf, onMissionDone, STAGES, unseenMoments, demoFlags, applyPendingName, pearlsFor, tick, positionsOf } from '../../src/mochi-state';
-import copy from '../../src/data/copy.json';
+import copy from '../../src/copy';
 import { isPremium } from '../../src/demo-premium';
 import { weekNeedsRestart } from '../../src/horizon';
 import { usePremiumVersion } from '../../src/purchases';
 import { TaskIcon } from '../../src/components/task-icon';
+import { LOCALE, fmtClock } from '../../src/lang';
 
 const fill = (s, vars) => Object.keys(vars).reduce((acc, k) => acc.replace(`{${k}}`, vars[k]), s);
 const CAPTURE = process.env.EXPO_PUBLIC_CAPTURE === '1'; // captures App Store : foyer d'exemple (Jeanne, 9 nov 2026)
 const DEMO_MOCHI = { stage: 'mini', hearts: 4, pearls: 128, walk_status: 'home', hatched_at: new Date(Date.now() - 12 * 86400e3).toISOString() };
-const fmtDate = d => { const s = d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }); return s.charAt(0).toUpperCase() + s.slice(1); };
+const fmtDate = d => { const s = d.toLocaleDateString(LOCALE, { weekday: 'long', day: 'numeric', month: 'long' }); return s.charAt(0).toUpperCase() + s.slice(1); };
 const headOn = T => (T.night ? '#F4EFE8' : T.ink); // en-tête posé sur la pièce : clair la nuit, encre le jour
-const fmtTime = iso => new Date(iso).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }).replace(':', ' h ');
+const fmtTime = iso => fmtClock(new Date(iso));
 
 function Row({ T, vm, first, done, onToggle }) {
   return (
@@ -192,7 +193,7 @@ export default function Home() {
               {/* sur la pièce (sombre), l'en-tête est en blanc cassé quel que soit le mode */}
               <Label T={T} style={{ flex: 1, color: HEAD_ }}>{fmtDate(new Date())}</Label>
               <Pressable onPress={() => router.push('/chambre')} hitSlop={8} ref={pearlsRef} onLayout={() => pearlsRef.current?.measureInWindow((x, y, w, hh) => setPearlsAt({ x: x + w / 2, y: y + hh / 2 }))} style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 6 }}>
-                <Animated.View style={popStyle}><Num T={T} style={{ color: HEAD_ }}>{(m.pearls ?? 0) + demoPearls}</Num></Animated.View><Label T={T} style={{ marginLeft: 6, color: HEAD_, opacity: 0.8 }}>perles</Label>
+                <Animated.View style={popStyle}><Num T={T} style={{ color: HEAD_ }}>{(m.pearls ?? 0) + demoPearls}</Num></Animated.View><Label T={T} style={{ marginLeft: 6, color: HEAD_, opacity: 0.8 }}>{copy.common.pearlsWord}</Label>
               </Pressable>
               <Pressable onPress={() => router.push('/activite')} accessibilityLabel={h.activityA11y} hitSlop={8} style={{ marginRight: 4 }}><Image source={require('../../assets/icones/tabs/bubble.png')} style={{ width: 34, height: 34 }} resizeMode="contain" accessibilityIgnoresInvertColors /></Pressable>
               <Pressable onPress={() => router.push('/profil')} accessibilityLabel={h.profileA11y}><Avatar initial={me.initial} color={me.color} photo={me.avatar_url} size={36} /></Pressable>

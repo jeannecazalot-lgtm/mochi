@@ -10,7 +10,7 @@ import { GlowBg, Card, PillLabel, Avatar } from '../ui';
 import { LiveMochi } from '../motion';
 import { Row, Caption } from '../task/proto';
 import { CheckCircle } from '../social/extra';
-import copy from '../../data/copy.json';
+import copy from '../../copy';
 import { colors, alpha, font, slotColors } from '../../theme';
 import * as pitch from '../../demo-onboarding';
 import { styles as v3Styles, currentTokens as tk } from '../../theme-v3';

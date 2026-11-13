@@ -15,7 +15,7 @@ import { savePrefs, loadSetup, setup, isJoiner } from '../../src/setup-state';
 import { syncJoinerPrefs, syncMyPains } from '../../src/sync-setup';
 import { askNotificationPermission } from '../../src/notifications';
 import { registerPushToken } from '../../src/push';
-import copy from '../../src/data/copy.json';
+import copy from '../../src/copy';
 import { Egg } from '../../src/components/mochi/scene';
 import { useTokens as useT3 } from '../../src/theme-v3';
 const EggHero = () => <Egg T={useT3()} />;

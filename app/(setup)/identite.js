@@ -12,7 +12,7 @@ import { setLocalIdentity } from '../../src/identity';
 import { loadSetup, setup, saveDispos, savePrefs, isJoiner } from '../../src/setup-state';
 import { syncJoinerPrefs } from '../../src/sync-setup';
 import { me } from '../../src/demo';
-import copy from '../../src/data/copy.json';
+import copy from '../../src/copy';
 import { Egg } from '../../src/components/mochi/scene';
 import { useTokens as useT3, layout } from '../../src/theme-v3';
 const EggHero = () => <Egg T={useT3()} />;
@@ -66,7 +66,7 @@ export default function Identite() {
               <Svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke={tk().bg} strokeWidth={2.4} strokeLinecap="round"><Path d="M12 5v14M5 12h14" /></Svg>
             </View>
           </Pressable>
-          <Text style={{ fontSize: 12.5, color: tk().muted, marginTop: 12 }}>{photo ? t.photoChange : t.photoHint.replace('{name}', 'Ton binôme')}</Text>
+          <Text style={{ fontSize: 12.5, color: tk().muted, marginTop: 12 }}>{photo ? t.photoChange : t.photoHint.replace('{name}', (copy.common.partner.charAt(0).toUpperCase() + copy.common.partner.slice(1)))}</Text>
           <TextInput
             value={firstName} onChangeText={setFirstName} placeholder={t.firstNamePlaceholder} placeholderTextColor={tk().muted}
             autoCorrect={false} autoCapitalize="words" returnKeyType="done" cursorColor={tk().accent} selectionColor={tk().accent} textAlign="center"

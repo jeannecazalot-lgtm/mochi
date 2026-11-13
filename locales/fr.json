@@ -1,0 +1,7 @@
+{
+  "ios": {
+    "CFBundleDisplayName": "Mindpair",
+    "NSPhotoLibraryUsageDescription": "Mindpair utilise ta photothèque pour choisir ta photo de profil, visible par ton binôme.",
+    "NSUserNotificationsUsageDescription": "Mindpair t'envoie un rappel à l'heure que tu choisis pour tes tâches du jour."
+  }
+}

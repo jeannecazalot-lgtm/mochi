@@ -10,7 +10,7 @@ import { Card, Micro, Avatar, CTAPrimary } from '../src/components/ui';
 import { SheetHandle } from '../src/components/social/extra';
 import { Row, Stepper, PillChip, RuleGroup, ConfirmBlock, DoneCircle, Arrow, Caption } from '../src/components/task/proto';
 import { taskById, fmtMin } from '../src/demo';
-import copy from '../src/data/copy.json';
+import copy from '../src/copy';
 import { colors, space, font, slotColors } from '../src/theme';
 
 // personnes fixes du proto (le vrai couple, indépendant du foyer courant du simulateur)

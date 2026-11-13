@@ -19,13 +19,14 @@ import { resetAll, read } from '../src/store';
 import { computeRealBalance } from '../src/balance-real';
 import { getNightMode, setNightMode, useTokens } from '../src/theme-v3';
 import { getMochi } from '../src/mochi-state';
-import copy from '../src/data/copy.json';
+import copy from '../src/copy';
 import { colors, space, radius, font, slotColors, alpha } from '../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
+import { LOCALE, fmtHHMM } from '../src/lang';
 
 const t = copy.profil;
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
-const fmtDate = d => new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short' }).format(new Date(d));
+const fmtDate = d => new Intl.DateTimeFormat(LOCALE, { day: 'numeric', month: 'short' }).format(new Date(d));
 
 export default function Profil() {
   usePremiumVersion(); // re-rend quand l'abonnement Mochi+ change
@@ -130,7 +131,7 @@ export default function Profil() {
             <Text style={s.section}>{t.sectionMine}</Text>
             <View>
               <SettingRow emoji="👤" title={t.account} sub={account ? (account.provider === 'apple' ? fill(t.accountApple, { email: account.email || '' }) : account.email) : t.accountNone} onPress={() => (account ? null : router.push('/(auth)/login?link=1'))} />
-              <SettingRow emoji="🔔" title={t.notifs} sub={real && setup.reminder ? fill(t.notifsSubReal, { time: String(setup.reminder).replace(':', ' h ') }) : fill(t.notifsSub, { n: duoRules.reminder_before_min })} onPress={() => router.push('/notifs')} />
+              <SettingRow emoji="🔔" title={t.notifs} sub={real && setup.reminder ? fill(t.notifsSubReal, { time: fmtHHMM(setup.reminder) }) : fill(t.notifsSub, { n: duoRules.reminder_before_min })} onPress={() => router.push('/notifs')} />
               <SettingRow emoji="📌" title={t.penseBete} sub={t.penseBeteSub} onPress={() => router.push('/pense-bete')} />
               <SettingRow emoji="🗓" title={t.mesReglages}
                 sub={!mine ? '' : [(!mine.slots && !mine.h) ? t.notSet : fill(mine.slots === 1 ? t.disposSubOne : t.disposSubReal, { n: mine.slots }) + (mine.h ? fill(t.disposSubHours, { h: mine.h }) : ''), !mine.hasPrefs ? t.notSet : fill(t.prefsSub, { like: mine.likes, hate: mine.hates, ls: mine.likes > 1 ? 's' : '', hs: mine.hates > 1 ? 's' : '' })].join(' · ')}

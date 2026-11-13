@@ -11,7 +11,7 @@ import { GlowBg, Card, Avatar, Mochi, PillLabel } from '../../src/components/ui'
 import { ActionPill, ShareIcon, QRIcon, AvatarPlaceholder, fill } from '../../src/components/setup/extra';
 import { me } from '../../src/demo';
 import { inviteLink } from '../../src/demo-setup';
-import copy from '../../src/data/copy.json';
+import copy from '../../src/copy';
 import { colors, space, radius, font, gradients, alpha } from '../../src/theme';
 
 const t = copy.setup;

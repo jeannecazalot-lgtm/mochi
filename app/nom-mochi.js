@@ -7,7 +7,7 @@ import { CTAPrimary } from '../src/components/ui';
 import { LiveMochiImage, mochiReact } from '../src/components/mochi-img';
 import { useTokens, type, layout } from '../src/theme-v3';
 import { getMochi, renameMochi, mochiStore } from '../src/mochi-state';
-import copy from '../src/data/copy.json';
+import copy from '../src/copy';
 
 export default function NomMochi() {
   const t = copy.nomMochi;

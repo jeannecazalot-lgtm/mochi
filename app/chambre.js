@@ -16,8 +16,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { uploadFramePhoto } from '../src/profile';
 import { usePremiumVersion } from '../src/purchases';
 import { isPremium } from '../src/demo-premium';
-import items from '../src/data/mochi-items.json';
-import copy from '../src/data/copy.json';
+import items from '../src/items';
+import copy from '../src/copy';
 
 const fill = (s, vars) => Object.keys(vars).reduce((acc, k) => acc.replace(`{${k}}`, vars[k]), s);
 const PLACES_BY_STAGE = { egg: [], mini: ['jardin'], mochi: ['jardin', 'riviere'], maxi: ['jardin', 'riviere', 'foret', 'ville'], dore: ['jardin', 'riviere', 'foret', 'ville', 'plage', 'montagne'] };
@@ -35,7 +35,7 @@ function RowItem({ it, kind, T, t, s, outfit, photoUrl, stageIdx, premium, has: 
         : has ? (placedOf(it.key) ? <Pressable onPress={() => onPlace(it, kind, false)} style={[s.pill, { borderColor: T.line }]}><Label T={T}>{t.store}</Label></Pressable> : <Pressable onPress={() => onPlace(it, kind, true)} style={[s.pill, { borderColor: T.ink }]}><Label T={T} style={{ color: T.ink }}>{t.place}</Label></Pressable>)
         : locked ? null
         : plusLocked ? <Pressable onPress={() => router.push('/paywall')} style={[s.pill, { borderColor: T.accent }]}><Label T={T} style={{ color: T.accent }}>{t.plus}</Label></Pressable>
-        : <Pressable onPress={() => onBuy(it, kind)} style={[s.pill, { borderColor: T.ink }]}><Num T={T}>{it.price}</Num><Label T={T} style={{ marginLeft: 4 }}>perles</Label></Pressable>}
+        : <Pressable onPress={() => onBuy(it, kind)} style={[s.pill, { borderColor: T.ink }]}><Num T={T}>{it.price}</Num><Label T={T} style={{ marginLeft: 4 }}>{copy.common.pearlsWord}</Label></Pressable>}
     </View>);
 }
 
@@ -96,9 +96,9 @@ export default function Chambre() {
       <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><Scene T={T} stage={m.stage} mood={T.night ? 'sleeping' : undefined} lvl={lvl} height={layout.scene + 40} items={objects} outfit={outfit} souvenirs={souvenirs} photo={m.photo_url || null} positions={positions} onMove={onMove} topInset={insets.top + 30} /></View>
       <SafeAreaView style={{ flex: 1 }} edges={['top']} pointerEvents="box-none">{/* box-none : les touches sur la scène (objets déplaçables) passent à travers */}
         <View style={{ paddingTop: 12, paddingHorizontal: X, flexDirection: 'row', alignItems: 'center' }} pointerEvents="box-none">
-          <Pressable onPress={() => router.back()} hitSlop={10}><Label T={T} style={{ color: T.ink }}>‹ Retour</Label></Pressable>
+          <Pressable onPress={() => router.back()} hitSlop={10}><Label T={T} style={{ color: T.ink }}>‹ {copy.common.back}</Label></Pressable>
           <View style={{ flex: 1 }} />
-          <Num T={T}>{m.pearls ?? 0}</Num><Label T={T} style={{ marginLeft: 6 }}>perles</Label>
+          <Num T={T}>{m.pearls ?? 0}</Num><Label T={T} style={{ marginLeft: 6 }}>{copy.common.pearlsWord}</Label>
         </View>
         {/* la scène reste fixe (Jeanne, 6 nov 2026 : « la partie écrite rogne sur l'animation ») : seule la liste défile dessous */}
         <View pointerEvents="none" style={{ height: Math.max(8, layout.scene + 40 - insets.top - 44) }} />

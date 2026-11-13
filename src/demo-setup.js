@@ -3,6 +3,7 @@
 // Tout ce fichier disparaît au profit de Supabase ; rien ici n'est un chiffre public.
 // ═══════════════════════════════════════════════════════════════════
 import { me, partner, tasks, taskById } from './demo';
+import { tx } from './copy';
 
 // 07 · grille matin/soir : 0 = rien, 1 = léger, 2 = à fond (lundi → dimanche)
 // disposDefault n'est plus utilisé par aucun écran (11 n'affiche plus les compteurs
@@ -69,7 +70,7 @@ export const catalogue = [
   { id: 't-chien-matin', emoji: '🐕', label: 'Sortir le chien', freq: { perDay: 2 }, mins: 15, pain: 1, specific: true, on: false },
   { id: 't-plantes', emoji: '🪴', label: 'Plantes', freq: { perWeek: 1 }, mins: 10, pain: 1, specific: true, on: false },
   { id: 't-litiere', emoji: '🐈', label: 'Litière du chat', freq: { perDay: 1 }, mins: 5, pain: 2, specific: true, on: false },
-];
+].map(c => ({ ...c, label: tx('catalogue', c.id, c.label) }));
 
 // 12 · proposition de dispatch (fusion 12+13, retours Jeanne 22 août 2026) :
 // minutes hebdo par tâche ; chaque tâche a TOUJOURS un assigné (tap = bascule
@@ -84,7 +85,7 @@ export const dispatch = [
   { task_id: 't-sdb', label: 'Salle de bain', tag: 'tagSaturday', mins: 30, weekly_min: 30, assignee_id: partner.id },
   { task_id: 't-poubelles', label: 'Poubelles', tag: 'tagTueFri', mins: 5, weekly_min: 10, assignee_id: me.id },
   { task_id: 't-repas', label: 'Planification des repas', tag: 'tagSunday', mins: 20, weekly_min: 20, assignee_id: me.id },
-];
+].map(it => ({ ...it, label: tx('catalogue', it.task_id, it.label) }));
 export const dispatchEmoji = it => catalogue.find(c => c.id === it.task_id)?.emoji || taskById(it.task_id)?.emoji || '•';
 
 // charge hebdo (min) par membre ; une tâche partagée compte moitié-moitié

@@ -8,7 +8,7 @@ import { askNotificationPermission, scheduleAt, cancelAll, scheduleMochiReturn }
 import { getMochi } from './mochi-state';
 import { read } from './store';
 import { setup } from './setup-state';
-import copy from './data/copy.json';
+import copy from './copy';
 import { localIso } from './dates';
 
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));

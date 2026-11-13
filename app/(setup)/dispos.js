@@ -13,7 +13,7 @@ import { LiveMochi, FadeInDown, Animated, prefersReducedMotion } from '../../src
 import { useSharedValue, useAnimatedStyle, withSequence, withTiming } from 'react-native-reanimated';
 import { DisposEditor } from '../../src/components/setup/editors';
 import { disposEmpty, cycleSlot } from '../../src/demo-setup';
-import copy from '../../src/data/copy.json';
+import copy from '../../src/copy';
 import { Egg } from '../../src/components/mochi/scene';
 import { useTokens as useT3 } from '../../src/theme-v3';
 const EggHero = () => <Egg T={useT3()} />;

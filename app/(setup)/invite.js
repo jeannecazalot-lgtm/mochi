@@ -15,7 +15,7 @@ import { createInvitation, inviteUrl } from '../../src/invite-actions';
 import { loadSetup, setup } from '../../src/setup-state';
 import { loadPartner, useIdentity } from '../../src/identity';
 import QRCode from 'react-native-qrcode-svg';
-import copy from '../../src/data/copy.json';
+import copy from '../../src/copy';
 import { Egg } from '../../src/components/mochi/scene';
 import { useTokens as useT3, layout } from '../../src/theme-v3';
 const EggHero = () => <Egg T={useT3()} />;

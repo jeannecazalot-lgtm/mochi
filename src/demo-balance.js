@@ -5,6 +5,7 @@
 // Les chiffres ici ne sont PAS des chiffres publics.
 // ═══════════════════════════════════════════════════════════════════
 import { members, balance, malus, household, today, partner, me } from './demo';
+import { LOCALE } from './lang';
 
 // ─── charge de la semaine par membre (SPECS §3 : minutes équivalentes) ─
 // cohérent avec balance.me / balance.partner (48 % / 52 %)
@@ -65,8 +66,8 @@ export const malusProposal = { id: 'p1', from_id: 'u-jeanne', text: 'Massage 10 
 // ─── dates : numéro de semaine, plage, prochain point hebdo ──────────
 const monday = (d) => { const x = new Date(d); const day = (x.getDay() + 6) % 7; x.setDate(x.getDate() - day); x.setHours(0, 0, 0, 0); return x; };
 const isoWeek = (d) => { const x = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const day = x.getUTCDay() || 7; x.setUTCDate(x.getUTCDate() + 4 - day); const y0 = new Date(Date.UTC(x.getUTCFullYear(), 0, 1)); return Math.ceil(((x - y0) / 86400000 + 1) / 7); };
-const shortMonth = (d) => new Intl.DateTimeFormat('fr-FR', { month: 'short' }).format(d).replace('.', '');
-const shortDay = (d) => new Intl.DateTimeFormat('fr-FR', { weekday: 'short' }).format(d).replace('.', '');
+const shortMonth = (d) => new Intl.DateTimeFormat(LOCALE, { month: 'short' }).format(d).replace('.', '');
+const shortDay = (d) => new Intl.DateTimeFormat(LOCALE, { weekday: 'short' }).format(d).replace('.', '');
 
 export const weekInfo = (d = today) => {
   const start = monday(d); const end = new Date(start); end.setDate(start.getDate() + 6);

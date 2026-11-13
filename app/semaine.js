@@ -13,7 +13,7 @@ import { extendHorizon, restartableTasks } from '../src/horizon';
 import { pushToPartner } from '../src/push';
 import { occStore } from '../src/demo-core';
 import { useTokens, type, layout } from '../src/theme-v3';
-import copy from '../src/data/copy.json';
+import copy from '../src/copy';
 
 const t = copy.semaine;
 const fill = (s, v) => String(s).replace(/\{(\w+)\}/g, (_, k) => v[k] ?? '');

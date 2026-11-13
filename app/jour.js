@@ -16,7 +16,7 @@ import { loadSetup, inRealMode } from '../src/setup-state';
 import { getUid } from '../src/identity';
 import { isLive } from '../src/occ-actions';
 import { localIso } from '../src/dates';
-import copy from '../src/data/copy.json';
+import copy from '../src/copy';
 import { colors, space, font } from '../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 import { TaskIcon } from '../src/components/task-icon';

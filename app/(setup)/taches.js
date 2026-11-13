@@ -22,7 +22,7 @@ import { read } from '../../src/store';
 import { pushToPartner } from '../../src/push';
 import { startRealtime } from '../../src/realtime';
 import { pull } from '../../src/store';
-import copy from '../../src/data/copy.json';
+import copy from '../../src/copy';
 import { Egg } from '../../src/components/mochi/scene';
 import { useTokens as useT3 } from '../../src/theme-v3';
 const EggHero = () => <Egg T={useT3()} />;

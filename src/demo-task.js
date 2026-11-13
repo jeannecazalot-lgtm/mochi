@@ -3,6 +3,7 @@
 // Complète src/demo.js sans le modifier. Disparaît au profit de Supabase.
 // ═══════════════════════════════════════════════════════════════════
 import { me, partner, byId, taskById, today, fmtMin } from './demo';
+import { LOCALE, isEN, fmtHHMM } from './lang';
 
 // options possibles dans la fiche (valeurs, pas des textes : les libellés sont dans copy.json › task.freq*)
 export const frequencies = ['daily', 'twiceWeek', 'weekly', 'monthly', 'once'];
@@ -67,9 +68,9 @@ export const currentAssignee = (occurrences, id) => { const o = occurrences.find
 export const currentDay = (occurrences, id) => { const o = occurrences.find(x => x.task_id === id && x.status === 'pending'); return o ? o.due_date : null; };
 
 // formats
-export const fmtDay = date => new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short' }).format(date).replace('.', '');
-export const fmtWeekday = date => new Intl.DateTimeFormat('fr-FR', { weekday: 'long' }).format(date);
+export const fmtDay = date => new Intl.DateTimeFormat(LOCALE, { day: 'numeric', month: 'short' }).format(date).replace('.', '');
+export const fmtWeekday = date => new Intl.DateTimeFormat(LOCALE, { weekday: 'long' }).format(date);
 export const fmtMinShort = min => (min < 60 ? `${min}ʼ` : fmtMin(min));
 export const fmtStars = n => `${n} ★`;
-export const fmtHour = hhmm => (hhmm ? `${parseInt(hhmm, 10)}h` : '');
+export const fmtHour = hhmm => (hhmm ? (isEN ? fmtHHMM(hhmm).replace(':00', '') : `${parseInt(hhmm, 10)}h`) : '');
 export { me, partner, byId, fmtMin };

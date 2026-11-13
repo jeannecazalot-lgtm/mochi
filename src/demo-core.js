@@ -7,9 +7,9 @@ import { me, partner, byId, members, occurrences, taskById, balance, activity, t
 
 // ─── dates ──────────────────────────────────────────────────────────
 const strip = s => s.replace(/\./g, '').trim();
-export const weekdayShort = d => strip(new Intl.DateTimeFormat('fr-FR', { weekday: 'short' }).format(d)).toUpperCase(); // MAR
-export const monthShort = d => strip(new Intl.DateTimeFormat('fr-FR', { month: 'short' }).format(d)).toUpperCase();     // JUIL
-export const monthLong = d => { const m = new Intl.DateTimeFormat('fr-FR', { month: 'long' }).format(d); return m[0].toUpperCase() + m.slice(1); }; // Juillet
+export const weekdayShort = d => strip(new Intl.DateTimeFormat(LOCALE, { weekday: 'short' }).format(d)).toUpperCase(); // MAR
+export const monthShort = d => strip(new Intl.DateTimeFormat(LOCALE, { month: 'short' }).format(d)).toUpperCase();     // JUIL
+export const monthLong = d => { const m = new Intl.DateTimeFormat(LOCALE, { month: 'long' }).format(d); return m[0].toUpperCase() + m.slice(1); }; // Juillet
 export const fmtHeaderDate = (d = today) => `${weekdayShort(d)} ${d.getDate()} ${monthShort(d)}`; // MAR 7 JUIL
 export const fmtDayLabel = d => `${weekdayShort(d)} ${d.getDate()}`; // MER 8
 export const fmtDayLower = d => `${weekdayShort(d).toLowerCase()} ${d.getDate()}`; // ven 4
@@ -33,6 +33,7 @@ export const hasUnreadPing = () => activity.some(a => a.type === 'ping' && a.tar
 // Coche des missions partagée entre l'Accueil et la sheet Mission (démo : la
 // vraie coche passera par occurrences.status côté Supabase).
 import { useSyncExternalStore } from 'react';
+import { LOCALE } from './lang';
 const doneIds = new Set(occurrences.filter(o => o.status === 'done').map(o => o.id));
 const doneSubs = new Set();
 let doneVersion = 0;

@@ -6,6 +6,7 @@
 // ═══════════════════════════════════════════════════════════════════
 import { useSyncExternalStore } from 'react';
 import { supabase } from './supabase';
+import copy from './copy';
 import { me as demoMe, partner as demoPartner } from './demo';
 
 let real = null;
@@ -30,7 +31,7 @@ export function resetPartner() {
 }
 // seul dans un VRAI foyer : le binôme n'a pas de prénom (jamais celui de la démo) — retour Jeanne 6 nov 2026 « qui est Julian ? »
 export const hasPartner = () => !!partnerUidVal;
-export const SOLO_PARTNER = { first_name: 'ton binôme', initial: '?', avatar_url: null };
+export const SOLO_PARTNER = { first_name: copy.common.partner, initial: '?', avatar_url: null };
 export function resetIdentity() {
   real = null; uidVal = null; started = false; partnerUidVal = null;
   Object.assign(demoMe, DEFAULT_ME);

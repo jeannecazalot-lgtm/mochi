@@ -12,7 +12,7 @@ import { SetupProgress } from '../../src/components/setup/extra';
 import { me, partner } from '../../src/demo';
 import { computeDispatch } from '../../src/dispatch';
 import { loadSetup, setup, saveResult } from '../../src/setup-state';
-import copy from '../../src/data/copy.json';
+import copy from '../../src/copy';
 import { colors, alpha } from '../../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';
 

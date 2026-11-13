@@ -11,11 +11,12 @@ import { demoNotes } from '../src/demo-modaux';
 import { loadNotes, toggleNote } from '../src/notes-actions';
 import { occStore } from '../src/demo-core';
 import { inRealMode, loadSetup } from '../src/setup-state';
-import copy from '../src/data/copy.json';
+import copy from '../src/copy';
 import { colors, radius, space, alpha } from '../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
+import { LOCALE } from '../src/lang';
 
-const fmtDate = iso => new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }).format(new Date(iso + 'T12:00:00'));
+const fmtDate = iso => new Intl.DateTimeFormat(LOCALE, { weekday: 'short', day: 'numeric', month: 'short' }).format(new Date(iso + 'T12:00:00'));
 
 export default function PenseBete() {
   const t = copy.notes;

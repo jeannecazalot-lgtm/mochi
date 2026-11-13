@@ -17,7 +17,7 @@ import { loadSetup, isJoiner, setup } from '../../src/setup-state';
 import { syncJoinerPrefs } from '../../src/sync-setup';
 import { useIdentity, loadPartner } from '../../src/identity';
 import { useTokens, type, layout } from '../../src/theme-v3';
-import copy from '../../src/data/copy.json';
+import copy from '../../src/copy';
 
 const t = copy.setup;
 

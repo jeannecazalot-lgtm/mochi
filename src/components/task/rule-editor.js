@@ -11,8 +11,9 @@ import { LinkText } from '../ui';
 import { Row, Stepper, PillChip, RuleGroup, Arrow, TrashButton } from './proto';
 import { Stars } from './extra';
 import { me, partner, fmtMin } from '../../demo';
-import copy from '../../data/copy.json';
+import copy from '../../copy';
 import { useTokens } from '../../theme-v3';
+import { dayWord } from '../../lang';
 
 const t = copy.mission;
 const tt = copy.task;
@@ -36,7 +37,7 @@ export function RuleEditor({ rule, onPatch, showMoment = false, showEffort = fal
         {copy.calendar.dowsLong.map((d, i) => <View key={i} style={{ flex: 1, alignItems: 'center' }}><View style={{ flexDirection: 'row', alignSelf: 'stretch' }}><PillChip flex label={d.toLowerCase()} selected={days.includes(i)}
           onPress={() => onPatch({ window_days: days.includes(i) ? days.filter(x => x !== i) : [...days, i].sort((a, b) => a - b) })} /></View>{plannedDay === i ? <View style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: T.accent, marginTop: 4 }} /> : <View style={{ height: 9 }} />}</View>)}
       </RuleGroup>
-      {plannedDay != null ? <Text style={s.hint}>{t.plannedDayHint.replace('{day}', copy.calendar.dowsLong[plannedDay].toLowerCase())}</Text> : null}
+      {plannedDay != null ? <Text style={s.hint}>{t.plannedDayHint.replace('{day}', dayWord(copy.calendar.dowsLong[plannedDay]))}</Text> : null}
       {!days.length && (mochiDays || allDays) ? <Text style={s.hint}>{t.ruleMochiDays.replace('{days}', allDays ? copy.setup.everyDay : mochiDays)}</Text> : null}
       {showMoment ? (
         <RuleGroup label={t.ruleMoment}>

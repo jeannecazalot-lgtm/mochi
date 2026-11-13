@@ -16,7 +16,7 @@ import { loadSetup, inRealMode } from '../src/setup-state';
 import { getUid, getPartnerUid } from '../src/identity';
 import { localIso } from '../src/dates';
 import { checkin, demoFlags, mochiStore } from '../src/mochi-state';
-import copy from '../src/data/copy.json';
+import copy from '../src/copy';
 
 const fill = (s, vars) => Object.keys(vars).reduce((acc, k) => acc.replace(`{${k}}`, vars[k]), s);
 const MOOD_FACE = { 1: 'sad', 2: 'neutral', 3: 'wink' };

@@ -4,7 +4,7 @@
 // (1536 × 1024) ; `layoutRoom` choisit les emplacements selon le nombre d'objets posés et les
 // grossit quand ils sont peu nombreux, puis convertit en points écran (même transformation
 // « cover » que le décor). `placed` dans mochi_inventory = posé / rangé (objet) ou portée (tenue).
-import items from '../../data/mochi-items.json';
+import items from '../../items';
 
 export const SHOP = {
   aquarium: require('../../../assets/boutique/aquarium.png'), tournedisque: require('../../../assets/boutique/tournedisque.png'), lave: require('../../../assets/boutique/lave.png'),
