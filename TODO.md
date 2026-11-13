@@ -487,3 +487,29 @@ La v1 (duo, iPhone, iPad en compatibilité) part à la revue dès l'achat test v
 13 nov 2026 — **Version anglaise** (Jeanne : « l'app / les écrans App Store / la fiche Apple », « pas en anglais littéral »). App : langue du téléphone (`src/lang.js`, expo-localization → build 22), `copy.en.json` adapté par 4 traducteurs + 1 relecture native (91 retouches, lexique : task, your partner, household, Planner, pearls, 1-Year Pass), dates/heures/durées/devise selon le téléphone, catalogue de tâches, objets/souvenirs de Mochi, données d'exemple des captures, messages d'autorisation iOS (`locales/`). Onboarding EN : chiffre BLS ATUS 2024 (femmes 2,34 h + 0,63 h de soin aux membres du foyer vs hommes 1,67 h + 0,38 h → +55 min/jour, ≈ 6 h/sem, ≈ 335 h/an). Captures EN `design/app-store/en/` (script `scripts/store-en.py`, bruts `brut-en/`). ASC : fiche English (U.S.) complète (nom, sous-titre, promo, description, mots-clés, assistance #en, 6 captures), groupe Mochi+ + Mochi+ Monthly + Mochi+ 1-Year Pass en anglais. Site : privacy/support avec section #en, publiés. Build 22 lancé (en attente de la connexion Apple de Jeanne).
 - Vu au simulateur en anglais : onboarding, choix des tâches, répartition, paywall, accueil, pièce de Mochi. **Pas vus** : Planning, Balance, Budget, Profil, fiches Mission/Retard, notifications, Restore.
 - À trancher : FR « Sur l'année ≈ 260 h » incohérent avec +1h26/jour (≈ 520 h ; le code dit « 1h26 ÷ 2 × 365 ») ; profil « renouvelé le {date} » faux pour le Pass (l'anglais dit « paid through ») ; droits des visages des captures.
+
+## 13 nov 2026 (après-midi) — retours Jeanne (WhatsApp) + TestFlight Ketley (builds 20-21, 10-12 nov)
+Décisions Jeanne (13 nov) :
+- **Jours sur l'app** : nombre de jours depuis le début du foyer (« Jour 12 ensemble »), montré à chaque ouverture (lecture de Claude de son « oui » : à confirmer à l'écran).
+- **Balance** : ordre = qui en fait le plus → pourquoi → comment rééquilibrer.
+- **Rappel envoyé** : affiché sur la mission (proposition Claude : « Rappel envoyé · 9 h » chez l'envoyeur, « Jeanne te l'a rappelée » chez l'autre) + visible dans Suivi côté envoyeur (demande Ketley : « je ne vois que les tiens »).
+- **Tâches avec dépense** (Courses…) : mettre en avant qu'on peut ajouter la dépense → levier Mochi+ (sans Mochi+ : paywall).
+- À trancher : limite de 3 « j'aime » / 3 « je déteste » (Ketley veut l'enlever ; règle du 23 août).
+
+Backlog (P1 = bug, P2 = clarté, P3 = ajout) :
+- [ ] P1 Suivi : « X te propose de reprendre » → le toucher ne fait rien ; ouvrir Accepter / Refuser.
+- [ ] P1 Suivi : « Bravo » touché → la ligne disparaît.
+- [ ] P1 Planning parfois blanc, revient après un passage par Balance (à reproduire d'abord).
+- [ ] P1 Fiche tâche : impossible de descendre jusqu'à Note / « Pas cette fois-ci » (Jeanne + Ketley).
+- [ ] P1 Répartition : Planning du 11 nov chez Ketley = sa photo sur 8 missions, Jeanne sur 1 ; pas de partage du temps visible dans Balance → vérifier les données du foyer.
+- [ ] P1 Balance : « Semaine 46 » → « Semaine 1 » comptée depuis la création du foyer.
+- [ ] P2 Accueil : seulement aujourd'hui, plus les jours à venir.
+- [ ] P2 Fiche tâche : point rouge sous le jour prévu → jour en bleu marine, plus de point.
+- [ ] P2 Balance : hiérarchie (voir décision).
+- [ ] P2 « Vos missions » (setup) : légende de la photo (à qui c'est) ; boutons du bas plus petits et fond plein (la dernière ligne passe dessous).
+- [ ] P3 Pastille de notifications (chiffre) sur la bulle.
+- [ ] P3 Forme de Mochi : toucher → pourquoi il est malade / en forme et comment le remonter.
+- [ ] P3 Jours sur l'app (voir décision).
+- [ ] P3 Rappel envoyé visible (voir décision).
+- [ ] P3 Dépense mise en avant sur les tâches qui coûtent (voir décision).
+- [ ] ⚠ Revue bêta du build 19 refusée le 16 sept (2.1(a) : compte ou mode démo exigé) — jamais traitée ; même question à la soumission App Store → proposer une solution à Jeanne avant de soumettre.
