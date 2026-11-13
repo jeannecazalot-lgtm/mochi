@@ -21,7 +21,8 @@ export const MOMENTS = ['morning', 'noon', 'afternoon', 'evening', null]; // Mat
 export const momentLabel = dl => (dl == null ? tt.anytime : dl === 'morning' ? tt.morning : dl === 'noon' ? tt.noon : dl === 'afternoon' ? tt.afternoon : tt.evening);
 
 // rule = { window_days: [0-6], deadline, who: 'me'|'partner'|'alt'|'auto', duration_min, note, pain?, importance? }
-// plannedDay : le jour (0 = lundi) où cette occurrence est prévue, marqué d'un point sous sa pastille (Jeanne 7 nov 2026 : « voir quel jour, pré-rempli »)
+// plannedDay : le jour (0 = lundi) où cette occurrence est prévue (Jeanne 7 nov 2026 : « voir quel jour, pré-rempli ») ;
+// plus de point rouge sous la pastille (Jeanne 13 nov 2026 : « pourquoi une pastille rouge ? ») : la phrase dessous le dit.
 // noteOutside : la note s'édite dans le parent, en haut de la sheet, pour rester au-dessus du clavier
 export function RuleEditor({ rule, onPatch, showMoment = false, showEffort = false, showDuration = true, first = true, mochiDays = null, onNoteOpen, onSkipOnce, onDeleteTask, plannedDay = null, noteOutside = false }) {
   const T = useTokens(); const s = mk(T);
@@ -35,7 +36,7 @@ export function RuleEditor({ rule, onPatch, showMoment = false, showEffort = fal
     <View>
       <RuleGroup first={first} label={t.ruleDays} row>
         {copy.calendar.dowsLong.map((d, i) => <View key={i} style={{ flex: 1, alignItems: 'center' }}><View style={{ flexDirection: 'row', alignSelf: 'stretch' }}><PillChip flex label={d.toLowerCase()} selected={days.includes(i)}
-          onPress={() => onPatch({ window_days: days.includes(i) ? days.filter(x => x !== i) : [...days, i].sort((a, b) => a - b) })} /></View>{plannedDay === i ? <View style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: T.accent, marginTop: 4 }} /> : <View style={{ height: 9 }} />}</View>)}
+          onPress={() => onPatch({ window_days: days.includes(i) ? days.filter(x => x !== i) : [...days, i].sort((a, b) => a - b) })} /></View></View>)}
       </RuleGroup>
       {plannedDay != null ? <Text style={s.hint}>{t.plannedDayHint.replace('{day}', dayWord(copy.calendar.dowsLong[plannedDay]))}</Text> : null}
       {!days.length && (mochiDays || allDays) ? <Text style={s.hint}>{t.ruleMochiDays.replace('{days}', allDays ? copy.setup.everyDay : mochiDays)}</Text> : null}

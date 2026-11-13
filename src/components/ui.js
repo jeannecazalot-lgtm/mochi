@@ -79,7 +79,7 @@ export function PillLabel({ children, color, tint }) {
   );
 }
 // ─── CTA primaire : gradient Mochi, radius 14 ───────────────────────
-export function CTAPrimary({ label, onPress, disabled, style, big, pill }) {
+export function CTAPrimary({ label, onPress, disabled, style, big, pill, compact }) {
   const s = mk(useTokens());
   // à l'appui, une bande claire traverse le bouton : le dégradé « avance » (retour Jeanne, 22 août 2026)
   // Recette (retour Jeanne, 1er sept 2026 : plus fluide, plus lent) : bande 60 % de large,
@@ -89,11 +89,11 @@ export function CTAPrimary({ label, onPress, disabled, style, big, pill }) {
   const fire = () => { slide.value = -1; slide.value = withTiming(1, { duration: 800, easing: Easing.inOut(Easing.cubic) }); };
   return (
     <Pressable onPressIn={fire} onPress={onPress} disabled={disabled} style={({ pressed }) => [{ opacity: disabled ? 0.5 : pressed ? 0.92 : 1 }, style]}>
-      <LinearGradient {...gradients.mochi} style={[s.cta, shadows.cta, big && { paddingVertical: 0, height: ctaSpec.height }, pill && { borderRadius: radius.pill, height: 56 }, { overflow: 'hidden' }]}>
+      <LinearGradient {...gradients.mochi} style={[s.cta, shadows.cta, big && { paddingVertical: 0, height: ctaSpec.height }, pill && { borderRadius: radius.pill, height: 56 }, compact && { paddingVertical: 11 }, { overflow: 'hidden' }]}>
         <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, shimmer]}>
           <LinearGradient colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.4)', 'rgba(255,255,255,0)']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ flex: 1, width: '60%' }} />
         </Animated.View>
-        <Text style={[font.cta, big && { fontSize: ctaSpec.fontSize }]}>{label}</Text>
+        <Text style={[font.cta, big && { fontSize: ctaSpec.fontSize }, compact && { fontSize: 15 }]} numberOfLines={1}>{label}</Text>
       </LinearGradient>
     </Pressable>
   );

@@ -78,6 +78,7 @@ export default function RootLayout() {
         <Stack.Screen name="onboarding/index" options={{ animation: 'fade' }} />
         <Stack.Screen name="ping" options={sheetV3} />
         <Stack.Screen name="mission" options={sheetV3} />
+        <Stack.Screen name="forme" options={sheetV3} />
         <Stack.Screen name="proto-mission" options={sheetV3} />
         <Stack.Screen name="jour" options={sheetV3} />
         <Stack.Screen name="retard" options={sheetV3} />

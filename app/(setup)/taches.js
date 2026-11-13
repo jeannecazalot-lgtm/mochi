@@ -172,7 +172,8 @@ export default function Taches() {
         <View>
           <SetupHeader hero={<EggHero />} why={t.whyTasks} title={t.tasksTitle} sub={demo ? t.tasksSubDuo.replace('{name}', partner.first_name) : duo ? (otherReady && !meReady ? fill(t.otherReady, { name: partner.first_name }) : meReady ? fill(t.meReady, { name: partner.first_name }) : t.tasksSubDuo.replace('{name}', partner.first_name)) : solo ? t.tasksSubSolo : t.tasksSub} />
         </View>
-        <ScrollView ref={scrollRef} {...scrollProps} contentContainerStyle={{ paddingHorizontal: space.screenX, paddingTop: 30, paddingBottom: 110 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+        <ScrollView ref={scrollRef} {...scrollProps} contentContainerStyle={{ paddingHorizontal: space.screenX, paddingTop: 30, paddingBottom: 24 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+          {duo || demo ? <Text style={s.legend}>{fill(t.tasksPhotoLegend, { name: partner.first_name })}</Text> : null}{/* Ketley, 10 nov 2026 : « la photo, c'est attribué à la personne ? » */}
           <View style={{ height: StyleSheet.hairlineWidth, backgroundColor: tk().line }} />{/* un seul trait entre deux tâches : chaque rangée n'a que son trait du bas (Jeanne, 13 nov 2026 : « pq ces doubles lignes ») */}
           {adding ? (
             <Card padding={0} r={14} style={{ marginBottom: 6, borderTopWidth: 0 }} accent={tk().ok}>
@@ -188,12 +189,14 @@ export default function Taches() {
           {broad.map((c, i) => <Row key={c.id} c={c} index={i} active={on.includes(c.id)} who={whoFor(c.id)} onToggle={() => toggle(c.id)} />)}
           {specific.map((c, i) => <Row key={c.id} c={c} index={broad.length + 1 + i} active={on.includes(c.id)} who={whoFor(c.id)} onToggle={() => toggle(c.id)} />)}
         </ScrollView>
-        <GrowCTA grown={atEnd} style={s.bottom}>
+        {/* barre du bas pleine, boutons compacts (Ketley, TestFlight 10 nov 2026 : « boutons un peu grands, la transparence
+            gêne la lecture » — la dernière tâche passait sous « + Ajouter ») */}
+        <View style={s.bottom}>
           <View style={{ flexDirection: 'row', gap: 8 }}>
-            <AddButton label={t.addTask} onPress={startAdding} style={{ flex: 1 }} />
-            <CTAPrimary label={solo ? t.saveList : duo ? (meReady ? fill(t.waitingOther, { name: partner.first_name }) : otherReady ? t.launch : t.readyCta) : t.launch} onPress={launch} disabled={on.length < 3 || meReady} style={{ flex: 1.6 }} />
+            <AddButton compact label={t.addTask} onPress={startAdding} style={{ flex: 1 }} />
+            <CTAPrimary compact label={solo ? t.saveList : duo ? (meReady ? fill(t.waitingOther, { name: partner.first_name }) : otherReady ? t.launch : t.readyCta) : t.launch} onPress={launch} disabled={on.length < 3 || meReady} style={{ flex: 1.6 }} />
           </View>
-        </GrowCTA>
+        </View>
       </SafeAreaView>
     </View>
   );
@@ -202,6 +205,7 @@ export default function Taches() {
 const s = v3Styles(T => StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 13, paddingVertical: 13, paddingHorizontal: 16 },
   title: { fontSize: 16, fontWeight: '500', color: T.ink },
+  legend: { fontSize: 13, color: T.muted, marginBottom: 10, marginTop: -14 },
   mental: { fontSize: 11, fontWeight: '600', letterSpacing: 0.8, textTransform: 'uppercase', color: '#9A7BC8' },
-  bottom: { position: 'absolute', left: 24, right: 24, bottom: 24 },
+  bottom: { paddingHorizontal: 24, paddingTop: 10, paddingBottom: 8, backgroundColor: T.bg, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: T.line },
 }));

@@ -48,10 +48,16 @@ export async function pushToPartner(key, vars = {}, url = '/activite') {
 }
 
 // tap sur une notification → la route qu'elle transporte
+// Retour Jeanne 13 nov 2026 (« Ketley te propose de reprendre… », toucher = rien) : l'app fermée ouvrait
+// l'Accueil sans suivre la notification. On lit aussi la dernière réponse au lancement (doc Expo SDK 57).
 export function listenNotificationTaps(open) {
-  const sub = Notifications.addNotificationResponseReceivedListener(r => {
-    const url = r.notification.request.content.data?.url;
-    if (url) open(url);
-  });
+  const go = r => {
+    const url = r?.notification?.request?.content?.data?.url;
+    if (typeof url !== 'string') return;
+    open(url);
+    Notifications.clearLastNotificationResponseAsync?.().catch(() => {});
+  };
+  Notifications.getLastNotificationResponseAsync().then(go).catch(() => {});
+  const sub = Notifications.addNotificationResponseReceivedListener(go);
   return () => sub.remove();
 }

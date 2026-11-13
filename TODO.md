@@ -497,19 +497,19 @@ Décisions Jeanne (13 nov) :
 - À trancher : limite de 3 « j'aime » / 3 « je déteste » (Ketley veut l'enlever ; règle du 23 août).
 
 Backlog (P1 = bug, P2 = clarté, P3 = ajout) :
-- [ ] P1 Suivi : « X te propose de reprendre » → le toucher ne fait rien ; ouvrir Accepter / Refuser.
-- [ ] P1 Suivi : « Bravo » touché → la ligne disparaît.
+- [x] P1 Notification « X te propose de reprendre » : app fermée, le toucher n'ouvrait rien → la dernière notification touchée est lue au lancement (`src/push.js`, doc Expo). **Correction sur hypothèse, non reproduite** (pas de push sur simulateur) : à vérifier sur iPhone.
+- [x] P1 Suivi : Bravo / Merci touché → la carte part, remplacée par « Tu as dit « Bravo Ketley » » de mon côté (répond aussi à Ketley : « je ne vois que les tiens »). Non vu à l'écran (foyer de test sans activité).
 - [ ] P1 Planning parfois blanc, revient après un passage par Balance (à reproduire d'abord).
-- [ ] P1 Fiche tâche : impossible de descendre jusqu'à Note / « Pas cette fois-ci » (Jeanne + Ketley).
+- [x] P1 Fiche tâche : la sheet EST la zone qui défile, hauteur = contenu plafonnée à 92 % (react-native-screens étire la première ScrollView à la taille de la sheet). Vu au simulateur : fermée et dépliée bien posées. Défilement réel jusqu'à « Pas cette fois-ci » non vu (tâche de démo plus courte) : à vérifier sur iPhone.
 - [ ] P1 Répartition : Planning du 11 nov chez Ketley = sa photo sur 8 missions, Jeanne sur 1 ; pas de partage du temps visible dans Balance → vérifier les données du foyer.
-- [ ] P1 Balance : « Semaine 46 » → « Semaine 1 » comptée depuis la création du foyer.
-- [ ] P2 Accueil : seulement aujourd'hui, plus les jours à venir.
-- [ ] P2 Fiche tâche : point rouge sous le jour prévu → jour en bleu marine, plus de point.
-- [ ] P2 Balance : hiérarchie (voir décision).
-- [ ] P2 « Vos missions » (setup) : légende de la photo (à qui c'est) ; boutons du bas plus petits et fond plein (la dernière ligne passe dessous).
-- [ ] P3 Pastille de notifications (chiffre) sur la bulle.
-- [ ] P3 Forme de Mochi : toucher → pourquoi il est malade / en forme et comment le remonter.
-- [ ] P3 Jours sur l'app (voir décision).
-- [ ] P3 Rappel envoyé visible (voir décision).
-- [ ] P3 Dépense mise en avant sur les tâches qui coûtent (voir décision).
+- [x] P1 Balance : numéro de semaine compté depuis l'éclosion de Mochi (duo formé). Vu : « Wk 1 ».
+- [x] P2 Accueil : « À venir » retiré. Vu.
+- [x] P2 Fiche tâche : point rouge retiré (la phrase « Cette fois-ci, prévue mar. » reste). Vu.
+- [x] P2 Balance : Qui en fait le plus (Mochi + temps) → Pourquoi (ce qui pèse, prévu/fait) → Pour rééquilibrer (Rééquilibrer + « Passer X à Ketley ») → détail (7 jours, ressenti, ratées, croissance). Vu.
+- [x] P2 « Vos missions » : légende « La photo : qui a coché la mission… », barre du bas pleine, boutons compacts. Vu.
+- [x] P3 Pastille sur la bulle Suivi (`src/suivi-unread.js` : ce que l'autre a fait/envoyé depuis ma dernière visite). Non vue à l'écran (pas d'activité dans le foyer de test).
+- [x] P3 Forme : ligne touchable → sheet `app/forme.js` (cœurs, pourquoi = derniers cœurs perdus/regagnés, règles). Vu.
+- [x] P3 « Jour N ensemble » : pastille qui descend à chaque ouverture / retour dans l'app, repart seule. Vu.
+- [x] P3 Rappel visible sur la mission (Planning + Accueil, `src/reminder-marks.js`). Non vu à l'écran (aucun rappel dans le foyer de test).
+- [x] P3 Tâches qui coûtent (dépense cochée sur la tâche, ou Courses / factures / sorties) : à la coche, « Tu as payé quelque chose ? » en tête ; sans Mochi+ → paywall. Non vu à l'écran.
 - [ ] ⚠ Revue bêta du build 19 refusée le 16 sept (2.1(a) : compte ou mode démo exigé) — jamais traitée ; même question à la soumission App Store → proposer une solution à Jeanne avant de soumettre.

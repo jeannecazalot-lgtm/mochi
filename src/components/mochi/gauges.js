@@ -1,7 +1,7 @@
 // Jauges de l'instrument (DA v3 §6) : étiquettes en phrase normale, hairlines, vu-mètre à 20 segments,
 // 5 points pour la forme, chiffres tabulaires. Aucune carte.
 import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withDelay, withSequence, withTiming } from 'react-native-reanimated';
 import { type, layout } from '../../theme-v3';
 
@@ -32,7 +32,7 @@ export function Hearts({ T, n }) {
   return <View style={{ flexDirection: 'row', gap: 8, flex: 1 }}>{[1, 2, 3, 4, 5].map(i => <Heart key={i} T={T} on={i <= n} />)}</View>;
 }
 // deux lignes : énergie du jour, forme
-export function Gauges({ T, t, energy, hearts, formLabel, hint }) {
+export function Gauges({ T, t, energy, hearts, formLabel, hint, onFormPress }) {
   const A = layout.air;
   return (
     <View style={{ marginHorizontal: layout.x, borderTopWidth: StyleSheet.hairlineWidth, borderColor: T.line }}>
@@ -42,11 +42,13 @@ export function Gauges({ T, t, energy, hearts, formLabel, hint }) {
         <Num T={T}>{energy.done}<Text style={{ color: T.muted, fontWeight: '500' }}> / {energy.total}</Text></Num>
       </View>
       {hint ? <Label T={T} style={{ marginTop: -10 * A, paddingBottom: 12 * A }}>{hint}</Label> : null}
-      <View style={[s.row, { paddingVertical: 12 * A, borderColor: T.line }]}>
+      {/* la forme se touche : pourquoi il est malade ou en forme (Jeanne, 13 nov 2026) */}
+      <Pressable onPress={onFormPress} disabled={!onFormPress} accessibilityRole="button" style={({ pressed }) => [s.row, { paddingVertical: 12 * A, borderColor: T.line, opacity: pressed ? 0.6 : 1 }]}>
         <Label T={T} style={{ width: 60 }}>{t.form}</Label>
         <Hearts T={T} n={hearts} />
         <Label T={T} style={{ color: T.ink }}>{formLabel}</Label>
-      </View>
+        {onFormPress ? <Text style={{ fontSize: 17, color: T.muted, marginLeft: -8 }}>›</Text> : null}
+      </Pressable>
     </View>
   );
 }

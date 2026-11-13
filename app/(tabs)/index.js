@@ -4,10 +4,10 @@
 import { RouteError } from '../../src/components/route-error';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { router } from 'expo-router';
-import { View, Text, Pressable, StyleSheet, useWindowDimensions, Image, ScrollView } from 'react-native';
+import { View, Text, Pressable, StyleSheet, useWindowDimensions, Image, ScrollView, AppState } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
-import { LinearTransition, FadeInDown, Easing } from 'react-native-reanimated';
+import { LinearTransition, FadeInDown, FadeOut, Easing } from 'react-native-reanimated';
 import { Animated } from '../../src/components/motion';
 import { PearlFlight, usePop } from '../../src/components/mochi/pearls';
 import { Avatar, CTAPrimary } from '../../src/components/ui';
@@ -32,6 +32,9 @@ import { weekNeedsRestart } from '../../src/horizon';
 import { usePremiumVersion } from '../../src/purchases';
 import { TaskIcon } from '../../src/components/task-icon';
 import { LOCALE, fmtClock } from '../../src/lang';
+import { unreadSuivi } from '../../src/suivi-unread';
+import { reminderMarks } from '../../src/reminder-marks';
+import { useFocusEffect } from 'expo-router';
 
 const fill = (s, vars) => Object.keys(vars).reduce((acc, k) => acc.replace(`{${k}}`, vars[k]), s);
 const CAPTURE = process.env.EXPO_PUBLIC_CAPTURE === '1'; // captures App Store : foyer d'exemple (Jeanne, 9 nov 2026)
@@ -48,11 +51,34 @@ function Row({ T, vm, first, done, onToggle }) {
         <View style={{ flex: 1, minWidth: 0 }}>
           <Text style={[type.body, { color: T.ink, textDecorationLine: done ? 'line-through' : 'none' }]} numberOfLines={1}>{vm.title}</Text>
           {vm.sub && !done ? <Text style={[type.label, { color: T.accent, marginTop: 2 }]}>{vm.sub}</Text> : vm.pending && !done ? <Text style={[type.label, { color: T.muted, marginTop: 2 }]}>{vm.pending}</Text> : null}
+          {vm.remind && !done ? <Text style={[type.label, { color: T.accent, marginTop: 2 }]}>{vm.remind}</Text> : null}
         </View>
         {vm.together ? <Label T={T}>{copy.home.togetherBadge.toLowerCase()}</Label> : vm.mental ? <Label T={T}>{copy.home.mentalBadge.toLowerCase()}</Label> : null}
         <Pressable onPress={onToggle} hitSlop={8}><Check T={T} done={done} /></Pressable>
       </View>
     </Pressable>
+  );
+}
+
+// « Jour N ensemble » à chaque arrivée dans l'app (Jeanne, 13 nov 2026 : « à chaque fois que je rentre
+// sur l'app, je vois ça fait combien de jours ») : au lancement et à chaque retour au premier plan,
+// une pastille qui descend sous l'en-tête puis repart seule.
+let bannerShownAt = 0;
+function DayBanner({ T, day, top }) {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const open = () => { if (Date.now() - bannerShownAt < 60e3) return; bannerShownAt = Date.now(); setShow(true); setTimeout(() => setShow(false), 2800); };
+    open();
+    const sub = AppState.addEventListener('change', st => { if (st === 'active') open(); });
+    return () => sub.remove();
+  }, []);
+  if (!show) return null;
+  return (
+    <Animated.View pointerEvents="none" entering={FadeInDown.duration(380).easing(Easing.out(Easing.cubic))} exiting={FadeOut.duration(400)} style={{ position: 'absolute', top, left: 0, right: 0, alignItems: 'center', zIndex: 5 }}>
+      <View style={{ paddingHorizontal: 18, paddingVertical: 10, borderRadius: 999, backgroundColor: T.ink }}>
+        <Text style={{ fontSize: 15, fontWeight: '600', letterSpacing: -0.2, color: T.bg }}>{fill(copy.homeV3.dayTogether, { day })}</Text>
+      </View>
+    </Animated.View>
   );
 }
 
@@ -73,7 +99,6 @@ export default function Home() {
   const [anyOcc, setAnyOcc] = useState(false);
   const [noTask, setNoTask] = useState(false);
   const [late, setLate] = useState([]);
-  const [upcoming, setUpcoming] = useState([]);
   const [mochi, setMochi] = useState(null);
   const [energy, setEnergy] = useState({ done: 0, total: 0 });
   const [lvl, setLvl] = useState(1);
@@ -88,10 +113,10 @@ export default function Home() {
   const shown = useRef(false); // moments plein écran : une seule ouverture par montage
   const ticked = useRef(false);
   const [bgTop, setBgTop] = useState(0);
-  const [availH, setAvailH] = useState(0); const [topH, setTopH] = useState(0); const [headH, setHeadH] = useState(0); const [gh, setGh] = useState({});
-  const fitDays = useMemo(() => { let left = availH - topH - headH - 12; const out = []; for (const g of upcoming) { const hgt = gh[g.iso]; if (hgt == null || hgt + 8 > left) break; left -= hgt + 8; out.push(g); } return out; }, [availH, topH, headH, gh, upcoming]);
   const occV = occStore.useVersion();
   usePremiumVersion();
+  const [unread, setUnread] = useState(0); // pastille de la bulle Suivi
+  useFocusEffect(React.useCallback(() => { unreadSuivi().then(setUnread).catch(() => {}); }, [occV]));
   const [needWeek, setNeedWeek] = useState(false); // gratuit : plus rien de prévu → carte « Nouvelle semaine »
   useEffect(() => { weekNeedsRestart().then(setNeedWeek).catch(() => {}); }, [occV]);
 
@@ -99,7 +124,7 @@ export default function Home() {
     (async () => {
       await loadSetup();
       if (!inRealMode() || CAPTURE) { setVms(demoVms()); setMochi(CAPTURE ? { ...DEMO_MOCHI, stage: 'mochi', hearts: 5, pearls: 214 } : DEMO_MOCHI); setLvl(2); setRoom({ items: CAPTURE ? ['cheval', 'aquarium', 'tournedisque', 'lave'] : ['cheval', 'lave'], outfit: 'beret', souvenirs: 3 }); setEnergy(CAPTURE ? { done: 2, total: 3 } : { done: 0, total: 0 }); const dm = demoFlags.checkin[T.night ? 'evening' : 'morning']; setCheckedIn(!!dm); setMyMood(dm || null); return; }
-      const [occs, tasks, inv, cks] = await Promise.all([read('occurrences'), read('tasks'), read('mochi_inventory'), read('mochi_checkins')]);
+      const [occs, tasks, inv, cks, acts] = await Promise.all([read('occurrences'), read('tasks'), read('mochi_inventory'), read('mochi_checkins'), read('activity').catch(() => [])]);
       if (setup.householdId && occs.some(o => !tasks.some(tk => tk.id === o.task_id))) healMissingTasks(setup.householdId).then(ok => { if (ok) occStore.bump(); }).catch(() => {});
       const byId = Object.fromEntries(tasks.map(tk => [tk.id, tk]));
       data.current = { occs, byId };
@@ -124,13 +149,13 @@ export default function Home() {
       setLvl(!m || m.stage === 'egg' ? 0 : souvenirs === 0 ? 1 : m.stage === 'mini' ? 2 : m.stage === 'mochi' ? 3 : 4);
       const swaps = await read('swap_requests').catch(() => []); const pendingIds = new Set(swaps.filter(sw => sw.status === 'pending' && sw.from_user === uid).map(sw => sw.occurrence_id));
       const refusedIds = new Set(swaps.filter(sw => sw.status === 'refused' && sw.from_user === uid && String(sw.resolved_at || '').slice(0, 10) === today).map(sw => sw.occurrence_id));
-      const toVm = o => { const tk = byId[o.task_id] || {}; const q = `occ=${o.id}&tid=${o.task_id}&title=${encodeURIComponent(tk.title || '')}&emoji=${encodeURIComponent(tk.emoji || '•')}&mins=${tk.duration_min || 15}`; return { id: o.id, emoji: tk.emoji || '•', title: tk.title || '…', mental: !!tk.mental_load, together: !o.assignee_id, mins: tk.duration_min || 15, href: `/mission?${q}`, pending: pendingIds.has(o.id) ? fill(t.pending, { name: partner.first_name }) : refusedIds.has(o.id) ? fill(t.refused, { name: partner.first_name }) : null }; };
+      const remind = reminderMarks(acts, uid);
+      const toVm = o => { const tk = byId[o.task_id] || {}; const q = `occ=${o.id}&tid=${o.task_id}&title=${encodeURIComponent(tk.title || '')}&emoji=${encodeURIComponent(tk.emoji || '•')}&mins=${tk.duration_min || 15}`; return { id: o.id, emoji: tk.emoji || '•', title: tk.title || '…', mental: !!tk.mental_load, together: !o.assignee_id, mins: tk.duration_min || 15, href: `/mission?${q}`, remind: remind[o.id] || null, pending: pendingIds.has(o.id) ? fill(t.pending, { name: partner.first_name }) : refusedIds.has(o.id) ? fill(t.refused, { name: partner.first_name }) : null }; };
       setLate(groupLate(occs.filter(o => isLive(o) && o.due_date < today && o.status !== 'done' && mine(o))).map(g => {
         const o = g.latest; const tk = byId[o.task_id] || {};
         const q = `occ=${o.id}&tid=${o.task_id}&title=${encodeURIComponent(tk.title || '')}&emoji=${encodeURIComponent(tk.emoji || '•')}&mins=${tk.duration_min || 15}`;
-        return { id: o.id, emoji: tk.emoji || '•', title: tk.title || '…', mental: !!tk.mental_load, sub: lateCaption(g.n, daysBetweenIso(g.oldest.due_date, today)), together: !o.assignee_id, mins: tk.duration_min || 15, href: `/retard?${q}&due=${g.oldest.due_date}&ids=${g.ids.join(',')}&n=${g.n}`, late: true, ids: g.ids };
+        return { id: o.id, emoji: tk.emoji || '•', title: tk.title || '…', mental: !!tk.mental_load, sub: lateCaption(g.n, daysBetweenIso(g.oldest.due_date, today)), together: !o.assignee_id, mins: tk.duration_min || 15, href: `/retard?${q}&due=${g.oldest.due_date}&ids=${g.ids.join(',')}&n=${g.n}`, late: true, ids: g.ids, remind: g.ids.map(x => remind[x]).find(Boolean) || null };
       }));
-      setUpcoming([1, 2, 3, 4, 5, 6].map(k => { const iso = addDaysIso(k); const items = occs.filter(o => isLive(o) && o.due_date === iso && mine(o)); return { iso, label: fmtDayLabel(new Date(iso + 'T12:00:00')), items: items.map(toVm) }; }).filter(g => g.items.length));
       setVms(todays.map(toVm));
     })();
   }, [occV, ident, mochiV]);
@@ -183,19 +208,21 @@ export default function Home() {
   return (
     <View style={{ flex: 1, backgroundColor: T.bg }}>
       <Pressable onPress={() => router.push('/chambre')} style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><Scene T={T} stage={m.stage} mood={mood} lvl={lvl} topInset={insets.top + 44} items={room.items} outfit={room.outfit} souvenirs={room.souvenirs} positions={room.positions} photo={m.photo_url || null} /></Pressable>
+      {m.stage !== 'egg' && day > 0 ? <DayBanner T={T} day={day} top={insets.top + 56} /> : null}
       {flight && pearlsAt ? <PearlFlight key={flight.key} from={{ x: width / 2, y: layout.scene - layout.floor - 60 }} to={pearlsAt} count={Math.min(5, flight.n)} color={T.accent} onArrive={() => { pop(); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {}); }} /> : null}
       <SafeAreaView style={{ flex: 1 }} edges={['top']} pointerEvents="box-none">
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 24 }} showsVerticalScrollIndicator={false} onLayout={e => setAvailH(e.nativeEvent.layout.height)}>{/* défile quand la journée est chargée (9 nov 2026) */}
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 24 }} showsVerticalScrollIndicator={false}>{/* défile quand la journée est chargée (9 nov 2026) */}
           {/* sous la scène, le contenu a un fond plein : il glisse sur la pièce sans la traverser */}
           {bgTop ? <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, top: bgTop, height: 4000, backgroundColor: T.bg }} /> : null}
-          <View pointerEvents="box-none" onLayout={e => setTopH(e.nativeEvent.layout.height)}>
+          <View pointerEvents="box-none">
             <View style={s.header}>
               {/* sur la pièce (sombre), l'en-tête est en blanc cassé quel que soit le mode */}
               <Label T={T} style={{ flex: 1, color: HEAD_ }}>{fmtDate(new Date())}</Label>
               <Pressable onPress={() => router.push('/chambre')} hitSlop={8} ref={pearlsRef} onLayout={() => pearlsRef.current?.measureInWindow((x, y, w, hh) => setPearlsAt({ x: x + w / 2, y: y + hh / 2 }))} style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 6 }}>
                 <Animated.View style={popStyle}><Num T={T} style={{ color: HEAD_ }}>{(m.pearls ?? 0) + demoPearls}</Num></Animated.View><Label T={T} style={{ marginLeft: 6, color: HEAD_, opacity: 0.8 }}>{copy.common.pearlsWord}</Label>
               </Pressable>
-              <Pressable onPress={() => router.push('/activite')} accessibilityLabel={h.activityA11y} hitSlop={8} style={{ marginRight: 4 }}><Image source={require('../../assets/icones/tabs/bubble.png')} style={{ width: 34, height: 34 }} resizeMode="contain" accessibilityIgnoresInvertColors /></Pressable>
+              <Pressable onPress={() => router.push('/activite')} accessibilityLabel={h.activityA11y} hitSlop={8} style={{ marginRight: 4 }}><Image source={require('../../assets/icones/tabs/bubble.png')} style={{ width: 34, height: 34 }} resizeMode="contain" accessibilityIgnoresInvertColors />
+                {unread > 0 ? <View style={{ position: 'absolute', top: -3, right: -5, minWidth: 18, height: 18, paddingHorizontal: 5, borderRadius: 9, backgroundColor: T.accent, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: T.night ? '#1E2433' : '#FFFFFF' }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#FFFFFF', fontVariant: ['tabular-nums'] }}>{unread > 9 ? '9+' : unread}</Text></View> : null}</Pressable>
               <Pressable onPress={() => router.push('/profil')} accessibilityLabel={h.profileA11y}><Avatar initial={me.initial} color={me.color} photo={me.avatar_url} size={36} /></Pressable>
             </View>
             <Pressable onPress={() => router.push('/chambre')} accessibilityLabel={t.roomA11y} onLayout={e => setBgTop(e.nativeEvent.layout.y + e.nativeEvent.layout.height)} style={{ height: Math.max(8, layout.scene + 12 - insets.top - 48) }} />{/* la scène se tape ici : vers la pièce de Mochi */}
@@ -219,7 +246,7 @@ export default function Home() {
                 <View style={{ marginTop: 14, paddingVertical: 13, borderRadius: 999, backgroundColor: T.accent, alignItems: 'center' }}><Text style={[type.body, { color: '#FFFFFF', fontWeight: '600' }]}>{copy.semaine.cardCta}</Text></View>
               </Pressable>
             ) : null}
-            <View style={{ marginTop: (checkedIn ? 16 : 6) * layout.air }}><Gauges T={T} t={t} energy={en} hearts={hearts} formLabel={t.formLabels[hearts] || ''} hint={m.stage !== 'egg' && !full && day <= 7 ? t.energyHint : null} /></View>
+            <View style={{ marginTop: (checkedIn ? 16 : 6) * layout.air }}><Gauges T={T} t={t} energy={en} hearts={hearts} formLabel={t.formLabels[hearts] || ''} hint={m.stage !== 'egg' && !full && day <= 7 ? t.energyHint : null} onFormPress={m.stage === 'egg' ? undefined : () => router.push('/forme')} /></View>
             <View style={s.sectionHead}>
               <Pressable onPress={() => router.push('/(tabs)/planning')} hitSlop={6}><Text style={[type.section, { color: T.ink }]}>{t.today}</Text></Pressable>
               <Label T={T}>{meta}</Label>
@@ -234,17 +261,7 @@ export default function Home() {
               {real && noTask ? <View style={{ marginTop: 14 }}><CTAPrimary label={isJoiner() ? fill(h.chooseWithCta, { name: partner.first_name }) : h.chooseTasksCta} onPress={() => router.push('/(setup)/taches')} /></View> : null}
             </View>
           </View>
-          {real && upcoming.length ? (
-            <>
-              <View style={s.sectionHead} onLayout={e => setHeadH(e.nativeEvent.layout.height)}><Text style={[type.section, { color: T.ink }]}>{t.upcoming}</Text></View>
-              <View style={{ marginHorizontal: layout.x }}>
-                {upcoming.map(g => (<View key={g.iso}><Label T={T} style={{ paddingTop: 10, paddingBottom: 2 }}>{g.label}</Label>{g.items.map((v, i) => <Row key={v.id} T={T} vm={v} first={i === 0} done={missionDone.has(v.id)} onToggle={() => toggle(v.id, true)} />)}</View>))}
-              </View>
-              <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, top: 0, opacity: 0, paddingHorizontal: layout.x }}>
-                {upcoming.map(g => (<View key={g.iso} onLayout={e => { const hgt = e.nativeEvent.layout.height; setGh(mm => (mm[g.iso] === hgt ? mm : { ...mm, [g.iso]: hgt })); }}><Label T={T} style={{ paddingTop: 10, paddingBottom: 2 }}>{g.label}</Label>{g.items.map((v, i) => <Row key={v.id} T={T} vm={v} first={i === 0} done={missionDone.has(v.id)} onToggle={() => {}} />)}</View>))}
-              </View>
-            </>
-          ) : null}
+          {/* plus de « À venir » : l'Accueil ne montre que la journée (Jeanne, 13 nov 2026) — la semaine est dans le Planning */}
         </ScrollView>
       </SafeAreaView>
     </View>

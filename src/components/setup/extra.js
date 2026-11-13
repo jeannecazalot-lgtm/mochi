@@ -205,10 +205,10 @@ export function CheckDot({ on, onPress, size = 26 }) {
 
 // ─── CTA secondaire « + Ajouter » (10) avec état pressé VISIBLE :
 // fond qui fonce + échelle 0.97 (CTASecondary ne baisse que l'opacité).
-export function AddButton({ label, onPress, style }) {
+export function AddButton({ label, onPress, style, compact }) {
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [s3.add, pressed && s3.addPressed, style, pressed && { transform: [{ scale: 0.97 }] }]}>
-      <Text style={[font.ctaSecondary, { color: tk().ink }, { color: tk().ink }]}>{label}</Text>
+    <Pressable onPress={onPress} style={({ pressed }) => [s3.add, compact && { paddingVertical: 11 }, pressed && s3.addPressed, style, pressed && { transform: [{ scale: 0.97 }] }]}>
+      <Text style={[font.ctaSecondary, { color: tk().ink }, compact && { fontSize: 15 }]}>{label}</Text>
     </Pressable>
   );
 }

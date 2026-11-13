@@ -27,6 +27,7 @@ import { toggleOccurrence, isLive } from '../../src/occ-actions';
 import { isPremium } from '../../src/demo-premium';
 import copy from '../../src/copy';
 import { groupLate, lateCaption, daysBetweenIso } from '../../src/late-groups';
+import { reminderMarks } from '../../src/reminder-marks';
 import { space, motion, radius } from '../../src/theme';
 import { TaskIcon } from '../../src/components/task-icon';
 const EVENT_DOT = '#9A7BC8'; // point lavande des événements / pense-bêtes dans les semainiers
@@ -138,6 +139,7 @@ function RealRow({ T, vm, onToggle }) {
         <View style={{ flex: 1 }}>
           <Text style={[type.body, { color: T.ink, textDecorationLine: vm.done ? 'line-through' : 'none', opacity: vm.done ? 0.45 : 1 }]} numberOfLines={1}>{vm.title}</Text>
           <Label T={T} style={[{ marginTop: 3 }, vm.late && { color: T.accent, fontWeight: '600' }]}>{vm.sub}</Label>
+          {vm.remind ? <Label T={T} style={{ marginTop: 2, color: T.accent }}>{vm.remind}</Label> : null}
         </View>
         {vm.event ? (vm.whoList?.length > 1 ? <AvatarPair members={vm.whoList} size={24} /> : vm.whoList?.length === 1 ? <Avatar initial={vm.whoList[0].initial} color={vm.whoList[0].color} photo={vm.whoList[0].avatar_url} size={24} /> : null) : vm.who
           ? <Avatar initial={vm.who.initial} color={vm.who.color} photo={vm.who.avatar_url} size={24} />
@@ -181,10 +183,11 @@ export default function Planning() {
       // Réel dès qu'on a un foyer, même vide (retour test à deux, 3 sept 2026)
       if (!inRealMode()) return;
       try {
-      const [occs, tasks, events, notes] = await Promise.all([read('occurrences'), read('tasks'), read('events'), read('notes').catch(() => [])]);
+      const [occs, tasks, events, notes, acts] = await Promise.all([read('occurrences'), read('tasks'), read('events'), read('notes').catch(() => []), read('activity').catch(() => [])]);
       if (setup.householdId && occs.some(o => !tasks.some(t => t.id === o.task_id))) healMissingTasks(setup.householdId).then(ok => { if (ok) occStore.bump(); }).catch(() => {});
       const byTask = Object.fromEntries(tasks.map(tk => [tk.id, tk]));
       const uid = getUid();
+      const remind = reminderMarks(acts, uid); // « Rappel envoyé · 9:12 » / « Jeanne te l'a rappelée »
       const todayIso = localIso();
       const byDate = {};
       const lateItems = [];
@@ -205,7 +208,7 @@ export default function Planning() {
           id: o.id, emoji: tk.emoji || '•', title: tk.title || '…',
           sub: late ? t2.late : `${fmtMin(tk.duration_min || 15)}${tk.mental_load ? ` · ${t2.mental.replace('{coef}', fmtCoef(MENTAL_COEF))}` : ''}`,
           who, checkable: !o.assignee_id || o.assignee_id === uid || !uid,
-          done: isDone, late,
+          done: isDone, late, remind: isDone ? null : remind[o.id] || null,
           // en retard → sheet 21 (je le fais / repasser / décaler) ; sinon sheet Mission
           href: late ? `/retard?${q}&due=${o.due_date}` : `/mission?${q}`,
         });
@@ -234,7 +237,7 @@ export default function Planning() {
         const o = g.latest; const tk = byTask[o.task_id] || {};
         const who = o.assignee_id ? (o.assignee_id === uid ? me : partner) : null;
         const q = `occ=${o.id}&tid=${o.task_id}&title=${encodeURIComponent(tk.title || '')}&emoji=${encodeURIComponent(tk.emoji || '•')}&mins=${tk.duration_min || 15}`;
-        lateItems.push({ id: o.id, emoji: tk.emoji || '•', title: tk.title || '…', sub: lateCaption(g.n, daysBetweenIso(g.oldest.due_date, todayIso)), who, checkable: !o.assignee_id || o.assignee_id === uid || !uid, done: false, late: true, href: `/retard?${q}&due=${g.oldest.due_date}&ids=${g.ids.join(',')}&n=${g.n}` });
+        lateItems.push({ id: o.id, emoji: tk.emoji || '•', title: tk.title || '…', sub: lateCaption(g.n, daysBetweenIso(g.oldest.due_date, todayIso)), remind: g.ids.map(x => remind[x]).find(Boolean) || null, who, checkable: !o.assignee_id || o.assignee_id === uid || !uid, done: false, late: true, href: `/retard?${q}&due=${g.oldest.due_date}&ids=${g.ids.join(',')}&n=${g.n}` });
       }
       if (lateItems.length) groups.unshift({ iso: '__late', late: true, items: lateItems });
       setSoloList(!getPartnerUid() && !occs.some(isLive) ? (setup.tasks || []) : []);

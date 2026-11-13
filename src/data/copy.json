@@ -145,6 +145,8 @@
     "mochiUnbalancedOther": "Ça penche nettement chez {name}.",
     "mochiUnbalancedMe": "Ça penche nettement de ton côté.",
     "mochiUnbalancedSub": "Mochi propose un rééquilibrage — regarde la Balance.",
+    "reminderSent": "Rappel envoyé · {time}",
+    "reminderGot": "{name} te l'a rappelée",
     "activityA11y": "Suivi",
     "profileA11y": "Profil et réglages",
     "mochiNew": "Votre foyer démarre tout juste.",
@@ -514,6 +516,10 @@
     "timeConfirm": "C'est noté",
     "timeAfterSub": "Compté dans la balance",
     "closeLabel": "Fermer",
+    "expenseNudge": "Tu as payé quelque chose ?",
+    "expenseNudgeSub": "Ajoute la dépense : Mindpair fait les comptes entre vous.",
+    "expenseNudgeLocked": "Avec Mochi+, Mindpair tient les comptes et vous dit qui doit quoi.",
+    "expensePlus": "Mochi+",
     "expenseAfterSub": "Si tu as payé quelque chose",
     "swapBtn": "Proposer",
     "noteDone": "OK",
@@ -843,6 +849,7 @@
     "readyCta": "C'est bon pour moi",
     "waitingOther": "En attente de {name}…",
     "otherReady": "{name} a validé la liste. Si c'est bon pour toi aussi, Mochi répartit.",
+    "tasksPhotoLegend": "La photo : qui a coché la mission. Qui la fera, Mochi le décide à la répartition.",
     "meReady": "Tu as validé. Dès que {name} valide aussi, Mochi répartit."
   },
   "event": {
@@ -1331,7 +1338,8 @@
       "replies": "Réponses préformatées (zéro texte libre)",
       "partnerDayOne": "L'autre a fait une mission ({name}, {task})",
       "partnerDayMany": "L'autre a fait plusieurs missions dans la journée ({n}, {task} = liste)",
-      "andMore": "Suite de la liste au-delà de 3"
+      "andMore": "Suite de la liste au-delà de 3",
+      "reactionSent": "Ce que j'ai répondu, vu de mon côté ({reply} = Bravo…, {name} = l'autre)"
     },
     "title": "Suivi",
     "emptyReal": "Rien entre vous deux pour l'instant. Quand l'autre fait ses missions, c'est ici que tu lui dis bravo.",
@@ -1347,6 +1355,7 @@
     "mochiRebalance": "Soirée équilibrée 🥳",
     "mochiStreak": "+1 jour à votre streak ({n} 🔥)",
     "reactionFrom": "{name} te dit : {reply}",
+    "reactionSent": "Tu as dit « {reply} » à {name}",
     "presets": {
       "tookOver": "{name} s'occupe de {task} · {day}",
       "ruleChanged": "{name} a modifié {task}",
@@ -2188,6 +2197,7 @@
   "homeV3": {
     "_labels": {
       "pearls": "Compteur de perles du foyer ({n})",
+      "dayTogether": "Pastille à l'ouverture de l'app ({day} = jours depuis l'éclosion)",
       "stagePill": "Pastille sous le nom ({day} = jour depuis l'éclosion, {k} = palier 1-5)",
       "eggPill": "Pastille quand Mochi est encore un œuf",
       "energy": "Étiquette de la jauge d'énergie",
@@ -2221,6 +2231,7 @@
       "soloCode": "Bloc « seul » : ton code ({code})"
     },
     "pearls": "{n} perles",
+    "dayTogether": "Jour {day} ensemble",
     "stagePill": "Jour {day} · palier {k}",
     "eggPill": "Œuf",
     "energy": "Énergie",
@@ -2332,6 +2343,12 @@
       "given": "Après ({name})",
       "weighsRow": "Sous-ligne ({mine} min contre {other} min)",
       "demoOnly": "Message en démo",
+      "whyTitle": "Pourquoi",
+      "weighsRowNamed": "Toi {mine} min · {name} {other} min",
+      "howTitle": "Pour rééquilibrer",
+      "howBalanced": "Vous êtes à l'équilibre : rien à changer cette semaine.",
+      "giveRow": "Passer {task} à {name}",
+      "giveBtn": "Passer",
       "solo": "Balance quand on est seul dans le foyer"
     },
     "title": "Balance",
@@ -2585,5 +2602,35 @@
     "plus": "Avec Mochi+, votre semaine se remplit toute seule.",
     "plusCta": "Découvrir Mochi+",
     "done": "C'est parti : {n} missions pour la semaine."
+  },
+  "forme": {
+    "_labels": {
+      "_": "Sheet Forme de Mochi (toucher la ligne Forme sur l'Accueil). {name} = nom de Mochi, {state} = malade / en forme…, {task} = mission, {who} = qui, {day} = jour"
+    },
+    "titles": ["{name}", "{name} est malade", "{name} est patraque", "{name} boude", "{name} est en forme", "{name} est en pleine forme"],
+    "whyTitle": "Pourquoi",
+    "lost": "{task} pas faite ({who}) · {day}",
+    "gained": "{task} rattrapée · {day}",
+    "healthyWeek": "Une semaine saine",
+    "you": "toi",
+    "whyNone": "Rien de récent.",
+    "whyNoneFull": "Aucune mission ratée : il a tous ses cœurs.",
+    "howTitle": "Pour qu'il aille mieux",
+    "rulesTitle": "Comment ça marche",
+    "rules": [
+      {
+        "text": "Rattraper une mission en retard",
+        "minus": false
+      },
+      {
+        "text": "Une semaine sans ratée, et équilibrée",
+        "minus": false
+      },
+      {
+        "text": "Une mission ratée",
+        "minus": true
+      }
+    ],
+    "floor": "Il ne descend jamais sous un cœur. À un cœur, il est malade."
   }
 }

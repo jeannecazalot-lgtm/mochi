@@ -3,8 +3,8 @@
 // (jours, qui, durée, note) repliée en bas. Jamais de push d'écran : tout se déplie en place.
 // Recette : docs/recettes/17c-sheet-tache-v2.md. `?occ=<id>` = occurrence (réelle ou démo).
 import React, { useEffect, useRef, useState } from 'react';
-import { router, useLocalSearchParams } from 'expo-router';
-import { View, Text, Pressable, TextInput, StyleSheet, KeyboardAvoidingView, Keyboard } from 'react-native';
+import { router, useLocalSearchParams, useNavigation } from 'expo-router';
+import { View, Text, Pressable, TextInput, StyleSheet, KeyboardAvoidingView, Keyboard, ScrollView, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { LinearTransition } from 'react-native-reanimated';
@@ -13,7 +13,7 @@ import { SheetHandle, CheckCircle } from '../src/components/social/extra';
 import { Animated, FadeIn, useCheckPop } from '../src/components/motion';
 import { Row, Stepper, PillChip, ConfirmRow, Arrow, Caption } from '../src/components/task/proto';
 import { NoteInput, RuleEditor } from '../src/components/task/rule-editor';
-import { useSheetGrow } from '../src/components/sheet-grow';
+import { isPremium } from '../src/demo-premium';
 import { loadMission, saveRule, completeMission, parseAmount } from '../src/mission-data';
 import { moveOccurrence, toggleOccurrence, takeOver, skipOccurrence, giveBack, wasPartnersTask } from '../src/occ-actions';
 import { deleteRealTask } from '../src/task-actions';
@@ -31,6 +31,7 @@ import { dayWord } from '../src/lang';
 
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
 const fmtAmount = cents => `${(cents / 100).toFixed(2).replace('.', ',')} €`;
+const COSTLY_EMOJI = new Set(['🛒', '📄', '🧳', '💊', '🎁', '⛽']);
 const CLOSE_AFTER = 1800; // « C'est fait » (Jeanne 13 sept : « il ne faut pas que le pop-up parte directement »)
 const CLOSE_AFTER_SLOW = 1700; // proposé / déplacé : le temps de lire (« beaucoup trop rapide » à 900 ms) // la confirmation reste visible avant la fermeture automatique
 // Retour Jeanne 9 sept 2026 (« j'aime pas comment bouge Modifier la tâche ») : plus de ressort,
@@ -73,7 +74,20 @@ export default function Mission() {
   // le dépliage, on fixe une détente à la hauteur MESURÉE du contenu — si iOS a déjà suivi, rien ne
   // bouge ; sinon la sheet prend juste la place qu'il faut, jamais plus.
   const [noteOpen, setNoteOpen] = useState(false);
-  const onGrowLayout = useSheetGrow(ruleOpen || asking || expenseOpen || timing, noteOpen || expenseOpen);
+  // 13 nov 2026 : la sheet EST la zone qui défile (react-native-screens étire la première ScrollView trouvée
+  // à la taille de la sheet). Sa hauteur suit le contenu, plafonnée à 92 % ; au-delà, on fait défiler.
+  // Clavier ouvert (note, montant) : 92 % d'office. Une seule mise à jour par changement réel de hauteur.
+  const { height: winH } = useWindowDimensions();
+  const navigation = useNavigation();
+  const lastDetent = useRef(null);
+  const setDetent = f => { if (lastDetent.current != null && Math.abs(lastDetent.current - f) < 0.004) return; lastDetent.current = f; navigation.setOptions({ sheetAllowedDetents: [f] }); };
+  const contentH = useRef(0);
+  const tall = noteOpen || expenseOpen;
+  const fitTo = h => { contentH.current = h; if (!tall) setDetent(Math.max(0.15, Math.min(0.92, (h + 4) / (winH - insets.top - 10)))); };
+  useEffect(() => { if (tall) setDetent(0.92); else if (contentH.current) fitTo(contentH.current); }, [tall]);
+  // la sheet plafonne à 92 % de l'écran : au-delà, le contenu défile (Jeanne + Ketley, 10-13 nov 2026 :
+  // « je peux pas aller sur Note, il faudrait descendre et j'y arrive pas »)
+
   const dirty = useRef(false);
   const ruleRef = useRef(null);
 
@@ -219,7 +233,7 @@ export default function Mission() {
       finish({ kind: 'swap', who: partner, title: fill(t.confirmPing, { name: partner.first_name }), sub: fill(copy.pings[key] || '', { task: task.title }) });
     };
     return (
-      <View style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 31) }]} onLayout={onGrowLayout}>
+      <ScrollView style={{ backgroundColor: T.bg }} contentContainerStyle={[s.sheet, { paddingBottom: Math.max(insets.bottom, 31) }]} onContentSizeChange={(w, h) => fitTo(h)} contentInsetAdjustmentBehavior="never" automaticallyAdjustKeyboardInsets bounces={false} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         <SheetHandle />
         {head}
         <Card r={16} padding={0} style={s.block}>
@@ -238,7 +252,7 @@ export default function Mission() {
             ) : null}
           </Card>
         </Animated.View>
-      </View>
+      </ScrollView>
     );
   }
 
@@ -247,20 +261,28 @@ export default function Mission() {
   //   · d'abord : « Je n'aurai pas le temps » (→ déplacer / repasser) + « Modifier la tâche »
   //   · après la coche : temps passé + dépense + « C'est noté »
   //   · « Modifier la tâche » : sous-page avec retour ‹ en tête (on sait où on est)
+  // tâches qui coûtent (Courses, factures, sorties…) : la dépense est mise en avant à la coche, et
+  // sans Mochi+ elle ouvre le paywall (Jeanne, 13 nov 2026 : « les inciter à prendre Mochi+ »)
+  const costly = !!(task.has_expense || COSTLY_EMOJI.has(task.emoji));
+  const expenseLocked = costly && !isPremium();
+  const expenseRow = costly
+    ? <Row first strong label={t.expenseNudge} sub={expenseLocked ? t.expenseNudgeLocked : t.expenseNudgeSub} right={expenseLocked ? <PillChip label={t.expensePlus} selected onPress={() => router.push('/paywall?from=budget')} /> : null} onPress={expenseLocked ? () => router.push('/paywall?from=budget') : undefined} />
+    : null;
   const expenseRight = expenseOpen
     ? <View style={s.amountBox}><TextInput value={amount} onChangeText={setAmount} placeholder={t.expensePlaceholder} placeholderTextColor={alpha(T.ink, 0.3)} keyboardType="decimal-pad" style={s.amountInput} /><Text style={s.amountUnit}>€</Text></View>
     : <PillChip label={cents ? fmtAmount(cents) : t.expenseAdd} selected={!!cents} onPress={() => setExpenseOpen(true)} />;
   return (
-    <KeyboardAvoidingView behavior="padding" style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 31) }]} onLayout={onGrowLayout}>
-      <Pressable onPress={Keyboard.dismiss} accessible={false}>
+    <ScrollView style={{ backgroundColor: T.bg }} contentContainerStyle={[s.sheet, { paddingBottom: Math.max(insets.bottom, 31) }]} onContentSizeChange={(w, h) => fitTo(h)} contentInsetAdjustmentBehavior="never" automaticallyAdjustKeyboardInsets bounces={false} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
       <SheetHandle />
+      <Pressable onPress={Keyboard.dismiss} accessible={false}>
       {head}
 
       {timing ? (
         <Animated.View entering={FadeIn.duration(motion.micro)} layout={layout}>
           <Card r={16} padding={0}>
-            <Row first label={t.timeLabel} sub={t.timeAfterSub} right={<Stepper value={fmtMin(spent)} onMinus={() => setSpent(v => Math.max(5, v - 5))} onPlus={() => setSpent(v => v + 5)} />} />
-            <Row label={t.expenseLabel} sub={t.expenseAfterSub} right={expenseRight} />
+            {expenseLocked ? expenseRow : null}
+            <Row first={!expenseLocked} label={t.timeLabel} sub={t.timeAfterSub} right={<Stepper value={fmtMin(spent)} onMinus={() => setSpent(v => Math.max(5, v - 5))} onPlus={() => setSpent(v => v + 5)} />} />
+            {expenseLocked ? null : <Row strong={costly} label={costly ? t.expenseNudge : t.expenseLabel} sub={costly ? t.expenseNudgeSub : t.expenseAfterSub} right={expenseRight} />}
             <Row strong label={t.timeConfirm} right={<Arrow />} onPress={confirmTime} />
           </Card>
         </Animated.View>
@@ -313,7 +335,7 @@ export default function Mission() {
         </>
       )}
       </Pressable>
-    </KeyboardAvoidingView>
+    </ScrollView>
   );
 }
 

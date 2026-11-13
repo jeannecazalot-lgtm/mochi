@@ -147,6 +147,7 @@
   "readyCta": "Looks good to me",
   "waitingOther": "Waiting for {name}…",
   "otherReady": "{name} confirmed the list. If it works for you too, Mochi splits it up.",
+  "tasksPhotoLegend": "The photo shows who picked the task. Mochi decides who does it when he splits them.",
   "meReady": "You've confirmed. Once {name} does too, Mochi splits it up."
  },
  "push": {
@@ -492,6 +493,10 @@
   "timeConfirm": "Got it",
   "timeAfterSub": "Added to the Balance",
   "closeLabel": "Close",
+  "expenseNudge": "Did you pay for anything?",
+  "expenseNudgeSub": "Add the expense: Mindpair keeps track of who owes what.",
+  "expenseNudgeLocked": "With Mochi+, Mindpair keeps the accounts and tells you who owes what.",
+  "expensePlus": "Mochi+",
   "expenseAfterSub": "If you paid for something",
   "swapBtn": "Offer",
   "noteDone": "OK",
@@ -533,6 +538,7 @@
   "mochiRebalance": "Balanced evening 🥳",
   "mochiStreak": "+1 day on your streak ({n} 🔥)",
   "reactionFrom": "{name} says: {reply}",
+  "reactionSent": "You said “{reply}” to {name}",
   "presets": {
    "tookOver": "{name} is taking {task} · {day}",
    "ruleChanged": "{name} edited {task}",
@@ -1113,6 +1119,12 @@
   "given": "Moved to {name}",
   "weighsRow": "{mine} min vs {other} min",
   "demoOnly": "Demo: nothing gets moved.",
+  "whyTitle": "Why",
+  "weighsRowNamed": "You {mine} min · {name} {other} min",
+  "howTitle": "To even things out",
+  "howBalanced": "You’re even: nothing to change this week.",
+  "giveRow": "Hand {task} to {name}",
+  "giveBtn": "Hand over",
   "solo": "The Balance compares what you each do. It starts once your partner joins the household."
  },
  "malus": {
@@ -1351,6 +1363,8 @@
   "mochiUnbalancedOther": "It's clearly tipping toward {name}.",
   "mochiUnbalancedMe": "It's clearly tipping toward you.",
   "mochiUnbalancedSub": "Mochi suggests a rebalance — check the Balance.",
+  "reminderSent": "Reminder sent · {time}",
+  "reminderGot": "{name} sent you a reminder",
   "activityA11y": "Activity",
   "profileA11y": "Profile and settings",
   "mochiNew": "Your household is just getting started.",
@@ -1373,6 +1387,7 @@
  },
  "homeV3": {
   "pearls": "{n} pearls",
+  "dayTogether": "Day {day} together",
   "stagePill": "Day {day} · stage {k}",
   "eggPill": "Egg",
   "energy": "Energy",
@@ -1767,5 +1782,32 @@
   "t-menage": "Clean the living room",
   "t-veto": "Vet for Marcel",
   "t-chien-matin": "Morning dog walk"
+ },
+ "forme": {
+  "titles": ["{name}", "{name} is sick", "{name} is feeling off", "{name} is sulking", "{name} is doing well", "{name} is thriving"],
+  "whyTitle": "Why",
+  "lost": "{task} not done ({who}) · {day}",
+  "gained": "{task} caught up · {day}",
+  "healthyWeek": "A healthy week",
+  "you": "you",
+  "whyNone": "Nothing recent.",
+  "whyNoneFull": "No missed tasks: he has all his hearts.",
+  "howTitle": "To help him feel better",
+  "rulesTitle": "How it works",
+  "rules": [
+   {
+    "text": "Catch up an overdue task",
+    "minus": false
+   },
+   {
+    "text": "A balanced week with nothing missed",
+    "minus": false
+   },
+   {
+    "text": "A missed task",
+    "minus": true
+   }
+  ],
+  "floor": "He never drops below one heart. At one heart, he’s sick."
  }
 }

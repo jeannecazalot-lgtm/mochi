@@ -4,6 +4,8 @@ import { RouteError } from '../src/components/route-error';
 import React, { useState, useEffect } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
+import { FadeOut, LinearTransition } from 'react-native-reanimated';
+import { Animated } from '../src/components/motion';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { Avatar } from '../src/components/ui';
@@ -24,6 +26,7 @@ import { partner } from '../src/demo';
 import copy from '../src/copy';
 import { radius } from '../src/theme';
 import { LOCALE } from '../src/lang';
+import { markSuiviSeen } from '../src/suivi-unread';
 
 const t = copy.activity;
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
@@ -155,7 +158,8 @@ export default function Activite() {
   const [chosen, setChosen] = useState({});
   const choose = (id, key) => {
     Haptics.selectionAsync().catch(() => {});
-    setChosen(c => ({ ...c, [id]: c[id] === key ? null : key }));
+    // une réponse envoyée (Bravo, Merci…) fait partir la ligne (retour Jeanne 13 nov 2026)
+    setChosen(c => ({ ...c, [id]: key }));
     // repassage réel : Accepter change le porteur de l'occurrence, Refuser la laisse
     const sw = realItems?.find(x => x.id === id && x.swap_id);
     // la carte part tout de suite (retour Jeanne 3 sept : « la notif devrait partir »)
@@ -166,7 +170,12 @@ export default function Activite() {
     }
     // réaction rapide réelle (table activity) sous une mission terminée par l'autre
     const done = realItems?.find(x => x.id === id && x.type === 'partner_day');
-    if (done && key) { pushToPartner('reaction', { reply: fill(t.replies[key] || key, { name: partner.first_name }).trim() }); react(String(id), key).catch(() => {}); }
+    if (done && key) {
+      const reply = fill(t.replies[key] || key, { name: partner.first_name }).trim();
+      const now = new Date();
+      setRealItems(items => [{ id: `sent-${id}`, type: 'info', preset: 'sent', actor_id: me.id, text: fill(t.reactionSent, { name: partner.first_name, reply }), at: now, time: new Intl.DateTimeFormat(LOCALE, { hour: '2-digit', minute: '2-digit' }).format(now) }, ...(items || [])]);
+      pushToPartner('reaction', { reply: fill(t.replies[key] || key, { name: partner.first_name }).trim() }); react(String(id), key).catch(() => {});
+    }
   };
 
   // Branchement réel (2 sept 2026, retour Jeanne « encore du simulator ») :
@@ -175,6 +184,7 @@ export default function Activite() {
   const occV = occStore.useVersion();
   missionDone.useVersion();
   const [realItems, setRealItems] = useState(null);
+  useEffect(() => { markSuiviSeen(); return () => { markSuiviSeen(); }; }, []); // la pastille de la bulle retombe à zéro
   useEffect(() => {
     (async () => {
       await loadSetup();
@@ -210,7 +220,11 @@ export default function Activite() {
       const received = [];
       for (const a of acts) {
         if (a.type !== 'ping_reply' || !a.occurrence_id) continue;
-        if (a.actor_id === uid) { const d = dones.find(x => x.ids.includes(a.occurrence_id)); if (d) mineReact[d.id] = a.preset_key; }
+        if (a.actor_id === uid) {
+          const d = dones.find(x => x.ids.includes(a.occurrence_id)); if (d) mineReact[d.id] = a.preset_key;
+          // ce que J'ai envoyé reste visible de mon côté (Ketley, TestFlight 12 nov 2026 : « je ne vois que les tiens »)
+          received.push({ id: a.id, type: 'info', preset: 'sent', actor_id: me.id, text: fill(t.reactionSent, { name: partner.first_name, reply: fill(t.replies[a.preset_key] || a.preset_key, { name: partner.first_name }).trim() }), at: new Date(a.created_at), time: hhmm(a.created_at) });
+        }
         else received.push({ id: a.id, type: 'info', preset: 'reaction', actor_id: partner.id, text: fill(t.reactionFrom, { name: partner.first_name, reply: fill(t.replies[a.preset_key] || a.preset_key, { name: me.first_name }).trim() }), at: new Date(a.created_at), time: hhmm(a.created_at) });
       }
       if (Object.keys(mineReact).length) setChosen(c => ({ ...mineReact, ...c }));
@@ -230,7 +244,9 @@ export default function Activite() {
   const real = realItems != null && demoParam !== '1';
   const now = real ? new Date() : today;
   const groups = [];
-  (real ? realItems : activityFeed).forEach(it => {
+  // ce à quoi j'ai déjà répondu ne reste pas dans le fil (Bravo, Merci, Ok ce soir…)
+  const answered = it => chosen[it.id] && (it.type === 'partner_day' || it.type === 'task_done' || it.type === 'ping');
+  (real ? realItems : activityFeed).filter(it => !answered(it)).forEach(it => {
     const label = dayLabel(it.at, now);
     let g = groups.find(x => x.label === label);
     if (!g) { g = { label, items: [] }; groups.push(g); }
@@ -251,9 +267,9 @@ export default function Activite() {
               <React.Fragment key={g.label}>
                 <Label T={T} style={s.day}>{g.label}</Label>
                 {g.items.map(it => (
-                  <View key={it.id} style={[(chosen[it.id] || gi > 0) && { opacity: chosen[it.id] ? 0.45 : 0.7 }]}>
+                  <Animated.View key={it.id} exiting={FadeOut.duration(220)} layout={LinearTransition.duration(260)} style={[gi > 0 && { opacity: 0.7 }]}>
                     <Item T={T} item={it} chosen={chosen[it.id]} onChoose={choose} variant={variant} />
-                  </View>
+                  </Animated.View>
                 ))}
               </React.Fragment>
             ))}
