@@ -29,6 +29,7 @@ import copy from '../src/copy';
 import { colors, space, font, motion } from '../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../src/theme-v3';
 import { dayWord } from '../src/lang';
+import { canPlanOn } from '../src/week';
 
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
 const CLOSE_AFTER = 1700; // la confirmation reste lisible avant la fermeture (comme la sheet Tâche)
@@ -194,7 +195,7 @@ export default function Retard() {
             {asking ? (
               <Animated.View entering={FadeIn.duration(motion.micro)} style={s.moveBox}>
                 <View style={s.days}>
-                  {days.map(d => <PillChip key={d.iso} flex label={d.label} dim={busy.includes(d.iso)} onPress={() => moveTo(d)} />)}
+                  {days.map(d => <PillChip key={d.iso} flex label={d.label} dim={busy.includes(d.iso) || !canPlanOn(d.iso)} onPress={() => (canPlanOn(d.iso) ? moveTo(d) : router.push('/paywall?from=plan'))} />)}
                 </View>
                 <Caption style={{ textAlign: 'left' }}>{moveMsg || fill(copy.mission.moveWarn, { name: partner.first_name })}</Caption>
               </Animated.View>

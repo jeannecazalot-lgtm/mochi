@@ -23,6 +23,8 @@ import { me, partner } from './demo';
 import { getPartnerUid } from './identity';
 import { slotWindow } from './task-actions';
 import { pushToPartner } from './push';
+import { rodageEnd, daysBetween } from './week';
+import { extendHorizon } from './horizon';
 
 const DAY = 86400000;
 
@@ -154,7 +156,12 @@ export async function syncSetup(result) {
     const avail = it.assignee_id === partner.id ? (pAvail || setup.availability)
       : it.assignee_id === me.id ? setup.availability
       : mergeAvail(setup.availability, pAvail);
-    const offsets = daysForTask({ perWeek, windowDays: t.window_days, availability: avail, todayDow, seed: seed++ });
+    // semaine de rodage (13 nov 2026, src/week.js) : rien après son dimanche ; une tâche dont tous les jours
+    // tombaient après garde une occurrence, le dimanche
+    const endIso = rodageEnd();
+    let offsets = daysForTask({ perWeek, windowDays: t.window_days, availability: avail, todayDow, seed: seed++ })
+      .filter(o => addDaysIso(o + 1) <= endIso);
+    if (!offsets.length) offsets = [Math.min(6, daysBetween(todayIso(), endIso) - 1)];
     for (let k = 0; k < offsets.length; k++) {
       // moi → uid réel ; binôme → son uid RÉEL s'il a rejoint (bot couple, 4 sept
       // 2026 : ses tâches partaient en « commun ») sinon null ; 'both' → null ;
@@ -172,6 +179,8 @@ export async function syncSetup(result) {
     }
   }
 
+  // créé du vendredi au dimanche : la semaine de rodage dépasse J+7, on prolonge jusqu'à son dimanche
+  if (daysBetween(todayIso(), rodageEnd()) > 7) await extendHorizon({ manual: true, force: true, from: 8, to: rodageEnd() }).catch(() => 0);
   pushToPartner('dispatched', { n: (result?.items || []).length }, '/(tabs)/planning'); // l'autre est prévenu que la semaine est répartie (9 nov 2026)
   const ok = await drain();
   if (!ok) console.warn('[sync] file non vidée — rejouée au retour réseau');

@@ -27,6 +27,13 @@ export async function rescheduleReminders() {
     for (const ev of events || []) { if (ev.deleted_at || !ev.starts_at) continue; (evByDay[localIso(new Date(ev.starts_at))] ||= []).push(ev); }
     // pense-bêtes avec rappel : dans le récap de leur jour
     for (const n of notes || []) { if (n.deleted_at || n.done || !n.remind || !n.due_date) continue; (evByDay[n.due_date] ||= []).push({ emoji: n.emoji || '📌', title: n.title || n.body, details: { note: n.title ? n.body : '' } }); }
+    // récap de la semaine (13 nov 2026) : le dimanche à 20 h, aux deux, les deux prochains dimanches
+    if (setup.householdId) {
+      for (let w = 0; w < 2; w++) {
+        const sun = new Date(); sun.setDate(sun.getDate() + ((7 - sun.getDay()) % 7) + 7 * w); sun.setHours(20, 0, 0, 0);
+        if (sun > new Date()) await scheduleAt(sun, { title: copy.recap.pushTitle, body: copy.recap.pushBody, data: { url: '/recap' } });
+      }
+    }
     if (!occs.length && !Object.keys(evByDay).length) return true;
     const byTask = Object.fromEntries(tasks.map(tk => [tk.id, tk]));
     const [h, m] = String(setup.reminder || '19:30').split(':').map(Number);

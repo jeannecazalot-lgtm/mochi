@@ -28,6 +28,7 @@ import copy from '../src/copy';
 import { space, alpha, motion } from '../src/theme';
 import { useTokens } from '../src/theme-v3';
 import { dayWord } from '../src/lang';
+import { canPlanOn } from '../src/week';
 
 const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
 const fmtAmount = cents => `${(cents / 100).toFixed(2).replace('.', ',')} €`;
@@ -304,7 +305,7 @@ export default function Mission() {
                     ) : (
                       <>
                         <View style={s.days}>
-                          {days.map(d => <PillChip key={d.iso} flex label={d.label} dim={m.busy.includes(d.iso)} onPress={() => moveTo(d)} />)}
+                          {days.map(d => <PillChip key={d.iso} flex label={d.label} dim={m.busy.includes(d.iso) || !canPlanOn(d.iso)} onPress={() => (canPlanOn(d.iso) ? moveTo(d) : router.push('/paywall?from=plan'))} />)}
                         </View>
                         <Caption style={{ textAlign: 'left' }}>{moveMsg || fill(t.moveWarn, { name: partner.first_name })}</Caption>
                       </>

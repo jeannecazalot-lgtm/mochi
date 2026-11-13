@@ -218,6 +218,11 @@ export default function Balance() {
                 <Label T={T} style={{ color: T.accent }}>{t.heartCost}</Label>
               </View>))}
           </View>
+          {/* récap de la semaine, à rouvrir (13 nov 2026) */}
+          <Pressable onPress={() => router.push('/recap')} style={({ pressed }) => [{ marginHorizontal: X, marginTop: 18 * A, borderTopWidth: StyleSheet.hairlineWidth, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: T.line, paddingVertical: 14 * A, flexDirection: 'row', alignItems: 'center', opacity: pressed ? 0.6 : 1 }]}>
+            <View style={{ flex: 1 }}><Text style={[type.section, { color: T.ink }]}>{copy.recap.balanceRow}</Text><Label T={T} style={{ marginTop: 2 }}>{copy.recap.balanceRowSub}</Label></View>
+            <Text style={{ fontSize: 20, color: T.muted }}>›</Text>
+          </Pressable>
         </ScrollView>
       </SafeAreaView>
     </View>

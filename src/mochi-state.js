@@ -127,6 +127,9 @@ export async function closeWeekIfNeeded() {
   const byTask = Object.fromEntries(tasks.map(t => [t.id, t]));
   const week = occs.filter(o => isLive(o) && o.due_date >= lastMonday && o.due_date < thisMonday);
   if (!week.length) return false; // rien de prévu : la semaine ne compte pas, ni en bien ni en mal
+  // semaine de rodage trop courte (foyer créé du vendredi au dimanche, src/week.js) : pas de récap, elle compte avec la suivante
+  const firstEver = occs.filter(isLive).map(o => o.due_date).sort()[0];
+  if (firstEver && firstEver > addDaysIso(4, new Date(lastMonday + 'T12:00:00'))) return false;
   const done = week.filter(o => o.status === 'done'), missed = week.filter(o => o.status === 'missed');
   const donePct = done.length / Math.max(1, done.length + missed.length);
   const mins = {}; for (const o of done) { const k = o.assignee_id || 'both'; mins[k] = (mins[k] || 0) + (o.duration_min || byTask[o.task_id]?.duration_min || 15); }
