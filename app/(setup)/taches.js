@@ -39,7 +39,7 @@ function Row({ c, index, active, onToggle, who }) {
   return (
     <Animated.View entering={prefersReducedMotion() ? undefined : FadeInDown.delay(index * 45).duration(motion.screen)}>
       <Pressable onPress={onToggle}>
-        <Card padding={0} r={14} style={{ marginBottom: 6 }} accent={active ? tk().ok : undefined}>
+        <Card padding={0} r={14} style={{ marginBottom: 6, borderTopWidth: 0 }} accent={active ? tk().ok : 'transparent'}>
           <View style={s.row}>
             <TaskIcon emoji={c.emoji} size={22} />
             <Text style={[s.title, { flex: 1 }]}>{c.label}</Text>
@@ -173,8 +173,9 @@ export default function Taches() {
           <SetupHeader hero={<EggHero />} why={t.whyTasks} title={t.tasksTitle} sub={demo ? t.tasksSubDuo.replace('{name}', partner.first_name) : duo ? (otherReady && !meReady ? fill(t.otherReady, { name: partner.first_name }) : meReady ? fill(t.meReady, { name: partner.first_name }) : t.tasksSubDuo.replace('{name}', partner.first_name)) : solo ? t.tasksSubSolo : t.tasksSub} />
         </View>
         <ScrollView ref={scrollRef} {...scrollProps} contentContainerStyle={{ paddingHorizontal: space.screenX, paddingTop: 30, paddingBottom: 110 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+          <View style={{ height: StyleSheet.hairlineWidth, backgroundColor: tk().line }} />{/* un seul trait entre deux tâches : chaque rangée n'a que son trait du bas (Jeanne, 13 nov 2026 : « pq ces doubles lignes ») */}
           {adding ? (
-            <Card padding={0} r={14} style={{ marginBottom: 6 }} accent={tk().ok}>
+            <Card padding={0} r={14} style={{ marginBottom: 6, borderTopWidth: 0 }} accent={tk().ok}>
               <View style={s.row}>
                 <TextInput
                   value={draft} onChangeText={onDraft} placeholder={t.addTaskPlaceholder} placeholderTextColor={tk().muted}

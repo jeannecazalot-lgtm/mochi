@@ -62,9 +62,10 @@ export default function Ping() {
           <Micro style={{ flex: 1 }}>{fill(t.sheetTitle, { name: who.id === me.id ? copy.common.partner : who.first_name })}</Micro>
           {task ? <ReplyChip muted label={fill(t.attached, { emoji: task.emoji })} /> : null}
         </View>
+        <View style={{ height: StyleSheet.hairlineWidth, backgroundColor: tk().line }} />
         {options.map(o => (
           <Pressable key={o.key} onPress={() => send(o.key)} style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
-            <Card r={radius.row} padding={0} style={{ marginBottom: 6 }}>
+            <Card r={radius.row} padding={0} style={{ marginBottom: 6, borderTopWidth: 0 }}>
               <View style={s.optRow}>
                 <TaskIcon emoji={o.emoji} size={22} />
                 <View style={{ flex: 1 }}>

@@ -73,7 +73,7 @@ function Row({ it, index, onToggle, onFreq, onOpen }) {
   const pop = usePopOnChange(it.assignee_id, pair ? tk().ink : who.color);
   return (
     <Animated.View entering={prefersReducedMotion() ? undefined : FadeInDown.delay(index * 45).duration(motion.screen)}>
-      <Card padding={0} r={12} style={{ marginBottom: 6 }}>
+      <Card padding={0} r={12} style={{ marginBottom: 6, borderTopWidth: 0 }}>
         <View style={s.row}>
           {/* Retour Jeanne (1er sept 2026) : tap sur le corps de la rangée → pop-up
               fiche tâche (fenêtre de jours, alternance…) sans quitter le 12 */}
@@ -209,6 +209,7 @@ export default function Dispatch() {
         </View>
 
         <ScrollView {...scrollProps} contentContainerStyle={{ paddingHorizontal: space.screenX, paddingBottom: 110 }} showsVerticalScrollIndicator={false}>
+          <View style={{ height: StyleSheet.hairlineWidth, backgroundColor: tk().line }} />
           {list.map((it, i) => <Row key={it.task_id} it={it} index={i} onToggle={() => toggle(it.task_id)} onFreq={d => bumpFreq(it.task_id, d)} onOpen={() => router.push(`/task/edit?setup=${it.task_id}`)} />)}
         </ScrollView>
 
