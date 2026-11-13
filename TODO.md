@@ -501,7 +501,8 @@ Backlog (P1 = bug, P2 = clarté, P3 = ajout) :
 - [x] P1 Suivi : Bravo / Merci touché → la carte part, remplacée par « Tu as dit « Bravo Ketley » » de mon côté (répond aussi à Ketley : « je ne vois que les tiens »). Non vu à l'écran (foyer de test sans activité).
 - [ ] P1 Planning parfois blanc, revient après un passage par Balance (à reproduire d'abord).
 - [x] P1 Fiche tâche : la sheet EST la zone qui défile, hauteur = contenu plafonnée à 92 % (react-native-screens étire la première ScrollView à la taille de la sheet). Vu au simulateur : fermée et dépliée bien posées. Défilement réel jusqu'à « Pas cette fois-ci » non vu (tâche de démo plus courte) : à vérifier sur iPhone.
-- [ ] P1 Répartition : Planning du 11 nov chez Ketley = sa photo sur 8 missions, Jeanne sur 1 ; pas de partage du temps visible dans Balance → vérifier les données du foyer.
+- [x] P1 Répartition chez Ketley — **pas un bug de répartition** (lu en base le 13 nov, foyer dbc6c9d9) : sur la semaine du 9 au 15 nov, Jeanne 14 missions / 4 h 20, Ketley 14 / 4 h 00. Le mercredi 11 penchait vers Ketley (7 missions, 2 h 15 contre 1 h 10) parce qu'elle s'était dite dispo matin ET soir ce jour-là, Jeanne le soir seulement. Mochi équilibre la semaine, pas chaque jour ; Ketley ne voyait qu'une journée, et la Balance du 10 nov n'avait encore rien de coché. La nouvelle Balance met le prévu de chacun dans « Pourquoi ». À proposer : le total de la semaine par personne en tête du Planning.
+- Vu en base : Ketley a aussi un 2e compte (7580c7ad) dans un foyer de test du 9 nov avec « Jeqnne » (foyer 7fdc1e8f) — à nettoyer par Jeanne si c'est un reste de test.
 - [x] P1 Balance : numéro de semaine compté depuis l'éclosion de Mochi (duo formé). Vu : « Wk 1 ».
 - [x] P2 Accueil : « À venir » retiré. Vu.
 - [x] P2 Fiche tâche : point rouge retiré (la phrase « Cette fois-ci, prévue mar. » reste). Vu.
