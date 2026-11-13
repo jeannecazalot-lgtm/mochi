@@ -167,6 +167,7 @@ export default function Planning() {
   const t2 = copy.planning;
   // ─── vraies occurrences groupées par jour (démo en fallback) ───
   const [realGroups, setRealGroups] = useState(null);
+  const [weekSplit, setWeekSplit] = useState(null); // { me, partner } minutes prévues de la semaine (lundi → dimanche)
   // Retour Jeanne 7 sept 2026 : 7 jours GLISSANTS à partir d'aujourd'hui (gratuit : rien au-delà),
   // au lieu de lundi → dimanche — la semaine prochaine apparaît au fil des jours.
   const base = realGroups ? new Date() : today; // démo : « aujourd'hui » de la démo
@@ -241,6 +242,12 @@ export default function Planning() {
       }
       if (lateItems.length) groups.unshift({ iso: '__late', late: true, items: lateItems });
       setSoloList(!getPartnerUid() && !occs.some(isLive) ? (setup.tasks || []) : []);
+      // total de la semaine par personne (Jeanne, 13 nov 2026) : une journée chargée se lit dans sa semaine
+      // (Ketley voyait 8 missions sur son mercredi alors que la semaine était à 4 h contre 4 h 20). Commun = moitié chacun.
+      { const d0 = new Date(); const mon = new Date(d0); mon.setDate(d0.getDate() - ((d0.getDay() + 6) % 7)); const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+        const from = localIso(mon), to = localIso(sun); const w = { me: 0, partner: 0 };
+        for (const o of occs) { if (!isLive(o) || !o.due_date || o.due_date < from || o.due_date > to) continue; const min = o.duration_min || byTask[o.task_id]?.duration_min || 15; if (!o.assignee_id) { w.me += min / 2; w.partner += min / 2; } else if (o.assignee_id === uid) w.me += min; else w.partner += min; }
+        setWeekSplit(w.me + w.partner > 0 ? { me: Math.round(w.me), partner: Math.round(w.partner) } : null); }
       setRealGroups(groups); // [] = foyer réel encore vide (état vide, pas la démo)
       setRealDots(Object.fromEntries(Object.entries(dotMap).map(([k, v]) => [k, [...v]])));
       if (__DEV__) setDbg(`occ ${occs.length} · retards ${lateItems.length} · v${occV}`);
@@ -337,6 +344,13 @@ export default function Planning() {
               ))}
             </View>
             {realGroups && !getPartnerUid() ? <Label T={T} style={{ paddingHorizontal: space.screenX, paddingBottom: 10 }}>{t.solo}</Label> : null}
+            {realGroups && getPartnerUid() && weekSplit ? (
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: space.screenX, paddingBottom: 10 }}>
+                <Label T={T}>{t.weekSplitLabel}</Label>
+                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: me.color }} /><Label T={T} style={{ color: T.ink, fontWeight: '600' }}>{`${t.weekSplitMe} ${fmtMin(weekSplit.me)}`}</Label>
+                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: partner.color, marginLeft: 4 }} /><Label T={T} style={{ color: T.ink, fontWeight: '600' }}>{`${partner.first_name} ${fmtMin(weekSplit.partner)}`}</Label>
+              </View>
+            ) : null}
             <View style={{ flexDirection: 'row', gap: 6, paddingHorizontal: space.screenX, paddingBottom: 10 }}>
               {(realGroups && !getPartnerUid() ? [] : t.filters).map((lab, k) => <Pressable key={k} onPress={() => setWho(k)} style={[s.filter, who === k && s.filterOn]}><Text style={[type.label, { color: who === k ? T.bg : T.ink }]}>{lab.replace('{name}', partner.first_name)}</Text></Pressable>)}
             </View>

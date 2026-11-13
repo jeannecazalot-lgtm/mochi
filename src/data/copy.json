@@ -208,6 +208,8 @@
       "{name}",
       "À deux"
     ],
+    "weekSplitLabel": "Cette semaine",
+    "weekSplitMe": "toi",
     "filterEmpty": "Rien pour ce filtre sur ces 7 jours.",
     "solo": "Tes missions sont là. Elles se partagent quand ton binôme a rejoint.",
     "soloListTitle": "Ta liste, en attendant ton binôme",

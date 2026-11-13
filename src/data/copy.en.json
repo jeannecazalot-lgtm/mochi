@@ -662,6 +662,8 @@
    "{name}",
    "Together"
   ],
+  "weekSplitLabel": "This week",
+  "weekSplitMe": "you",
   "filterEmpty": "Nothing for this filter in the next 7 days.",
   "solo": "Your tasks are here. They get split once your partner joins.",
   "soloListTitle": "Your list, until your partner joins",
