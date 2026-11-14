@@ -27,27 +27,28 @@ if (REAL_PURCHASES) Purchases = require('react-native-purchases').default;
 function stateOf(info) {
   const e = info?.entitlements?.active?.[ENTITLEMENT];
   if (!e) return { on: false, until: null };
-  if (e.expirationDate) return { on: true, until: e.expirationDate };
+  if (e.expirationDate) return { on: true, until: e.expirationDate, kind: 'monthly' };
   const passes = (info?.nonSubscriptionTransactions || []).filter(t => t.productIdentifier === PASS_PRODUCT);
   const last = passes.map(t => new Date(t.purchaseDate).getTime()).sort((a, b) => b - a)[0];
   if (!last) return { on: true, until: null }; // autre produit sans fin (aucun aujourd'hui)
   const until = new Date(last + PASS_DAYS * 86400e3);
-  return { on: until > new Date(), until: until.toISOString() };
+  return { on: until > new Date(), until: until.toISOString(), kind: 'pass' }; // le Pass ne se renouvelle pas : le Profil dit « actif jusqu'au »
 }
 const isActive = info => stateOf(info).on;
 
 // ── état « Mochi+ » du foyer (10 nov 2026) ─────────────────────────────────────────────
 // L'abonnement est PARTAGÉ à deux : l'identifiant RevenueCat = l'id du foyer (logIn), donc les deux
 // téléphones du foyer lisent le même droit, quel que soit celui qui a payé.
-let premium = false, premiumUntil = null, configured = false, linkedHid = null;
+let premium = false, premiumUntil = null, premiumKind = null, configured = false, linkedHid = null;
 const subs = new Set();
 const setPremium = (on, until) => { if (on === premium && until === premiumUntil) return; premium = on; premiumUntil = until; subs.forEach(f => f()); };
 export const purchasesPremium = () => premium;
 export const purchasesPremiumUntil = () => premiumUntil;
+export const purchasesPremiumKind = () => premiumKind; // 'pass' | 'monthly' | null
 export const onPremiumChange = f => (subs.add(f), () => subs.delete(f));
 // re-rend un écran quand le droit change (achat, restauration, l'autre a payé)
 export const usePremiumVersion = () => useSyncExternalStore(onPremiumChange, () => `${premium}|${premiumUntil}`);
-const sync = info => { const st = stateOf(info); setPremium(st.on, st.until); };
+const sync = info => { const st = stateOf(info); premiumKind = st.kind || null; setPremium(st.on, st.until); };
 
 // boot : config + resynchronisation du droit (appelé une fois au démarrage, app/_layout.js)
 export function initPurchases(householdId) {

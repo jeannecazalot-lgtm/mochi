@@ -1,6 +1,6 @@
 // Écran 38 · Profil & réglages (accès par l'avatar). Recette : docs/recettes/38-profil.md
 import { RouteError } from '../src/components/route-error';
-import { usePremiumVersion } from '../src/purchases';
+import { usePremiumVersion, purchasesPremiumKind, purchasesPremiumUntil } from '../src/purchases';
 import React, { useState, useEffect } from 'react';
 import { router, useFocusEffect } from 'expo-router';
 import { View, Text, Pressable, ScrollView, StyleSheet, Alert } from 'react-native';
@@ -145,7 +145,7 @@ export default function Profil() {
               {/* Mochi qu'on élève (4 nov 2026) : le point hebdo laisse la place au mode nuit ; un tap fait tourner auto → toujours → jamais */}
               <SettingRow emoji="🍡" title={t.mochiName} sub={t.mochiNameSub} onPress={() => router.push('/nom-mochi')} />
               <SettingRow emoji="🌙" title={t.nightMode} sub={t.nightModeSub} right={<Text style={s.value}>{t.nightValues[nightMode]}</Text>} onPress={() => { const order = ['auto', 'on', 'off']; setNightMode(order[(order.indexOf(nightMode) + 1) % 3]); }} />
-              <SettingRow emoji="💳" title={t.subscription} sub={ALL_FREE ? t.subscriptionFree : premium ? fill(t.subscriptionOn, { date: fmtDate(household.premium_until) }) : t.subscriptionOff} onPress={() => router.push('/paywall')} />
+              <SettingRow emoji="💳" title={t.subscription} sub={ALL_FREE ? t.subscriptionFree : premium ? fill(purchasesPremiumKind() === 'pass' ? t.subscriptionUntil : t.subscriptionOn, { date: fmtDate(purchasesPremiumUntil() || household.premium_until) }) : t.subscriptionOff} onPress={() => router.push('/paywall')} />
               {__DEV__ ? <SettingRow emoji="🗺" title={t.plan} sub={t.planSub} onPress={() => router.push('/plan')} /> : null}
             </View>
 

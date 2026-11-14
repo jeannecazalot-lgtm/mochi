@@ -1268,7 +1268,8 @@
       "nightMode": "Ligne mode nuit",
       "nightModeSub": "Sous-titre",
       "nightValues": "Valeurs auto / on / off",
-      "mochiName": "Réglage : nom de Mochi"
+      "mochiName": "Réglage : nom de Mochi",
+      "subscriptionUntil": "Sous-titre si Pass 1 an ({date} = fin du Pass, il ne se renouvelle pas)"
     },
     "title": "Profil & réglages",
     "duoWith": "En duo avec {name} · depuis {n} jours",
@@ -1331,7 +1332,8 @@
     "deleteTitle": "Supprimer ton compte ?",
     "deleteBody": "Ton profil et tes données sont effacés. Si ton binôme reste, il garde le foyer et les missions ; sinon le foyer est supprimé. C'est définitif.",
     "deleteOk": "Supprimer",
-    "deleteError": "La suppression n'a pas abouti. Vérifie ta connexion et réessaie."
+    "deleteError": "La suppression n'a pas abouti. Vérifie ta connexion et réessaie.",
+    "subscriptionUntil": "Actif jusqu'au {date}"
   },
   "activity": {
     "_labels": {
@@ -2190,7 +2192,7 @@
       },
       {
         "t": "Sur l'année",
-        "v": "≈ 260h"
+        "v": "≈ 520h"
       }
     ],
     "s1Source": "Insee · Enquête emploi du temps",
@@ -2541,8 +2543,8 @@
           },
           {
             "t": "Sur l'année",
-            "v": "≈ 260h",
-            "n": 260,
+            "v": "≈ 520h",
+            "n": 520,
             "f": "h"
           }
         ],

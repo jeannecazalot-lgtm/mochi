@@ -23,7 +23,7 @@ SCRIPTS = {
         ("c(430,'+1h26',font(330,'Bold'),INK)", "c(430,'+55 min',font(300,'Bold'),INK)"),
         ("'par jour, en plus.'", "'more a day than men.'"),
         ("('Chaque semaine','≈ 10 h')", "('Every week','≈ 6 hrs')"),
-        ("('Sur l’année','≈ 260 h')", "('Over a year','≈ 335 hrs')"),
+        ("('Sur l’année','≈ 520 h')", "('Over a year','≈ 335 hrs')"),
         ("'De tâches domestiques et d’organisation.'", "'Of housework and family care.'"),
         ("'Insee · Enquête emploi du temps'", "'U.S. Bureau of Labor Statistics · Time Use Survey 2024'"),
         ("O+'v6-02.png'", "O+'en-02.png'"),

@@ -14,7 +14,7 @@ export const dailyGapMin = 86;          // « +1h26/jour » — chiffre de pitch
 export const gapShare = 0.7;            // part remplie de la barre héros (70 %) — illustratif
 
 // 03 · à un an : heures à se réapproprier et équivalences
-export const yearlyHours = 260;         // « 260h /an » — chiffre de pitch à sourcer (1h26 ÷ 2 × 365)
+export const yearlyHours = 520;         // « 520h /an » = 1h26 × 365 (14 nov 2026 : 260 était la moitié, incohérent avec +1h26/jour et ≈ 10h/sem)
 export const yearlyFullDays = 11;       // « 11 jours pleins » — chiffre de pitch à sourcer
 export const yearlyAlternatives = [100, 26, 1]; // ×100 dîners, ×26 week-ends, ×1 voyage — chiffres de pitch à sourcer
 

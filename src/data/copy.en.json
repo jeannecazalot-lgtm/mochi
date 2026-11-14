@@ -702,7 +702,7 @@
    },
    {
     "t": "Over a year",
-    "v": "≈ 260 hrs"
+    "v": "≈ 520 hrs"
    }
   ],
   "s1Source": "INSEE (France) · Time-use survey",
@@ -1311,7 +1311,7 @@
   "malus": "Penalties",
   "malusSub": "Settled at each weekly check-in",
   "subscription": "Mochi+ subscription",
-  "subscriptionOn": "Active · paid through {date}",
+  "subscriptionOn": "Active · renews {date}",
   "subscriptionOff": "Explore Mochi+",
   "plan": "Screen map",
   "planSub": "Dev navigation",
@@ -1345,7 +1345,8 @@
   "deleteTitle": "Delete your account?",
   "deleteBody": "Your profile and data will be erased. If your partner stays, they keep the household and tasks; otherwise the household is deleted. This can't be undone.",
   "deleteOk": "Delete",
-  "deleteError": "Couldn't delete your account. Check your connection and try again."
+  "deleteError": "Couldn't delete your account. Check your connection and try again.",
+  "subscriptionUntil": "Active until {date}"
  },
  "home": {
   "todayTitle": "For you today",
