@@ -71,6 +71,17 @@ export async function verifyEmailCode(email, token, linking) {
 }
 
 // ─── Apple natif ───
+// Compte de démonstration pour la revue Apple (refus 2.1(a) du 16 sept 2026 : Apple ne peut pas recevoir nos codes
+// par e-mail). Seule cette adresse se connecte par mot de passe ; le mot de passe est choisi par Jeanne dans Supabase
+// et donné à Apple dans App Store Connect, jamais écrit ici.
+export const REVIEW_EMAIL = 'review@mindpair.app';
+export const isReviewEmail = email => String(email || '').trim().toLowerCase() === REVIEW_EMAIL;
+export async function signInWithPassword(email, password) {
+  try {
+    const { error } = await supabase.auth.signInWithPassword({ email: String(email).trim().toLowerCase(), password });
+    return error ? { ok: false, error: error.message } : { ok: true };
+  } catch (e) { return { ok: false, error: e?.message || 'password' }; }
+}
 export async function appleAvailable() { try { return await AppleAuthentication.isAvailableAsync(); } catch (e) { return false; } }
 export async function signInWithApple() {
   try {

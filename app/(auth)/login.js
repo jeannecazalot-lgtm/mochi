@@ -10,7 +10,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Svg, { Path, Rect } from 'react-native-svg';
 import { GlowBg, Card, Secondary, CTAPrimary } from '../../src/components/ui';
 import { LiveMochi } from '../../src/components/motion';
-import { sendEmailCode, verifyEmailCode, signInWithApple, appleAvailable } from '../../src/auth';
+import { sendEmailCode, verifyEmailCode, signInWithApple, appleAvailable, isReviewEmail, signInWithPassword } from '../../src/auth';
 import { loadProfile } from '../../src/profile';
 import { loadIdentity, getUid } from '../../src/identity';
 import { loadSetup, bindSetupToUser } from '../../src/setup-state';
@@ -33,6 +33,7 @@ export default function Login() {
   const [mode, setMode] = useState(modeParam || 'choice'); // choice | email | code
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
+  const [password, setPassword] = useState(''); // compte de démo Apple seulement
   const [linking, setLinking] = useState(false);
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState(null);
@@ -61,6 +62,14 @@ export default function Login() {
     const r = await sendEmailCode(email.trim().toLowerCase());
     setBusy(false);
     if (r.ok) { setLinking(!!r.linking); setMode('sent'); } else setNote(t.errSend);
+  };
+  const onPassword = async () => {
+    setBusy(true); setNote(null);
+    const r = await signInWithPassword(email, password);
+    setBusy(false);
+    if (r.ok) return done();
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
+    setNote(t.errPassword);
   };
   const onVerify = async () => {
     setBusy(true); setNote(null);
@@ -105,11 +114,20 @@ export default function Login() {
               <View style={{ marginTop: 28 }}>
                 <Card padding={0} style={{ marginBottom: 12 }}>
                   <TextInput value={email} onChangeText={setEmail} placeholder={t.emailPlaceholder} placeholderTextColor={tk().seg}
-                    autoCapitalize="none" autoCorrect={false} keyboardType="email-address" textContentType="emailAddress" returnKeyType="go" onSubmitEditing={onSend}
+                    autoCapitalize="none" autoCorrect={false} keyboardType="email-address" textContentType="emailAddress" returnKeyType={isReviewEmail(email) ? 'next' : 'go'} onSubmitEditing={isReviewEmail(email) ? undefined : onSend}
                     cursorColor={tk().accent} selectionColor={tk().accent} style={s.input} />
                 </Card>
+                {isReviewEmail(email) ? (
+                  <Card padding={0} style={{ marginBottom: 12 }}>
+                    <TextInput value={password} onChangeText={setPassword} placeholder={t.passwordPlaceholder} placeholderTextColor={tk().seg}
+                      secureTextEntry autoCapitalize="none" autoCorrect={false} textContentType="password" returnKeyType="go" onSubmitEditing={onPassword}
+                      cursorColor={tk().accent} selectionColor={tk().accent} style={s.input} />
+                  </Card>
+                ) : null}
                 {note ? <Secondary style={{ marginBottom: 12, textAlign: 'center' }}>{note}</Secondary> : null}
-                <CTAPrimary label={t.sendCode} disabled={!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim()) || busy} big onPress={onSend} />
+                {isReviewEmail(email)
+                  ? <CTAPrimary label={t.signIn} disabled={!password || busy} big onPress={onPassword} />
+                  : <CTAPrimary label={t.sendCode} disabled={!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim()) || busy} big onPress={onSend} />}
                 <Pressable onPress={() => { setNote(null); setMode('choice'); }} hitSlop={8} style={{ alignSelf: 'center', marginTop: 16 }}><Text style={s.back}>{copy.common.back}</Text></Pressable>
               </View>
             ) : mode === 'sent' ? (

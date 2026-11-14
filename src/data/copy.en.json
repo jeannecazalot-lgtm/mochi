@@ -618,7 +618,10 @@
   "guestHint": "You can link an account later from your profile.",
   "linkTitle": "Link an account",
   "linkSub": "So you can find your household on another phone and lose nothing.",
-  "close": "Close"
+  "close": "Close",
+  "passwordPlaceholder": "Password",
+  "signIn": "Sign in",
+  "errPassword": "Wrong email or password."
  },
  "wrapped": {
   "pillSolo": "Your week · Wk {n}",

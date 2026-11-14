@@ -67,7 +67,10 @@
     "guestHint": "Tu pourras relier un compte plus tard, depuis ton profil.",
     "linkTitle": "Relier un compte",
     "linkSub": "Pour retrouver ton foyer sur un autre téléphone, et ne rien perdre.",
-    "close": "Fermer"
+    "close": "Fermer",
+    "passwordPlaceholder": "Mot de passe",
+    "signIn": "Se connecter",
+    "errPassword": "Adresse ou mot de passe incorrect."
   },
   "tabs": {
     "_labels": {
