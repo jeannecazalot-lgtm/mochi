@@ -1132,7 +1132,9 @@
   "howBalanced": "You’re even: nothing to change this week.",
   "giveRow": "Hand {task} to {name}",
   "giveBtn": "Hand over",
-  "solo": "The Balance compares what you each do. It starts once your partner joins the household."
+  "solo": "The Balance compares what you each do. It starts once your partner joins the household.",
+  "missedHeart": "− {n} heart",
+  "missedHearts": "− {n} hearts"
  },
  "malus": {
   "header": "Penalties",

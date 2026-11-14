@@ -2400,7 +2400,9 @@
     "howBalanced": "Vous êtes à l'équilibre : rien à changer cette semaine.",
     "giveRow": "Passer {task} à {name}",
     "giveBtn": "Passer",
-    "solo": "La balance compare ce que vous faites à deux. Elle démarre quand ton binôme a rejoint le foyer."
+    "solo": "La balance compare ce que vous faites à deux. Elle démarre quand ton binôme a rejoint le foyer.",
+    "missedHeart": "− {n} cœur",
+    "missedHearts": "− {n} cœurs"
   },
   "checkin": {
     "_labels": {

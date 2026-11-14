@@ -13,7 +13,8 @@ import { LiveMochi } from '../../src/components/motion';
 import { sendEmailCode, verifyEmailCode, signInWithApple, appleAvailable, isReviewEmail, signInWithPassword } from '../../src/auth';
 import { loadProfile } from '../../src/profile';
 import { loadIdentity, getUid } from '../../src/identity';
-import { loadSetup, bindSetupToUser } from '../../src/setup-state';
+import { loadSetup, bindSetupToUser, inRealMode } from '../../src/setup-state';
+import { restoreHousehold } from '../../src/sync-setup';
 import copy from '../../src/copy';
 import { colors, font, radius, alpha } from '../../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';
@@ -45,6 +46,8 @@ export default function Login() {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
     await loadIdentity().catch(() => {});
     await loadSetup(); bindSetupToUser(getUid());
+    // le foyer du compte (réinstallation, compte de démo App Review) : sans ça, l'Accueil montrait les données d'exemple
+    if (!inRealMode()) await restoreHousehold().catch(() => {});
     const p = await loadProfile().catch(() => null);
     if (linkMode) { router.back(); return; }
     if (next) { router.replace(String(next)); return; }

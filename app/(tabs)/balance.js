@@ -210,7 +210,7 @@ export default function Balance() {
 
           {/* ratées = cœurs perdus */}
           <View style={{ marginHorizontal: X, marginTop: 18 * A, borderTopWidth: StyleSheet.hairlineWidth, borderColor: T.line, paddingTop: 16 * A }}>
-            <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' }}><Text style={[type.section, { color: T.ink }]}>{t.missedTitle}</Text>{missedRows.length ? <Label T={T}>{`− ${missedRows.length} ${missedRows.length > 1 ? 'cœurs' : 'cœur'}`}</Label> : null}</View>
+            <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' }}><Text style={[type.section, { color: T.ink }]}>{t.missedTitle}</Text>{missedRows.length ? <Label T={T}>{(missedRows.length > 1 ? t.missedHearts : t.missedHeart).replace('{n}', missedRows.length)}</Label> : null}</View>
             {missedRows.length === 0 ? <Text style={[type.sub, { color: T.muted, marginTop: 8 }]}>{t.missedNone}</Text> : missedRows.map((r, i) => (
               <View key={r.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 12 * A, borderTopWidth: i ? StyleSheet.hairlineWidth : 0, borderColor: T.line, marginTop: i ? 0 : 4 }}>
                 <TaskIcon emoji={r.emoji} size={21} />

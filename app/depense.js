@@ -13,7 +13,8 @@ import { Row, PillChip, TrashButton } from '../src/components/task/proto';
 import { DateGrid } from '../src/components/date-grid';
 import { EmojiPicker } from '../src/components/emoji-picker';
 import { useSheetGrow, CREATE_SHEET_MIN } from '../src/components/sheet-grow';
-import { me, partner } from '../src/demo';
+import { me, partner, fmtMoney, household } from '../src/demo';
+const CUR_SYMBOL = (() => { try { return new Intl.NumberFormat(LOCALE, { style: 'currency', currency: household.currency }).formatToParts(0).find(p => p.type === 'currency')?.value || '€'; } catch (e) { return '€'; } })();
 import { occStore } from '../src/demo-core';
 import { mutate, read, uuid } from '../src/store';
 import { loadSetup, setup } from '../src/setup-state';
@@ -77,7 +78,7 @@ function DepenseScreen() {
     try {
       const ok = await persist({ existing, title, emoji, amount, paidBy, dateIso });
       if (ok && !existing) {
-        const vars = { title: title.trim(), amount: `${(parseAmount(amount) / 100).toFixed(2).replace('.', ',')} €` };
+        const vars = { title: title.trim(), amount: fmtMoney(parseAmount(amount)) };
         logActivity({ type: 'ping', preset_key: 'expenseAdded', payload: vars }).catch(() => {});
         pushToPartner('expenseAdded', vars, '/(tabs)/budget');
       }
@@ -97,7 +98,7 @@ function DepenseScreen() {
           <TextInput value={title} onChangeText={setTitle} placeholder={t.titlePlaceholder} placeholderTextColor={ph} autoCapitalize="sentences" returnKeyType="done" onSubmitEditing={Keyboard.dismiss} cursorColor={tk().accent} selectionColor={tk().accent} style={[s.title, { flex: 1 }]} />
         </View>
         <Card r={16} padding={0} style={s.block}>
-          <Row first label={t.amountLabel} right={<View style={s.amountBox}><TextInput value={amount} onChangeText={setAmount} placeholder={t.amountPlaceholder} placeholderTextColor={ph} keyboardType="decimal-pad" style={s.amountInput} cursorColor={tk().accent} selectionColor={tk().accent} /><Text style={s.amountUnit}>€</Text></View>} />
+          <Row first label={t.amountLabel} right={<View style={s.amountBox}><TextInput value={amount} onChangeText={setAmount} placeholder={t.amountPlaceholder} placeholderTextColor={ph} keyboardType="decimal-pad" style={s.amountInput} cursorColor={tk().accent} selectionColor={tk().accent} /><Text style={s.amountUnit}>{CUR_SYMBOL}</Text></View>} />
           <Row label={t.paidByLabel} right={<View style={{ flexDirection: 'row', gap: 6 }}><PillChip label={me.first_name} avatar={me} selected={paidBy === 'me'} onPress={() => setPaidBy('me')} /><PillChip label={partner.first_name} avatar={partner} selected={paidBy === 'partner'} onPress={() => setPaidBy('partner')} /></View>} />
           <Row label={t.dateLabel} right={<View style={{ flexDirection: 'row', gap: 6 }}><PillChip label={t.dateYesterday} selected={dateIso === yesterdayIso && !dateOpen} onPress={() => { setDateIso(yesterdayIso); setDateOpen(false); }} /><PillChip label={t.dateToday} selected={dateIso === todayIso && !dateOpen} onPress={() => { setDateIso(todayIso); setDateOpen(false); }} /><PillChip label={dateOpen || (dateIso !== todayIso && dateIso !== yesterdayIso) ? dateLabel : t.dateOther} selected={dateOpen || (dateIso !== todayIso && dateIso !== yesterdayIso)} onPress={() => setDateOpen(o => !o)} /></View>} />
           {dateOpen ? <DateGrid value={dateIso} onChange={iso => { setDateIso(iso); setDateOpen(false); }} allowPast /> : null}
