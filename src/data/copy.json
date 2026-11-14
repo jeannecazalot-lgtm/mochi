@@ -2358,12 +2358,6 @@
       "given": "Après ({name})",
       "weighsRow": "Sous-ligne ({mine} min contre {other} min)",
       "demoOnly": "Message en démo",
-      "whyTitle": "Pourquoi",
-      "weighsRowNamed": "Toi {mine} min · {name} {other} min",
-      "howTitle": "Pour rééquilibrer",
-      "howBalanced": "Vous êtes à l'équilibre : rien à changer cette semaine.",
-      "giveRow": "Passer {task} à {name}",
-      "giveBtn": "Passer",
       "solo": "Balance quand on est seul dans le foyer"
     },
     "title": "Balance",
@@ -2396,6 +2390,12 @@
     "given": "Passée chez {name}",
     "weighsRow": "{mine} min contre {other} min",
     "demoOnly": "Démo : rien n'est déplacé.",
+    "whyTitle": "Pourquoi",
+    "weighsRowNamed": "Toi {mine} min · {name} {other} min",
+    "howTitle": "Pour rééquilibrer",
+    "howBalanced": "Vous êtes à l'équilibre : rien à changer cette semaine.",
+    "giveRow": "Passer {task} à {name}",
+    "giveBtn": "Passer",
     "solo": "La balance compare ce que vous faites à deux. Elle démarre quand ton binôme a rejoint le foyer."
   },
   "checkin": {
