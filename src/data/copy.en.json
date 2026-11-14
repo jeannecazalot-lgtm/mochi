@@ -539,6 +539,7 @@
   "mochiRebalance": "Balanced evening 🥳",
   "mochiStreak": "+1 day on your streak ({n} 🔥)",
   "reactionFrom": "{name} says: {reply}",
+  "toAnswerTitle": "Waiting on you",
   "reactionSent": "You said “{reply}” to {name}",
   "presets": {
    "tookOver": "{name} is taking {task} · {day}",
@@ -1867,5 +1868,11 @@
   "stageNextOne": "1 more week to stage {k}",
   "splitLineOne": "{time} · 1 task",
   "later": "Later"
+ },
+ "dayScreen": {
+  "days": "days together",
+  "daysOne": "day together",
+  "sub": "With {name}, and Mochi in the middle.",
+  "closeA11y": "Close"
  }
 }

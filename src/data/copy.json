@@ -1370,6 +1370,7 @@
     "mochiRebalance": "Soirée équilibrée 🥳",
     "mochiStreak": "+1 jour à votre streak ({n} 🔥)",
     "reactionFrom": "{name} te dit : {reply}",
+    "toAnswerTitle": "À toi de répondre",
     "reactionSent": "Tu as dit « {reply} » à {name}",
     "presets": {
       "tookOver": "{name} s'occupe de {task} · {day}",
@@ -2695,5 +2696,14 @@
     "stageNextOne": "Encore 1 semaine avant le palier {k}",
     "splitLineOne": "{time} · 1 tâche",
     "later": "Plus tard"
+  },
+  "dayScreen": {
+    "_labels": {
+      "_": "Écran « Jour X ensemble » à la première ouverture du jour ({name} = l'autre)"
+    },
+    "days": "jours ensemble",
+    "daysOne": "jour ensemble",
+    "sub": "Avec {name}, et Mochi au milieu.",
+    "closeA11y": "Fermer"
   }
 }

@@ -4,10 +4,10 @@
 import { RouteError } from '../../src/components/route-error';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { router } from 'expo-router';
-import { View, Text, Pressable, StyleSheet, useWindowDimensions, Image, ScrollView, AppState } from 'react-native';
+import { View, Text, Pressable, StyleSheet, useWindowDimensions, Image, ScrollView } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
-import { LinearTransition, FadeInDown, FadeOut, Easing } from 'react-native-reanimated';
+import { LinearTransition, FadeInDown, FadeOut, ZoomIn, Easing } from 'react-native-reanimated';
 import { Animated } from '../../src/components/motion';
 import { PearlFlight, usePop } from '../../src/components/mochi/pearls';
 import { Avatar, CTAPrimary } from '../../src/components/ui';
@@ -33,6 +33,7 @@ import { usePremiumVersion } from '../../src/purchases';
 import { TaskIcon } from '../../src/components/task-icon';
 import { LOCALE, fmtClock } from '../../src/lang';
 import { unreadSuivi } from '../../src/suivi-unread';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { reminderMarks } from '../../src/reminder-marks';
 import { useFocusEffect } from 'expo-router';
 
@@ -60,26 +61,20 @@ function Row({ T, vm, first, done, onToggle }) {
   );
 }
 
-// « Jour N ensemble » à chaque arrivée dans l'app (Jeanne, 13 nov 2026 : « à chaque fois que je rentre
-// sur l'app, je vois ça fait combien de jours ») : au lancement et à chaque retour au premier plan,
-// une pastille qui descend sous l'en-tête puis repart seule.
-let bannerShownAt = 0;
-function DayBanner({ T, day, top }) {
-  const [show, setShow] = useState(false);
-  useEffect(() => {
-    const open = () => { if (Date.now() - bannerShownAt < 60e3) return; bannerShownAt = Date.now(); setShow(true); setTimeout(() => setShow(false), 2800); };
-    open();
-    const sub = AppState.addEventListener('change', st => { if (st === 'active') open(); });
-    return () => sub.remove();
-  }, []);
-  if (!show) return null;
-  return (
-    <Animated.View pointerEvents="none" entering={FadeInDown.duration(380).easing(Easing.out(Easing.cubic))} exiting={FadeOut.duration(400)} style={{ position: 'absolute', top, left: 0, right: 0, alignItems: 'center', zIndex: 5 }}>
-      <View style={{ paddingHorizontal: 18, paddingVertical: 10, borderRadius: 999, backgroundColor: T.ink }}>
-        <Text style={{ fontSize: 15, fontWeight: '600', letterSpacing: -0.2, color: T.bg }}>{fill(copy.homeV3.dayTogether, { day })}</Text>
-      </View>
-    </Animated.View>
-  );
+// « Jour N ensemble » (Jeanne, 14 nov 2026) : un écran plein, animé, à la première ouverture du jour
+// (remplace la pastille du 13 nov). Clé locale = le jour déjà montré.
+const DAY_KEY = 'mochi.dayScreen.shown';
+let dayBusy = false;
+async function maybeShowDayScreen(day) {
+  if (dayBusy) return false;
+  dayBusy = true;
+  try {
+    const today = localIso();
+    if ((await AsyncStorage.getItem(DAY_KEY)) === today) return false;
+    await AsyncStorage.setItem(DAY_KEY, today);
+    router.push(`/jour-ensemble?day=${day}`);
+    return true;
+  } catch (e) { return false; } finally { dayBusy = false; }
 }
 
 // bande de balade : une ligne de progression entre le départ et le retour, le point avance en direct
@@ -141,7 +136,10 @@ export default function Home() {
       occs.forEach(o => { if (o.status === 'done' && !missionDone.has(o.id)) missionDone.set(o.id, true); });
       if (!ticked.current) { ticked.current = true; await tick().catch(() => {}); } // éclosion / retour / cœurs dès l'ouverture, pas seulement au changement de jour
       let m = await getMochi(); if (await applyPendingName()) m = await getMochi(); setMochi(m); // nom choisi à l'onboarding
-      if (!shown.current) { const un = await unseenMoments(); if (un.length) { shown.current = true; setTimeout(() => router.push('/moment'), 400); } }
+      let momentNow = false;
+      if (!shown.current) { const un = await unseenMoments(); if (un.length) { shown.current = true; momentNow = true; setTimeout(() => router.push('/moment'), 400); } }
+      // l'écran « Jour X » : première ouverture du jour (aussi quand l'app revient au premier plan le lendemain), jamais par-dessus un moment
+      if (!momentNow && m && m.stage !== 'egg' && m.hatched_at && getPartnerUid()) { const d = Math.max(1, Math.floor((Date.now() - Date.parse(m.hatched_at)) / 86400e3) + 1); setTimeout(() => maybeShowDayScreen(d), 450); }
       setEnergy(energyOf(occs));
       const souvenirs = inv.filter(i => i.household_id === setup.householdId && i.kind === 'souvenir').length;
       const mineInv = inv.filter(i => i.household_id === setup.householdId); const outfits = mineInv.filter(i => i.kind === 'outfit').sort((a, b) => String(a.acquired_at).localeCompare(String(b.acquired_at)));
@@ -208,7 +206,6 @@ export default function Home() {
   return (
     <View style={{ flex: 1, backgroundColor: T.bg }}>
       <Pressable onPress={() => router.push('/chambre')} style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><Scene T={T} stage={m.stage} mood={mood} lvl={lvl} topInset={insets.top + 44} items={room.items} outfit={room.outfit} souvenirs={room.souvenirs} positions={room.positions} photo={m.photo_url || null} /></Pressable>
-      {m.stage !== 'egg' && day > 0 ? <DayBanner T={T} day={day} top={insets.top + 56} /> : null}
       {flight && pearlsAt ? <PearlFlight key={flight.key} from={{ x: width / 2, y: layout.scene - layout.floor - 60 }} to={pearlsAt} count={Math.min(5, flight.n)} color={T.accent} onArrive={() => { pop(); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {}); }} /> : null}
       <SafeAreaView style={{ flex: 1 }} edges={['top']} pointerEvents="box-none">
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 24 }} showsVerticalScrollIndicator={false}>{/* défile quand la journée est chargée (9 nov 2026) */}
@@ -222,7 +219,8 @@ export default function Home() {
                 <Animated.View style={popStyle}><Num T={T} style={{ color: HEAD_ }}>{(m.pearls ?? 0) + demoPearls}</Num></Animated.View><Label T={T} style={{ marginLeft: 6, color: HEAD_, opacity: 0.8 }}>{copy.common.pearlsWord}</Label>
               </Pressable>
               <Pressable onPress={() => router.push('/activite')} accessibilityLabel={h.activityA11y} hitSlop={8} style={{ marginRight: 4 }}><Image source={require('../../assets/icones/tabs/bubble.png')} style={{ width: 34, height: 34 }} resizeMode="contain" accessibilityIgnoresInvertColors />
-                {unread > 0 ? <View style={{ position: 'absolute', top: -3, right: -5, minWidth: 18, height: 18, paddingHorizontal: 5, borderRadius: 9, backgroundColor: T.accent, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: T.night ? '#1E2433' : '#FFFFFF' }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#FFFFFF', fontVariant: ['tabular-nums'] }}>{unread > 9 ? '9+' : unread}</Text></View> : null}</Pressable>
+                {/* pastille v2 (Jeanne, 14 nov 2026 : « le style ne va pas ») : corail plein, sans contour, à cheval sur le coin, un seul « pop » */}
+                {unread > 0 ? <Animated.View key={unread} entering={ZoomIn.springify().damping(14).stiffness(260)} style={{ position: 'absolute', top: -1, right: -2, minWidth: 16, height: 16, paddingHorizontal: 4, borderRadius: 8, backgroundColor: T.accent, alignItems: 'center', justifyContent: 'center' }}><Text style={{ fontSize: 10, lineHeight: 12, fontWeight: '700', color: '#FFFFFF', fontVariant: ['tabular-nums'] }}>{unread > 9 ? '9+' : unread}</Text></Animated.View> : null}</Pressable>
               <Pressable onPress={() => router.push('/profil')} accessibilityLabel={h.profileA11y}><Avatar initial={me.initial} color={me.color} photo={me.avatar_url} size={36} /></Pressable>
             </View>
             <Pressable onPress={() => router.push('/chambre')} accessibilityLabel={t.roomA11y} onLayout={e => setBgTop(e.nativeEvent.layout.y + e.nativeEvent.layout.height)} style={{ height: Math.max(8, layout.scene + 12 - insets.top - 48) }} />{/* la scène se tape ici : vers la pièce de Mochi */}

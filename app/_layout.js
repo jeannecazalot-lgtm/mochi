@@ -91,6 +91,7 @@ export default function RootLayout() {
         <Stack.Screen name="event" options={createV3} />
         <Stack.Screen name="depense" options={createV3} />
         <Stack.Screen name="moment" options={full} />
+        <Stack.Screen name="jour-ensemble" options={full} />
         <Stack.Screen name="checkin" options={sheetV3} />
         <Stack.Screen name="nom-mochi" options={sheetV3} />
         <Stack.Screen name="chambre" options={{ presentation: 'card' }} />{/* Mochi qu'on élève : éclosion, retour de balade, palier */}

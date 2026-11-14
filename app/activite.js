@@ -33,14 +33,20 @@ const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
 
 // « {name} a terminé {task} ✅ » → segments, {task} en 600
 function RichText({ template, vars, style }) {
-  const parts = template.split(/(\{task\})/);
+  const parts = template.split(/(\{task\}|\{name\})/);
   return (
     <Text style={style}>
       {parts.map((p, i) => p === '{task}'
         ? <Text key={i} style={{ fontWeight: '600' }}>{vars.task}</Text>
+        : p === '{name}' ? <Text key={i} style={{ fontWeight: '700' }}>{vars.name}</Text>
         : <Text key={i}>{fill(p, vars)}</Text>)}
     </Text>
   );
+}
+// texte déjà rempli qui commence par le prénom de l'autre : le prénom passe en gras
+function NamedText({ text, name, style }) {
+  if (name && text.startsWith(name)) return <Text style={style}><Text style={{ fontWeight: '700' }}>{name}</Text>{text.slice(name.length)}</Text>;
+  return <Text style={style}>{text}</Text>;
 }
 
 const dayLabel = (date, now = today) => {
@@ -59,37 +65,35 @@ function Replies({ T, item, keys, chosen, onChoose, name }) {
   );
 }
 
-// Suivi façon messagerie (décision Jeanne 13 sept 2026) : mes actions d'un côté, celles de l'autre
-// de l'autre, « tu as … » quand c'est moi ; rappels, reprises et rendus soulignés (filet corail).
-const HIGHLIGHT = new Set(['reminder', 'budgetRemind', 'tookOver', 'gaveBack', 'swap_proposed']);
-// Variantes de présentation proposées à Jeanne (13 sept 2026, « j'aime pas la présentation ») :
-//   a · cartes alignées (moi à droite, l'autre à gauche)   b · bulles façon messagerie, sans carte
-//   c · une colonne pleine largeur, filet corail à gauche pour rappels / reprises
-function Wrap({ T, mine, highlight, children, style }) {
+// Suivi v3 (Jeanne, 14 nov 2026 : « je comprends pas à qui correspond quoi, ni l'ordre d'importance ») :
+// en haut « À toi de répondre » (ce qui attend une action de moi), dessous le fil façon messagerie —
+// l'autre à gauche avec sa photo et son prénom en gras, moi à droite, plus discret. Plus de filets ni d'étiquettes.
+function Wrap({ T, mine, actor, children, style }) {
   const s = mk(T);
-  return <View style={[s.card, { borderLeftColor: highlight ? T.accent : mine ? T.ok : T.line }, style]}>{children}</View>;
+  if (mine) return <View style={[s.bubMine, style]}>{children}</View>;
+  return (
+    <View style={s.theirsRow}>
+      {actor ? <Avatar initial={actor.initial} color={actor.color} photo={actor.avatar_url} size={28} /> : <View style={{ width: 28 }} />}
+      <View style={[s.bubTheirs, { backgroundColor: T.night ? 'rgba(244,239,232,0.10)' : '#FFFFFF' }, style]}>{children}</View>
+    </View>
+  );
 }
 function Item({ T, item, chosen, onChoose, variant = 'c' }) {
   const s = mk(T);
   const actor = item.actor_id ? byId(item.actor_id) : null;
   const mine = actor?.id === me.id;
-  const hi = item.type === 'info' ? HIGHLIGHT.has(item.preset) : item.type === 'swap_proposed';
   const task = item.task_title ? { title: item.task_title } : item.task_id ? taskById(item.task_id) : null;
   const head = (content) => (
     <View>
-      {hi ? <Text style={s.bubTag}>{item.type === 'swap_proposed' ? t.tagSwap : item.preset === 'tookOver' || item.preset === 'gaveBack' ? t.tagTake : t.tagReminder}</Text> : null}
-      <View style={s.head}>
-        {actor && !mine ? <Avatar initial={actor.initial} color={actor.color} photo={actor.avatar_url} size={24} /> : null}
-        <View style={{ flex: 1 }}>{content}</View>
-        <Text style={s.time}>{item.time}</Text>
-      </View>
+      {content}
+      <Text style={[s.time, mine && { textAlign: 'right' }]}>{item.time}</Text>
     </View>
   );
 
   if (item.type === 'partner_day') {
     const list = item.tasks.length > 3 ? `${item.tasks.slice(0, 3).join(', ')} ${fill(t.andMore, { n: item.tasks.length - 3 })}` : item.tasks.join(', ');
     return (
-      <Wrap T={T} mine={false} highlight={false}>
+      <Wrap T={T} mine={false} actor={actor}>
         {head(<RichText template={item.tasks.length > 1 ? t.partnerDayMany : t.partnerDayOne} vars={{ name: actor.first_name, n: item.tasks.length, task: list }} style={s.body} />)}
         <Replies T={T} item={item} keys={['best', 'thanks']} chosen={chosen} onChoose={onChoose} name={actor.first_name} />
       </Wrap>
@@ -97,8 +101,8 @@ function Item({ T, item, chosen, onChoose, variant = 'c' }) {
   }
   if (item.type === 'task_done') {
     return (
-      <Wrap T={T} mine={mine} highlight={hi}>
-        {head(<RichText template={mine ? t.taskDoneMe : t.taskDone} vars={{ name: actor.first_name, task: task.title.toLowerCase() }} style={s.body} />)}
+      <Wrap T={T} mine={mine} actor={actor}>
+        {head(<RichText template={mine ? t.taskDoneMe : t.taskDone} vars={{ name: actor.first_name, task: task.title.toLowerCase() }} style={[s.body, mine && s.bodyMine]} />)}
         {actor.id !== me.id ? <Replies T={T} item={item} keys={replyPresets.task_done} chosen={chosen} onChoose={onChoose} name={actor.first_name} /> : null}
         {/* la réaction de l'autre sous MA mission terminée (fil réel) */}
         {item.reaction ? <Text style={s.debt}>{fill(t.reactionFrom, { name: item.reaction.name, reply: fill(t.replies[item.reaction.key] || item.reaction.key, { name: me.first_name }) })}</Text> : null}
@@ -109,7 +113,7 @@ function Item({ T, item, chosen, onChoose, variant = 'c' }) {
     const occ = occurrences.find(o => o.task_id === item.task_id && o.assignee_id === item.target_id);
     const when = occ?.time || occ?.badge || null;
     return (
-      <Wrap T={T} mine={mine} highlight={hi}>
+      <Wrap T={T} mine={mine} actor={actor}>
         {head(<RichText template={copy.pings[item.preset_key] || ''} vars={{ task: task.title.toLowerCase() + (when ? ` · ${when}` : '') }} style={s.body} />)}
         {item.target_id === me.id ? <Replies T={T} item={item} keys={replyPresets.ping} chosen={chosen} onChoose={onChoose} /> : null}
       </Wrap>
@@ -118,8 +122,8 @@ function Item({ T, item, chosen, onChoose, variant = 'c' }) {
   if (item.type === 'swap_proposed' || item.type === 'swap_accepted') {
     const proposed = item.type === 'swap_proposed';
     return (
-      <Wrap T={T} mine={mine} highlight={hi}>
-        {head(<RichText template={proposed ? t.swapProposed : mine ? t.swapAcceptedMe : t.swapAccepted} vars={{ name: actor.first_name, task: task.title.toLowerCase() }} style={s.body} />)}
+      <Wrap T={T} mine={mine} actor={actor}>
+        {head(<RichText template={proposed ? t.swapProposed : mine ? t.swapAcceptedMe : t.swapAccepted} vars={{ name: actor.first_name, task: task.title.toLowerCase() }} style={[s.body, mine && s.bodyMine]} />)}
         {proposed ? (
           <>
             <View style={s.actions}>
@@ -134,8 +138,8 @@ function Item({ T, item, chosen, onChoose, variant = 'c' }) {
   // info préformatée (je m'en occupe, règle changée, tâche ajoutée — 7 sept 2026)
   if (item.type === 'info') {
     return (
-      <Wrap T={T} mine={mine} highlight={hi}>
-        {head(<Text style={s.body}>{item.text}</Text>)}
+      <Wrap T={T} mine={mine} actor={actor}>
+        {head(<NamedText text={item.text} name={mine ? null : actor?.first_name} style={[s.body, mine && s.bodyMine]} />)}
       </Wrap>
     );
   }
@@ -232,6 +236,7 @@ export default function Activite() {
         id: a.id, type: 'info', preset: a.preset_key, actor_id: a.actor_id === uid ? me.id : partner.id,
         text: fill((a.actor_id === uid && t.presetsMe[a.preset_key]) || t.presets[a.preset_key], { name: a.actor_id === uid ? me.first_name : partner.first_name, ...(a.payload || {}) }),
         at: new Date(a.created_at), time: hhmm(a.created_at),
+        occurrence_id: a.occurrence_id || null, occDone: !!(a.occurrence_id && occById[a.occurrence_id]?.status === 'done'),
       }));
       // carte « Soirée équilibrée » : hier tout était fait → streak réel (proto du 2 sept, validé le 7 sept)
       const moments = [];
@@ -246,7 +251,15 @@ export default function Activite() {
   const groups = [];
   // ce à quoi j'ai déjà répondu ne reste pas dans le fil (Bravo, Merci, Ok ce soir…)
   const answered = it => chosen[it.id] && (it.type === 'partner_day' || it.type === 'task_done' || it.type === 'ping');
-  (real ? realItems : activityFeed).filter(it => !answered(it)).forEach(it => {
+  // « À toi de répondre » (Jeanne, 14 nov 2026 : l'ordre d'importance) : ce qui attend un geste de moi —
+  // une proposition de reprise, un rappel ou « c'est ton tour » de l'autre (48 h, tant que la mission n'est pas faite)
+  const fresh = it => (now - it.at) < 48 * 3600e3;
+  const needsMe = it => it.type === 'swap_proposed'
+    || (it.type === 'ping' && it.target_id === me.id && !chosen[it.id])
+    || (it.type === 'info' && it.actor_id !== me.id && (it.preset === 'reminder' || it.preset === 'turn' || it.preset === 'handed') && !it.occDone && fresh(it));
+  const all = (real ? realItems : activityFeed).filter(it => !answered(it));
+  const toAnswer = all.filter(needsMe);
+  all.filter(it => !needsMe(it)).forEach(it => {
     const label = dayLabel(it.at, now);
     let g = groups.find(x => x.label === label);
     if (!g) { g = { label, items: [] }; groups.push(g); }
@@ -261,13 +274,23 @@ export default function Activite() {
           <Text style={[type.name, { color: T.ink, flex: 1 }]}>{t.title}</Text>
         </View>
         <ScrollView contentContainerStyle={s.list} showsVerticalScrollIndicator={false}>
-          {real && groups.length === 0
+          {toAnswer.length ? (
+            <View style={s.toAnswer}>
+              <Text style={[type.section, { color: T.ink, marginBottom: 2 }]}>{t.toAnswerTitle}</Text>
+              {toAnswer.map(it => (
+                <Animated.View key={it.id} exiting={FadeOut.duration(220)} layout={LinearTransition.duration(260)}>
+                  <Item T={T} item={it} chosen={chosen[it.id]} onChoose={choose} variant={variant} />
+                </Animated.View>
+              ))}
+            </View>
+          ) : null}
+          {real && groups.length === 0 && !toAnswer.length
             ? <Text style={[type.sub, { color: T.muted, textAlign: 'center', paddingVertical: 24 }]}>{t.emptyReal}</Text>
             : groups.map((g, gi) => (
               <React.Fragment key={g.label}>
                 <Label T={T} style={s.day}>{g.label}</Label>
                 {g.items.map(it => (
-                  <Animated.View key={it.id} exiting={FadeOut.duration(220)} layout={LinearTransition.duration(260)} style={[gi > 0 && { opacity: 0.7 }]}>
+                  <Animated.View key={it.id} exiting={FadeOut.duration(220)} layout={LinearTransition.duration(260)}>
                     <Item T={T} item={it} chosen={chosen[it.id]} onChoose={choose} variant={variant} />
                   </Animated.View>
                 ))}
@@ -282,11 +305,13 @@ export default function Activite() {
 const mk = T => StyleSheet.create({
   list: { paddingTop: 16, paddingHorizontal: layout.x, paddingBottom: 40, gap: 10 },
   day: { alignSelf: 'center', marginTop: 10, marginBottom: 2 },
-  card: { paddingVertical: 10, paddingLeft: 14, paddingRight: 4, borderLeftWidth: 3 },
-  bubTag: { fontSize: 11, fontWeight: '700', letterSpacing: 0.4, color: T.accent, marginBottom: 4 },
-  head: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  toAnswer: { gap: 10, paddingBottom: 14, marginBottom: 4, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: T.line },
+  theirsRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 8, maxWidth: '88%' },
+  bubTheirs: { flexShrink: 1, borderRadius: 18, borderBottomLeftRadius: 6, paddingVertical: 9, paddingHorizontal: 13 },
+  bubMine: { alignSelf: 'flex-end', maxWidth: '80%', borderRadius: 18, borderBottomRightRadius: 6, paddingVertical: 9, paddingHorizontal: 13, backgroundColor: T.seg },
   body: { fontSize: 15.5, fontWeight: '500', color: T.ink, lineHeight: 21 },
-  time: { fontSize: 11, fontWeight: '500', color: T.muted, fontVariant: ['tabular-nums'] },
+  bodyMine: { fontSize: 14.5, fontWeight: '400', color: T.ink, opacity: 0.8 },
+  time: { fontSize: 11, fontWeight: '500', color: T.muted, fontVariant: ['tabular-nums'], marginTop: 3 },
   replies: { flexDirection: 'row', gap: 6, marginTop: 10, flexWrap: 'wrap' },
   chip: { borderWidth: 1.5, borderColor: T.line, borderRadius: 999, paddingVertical: 6, paddingHorizontal: 12 },
   debt: { fontSize: 13.5, color: T.muted, marginTop: 6 },
