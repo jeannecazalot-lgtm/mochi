@@ -33,6 +33,7 @@ import { usePremiumVersion } from '../../src/purchases';
 import { TaskIcon } from '../../src/components/task-icon';
 import { LOCALE, fmtClock } from '../../src/lang';
 import { unreadSuivi } from '../../src/suivi-unread';
+import { setMochiBox, useMochiAway } from '../../src/day-screen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { reminderMarks } from '../../src/reminder-marks';
 import { useFocusEffect } from 'expo-router';
@@ -65,14 +66,14 @@ function Row({ T, vm, first, done, onToggle }) {
 // (remplace la pastille du 13 nov). Clé locale = le jour déjà montré.
 const DAY_KEY = 'mochi.dayScreen.shown';
 let dayBusy = false;
-async function maybeShowDayScreen(day) {
+async function maybeShowDayScreen(day, outfit) {
   if (dayBusy) return false;
   dayBusy = true;
   try {
     const today = localIso();
     if ((await AsyncStorage.getItem(DAY_KEY)) === today) return false;
     await AsyncStorage.setItem(DAY_KEY, today);
-    router.push(`/jour-ensemble?day=${day}`);
+    router.push(`/jour-ensemble?day=${day}${outfit ? `&outfit=${outfit}` : ''}`);
     return true;
   } catch (e) { return false; } finally { dayBusy = false; }
 }
@@ -98,6 +99,8 @@ export default function Home() {
   const [energy, setEnergy] = useState({ done: 0, total: 0 });
   const [lvl, setLvl] = useState(1);
   const [room, setRoom] = useState({ items: [], outfit: null, souvenirs: 0, positions: {} }); // ce qui a été acheté / ramené
+  const roomRef = useRef(room); roomRef.current = room; // le béret part avec Mochi vers l'écran « Jour X »
+  const mochiAway = useMochiAway();
   const [checkedIn, setCheckedIn] = useState(true); // ligne check-in masquée tant qu'on ne sait pas
   const [myMood, setMyMood] = useState(null); // mon check-in du jour (1 chargé·e, 2 ça va, 3 léger·ère)
   const [flight, setFlight] = useState(null); // perles qui volent de Mochi au compteur ({ key, n })
@@ -139,7 +142,7 @@ export default function Home() {
       let momentNow = false;
       if (!shown.current) { const un = await unseenMoments(); if (un.length) { shown.current = true; momentNow = true; setTimeout(() => router.push('/moment'), 400); } }
       // l'écran « Jour X » : première ouverture du jour (aussi quand l'app revient au premier plan le lendemain), jamais par-dessus un moment
-      if (!momentNow && m && m.stage !== 'egg' && m.hatched_at && getPartnerUid()) { const d = Math.max(1, Math.floor((Date.now() - Date.parse(m.hatched_at)) / 86400e3) + 1); setTimeout(() => maybeShowDayScreen(d), 450); }
+      if (!momentNow && m && m.stage !== 'egg' && m.hatched_at && getPartnerUid()) { const d = Math.max(1, Math.floor((Date.now() - Date.parse(m.hatched_at)) / 86400e3) + 1); setTimeout(() => maybeShowDayScreen(d, roomRef.current?.outfit), 450); }
       setEnergy(energyOf(occs));
       const souvenirs = inv.filter(i => i.household_id === setup.householdId && i.kind === 'souvenir').length;
       const mineInv = inv.filter(i => i.household_id === setup.householdId); const outfits = mineInv.filter(i => i.kind === 'outfit').sort((a, b) => String(a.acquired_at).localeCompare(String(b.acquired_at)));
@@ -205,7 +208,7 @@ export default function Home() {
 
   return (
     <View style={{ flex: 1, backgroundColor: T.bg }}>
-      <Pressable onPress={() => router.push('/chambre')} style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><Scene T={T} stage={m.stage} mood={mood} lvl={lvl} topInset={insets.top + 44} items={room.items} outfit={room.outfit} souvenirs={room.souvenirs} positions={room.positions} photo={m.photo_url || null} /></Pressable>
+      <Pressable onPress={() => router.push('/chambre')} style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><Scene T={T} stage={m.stage} mood={mood} lvl={lvl} topInset={insets.top + 44} items={room.items} outfit={room.outfit} souvenirs={room.souvenirs} positions={room.positions} photo={m.photo_url || null} mochiAway={mochiAway} onMochiBox={setMochiBox} /></Pressable>
       {flight && pearlsAt ? <PearlFlight key={flight.key} from={{ x: width / 2, y: layout.scene - layout.floor - 60 }} to={pearlsAt} count={Math.min(5, flight.n)} color={T.accent} onArrive={() => { pop(); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {}); }} /> : null}
       <SafeAreaView style={{ flex: 1 }} edges={['top']} pointerEvents="box-none">
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 24 }} showsVerticalScrollIndicator={false}>{/* défile quand la journée est chargée (9 nov 2026) */}

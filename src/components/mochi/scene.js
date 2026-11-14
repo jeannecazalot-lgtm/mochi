@@ -3,7 +3,7 @@
 // un sol plats, aux mêmes positions et paliers que la version en formes : jour 1 = fenêtre, rideau, étagère,
 // table, plante, tapis, cadre ; palier 2 lampe ; palier 3 banquette (remplace la table). Micro-mouvements :
 // la plante se balance, la lampe respire la nuit. La nuit : voile navy sur la pièce, lune et étoiles dans la fenêtre.
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, Image, useWindowDimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming, withDelay, withSequence, withRepeat, Easing, ZoomIn, FadeIn, FadeInUp, runOnJS } from 'react-native-reanimated';
@@ -137,7 +137,8 @@ function LiveEgg({ source, cracking, size = 96, hatching = false, onHatched }) {
 }
 const Layer = ({ children, delay = 0, fade }) => <Animated.View entering={FadeIn.delay(delay).duration(400)} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} pointerEvents="none">{children}</Animated.View>;
 
-export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height = layout.scene, hideMochi = false, cracking = false, hatching = false, onHatched = null, topInset = 0, backdrop = undefined, mochiSource = null, mochiBottom = null, shiftY = 0, items = [], outfit = null, souvenirs = 0, photo = null, positions = {}, onMove = null }) {
+export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height = layout.scene, hideMochi = false, cracking = false, hatching = false, onHatched = null, topInset = 0, backdrop = undefined, mochiSource = null, mochiBottom = null, shiftY = 0, items = [], outfit = null, souvenirs = 0, photo = null, positions = {}, onMove = null, mochiAway = false, onMochiBox = null }) {
+  const mref = useRef(null); // boîte de Mochi pour l'écran « Jour X ensemble » (il part de sa vraie place)
   const c = T.scene, hh = height, fl = layout.floor, night = !!c.moon;
   const { width: SW } = useWindowDimensions();
   // décision Jeanne 5 nov 2026 (« je préfère l'ancien ») : la pièce est le décor entier de ChatGPT, B le jour, D la nuit
@@ -220,9 +221,9 @@ export function Scene({ T, stage = 'mini', mood, lvl = 1, away = false, height =
       {backdrop && souvenirs > 0 ? <View pointerEvents="none" style={{ position: 'absolute', left: SW * 0.6, top: hh * 0.38, width: SW * 0.3, alignItems: 'center' }}><View style={{ flexDirection: 'row', gap: 4, paddingBottom: 3 }}>{Array.from({ length: Math.min(8, souvenirs) }).map((_, i) => <Image key={i} source={SOUVENIR} style={{ width: 16, height: 16, opacity: 0.9 }} resizeMode="contain" />)}</View><View style={{ height: 4, width: '100%', borderRadius: 2, backgroundColor: c.shelf || '#CFB08C' }} /></View> : null}
       {hideMochi ? null : stage === 'egg'
         ? <><Animated.View pointerEvents="none" entering={FadeInUp.duration(420).easing(Easing.out(Easing.cubic)).withInitialValues({ opacity: 0, transform: [{ translateY: 10 }] })} style={{ position: 'absolute', bottom: backdrop ? 30 : fl2 - 12, left: 0, right: 0, alignItems: 'center' }}><LiveEgg source={cracking || hatching ? IMG.eggCrack : IMG.egg} cracking={cracking && !hatching} hatching={hatching} onHatched={onHatched} /></Animated.View></>
-        : <Animated.View pointerEvents="none" entering={FadeInUp.duration(420).easing(Easing.out(Easing.cubic)).withInitialValues({ opacity: 0, transform: [{ translateY: 10 }] })} style={{ position: 'absolute', bottom: mochiBottom ?? (backdrop ? 26 : fl2 - 18), left: 0, right: 0 }}><Animated.View style={[{ alignItems: 'center' }, walk]}>
+        : <Animated.View pointerEvents="none" entering={FadeInUp.duration(420).easing(Easing.out(Easing.cubic)).withInitialValues({ opacity: 0, transform: [{ translateY: 10 }] })} style={{ position: 'absolute', bottom: mochiBottom ?? (backdrop ? 26 : fl2 - 18), left: 0, right: 0 }}><Animated.View style={[{ alignItems: 'center' }, walk, mochiAway ? { opacity: 0 } : null]}>
               <View style={{ position: 'absolute', bottom: 4, width: Math.round(W * 0.9), height: 10, borderRadius: 5, backgroundColor: c.shadow, opacity: 0.6 }} />
-              <LiveMochiImage size={W} lean={0} mood={mood} source={mochiSource} />
+              <View ref={mref} collapsable={false} onLayout={onMochiBox ? () => mref.current?.measureInWindow((x, y, w, h) => onMochiBox({ x, y, w, h })) : undefined}><LiveMochiImage size={W} lean={0} mood={mood} source={mochiSource} /></View>
               {outfit && SHOP[outfit] && outfitStyle(outfit, W, H) ? <Image pointerEvents="none" source={SHOP[outfit]} style={outfitStyle(outfit, W, H)} resizeMode="contain" accessibilityIgnoresInvertColors /> : null}
             </Animated.View></Animated.View>}
     </View>
