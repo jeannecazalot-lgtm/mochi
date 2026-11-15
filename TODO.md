@@ -558,3 +558,6 @@ Soumission « Waiting for Review » : iOS App 1.0 (build 25) + groupe Mochi+ + M
 - À améliorer : écrire la recette visuelle AVANT de coder ; vérifier l'état d'App Store Connect dès le début d'un chantier de soumission (build rattaché, contrats).
 - Fragile : foyer de démo périssable (à relancer chaque jour) ; report de la demande de notifications et ligne « récap de la semaine dernière » non vus à l'écran ; textes FR du récap v2 non vus.
 
+15 nov 2026 (23 h 30) — **Mesure minimale** (point 2 de l'avis produit, « faisons-le maintenant ») : table `app_events` créée en production (migration 0020 : écriture seule pour soi ou sans compte, aucune lecture depuis l'app ; vérifié par l'API : insert 201, select vide, usurpation 401, schéma `stats` non exposé). `src/track.js` + 15 moments branchés ; lecture : `docs/mesure.sql` (vue `stats.v_events`, exclut dev et compte de démo). Testé au simulateur (lignes `dev = true`). **NON publié** : app en revue. **Avant de publier cette mise à jour** : App Privacy › ajouter « Product Interaction » (Analytics, lié à l'utilisateur, pas de pistage), puis publier l'update.
+- Note de l'app : aucune demande de note dans l'app aujourd'hui. Le vrai encart Apple (expo-store-review) demande un nouveau build ; à prévoir au prochain build natif, déclenché après une « belle semaine ».
+
