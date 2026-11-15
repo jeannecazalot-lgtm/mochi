@@ -546,3 +546,15 @@ Backlog (P1 = bug, P2 = clarté, P3 = ajout) :
 - 15 nov (nuit) : mot de passe de démo enregistré par Jeanne dans App Store Connect (contrôle : présent, build 25, publication manuelle, contact, notes). Reste : achat sandbox, foyer de démo à réinstaller le jour J, « Add for Review » (abonnements + version).
 - 15 nov (22 h 30) : achat sandbox fait par Jeanne sur le build 25 (« c'est fait ») ; foyer de démo réinstallé pour le 15 nov (heure de Los Angeles) et contrôlé : 4 cœurs, 99 perles, semaine dernière non clôturée (le récap s'ouvrira chez le testeur), 6 activités, 1 proposition en attente, 3 missions pour Alex aujourd'hui. Prochaine étape : « Add for Review » abonnements + version, puis envoi par Jeanne. Pendant la revue : réinstaller le foyer chaque jour.
 - 15 nov (22 h 51) : contrat Paid Apps renouvelé par Jeanne (il bloquait l'ajout des abonnements) ; **brouillon d'envoi prêt** par Claude : iOS App 1.0 (build 25) + groupe Mochi+ + Mochi+ Mensuel + Mochi+ Pass 1 an, « Submit for Review » actif, à cliquer par Jeanne. Pendant la revue : réinstaller le foyer de démo chaque jour.
+
+## 15 nov 2026, 22 h 54 — **Mindpair 1.0 envoyée en revue App Store** (jalon)
+Soumission « Waiting for Review » : iOS App 1.0 (build 25) + groupe Mochi+ + Mochi+ Mensuel + Mochi+ Pass 1 an, publication manuelle. Envoyée par Jeanne.
+**Pendant la revue** : réinstaller le foyer de démo chaque matin (`supabase/seed/demo-review.sql`, copier avec `LC_ALL=en_US.UTF-8 pbcopy`), sinon les missions d'Alex passent « ratées » et Mochi perd des cœurs. En cas de refus : répondre dans le Resolution Center avec une vidéo sur l'appareil du refus.
+
+**Rétro du jalon (14-15 nov)**
+- Efficace : compte de démo construit de bout en bout (connexion, foyer seedé, test iPad au simulateur) ; le test a révélé de vrais bugs (synchro des tables Mochi, foyer non retrouvé après connexion, récap « +-3 ») corrigés avant l'envoi ; App Store Connect vérifié champ par champ (le build 21 était encore rattaché, la confidentialité jamais remplie, le contrat Paid Apps périmé).
+- Coûteux : 3 itérations sur l'écran Jour X avant la recette « application » (la recette aurait dû venir d'abord) ; mot de passe de démo perdu puis clavier AZERTY du simulateur (coller au lieu de taper) ; collage du seed abîmé par l'encodage.
+- Estimé vs réel : « préparer le compte de démo » annoncé comme une proposition, réellement une demi-journée (seed, migration, 4 corrections, test).
+- À améliorer : écrire la recette visuelle AVANT de coder ; vérifier l'état d'App Store Connect dès le début d'un chantier de soumission (build rattaché, contrats).
+- Fragile : foyer de démo périssable (à relancer chaque jour) ; report de la demande de notifications et ligne « récap de la semaine dernière » non vus à l'écran ; textes FR du récap v2 non vus.
+
