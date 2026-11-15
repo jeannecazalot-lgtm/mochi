@@ -1421,7 +1421,8 @@
     "tagSwap": "Proposition",
     "partnerDayOne": "{name} a fait {task}",
     "partnerDayMany": "{name} a fait {n} missions : {task}",
-    "andMore": "et {n} autre(s)"
+    "andMore": "et {n} autre(s)",
+    "thoughtFrom": "{name} a pensé à : {task}"
   },
   "afaire": {
     "_labels": {
@@ -2403,7 +2404,8 @@
     "giveBtn": "Passer",
     "solo": "La balance compare ce que vous faites à deux. Elle démarre quand ton binôme a rejoint le foyer.",
     "missedHeart": "− {n} cœur",
-    "missedHearts": "− {n} cœurs"
+    "missedHearts": "− {n} cœurs",
+    "thoughtsLine": "Pensé à cette semaine : toi {me} · {name} {partner}"
   },
   "checkin": {
     "_labels": {

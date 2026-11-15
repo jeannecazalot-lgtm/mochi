@@ -17,6 +17,7 @@
 --   paywall_viewed     écran Mochi+ vu (props : from = d'où)
 --   purchase_done / purchase_cancelled / purchase_failed (props : offer = pass | month)
 --   restore            « Restaurer » (props : success)
+--   thought_added / thought_done / thought_to_task   « En tête » : pensée notée, cochée, transformée en tâche
 -- ═════════════════════════════════════════════════════════════════
 
 -- 0 · base commune : les vrais événements (à créer une fois). Schéma `stats` : pas exposé par l'API de Supabase,

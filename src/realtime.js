@@ -32,6 +32,7 @@ export function startRealtime(householdId) {
     .on('postgres_changes', { event: '*', schema: 'public', table: 'activity', filter: `household_id=eq.${householdId}` }, refresh('activity'))
     .on('postgres_changes', { event: '*', schema: 'public', table: 'notes', filter: `household_id=eq.${householdId}` }, refresh('notes'))
     .on('postgres_changes', { event: '*', schema: 'public', table: 'events', filter: `household_id=eq.${householdId}` }, refresh('events'))
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'thoughts', filter: `household_id=eq.${householdId}` }, refresh('thoughts')) // « En tête » (0021)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'setup_drafts', filter: `household_id=eq.${householdId}` }, refresh('setup_drafts'))
     // Mochi qu'on élève (migration 0013) : l'état et le journal bougent sur les deux téléphones
     .on('postgres_changes', { event: '*', schema: 'public', table: 'mochi_state', filter: `household_id=eq.${householdId}` }, async () => { try { await pull('mochi_state', householdId); mochiStore.bump(); } catch (e) { /* re-pull au prochain */ } })

@@ -22,6 +22,7 @@ import { suggestRebalance, rebalanceWeek, handTask } from '../../src/rebalance';
 import * as Haptics from 'expo-haptics';
 import { mochiStore, getMochi, STAGES, STAGE_AT, closeWeekIfNeeded } from '../../src/mochi-state';
 import { WeekRecap } from '../../src/components/recap/week-recap';
+import { thoughtCounts } from '../../src/thoughts';
 import { mondayOf, dowOf } from '../../src/week';
 import { addDaysIso } from '../../src/dates';
 import copy from '../../src/copy';
@@ -50,7 +51,8 @@ export default function Balance() {
   const [retain, setRetain] = useState(null);
   const [suggest, setSuggest] = useState(null); // { n, to } : ce que « Rééquilibrer » ferait
   const [contribs, setContribs] = useState([]); // ce qui pèse (réel)
-  const [weekEv, setWeekEv] = useState(null); // dernier récap (week_closed) du foyer
+  const [weekEv, setWeekEv] = useState(null);
+  const [thoughtsN, setThoughtsN] = useState(null); // « En tête » : pensées de la semaine par personne (ligne à part) // dernier récap (week_closed) du foyer
   const [msg, setMsg] = useState(null); const [given, setGiven] = useState({}); // ressenti vs réel : { pct, moods: { iso: 1|2|3 } }
   useEffect(() => {
     (async () => {
@@ -61,6 +63,7 @@ export default function Balance() {
       setReal(computeRealBalance(occs, getUid()));
       setContribs(realContributors(occs, tasks, getUid()));
       suggestRebalance().then(setSuggest).catch(() => {});
+      thoughtCounts(getUid(), getPartnerUid()).then(setThoughtsN).catch(() => {});
       const byTask = Object.fromEntries(tasks.map(tk => [tk.id, tk]));
       const d0 = new Date(); const mon = new Date(d0); mon.setDate(d0.getDate() - ((d0.getDay() + 6) % 7)); const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
       const from = localIso(mon), to = localIso(sun); const uid = getUid();
@@ -165,6 +168,7 @@ export default function Balance() {
           {(real && contribs.length) || planned ? (
             <View style={{ marginHorizontal: X, marginTop: 18 * A, borderTopWidth: StyleSheet.hairlineWidth, borderColor: T.line, paddingTop: 16 * A }}>
               <Text style={[type.section, { color: T.ink }]}>{t.whyTitle}</Text>
+              {thoughtsN && thoughtsN.me + thoughtsN.partner > 0 ? <Text style={[type.body, { color: T.ink, marginTop: 6 }]}>{fill(t.thoughtsLine, { me: thoughtsN.me, name: partner.first_name, partner: thoughtsN.partner })}</Text> : null}
               {real && contribs.length ? <Label T={T} style={{ marginTop: 4 }}>{t.weighsTitle}</Label> : null}
               {real && contribs.map((cb, i) => (
                 <View key={cb.task_id} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, borderTopWidth: i ? StyleSheet.hairlineWidth : 0, borderColor: T.line, marginTop: i ? 0 : 4 }}>

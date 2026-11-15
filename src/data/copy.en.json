@@ -586,7 +586,8 @@
   "tagSwap": "Offer",
   "partnerDayOne": "{name} did {task}",
   "partnerDayMany": "{name} did {n} tasks: {task}",
-  "andMore": "and {n} more"
+  "andMore": "and {n} more",
+  "thoughtFrom": "{name} thought of: {task}"
  },
  "auth": {
   "title": "Welcome",
@@ -1135,7 +1136,8 @@
   "giveBtn": "Hand over",
   "solo": "The Balance compares what you each do. It starts once your partner joins the household.",
   "missedHeart": "− {n} heart",
-  "missedHearts": "− {n} hearts"
+  "missedHearts": "− {n} hearts",
+  "thoughtsLine": "Thought of this week: you {me} · {name} {partner}"
  },
  "malus": {
   "header": "Penalties",

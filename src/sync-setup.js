@@ -199,7 +199,7 @@ export async function restoreHousehold() {
     const { data: mine } = await supabase.from('household_members').select('household_id').eq('user_id', uid).maybeSingle();
     if (!mine?.household_id) return null;
     saveHouseholdId(mine.household_id);
-    await Promise.all(['household_members', 'tasks', 'occurrences', 'task_pains', 'swap_requests', 'mochi_state', 'mochi_events', 'mochi_inventory', 'mochi_checkins'].map(tb => pull(tb, mine.household_id).catch(() => null)));
+    await Promise.all(['household_members', 'tasks', 'occurrences', 'task_pains', 'swap_requests', 'mochi_state', 'mochi_events', 'mochi_inventory', 'mochi_checkins', 'thoughts'].map(tb => pull(tb, mine.household_id).catch(() => null)));
     return mine.household_id;
   } catch (e) { return null; }
 }

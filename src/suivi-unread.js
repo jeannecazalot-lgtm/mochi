@@ -20,5 +20,6 @@ export async function unreadSuivi() {
   const doneDays = new Set(occs.filter(o => o.status === 'done' && o.done_by && o.done_by !== uid && String(o.done_at) > seen).map(o => String(o.done_at).slice(0, 10)));
   const msgs = acts.filter(a => a.actor_id !== uid && String(a.created_at) > seen).length;
   const pending = swaps.filter(s => s.status === 'pending' && s.to_user === uid && String(s.created_at) > seen).length;
-  return doneDays.size + msgs + pending;
+  const thoughts = (await read('thoughts').catch(() => [])).filter(r => r.created_by && r.created_by !== uid && String(r.created_at) > seen).length; // « En tête »
+  return doneDays.size + msgs + pending + thoughts;
 }

@@ -3,9 +3,9 @@
 // Sur l'Accueil, au-dessus d'« Aujourd'hui » : un champ, Entrée, c'est noté (Mochi saute). La liste montre les pensées
 // des deux (3 au plus, « Voir les N ») ; le rond à droite coche et efface (comme une mission) ; toucher la ligne = en
 // faire une tâche. Retouches du 15 nov : champ léger, plus de « Je m'en occupe », le compteur « pensé à » ira dans la Balance.
-// PROTOTYPE : pensées d'exemple en mémoire. La table Supabase `thoughts` viendra après validation (règle « modèle d'abord »).
+// Données : table `thoughts` (src/thoughts.js) ; en mode démo, des pensées d'exemple en mémoire.
 // ═════════════════════════════════════════════════════════════════
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet, Keyboard } from 'react-native';
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
@@ -16,6 +16,10 @@ import { mochiReact } from '../mochi-img';
 import { type, layout } from '../../theme-v3';
 import { me, partner } from '../../demo';
 import copy from '../../copy';
+import { inRealMode } from '../../setup-state';
+import { getUid } from '../../identity';
+import { occStore } from '../../demo-core';
+import { openThoughts, addThought, checkThought } from '../../thoughts';
 
 const fill = (s, v) => String(s).replace(/\{(\w+)\}/g, (_, k) => v[k] ?? '');
 const H = 3600e3;
@@ -37,7 +41,19 @@ const ago = at => {
 
 export function EnTete({ T }) {
   const t = copy.thoughts;
-  const [items, setItems] = useState(DEMO);
+  const real = inRealMode();
+  const occV = occStore.useVersion();
+  const [items, setItems] = useState(real ? [] : DEMO);
+  // vraies pensées (table thoughts) : rechargées à chaque synchro / changement local
+  useEffect(() => {
+    if (!real) return;
+    const uid = getUid();
+    openThoughts().then(rows => setItems(prev => {
+      const leaving = prev.filter(x => x.done); // une pensée qu'on vient de cocher finit son animation
+      const fresh = rows.map(r => ({ id: r.id, text: r.text, by: r.created_by === uid ? 'me' : 'partner', at: Date.parse(r.created_at) || Date.now(), done: false }));
+      return [...fresh.filter(f => !leaving.some(l => l.id === f.id)), ...leaving.filter(l => !fresh.some(f => f.id === l.id))].sort((a, b) => b.at - a.at);
+    })).catch(() => {});
+  }, [occV, real]);
   const [text, setText] = useState('');
   const [all, setAll] = useState(false);
   const who = k => (k === 'me' ? me : partner);
@@ -46,7 +62,8 @@ export function EnTete({ T }) {
 
   const add = () => {
     const v = text.trim(); if (!v) return;
-    setItems(xs => [{ id: String(Date.now()), text: v, by: 'me', at: Date.now(), done: false }, ...xs]);
+    if (real) addThought(v).catch(() => {}); // la liste se recharge (occStore)
+    else setItems(xs => [{ id: String(Date.now()), text: v, by: 'me', at: Date.now(), done: false }, ...xs]);
     setText(''); Keyboard.dismiss();
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {}); mochiReact();
   };
@@ -54,10 +71,10 @@ export function EnTete({ T }) {
   const check = id => {
     setItems(xs => xs.map(x => (x.id === id ? { ...x, done: true } : x)));
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {}); mochiReact();
-    setTimeout(() => setItems(xs => xs.filter(x => x.id !== id)), 900);
+    setTimeout(() => { setItems(xs => xs.filter(x => x.id !== id)); if (real) checkThought(id).catch(() => {}); }, 900);
   };
   // toucher la ligne = en faire une tâche (fiche pré-remplie) ; plus de menu
-  const toTask = it => router.push(`/task/edit?title=${encodeURIComponent(it.text)}`);
+  const toTask = it => router.push(`/task/edit?title=${encodeURIComponent(it.text)}${real ? `&thought=${it.id}` : ''}`);
 
   return (
     <View>

@@ -24,6 +24,7 @@ import copy from '../../src/copy';
 import { colors, alpha, font, space } from '../../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';
 import { dayWord } from '../../src/lang';
+import { linkThoughtTask } from '../../src/thoughts';
 
 const t = copy.task;
 const todayDow = () => (new Date().getDay() + 6) % 7;
@@ -64,7 +65,7 @@ const toReal = (f, base = {}) => ({ ...base, ...f, frequency: freqOf(f.window_da
 
 // `page` : même fiche, présentée en écran plein (proposition C, 9 sept 2026) au lieu d'une sheet
 export function TaskEditBody({ page = false }) {
-  const { id, setup: setupId, title: titleParam } = useLocalSearchParams(); // title : depuis « En tête » (15 nov 2026)
+  const { id, setup: setupId, title: titleParam, thought: thoughtParam } = useLocalSearchParams(); // title : depuis « En tête » (15 nov 2026)
   const insets = useSafeAreaInsets();
   const isNew = !id && !setupId;
   const [noteOpen, setNoteOpen] = useState(false);
@@ -85,7 +86,7 @@ export function TaskEditBody({ page = false }) {
     else if (b) saveRealTask(toReal(cur, b));
   }, []);
   const busy = useRef(false); // deux taps rapides = deux tâches (Ketley 12 sept 2026)
-  const create = async () => { if (busy.current) return; busy.current = true; await createRealTask(toReal(f)); dirty.current = false; router.back(); };
+  const create = async () => { if (busy.current) return; busy.current = true; const tid = await createRealTask(toReal(f)); if (tid && thoughtParam) await linkThoughtTask(String(thoughtParam), tid).catch(() => {}); dirty.current = false; router.back(); }; // « En tête » : la pensée devient cette tâche
 
   // le nom est en haut : pas besoin de pousser la feuille quand son clavier s'ouvre — avec « padding », la feuille (hauteur figée)
   // se compressait et le bouton « Créer la tâche » venait flotter sur les jours (vidéo Jeanne, 7 nov 2026). On ne pousse que pour la note.

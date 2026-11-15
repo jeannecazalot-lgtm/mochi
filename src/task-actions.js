@@ -103,7 +103,7 @@ export async function createRealTask(fiche) {
   logActivity({ type: 'ping', preset_key: 'taskCreated', payload: { task: fiche.title.trim().toLowerCase() } }).catch(() => {});
   pushToPartner('taskCreated', { task: fiche.title.trim().toLowerCase() }, '/(tabs)/planning');
   occStore.bump();
-  return true;
+  return id; // l'id (vrai) : « En tête » lie la pensée transformée à sa tâche (15 nov 2026)
 }
 
 // persiste la fiche : ligne `tasks` + pénibilité perso `task_pains`

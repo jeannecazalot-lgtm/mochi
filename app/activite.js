@@ -242,7 +242,10 @@ export default function Activite() {
       const moments = [];
       const sd = uid ? computeRealBalance(occs, uid).streakDays : 0;
 
-      setRealItems([...dones, ...received, ...swaps, ...infos, ...moments].sort((a, b) => b.at - a.at));
+      // « En tête » (15 nov 2026) : ce à quoi l'autre a pensé ces 7 derniers jours, encore ouvert ou non
+      const ths = (await read('thoughts').catch(() => [])).filter(r => r.created_by && r.created_by !== uid && Date.parse(r.created_at) > Date.now() - 7 * 86400e3);
+      const thoughtItems = ths.map(r => ({ id: `th-${r.id}`, type: 'info', preset: 'thought', actor_id: partner.id, text: fill(t.thoughtFrom, { name: partner.first_name, task: r.text }), at: new Date(r.created_at), time: hhmm(r.created_at) }));
+      setRealItems([...dones, ...received, ...swaps, ...infos, ...thoughtItems, ...moments].sort((a, b) => b.at - a.at));
     })();
   }, [occV]);
 
