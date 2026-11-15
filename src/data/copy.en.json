@@ -621,7 +621,8 @@
   "close": "Close",
   "passwordPlaceholder": "Password",
   "signIn": "Sign in",
-  "errPassword": "Wrong email or password."
+  "errPassword": "Wrong email or password.",
+  "passwordSub": "Enter the password for this account."
  },
  "wrapped": {
   "pillSolo": "Your week · Wk {n}",

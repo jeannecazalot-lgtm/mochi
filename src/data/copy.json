@@ -70,7 +70,8 @@
     "close": "Fermer",
     "passwordPlaceholder": "Mot de passe",
     "signIn": "Se connecter",
-    "errPassword": "Adresse ou mot de passe incorrect."
+    "errPassword": "Adresse ou mot de passe incorrect.",
+    "passwordSub": "Saisis le mot de passe de ce compte."
   },
   "tabs": {
     "_labels": {

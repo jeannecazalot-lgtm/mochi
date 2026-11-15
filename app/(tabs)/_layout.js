@@ -15,6 +15,9 @@ import { pull } from '../../src/store';
 import { occStore } from '../../src/demo-core';
 import { registerPushToken } from '../../src/push';
 import { askNotificationPermission } from '../../src/notifications';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const NOTIF_FIRST_SEEN = 'mochi.notif.firstSeen';
 import { read } from '../../src/store';
 import { loadNightMode } from '../../src/theme-v3';
 
@@ -39,7 +42,16 @@ export default function TabsLayout() {
       startRealtime(setup.householdId);
       loadPartner(setup.householdId);
       loadThresholds(setup.householdId); // seuils d'alerte du duo
-      registerPushToken().then(tok => { if (!tok) askNotificationPermission().then(ok => { if (ok) registerPushToken(); }).catch(() => {}); }); // jeton push → mon profil ; permission demandée si jamais posée (9 nov 2026 : aucune notification entre Jeanne et Ketley)
+      // permission demandée au moment utile (règle store) : jamais pendant la première session, où elle passait par-dessus
+      // le récap et les moments (constaté le 15 nov 2026 sur le compte de démo) ; ensuite, une fois si jamais posée.
+      // Le réglage Rappels et la programmation des rappels la demandent aussi, eux, au bon moment.
+      registerPushToken().then(async tok => {
+        if (tok) return;
+        const first = await AsyncStorage.getItem(NOTIF_FIRST_SEEN).catch(() => null);
+        if (!first) { AsyncStorage.setItem(NOTIF_FIRST_SEEN, String(Date.now())).catch(() => {}); return; }
+        if (Date.now() - Number(first) < 10 * 60e3) return;
+        askNotificationPermission().then(ok => { if (ok) registerPushToken(); }).catch(() => {});
+      }); // jeton push → mon profil ; permission demandée si jamais posée (9 nov 2026 : aucune notification entre Jeanne et Ketley)
       refresh();
     });
     const sub = AppState.addEventListener('change', st => { if (st === 'active') loadSetup().then(refresh); });

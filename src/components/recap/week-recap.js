@@ -49,7 +49,7 @@ async function loadRecap(ev) {
     for (const k of keys) { per[k].min += min / keys.length; per[k].n += 1; if (title) per[k].tasks[title] = (per[k].tasks[title] || 0) + 1; }
   }
   const people = [per.me, ...(puid ? [per.partner] : [])].map(p => ({ ...p, min: Math.round(p.min), top: Object.entries(p.tasks).sort((a, b) => b[1] - a[1]).slice(0, 2).map(([t]) => t) }));
-  const pearls = evs.filter(e => e.type === 'pearls' && String(e.created_at).slice(0, 10) >= ws && String(e.created_at).slice(0, 10) <= we).reduce((a, e) => a + (e.payload?.delta || 0), 0);
+  const pearls = evs.filter(e => e.type === 'pearls' && String(e.created_at).slice(0, 10) >= ws && String(e.created_at).slice(0, 10) <= we).reduce((a, e) => a + Math.max(0, e.payload?.delta || 0), 0); // gagnées seulement : un achat affichait « +-3 » (15 nov 2026)
   const next = occs.filter(o => live(o) && o.due_date >= n0 && o.due_date <= n6).length;
   return { done: done.length, total: done.length + missed.length, pearls, next, people, missed: [...new Set(missed.map(o => byTask[o.task_id]?.title).filter(Boolean))].slice(0, 3), mochi };
 }

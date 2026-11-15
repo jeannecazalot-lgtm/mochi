@@ -92,7 +92,7 @@ export default function Login() {
           <Pressable onPress={Keyboard.dismiss} accessible={false} style={{ flex: 1, justifyContent: 'center', paddingBottom: 40 }}>
             <View style={{ alignItems: 'center' }}><LiveMochi size={110} /></View>
             <Text style={s.title}>{mode === 'choice' ? (linkMode ? t.linkTitle : t.title2) : mode === 'email' ? t.emailTitle : mode === 'sent' ? t.sentTitle : t.codeTitle}</Text>
-            <Secondary style={{ textAlign: 'center', marginTop: 8, lineHeight: 21 }}>{mode === 'choice' ? (linkMode ? t.linkSub : t.sub) : mode === 'email' ? t.emailSub : (mode === 'sent' ? t.sentSub : t.codeSub).replace('{email}', email.trim())}</Secondary>
+            <Secondary style={{ textAlign: 'center', marginTop: 8, lineHeight: 21 }}>{mode === 'choice' ? (linkMode ? t.linkSub : t.sub) : mode === 'email' ? (isReviewEmail(email) ? t.passwordSub : t.emailSub) : (mode === 'sent' ? t.sentSub : t.codeSub).replace('{email}', email.trim())}</Secondary>
 
             {mode === 'choice' ? (
               <View style={{ marginTop: 34, gap: 12 }}>

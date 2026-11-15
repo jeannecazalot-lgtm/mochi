@@ -56,7 +56,7 @@ export const missionDone = {
 
 // ─── Planning ───────────────────────────────────────────────────────
 export const MENTAL_COEF = 1.5; // coefficient charge mentale (SPECS §3) — à lire depuis la base plus tard
-export const fmtCoef = n => String(n).replace('.', ',');
+export const fmtCoef = n => new Intl.NumberFormat(LOCALE).format(n); // ×1,5 en français, ×1.5 en anglais (15 nov 2026)
 export const occurrencesOn = d => occurrences.filter(o => sameDay(o.due_date, d));
 // couleurs d'avatars présentes un jour donné (non assigné = les deux)
 export const dayDots = d => {
