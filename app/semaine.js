@@ -14,6 +14,7 @@ import { pushToPartner } from '../src/push';
 import { occStore } from '../src/demo-core';
 import { useTokens, type, layout } from '../src/theme-v3';
 import copy from '../src/copy';
+import { track } from '../src/track';
 
 const t = copy.semaine;
 const fill = (s, v) => String(s).replace(/\{(\w+)\}/g, (_, k) => v[k] ?? '');
@@ -32,6 +33,7 @@ export default function Semaine() {
     const n = await extendHorizon({ manual: true, force: true, only: on, ...restartWindow() }).catch(() => 0); // une semaine calendaire (src/week.js)
     setBusy(false); occStore.bump();
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+    track('week_planned', { n });
     pushToPartner('weekRestarted', { n }, '/(tabs)/planning');
     setMsg(fill(t.done, { n }));
     setTimeout(() => router.back(), 900);

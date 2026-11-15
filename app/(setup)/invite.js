@@ -21,6 +21,7 @@ import { useTokens as useT3, layout } from '../../src/theme-v3';
 const EggHero = () => <Egg T={useT3()} />;
 import { colors, space } from '../../src/theme';
 import { styles as v3Styles, currentTokens as tk } from '../../src/theme-v3';
+import { track } from '../../src/track';
 
 const t = copy.setup;
 
@@ -52,12 +53,12 @@ export default function Invite() {
   // lien fait entrer directement dans le foyer ; la page web montre le code sinon.
   const message = realCode ? fill(t.shareMsg, { name: me.first_name, link: inviteUrl(realCode), code: realCode }) : `https://${inviteLink}`;
   const send = async () => {
-    try { await Share.share({ message }); } catch (e) {}
+    try { await Share.share({ message }); track('invite_shared'); } catch (e) {}
     if (realCode) setWaiting(true); // réel : on attend — démo : on simule l'acceptation
     else next();
   };
   const shareOnly = async () => {
-    try { await Share.share({ message }); } catch (e) {}
+    try { await Share.share({ message }); track('invite_shared'); } catch (e) {}
     if (realCode) setWaiting(true);
   };
   // Retour Jeanne (1er sept 2026) : petite animation — la place vide du binôme

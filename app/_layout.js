@@ -2,7 +2,7 @@
 // événement) en présentation modale transparente ; les moments (wrapped,
 // célébration) en plein écran fondu.
 import React from 'react';
-import { Pressable, View, Text, StyleSheet } from 'react-native';
+import { Pressable, View, Text, StyleSheet, AppState } from 'react-native';
 import Svg, { Path, Rect } from 'react-native-svg';
 import { router, usePathname } from 'expo-router';
 import { Stack } from 'expo-router';
@@ -59,6 +59,7 @@ const s = StyleSheet.create({
 import { useTokens } from '../src/theme-v3';
 import { IntroView } from './intro';
 import { initPurchases, onPremiumChange, purchasesPremium } from '../src/purchases';
+import { trackDailyOpen } from '../src/track';
 export default function RootLayout() {
   const [intro, setIntro] = React.useState(true); // ouverture Mindpair à chaque lancement à froid (Jeanne, 9 nov 2026)
   const T = useTokens(); const sheetV3 = { ...sheet, contentStyle: { backgroundColor: T.bg } }; // sheets de la DA v3 : fond jour / nuit
@@ -67,6 +68,7 @@ export default function RootLayout() {
   // le binôme (prénom/photo) se charge aussi à la racine : une arrivée directe (notification,
   // lien) sans passer par l'Accueil affichait encore le prénom de démo (audit 8 sept 2026)
   React.useEffect(() => { loadIdentity().then(() => loadSetup()).then(() => { initPurchases(setup.householdId); if (setup.householdId) return loadPartner(setup.householdId); }).then(() => extendHorizon({ force: true })).catch(() => {}); const stopDay = startDayWatch(); const stopTaps = listenNotificationTaps(url => router.push(url)); return () => { stopDay(); stopTaps && stopTaps(); }; }, []);
+  React.useEffect(() => { trackDailyOpen(); const sub = AppState.addEventListener('change', st => { if (st === 'active') trackDailyOpen(); }); return () => sub.remove(); }, []); // mesure (15 nov 2026)
   React.useEffect(() => onPremiumChange(() => { if (purchasesPremium()) extendHorizon({ force: true }).catch(() => {}); }), []); // Mochi+ : la semaine se pré-remplit dès l'achat
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.bg }}>

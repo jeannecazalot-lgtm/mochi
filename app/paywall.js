@@ -16,6 +16,7 @@ import { LayoutA, LayoutB, LayoutC } from '../src/components/premium/paywall-lay
 import { getOffers, purchase, restore } from '../src/purchases';
 import copy from '../src/copy';
 import { LOCALE } from '../src/lang';
+import { track } from '../src/track';
 
 const t = copy.paywall;
 const fill = (str, vars) => String(str).replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
@@ -31,6 +32,7 @@ export function PaywallView({ embedded = false, context = null }) {
   const navigation = useNavigation();
   const { next, demo, v } = useLocalSearchParams();
   const V = __DEV__ && v ? String(v) : LAYOUT;
+  useEffect(() => { track('paywall_viewed', { from: context || null, embedded: !!embedded }); }, []); // mesure (15 nov 2026)
   const [offers, setOffers] = useState(null);
   const [plan, setPlan] = useState('pass');
   const [busy, setBusy] = useState(false);

@@ -21,6 +21,7 @@ import { setPendingName } from '../../src/mochi-state';
 import { useTokens, type, layout } from '../../src/theme-v3';
 import copy from '../../src/copy';
 import { isEN } from '../../src/lang';
+import { track } from '../../src/track';
 
 const t = copy.onbV5;
 
@@ -82,6 +83,7 @@ export default function Onboarding() {
     Keyboard.dismiss();
     setPendingName(name.trim() || t.namePlaceholder).catch(() => {});
     AsyncStorage.setItem('mochi:onboarded', '1').catch(() => {}); // ne se remontre plus
+    track('onboarding_done');
     router.replace('/(auth)/login');
   }, [name]);
   const next = useCallback(() => {
