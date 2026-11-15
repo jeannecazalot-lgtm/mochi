@@ -6,7 +6,7 @@
 // fermeture — sauf une nouvelle tâche, qui a besoin d'un « Créer ».
 import React, { useState, useEffect, useRef } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
-import { View, Text, TextInput, StyleSheet, KeyboardAvoidingView, Keyboard, Pressable } from 'react-native';
+import { View, Text, TextInput, StyleSheet, KeyboardAvoidingView, Keyboard, Pressable, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSheetGrow, CREATE_SHEET_MIN } from '../../src/components/sheet-grow';
 import { Card, CTAPrimary } from '../../src/components/ui';
@@ -91,7 +91,11 @@ export function TaskEditBody({ page = false }) {
   // le nom est en haut : pas besoin de pousser la feuille quand son clavier s'ouvre — avec « padding », la feuille (hauteur figée)
   // se compressait et le bouton « Créer la tâche » venait flotter sur les jours (vidéo Jeanne, 7 nov 2026). On ne pousse que pour la note.
   return (
-    <KeyboardAvoidingView behavior={noteOpen ? 'padding' : undefined} style={[s.sheet, page && s.page, { paddingBottom: Math.max(insets.bottom, 31) }]} onLayout={page ? undefined : onGrowLayout}>
+    // 16 nov 2026 : sur iPad (format iPhone) et petits iPhone, la fiche dépassait l'écran et « Créer la tâche » était
+    // inatteignable. La fiche EST la zone qui défile (react-native-screens étire la première ScrollView, cf. mission.js).
+    <ScrollView style={{ backgroundColor: tk().bg }} contentContainerStyle={[s.sheet, page && s.page, { paddingBottom: Math.max(insets.bottom, 31) }]}
+      onContentSizeChange={page ? undefined : (w, h) => onGrowLayout({ nativeEvent: { layout: { height: h } } })}
+      contentInsetAdjustmentBehavior="never" automaticallyAdjustKeyboardInsets bounces={false} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
       <Pressable onPress={Keyboard.dismiss} accessible={false}>
       {page ? <TaskHeader title={isNew ? t.headerNew : t.headerEdit} backLabel={t.back} /> : <SheetHandle />}
         <View style={[s.head, { flexDirection: 'row', alignItems: 'center', gap: 12 }]}>
@@ -108,7 +112,7 @@ export function TaskEditBody({ page = false }) {
           ? <View style={{ marginTop: 14 }}>{!f.title.trim() ? <Text style={s.hint}>{t.needTitle}</Text> : null}<CTAPrimary label={t.ctaCreate} disabled={!f.title.trim()} onPress={create} big /></View>
           : id ? <View style={{ marginTop: 18 }}><TrashButton onPress={async () => { await deleteRealTask(String(id)).catch(() => {}); dirty.current = false; router.back(); }} label={copy.mission.deleteTask} /></View> : null}
       </Pressable>
-    </KeyboardAvoidingView>
+    </ScrollView>
   );
 }
 export default function TaskEdit() { return <TaskEditBody />; }

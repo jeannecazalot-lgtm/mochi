@@ -2,7 +2,7 @@
 // prévu, ratées) ; les points et le point hebdo disparaissent, une ratée coûte un cœur à Mochi (recette §1, §6).
 import { RouteError } from '../../src/components/route-error';
 import React, { useEffect, useMemo, useState } from 'react';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { View, Text, Pressable, ScrollView, StyleSheet, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CountUp } from '../../src/components/motion';
@@ -51,6 +51,7 @@ export default function Balance() {
   const [retain, setRetain] = useState(null);
   const [suggest, setSuggest] = useState(null); // { n, to } : ce que « Rééquilibrer » ferait
   const [contribs, setContribs] = useState([]); // ce qui pèse (réel)
+  const devParams = useLocalSearchParams();
   const [weekEv, setWeekEv] = useState(null);
   const [thoughtsN, setThoughtsN] = useState(null); // « En tête » : pensées de la semaine par personne (ligne à part) // dernier récap (week_closed) du foyer
   const [msg, setMsg] = useState(null); const [given, setGiven] = useState({}); // ressenti vs réel : { pct, moods: { iso: 1|2|3 } }
@@ -115,8 +116,9 @@ export default function Balance() {
   const heavyDays = weekIsos.filter(iso => retain?.moods?.[iso] === 1).length;
   const retainLine = retain && retain.pct != null ? fill(copy.checkin.retain, { pct: retain.pct, days: copy.checkin.days[heavyDays] }) : null;
 
+  const devWeek = __DEV__ && devParams.semaine === '1'; // test : la Balance de la semaine même le dimanche soir
   const todayIso = localIso(); const nowD = new Date();
-  const sundayRecap = weekEv && nowD.getDay() === 0 && nowD.getHours() >= 20 && weekEv.payload?.week_start === mondayOf(todayIso) ? weekEv : null;
+  const sundayRecap = !devWeek && weekEv && nowD.getDay() === 0 && nowD.getHours() >= 20 && weekEv.payload?.week_start === mondayOf(todayIso) ? weekEv : null;
   const lastWeekRecap = weekEv && dowOf(todayIso) <= 2 && weekEv.payload?.week_start === addDaysIso(-7, new Date(mondayOf(todayIso) + 'T12:00:00')) ? weekEv : null;
   if (sundayRecap) return (
     <View style={{ flex: 1, backgroundColor: T.bg }}>
