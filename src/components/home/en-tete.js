@@ -1,8 +1,8 @@
 // ═════════════════════════════════════════════════════════════════
 // « En tête » — la saisie express du « j'y ai pensé » (proposition du 15 nov 2026, prototype à valider par Jeanne).
 // Sur l'Accueil, au-dessus d'« Aujourd'hui » : un champ, Entrée, c'est noté (Mochi saute). La liste montre les pensées
-// des deux ; le rond à droite coche et efface (comme une mission) ; un toucher sur la ligne : Je m'en occupe · En faire une tâche.
-// En tête de section : « pensé à cette semaine : toi n · {name} m », la charge invisible rendue visible.
+// des deux (3 au plus, « Voir les N ») ; le rond à droite coche et efface (comme une mission) ; toucher la ligne = en
+// faire une tâche. Retouches du 15 nov : champ léger, plus de « Je m'en occupe », le compteur « pensé à » ira dans la Balance.
 // PROTOTYPE : pensées d'exemple en mémoire. La table Supabase `thoughts` viendra après validation (règle « modèle d'abord »).
 // ═════════════════════════════════════════════════════════════════
 import React, { useState } from 'react';
@@ -24,7 +24,8 @@ const DEMO = () => {
   return [
     { id: 'd1', text: copy.thoughts.demo[0], by: 'partner', at: now - 2 * H, taken: null, done: false },
     { id: 'd2', text: copy.thoughts.demo[1], by: 'me', at: now - 9 * H, taken: null, done: false },
-    { id: 'd3', text: copy.thoughts.demo[2], by: 'me', at: now - 26 * H, taken: 'partner', done: false },
+    { id: 'd3', text: copy.thoughts.demo[2], by: 'me', at: now - 26 * H, done: false },
+    { id: 'd4', text: copy.thoughts.demo[3], by: 'partner', at: now - 30 * H, done: false },
   ];
 };
 const ago = at => {
@@ -38,61 +39,55 @@ export function EnTete({ T }) {
   const t = copy.thoughts;
   const [items, setItems] = useState(DEMO);
   const [text, setText] = useState('');
-  const [open, setOpen] = useState(null);
+  const [all, setAll] = useState(false);
   const who = k => (k === 'me' ? me : partner);
-  const counts = { me: items.filter(i => i.by === 'me').length, partner: items.filter(i => i.by === 'partner').length };
+  const MAX = 3; // retouche 2 (Jeanne, 15 nov 2026) : l'Accueil garde ses missions visibles
+  const shown = all ? items : items.slice(0, MAX);
 
   const add = () => {
     const v = text.trim(); if (!v) return;
-    setItems(xs => [{ id: String(Date.now()), text: v, by: 'me', at: Date.now(), taken: null, done: false }, ...xs]);
+    setItems(xs => [{ id: String(Date.now()), text: v, by: 'me', at: Date.now(), done: false }, ...xs]);
     setText(''); Keyboard.dismiss();
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {}); mochiReact();
   };
   // cocher (Jeanne, 15 nov 2026 : « pouvoir le cocher pour l'enlever ») : rayé, Mochi saute, la ligne s'efface
   const check = id => {
-    setOpen(null);
     setItems(xs => xs.map(x => (x.id === id ? { ...x, done: true } : x)));
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {}); mochiReact();
     setTimeout(() => setItems(xs => xs.filter(x => x.id !== id)), 900);
   };
-  const act = (id, kind) => {
-    setOpen(null);
-    if (kind === 'take') { setItems(xs => xs.map(x => (x.id === id ? { ...x, taken: 'me' } : x))); Haptics.selectionAsync().catch(() => {}); }
-    if (kind === 'task') { const it = items.find(x => x.id === id); router.push(`/task/edit?title=${encodeURIComponent(it?.text || '')}`); }
-  };
+  // toucher la ligne = en faire une tâche (fiche pré-remplie) ; plus de menu
+  const toTask = it => router.push(`/task/edit?title=${encodeURIComponent(it.text)}`);
 
   return (
     <View>
-      <View style={s.head}>
-        <Text style={[type.section, { color: T.ink }]}>{t.title}</Text>
-        <Label T={T}>{fill(t.count, { me: counts.me, name: partner.first_name, partner: counts.partner })}</Label>
-      </View>
+      <View style={s.head}><Text style={[type.section, { color: T.ink }]}>{t.title}</Text></View>
       <View style={{ marginHorizontal: layout.x }}>
-        <View style={[s.field, { backgroundColor: T.seg }]}>
+        {/* champ léger : un trait, pas de bloc plein */}
+        <View style={[s.field, { borderBottomColor: T.line }]}>
+          <Text style={{ fontSize: 20, lineHeight: 22, color: T.muted, width: 26, textAlign: 'center' }}>+</Text>
           <TextInput value={text} onChangeText={setText} placeholder={t.placeholder} placeholderTextColor={T.muted}
             returnKeyType="done" onSubmitEditing={add} blurOnSubmit={false} cursorColor={T.accent} selectionColor={T.accent}
             style={[type.body, { flex: 1, color: T.ink, paddingVertical: 12 }]} />
-          {text.trim() ? <Pressable onPress={add} hitSlop={8} style={[s.add, { backgroundColor: T.accent }]}><Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 16, lineHeight: 18 }}>↵</Text></Pressable> : null}
+          {text.trim() ? <Pressable onPress={add} hitSlop={8}><Text style={[type.label, { color: T.accent, fontWeight: '600' }]}>{t.add}</Text></Pressable> : null}
         </View>
-        {items.map((it, i) => (
+        {shown.map((it, i) => (
           <Animated.View key={it.id} layout={LinearTransition.duration(260)} entering={FadeInDown.duration(260).easing(Easing.out(Easing.cubic))} exiting={FadeOut.duration(180)}>
-            <Pressable onPress={() => setOpen(open === it.id ? null : it.id)} style={[s.row, { borderTopWidth: i ? StyleSheet.hairlineWidth : 0, borderTopColor: T.line, opacity: it.done ? 0.4 : 1 }]}>
+            <Pressable onPress={() => !it.done && toTask(it)} style={[s.row, { borderTopWidth: i ? StyleSheet.hairlineWidth : 0, borderTopColor: T.line, opacity: it.done ? 0.4 : 1 }]}>
               <Avatar initial={who(it.by).initial} color={who(it.by).color} photo={who(it.by).avatar_url} size={26} />
               <View style={{ flex: 1, minWidth: 0 }}>
                 <Text style={[type.body, { color: T.ink, textDecorationLine: it.done ? 'line-through' : 'none' }]} numberOfLines={2}>{it.text}</Text>
-                <Label T={T} style={{ marginTop: 2 }}>{[ago(it.at), it.taken === 'me' ? t.takenMe : it.taken ? fill(t.takenBy, { name: partner.first_name }) : null].filter(Boolean).join(' · ')}</Label>
+                <Label T={T} style={{ marginTop: 2 }}>{ago(it.at)}</Label>
               </View>
-              {it.taken ? <Avatar initial={who(it.taken).initial} color={who(it.taken).color} photo={who(it.taken).avatar_url} size={22} /> : null}
               <Pressable onPress={() => !it.done && check(it.id)} hitSlop={8}><Check T={T} done={it.done} /></Pressable>
             </Pressable>
-            {open === it.id && !it.done ? (
-              <Animated.View entering={FadeInDown.duration(180)} style={s.actions}>
-                {it.taken !== 'me' ? <Pressable onPress={() => act(it.id, 'take')} style={[s.pill, { borderColor: T.ink, borderWidth: 1.5 }]}><Text style={[type.label, { color: T.ink, fontWeight: '600' }]}>{t.take}</Text></Pressable> : null}
-                <Pressable onPress={() => act(it.id, 'task')} style={[s.pill, { borderColor: T.line, borderWidth: 1.5 }]}><Text style={[type.label, { color: T.ink }]}>{t.toTask}</Text></Pressable>
-              </Animated.View>
-            ) : null}
           </Animated.View>
         ))}
+        {items.length > MAX ? (
+          <Pressable onPress={() => setAll(v => !v)} hitSlop={8} style={{ paddingVertical: 10 }}>
+            <Text style={[type.label, { color: T.muted, fontWeight: '600' }]}>{all ? t.less : fill(t.more, { n: items.length })}</Text>
+          </Pressable>
+        ) : null}
       </View>
     </View>
   );
@@ -100,7 +95,7 @@ export function EnTete({ T }) {
 
 const s = StyleSheet.create({
   head: { paddingTop: 26 * layout.air, paddingBottom: 8, paddingHorizontal: layout.x, flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' },
-  field: { flexDirection: 'row', alignItems: 'center', borderRadius: 14, paddingLeft: 14, paddingRight: 6, marginBottom: 6 },
+  field: { flexDirection: 'row', alignItems: 'center', gap: 8, borderBottomWidth: StyleSheet.hairlineWidth, marginBottom: 2 },
   add: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 },
   actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingLeft: 38, paddingBottom: 12 },

@@ -2738,8 +2738,12 @@
     "demo": [
       "Vaccin du chat",
       "Plus de lait",
-      "Anniversaire de maman samedi"
+      "Anniversaire de maman samedi",
+      "Racheter des ampoules"
     ],
-    "takenMe": "tu t'en occupes"
+    "takenMe": "tu t'en occupes",
+    "add": "Noter",
+    "more": "Voir les {n}",
+    "less": "Voir moins"
   }
 }

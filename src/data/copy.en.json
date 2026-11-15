@@ -1907,8 +1907,12 @@
   "demo": [
    "Cat's vaccine",
    "Out of milk",
-   "Mom's birthday on Saturday"
+   "Mom's birthday on Saturday",
+   "Buy light bulbs"
   ],
-  "takenMe": "you're on it"
+  "takenMe": "you're on it",
+  "add": "Add",
+  "more": "See all {n}",
+  "less": "See less"
  }
 }
