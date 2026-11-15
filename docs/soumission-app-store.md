@@ -51,6 +51,7 @@ En français, pour toi : on explique à Apple que l'app se vit à deux, qu'un fo
 ✅ fait et vérifié · ⬜ à faire · 🔁 à refaire à chaque soumission
 
 ### Le build
+- ✅ **Build 25** rattaché à la version 1.0 (c'était le 21, corrigé le 15 nov).
 - ✅ Build 25 sur TestFlight, dernière mise à jour publiée (17e, 15 nov).
 - ✅ Prix Mochi+ affichés sur le vrai build (iPhone, 15 nov).
 - ⬜ **Achat de test sur l'iPhone** (build 25) : acheter le Pass 1 an, puis le Mensuel, puis « Restaurer ». Rien n'est débité, c'est le compte de test d'Apple. Noter ce qui s'affiche après chaque achat.
@@ -63,23 +64,23 @@ En français, pour toi : on explique à Apple que l'app se vit à deux, qu'un fo
 - ✅ Restaurer · Confidentialité · Conditions (EULA Apple) sur l'écran.
 
 ### La fiche App Store Connect
-- ⬜ **Description** : terminer par les liens Privacy Policy et Terms of Use (EULA Apple standard). Tes règles l'exigent, en français et en anglais.
+- ✅ **Description** FR et EN : liens Privacy Policy et Terms of Use déjà présents (vérifié le 15 nov).
   - Privacy : https://jeannecazalot-lgtm.github.io/privacy.html
   - Terms : https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
-- ⬜ **Achats intégrés** : dans la version 1.0, section « In-App Purchases and Subscriptions », cocher **Mochi+ Mensuel** et **Mochi+ Pass 1 an**. Les premiers achats doivent partir avec la version, sinon Apple ne les examine pas.
+- ⬜ **Achats intégrés** : les deux sont complets (« Prepare for Submission »). Au moment d'envoyer : « Add for Review » sur le groupe Mochi+ (Mensuel) et sur le Pass 1 an, puis sur la version. Ils partent ensemble dans la même soumission.
 - ✅ Capture de revue de chaque abonnement (faite le 10 nov).
 - ✅ Captures App Store FR et EN (iPhone). Pas de captures iPad à fournir, l'app n'est pas déclarée pour iPad.
-- ⬜ **App Privacy** (étiquettes de confidentialité) : e-mail, prénom, photo (facultative), contenu (tâches, dépenses), identifiant utilisateur, achats. Données liées au compte, aucun pistage.
-- ⬜ **Âge** : questionnaire, 4+ attendu.
+- ✅ **App Privacy** publiée le 15 nov : 7 données (prénom, e-mail, photo, contenu, montants des dépenses, identifiant, achats), toutes pour le fonctionnement de l'app, liées au compte, aucun pistage. Adresse de la politique FR et EN.
+- ✅ **Âge** : 4+ (déjà fait).
 - ⬜ **Prix de l'app** : gratuite.
 - ✅ Chiffrement : « aucun chiffrement non exempté », déjà déclaré dans l'app.
 - ⬜ **Licence Apple Developer** : vérifier qu'aucun nouvel accord n'est en attente dans App Store Connect › Business. Le 10 nov, une licence non acceptée bloquait toute soumission.
 
 ### À revérifier à CHAQUE soumission (App Store Connect les remet à zéro)
-- 🔁 **Publication manuelle** (« Manually release this version ») : rien ne sort sans ton feu vert, même si Apple approuve.
-- 🔁 **Contact pour la revue** : prénom, nom, téléphone, e-mail.
-- 🔁 **Compte de démo et notes** de la partie 1.
-- 🔁 **Disponibilité hors Union européenne** tant que le statut de commerçant (DSA) n'est pas déclaré. Les mêmes pays pour l'app et pour les abonnements.
+- ✅ **Publication manuelle** cochée (à revérifier à chaque soumission).
+- ✅ **Contact pour la revue** rempli le 15 nov (à revérifier à chaque soumission).
+- 🔁 **Compte de démo et notes** de la partie 1 : identifiant et notes enregistrés le 15 nov ; ⬜ le mot de passe reste à coller.
+- ✅ **Statut de commerçant (DSA) déclaré** : l'Union européenne (France comprise) peut rester ouverte. 174 pays pour l'app, 175 pour les abonnements.
 
 ### Règles Apple passées en revue
 - ✅ 2.1 Complétude : pas d'écran vide ni de « bientôt » dans le parcours testé (iPad, 15 nov). Les outils de développement n'existent pas dans le build TestFlight.
