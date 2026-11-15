@@ -7,7 +7,7 @@ import { router } from 'expo-router';
 import { View, Text, Pressable, StyleSheet, useWindowDimensions, Image, ScrollView } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
-import { LinearTransition, FadeInDown, FadeOut, ZoomIn, Easing } from 'react-native-reanimated';
+import { LinearTransition, FadeInDown, FadeOut, ZoomIn, Easing, useSharedValue, useAnimatedStyle, useAnimatedScrollHandler, interpolate, Extrapolation } from 'react-native-reanimated';
 import { Animated } from '../../src/components/motion';
 import { PearlFlight, usePop } from '../../src/components/mochi/pearls';
 import { Avatar, CTAPrimary } from '../../src/components/ui';
@@ -86,6 +86,8 @@ const demoVms = () => myToday().map(o => { const task = taskById(o.task_id); ret
 export default function Home() {
   const t = copy.homeV3, h = copy.home;
   const T = useTokens(); const HEAD_ = headOn(T);
+  const scrollY = useSharedValue(0);
+  const onScroll = useAnimatedScrollHandler(e => { scrollY.value = e.contentOffset.y; });
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   missionDone.useVersion();
@@ -205,28 +207,39 @@ export default function Home() {
     : en.total > 0 && en.done >= en.total ? t.allDone
     : en.total - en.done === 1 ? t.remainingOne
     : fill(t.remaining, { n: Math.max(0, en.total - en.done) });
+  const solidFrom = Math.max(40, (bgTop || layout.scene) - 70);
+  const headSolid = useAnimatedStyle(() => ({ opacity: interpolate(scrollY.value, [solidFrom, solidFrom + 50], [0, 1], Extrapolation.CLAMP) }));
   const meta = vms === null || !list.length ? '' : allDone ? t.allDoneMeta : fill(remaining.length === 1 ? t.metaOne : t.meta, { n: remaining.length, time: fmtMin(remaining.reduce((a, v) => a + (v.mins || 0), 0)) });
 
-  return (
-    <View style={{ flex: 1, backgroundColor: T.bg }}>
-      <Pressable onPress={() => router.push('/chambre')} style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><Scene T={T} stage={m.stage} mood={mood} lvl={lvl} topInset={insets.top + 44} items={room.items} outfit={room.outfit} souvenirs={room.souvenirs} positions={room.positions} photo={m.photo_url || null} mochiAway={mochiAway} onMochiBox={setMochiBox} /></Pressable>
-      {flight && pearlsAt ? <PearlFlight key={flight.key} from={{ x: width / 2, y: layout.scene - layout.floor - 60 }} to={pearlsAt} count={Math.min(5, flight.n)} color={T.accent} onArrive={() => { pop(); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {}); }} /> : null}
-      <SafeAreaView style={{ flex: 1 }} edges={['top']} pointerEvents="box-none">
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 24 }} showsVerticalScrollIndicator={false}>{/* défile quand la journée est chargée (9 nov 2026) */}
-          {/* sous la scène, le contenu a un fond plein : il glisse sur la pièce sans la traverser */}
-          {bgTop ? <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, top: bgTop, height: 4000, backgroundColor: T.bg }} /> : null}
-          <View pointerEvents="box-none">
-            <View style={s.header}>
+  // en-tête FIXE (Jeanne, 16 nov 2026 : « j'aimerais que ce soit statique ») : il ne défile plus avec la pièce.
+  // Sur la pièce : texte clair ; dès que le contenu passe dessous, un fond plein apparaît et le texte prend l'encre.
+  const headerRow = (headColor, main) => (
+            <View style={s.header} pointerEvents="box-none">
               {/* sur la pièce (sombre), l'en-tête est en blanc cassé quel que soit le mode */}
-              <Label T={T} style={{ flex: 1, color: HEAD_ }}>{fmtDate(new Date())}</Label>
-              <Pressable onPress={() => router.push('/chambre')} hitSlop={8} ref={pearlsRef} onLayout={() => pearlsRef.current?.measureInWindow((x, y, w, hh) => setPearlsAt({ x: x + w / 2, y: y + hh / 2 }))} style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 6 }}>
-                <Animated.View style={popStyle}><Num T={T} style={{ color: HEAD_ }}>{(m.pearls ?? 0) + demoPearls}</Num></Animated.View><Label T={T} style={{ marginLeft: 6, color: HEAD_, opacity: 0.8 }}>{copy.common.pearlsWord}</Label>
+              <Label T={T} style={{ flex: 1, color: headColor }}>{fmtDate(new Date())}</Label>
+              <Pressable onPress={() => router.push('/chambre')} hitSlop={8}{...(main ? { ref: pearlsRef, onLayout: () => pearlsRef.current?.measureInWindow((x, y, w, hh) => setPearlsAt({ x: x + w / 2, y: y + hh / 2 })) } : {})} style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 6 }}>
+                <Animated.View style={main ? popStyle : null}><Num T={T} style={{ color: headColor }}>{(m.pearls ?? 0) + demoPearls}</Num></Animated.View><Label T={T} style={{ marginLeft: 6, color: headColor, opacity: 0.8 }}>{copy.common.pearlsWord}</Label>
               </Pressable>
               <Pressable onPress={() => router.push('/activite')} accessibilityLabel={h.activityA11y} hitSlop={8} style={{ marginRight: 4 }}><Image source={require('../../assets/icones/tabs/bubble.png')} style={{ width: 34, height: 34 }} resizeMode="contain" accessibilityIgnoresInvertColors />
                 {/* pastille v2 (Jeanne, 14 nov 2026 : « le style ne va pas ») : corail plein, sans contour, à cheval sur le coin, un seul « pop » */}
                 {unread > 0 ? <Animated.View key={unread} entering={ZoomIn.springify().damping(14).stiffness(260)} style={{ position: 'absolute', top: -1, right: -2, minWidth: 16, height: 16, paddingHorizontal: 4, borderRadius: 8, backgroundColor: T.accent, alignItems: 'center', justifyContent: 'center' }}><Text style={{ fontSize: 10, lineHeight: 12, fontWeight: '700', color: '#FFFFFF', fontVariant: ['tabular-nums'] }}>{unread > 9 ? '9+' : unread}</Text></Animated.View> : null}</Pressable>
               <Pressable onPress={() => router.push('/profil')} accessibilityLabel={h.profileA11y}><Avatar initial={me.initial} color={me.color} photo={me.avatar_url} size={36} /></Pressable>
             </View>
+  );
+  return (
+    <View style={{ flex: 1, backgroundColor: T.bg }}>
+      <Pressable onPress={() => router.push('/chambre')} style={{ position: 'absolute', top: 0, left: 0, right: 0 }}><Scene T={T} stage={m.stage} mood={mood} lvl={lvl} topInset={insets.top + 44} items={room.items} outfit={room.outfit} souvenirs={room.souvenirs} positions={room.positions} photo={m.photo_url || null} mochiAway={mochiAway} onMochiBox={setMochiBox} /></Pressable>
+      {flight && pearlsAt ? <PearlFlight key={flight.key} from={{ x: width / 2, y: layout.scene - layout.floor - 60 }} to={pearlsAt} count={Math.min(5, flight.n)} color={T.accent} onArrive={() => { pop(); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {}); }} /> : null}
+      <Animated.View pointerEvents="none" style={[{ position: 'absolute', top: 0, left: 0, right: 0, height: insets.top + 48, backgroundColor: T.bg, zIndex: 0 }, headSolid]} />
+      <SafeAreaView style={{ flex: 1 }} edges={['top']} pointerEvents="box-none">
+        <View style={{ height: 48 }} pointerEvents="box-none">
+          {headerRow(HEAD_, true)}
+          <Animated.View style={[StyleSheet.absoluteFill, headSolid]} pointerEvents="box-none">{headerRow(T.ink, false)}</Animated.View>
+        </View>
+        <Animated.ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 24 }} showsVerticalScrollIndicator={false} onScroll={onScroll} scrollEventThrottle={16}>{/* défile quand la journée est chargée (9 nov 2026) */}
+          {/* sous la scène, le contenu a un fond plein : il glisse sur la pièce sans la traverser */}
+          {bgTop ? <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, top: bgTop, height: 4000, backgroundColor: T.bg }} /> : null}
+          <View pointerEvents="box-none">
             <Pressable onPress={() => router.push('/chambre')} accessibilityLabel={t.roomA11y} onLayout={e => setBgTop(e.nativeEvent.layout.y + e.nativeEvent.layout.height)} style={{ height: Math.max(8, layout.scene + 12 - insets.top - 48) }} />{/* la scène se tape ici : vers la pièce de Mochi */}
             <View style={{ paddingHorizontal: layout.x, paddingTop: 18, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
               <Text style={[type.name, { color: T.ink, flex: 1 }]}>{m.name || 'Mochi'}</Text>
@@ -265,7 +278,7 @@ export default function Home() {
             </View>
           </View>
           {/* plus de « À venir » : l'Accueil ne montre que la journée (Jeanne, 13 nov 2026) — la semaine est dans le Planning */}
-        </ScrollView>
+        </Animated.ScrollView>
       </SafeAreaView>
     </View>
   );
