@@ -20,7 +20,10 @@ import { weekMalus, sweepMissed } from '../../src/malus-actions';
 import { computeRealBalance, realContributors } from '../../src/balance-real';
 import { suggestRebalance, rebalanceWeek, handTask } from '../../src/rebalance';
 import * as Haptics from 'expo-haptics';
-import { mochiStore, getMochi, STAGES, STAGE_AT } from '../../src/mochi-state';
+import { mochiStore, getMochi, STAGES, STAGE_AT, closeWeekIfNeeded } from '../../src/mochi-state';
+import { WeekRecap } from '../../src/components/recap/week-recap';
+import { mondayOf, dowOf } from '../../src/week';
+import { addDaysIso } from '../../src/dates';
 import copy from '../../src/copy';
 import { isEN } from '../../src/lang';
 import { slotColors } from '../../src/theme';
@@ -47,6 +50,7 @@ export default function Balance() {
   const [retain, setRetain] = useState(null);
   const [suggest, setSuggest] = useState(null); // { n, to } : ce que « Rééquilibrer » ferait
   const [contribs, setContribs] = useState([]); // ce qui pèse (réel)
+  const [weekEv, setWeekEv] = useState(null); // dernier récap (week_closed) du foyer
   const [msg, setMsg] = useState(null); const [given, setGiven] = useState({}); // ressenti vs réel : { pct, moods: { iso: 1|2|3 } }
   useEffect(() => {
     (async () => {
@@ -74,6 +78,16 @@ export default function Balance() {
       setMochi(await getMochi());
     })();
   }, [occV, mochiV]);
+  // récap (Jeanne, 15 nov 2026) : le dimanche dès 20 h la Balance DEVIENT le récap de la semaine qui finit ;
+  // du lundi au mercredi, une ligne en haut le rouvre
+  useEffect(() => {
+    (async () => {
+      await loadSetup(); if (!inRealMode()) return;
+      await closeWeekIfNeeded().catch(() => {});
+      const evs = await read('mochi_events').catch(() => []);
+      setWeekEv(evs.filter(e => e.type === 'week_closed' && (!setup.householdId || e.household_id === setup.householdId)).sort((a, b) => String(b.payload?.week_start).localeCompare(String(a.payload?.week_start)))[0] || null);
+    })();
+  }, [mochiV]);
 
   const demoParts = useMemo(shares, []); const demoState = useMemo(balanceState, []);
   const parts = real?.parts || demoParts;
@@ -98,6 +112,14 @@ export default function Balance() {
   const heavyDays = weekIsos.filter(iso => retain?.moods?.[iso] === 1).length;
   const retainLine = retain && retain.pct != null ? fill(copy.checkin.retain, { pct: retain.pct, days: copy.checkin.days[heavyDays] }) : null;
 
+  const todayIso = localIso(); const nowD = new Date();
+  const sundayRecap = weekEv && nowD.getDay() === 0 && nowD.getHours() >= 20 && weekEv.payload?.week_start === mondayOf(todayIso) ? weekEv : null;
+  const lastWeekRecap = weekEv && dowOf(todayIso) <= 2 && weekEv.payload?.week_start === addDaysIso(-7, new Date(mondayOf(todayIso) + 'T12:00:00')) ? weekEv : null;
+  if (sundayRecap) return (
+    <View style={{ flex: 1, backgroundColor: T.bg }}>
+      <WeekRecap ev={sundayRecap} embedded />
+    </View>
+  );
   return (
     <View style={{ flex: 1, backgroundColor: T.bg }}>
       <SafeAreaView style={{ flex: 1 }} edges={['top']}>
@@ -106,6 +128,13 @@ export default function Balance() {
             <Text style={[type.name, { color: T.ink, flex: 1 }]}>{t.title}</Text>
             <Label T={T}>{weekN ? fill(t.week, { n: weekN, range: week.range }) : week.range}</Label>
           </View>
+          {lastWeekRecap ? (
+            <Pressable onPress={() => router.push('/recap')} style={({ pressed }) => [{ marginHorizontal: X, marginTop: 14 * A, borderRadius: 16, backgroundColor: T.seg, paddingVertical: 12, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 12, opacity: pressed ? 0.7 : 1 }]}>
+              <MochiImage size={40} mood="wink" />
+              <View style={{ flex: 1 }}><Text style={[type.body, { color: T.ink, fontWeight: '600' }]}>{copy.recap.balanceRow}</Text><Label T={T} style={{ marginTop: 2 }}>{copy.recap.balanceRowSub}</Label></View>
+              <Text style={{ fontSize: 20, color: T.muted }}>›</Text>
+            </Pressable>
+          ) : null}
 
           {real && !getPartnerUid() ? (
             <View style={{ paddingHorizontal: X, paddingTop: 18 * A }}><Text style={[type.sub, { color: T.muted }]}>{t.solo}</Text><Pressable onPress={() => router.push('/(setup)/invite?from=home')} style={{ marginTop: 12, alignSelf: 'flex-start', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 999, backgroundColor: T.ink }}><Text style={[type.body, { color: T.bg }]}>{copy.homeV3.soloCta}</Text></Pressable></View>
@@ -218,11 +247,6 @@ export default function Balance() {
                 <Label T={T} style={{ color: T.accent }}>{t.heartCost}</Label>
               </View>))}
           </View>
-          {/* récap de la semaine, à rouvrir (13 nov 2026) */}
-          <Pressable onPress={() => router.push('/recap')} style={({ pressed }) => [{ marginHorizontal: X, marginTop: 18 * A, borderTopWidth: StyleSheet.hairlineWidth, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: T.line, paddingVertical: 14 * A, flexDirection: 'row', alignItems: 'center', opacity: pressed ? 0.6 : 1 }]}>
-            <View style={{ flex: 1 }}><Text style={[type.section, { color: T.ink }]}>{copy.recap.balanceRow}</Text><Label T={T} style={{ marginTop: 2 }}>{copy.recap.balanceRowSub}</Label></View>
-            <Text style={{ fontSize: 20, color: T.muted }}>›</Text>
-          </Pressable>
         </ScrollView>
       </SafeAreaView>
     </View>

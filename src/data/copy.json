@@ -2694,14 +2694,24 @@
     "nextPlusCta": "Découvrir Mochi+",
     "cta": "C'est noté",
     "close": "Fermer",
-    "balanceRow": "Récap de la semaine",
-    "balanceRowSub": "Le bilan de dimanche dernier",
+    "balanceRow": "Récap de la semaine dernière",
+    "balanceRowSub": "Qui a porté quoi, et ce que Mochi y a gagné",
     "none": "Pas encore de récap : le premier arrive dimanche à 20 h.",
     "pushTitle": "Le récap de la semaine est prêt",
     "pushBody": "Mochi a fait les comptes. Venez voir comment s'est passée votre semaine.",
     "stageNextOne": "Encore 1 semaine avant le palier {k}",
     "splitLineOne": "{time} · 1 tâche",
-    "later": "Plus tard"
+    "later": "Plus tard",
+    "verdictSub": "Vous avez fait {done} tâches sur {total}, à deux.",
+    "pearlsShort": "+{n} perles",
+    "duoEven": "Vous êtes à égalité cette semaine.",
+    "duoMeMore": "Tu as porté un peu plus, surtout {task}.",
+    "duoPartnerMore": "{name} a porté un peu plus, surtout {task}.",
+    "thank": "Dire merci à {name}",
+    "thanked": "Merci envoyé à {name}",
+    "suggestTake": "La semaine prochaine, tu prends {task} ?",
+    "suggestGive": "La semaine prochaine, {name} pourrait prendre {task}.",
+    "suggestKeep": "Même rythme la semaine prochaine."
   },
   "dayScreen": {
     "_labels": {

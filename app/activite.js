@@ -223,9 +223,9 @@ export default function Activite() {
       const mineReact = {};
       const received = [];
       for (const a of acts) {
-        if (a.type !== 'ping_reply' || !a.occurrence_id) continue;
+        if (a.type !== 'ping_reply') continue; // sans mission : le « Dire merci » du récap (15 nov 2026)
         if (a.actor_id === uid) {
-          const d = dones.find(x => x.ids.includes(a.occurrence_id)); if (d) mineReact[d.id] = a.preset_key;
+          const d = a.occurrence_id ? dones.find(x => x.ids.includes(a.occurrence_id)) : null; if (d) mineReact[d.id] = a.preset_key;
           // ce que J'ai envoyé reste visible de mon côté (Ketley, TestFlight 12 nov 2026 : « je ne vois que les tiens »)
           received.push({ id: a.id, type: 'info', preset: 'sent', actor_id: me.id, text: fill(t.reactionSent, { name: partner.first_name, reply: fill(t.replies[a.preset_key] || a.preset_key, { name: partner.first_name }).trim() }), at: new Date(a.created_at), time: hhmm(a.created_at) });
         }

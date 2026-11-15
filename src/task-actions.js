@@ -14,6 +14,8 @@ import { getUid, getPartnerUid } from './identity';
 import { placeDays } from './dispatch';
 import { lighterMember } from './horizon';
 import { addDaysIso, localIso } from './dates';
+import { planWeekEnd } from './week';
+import { isPremium } from './demo-premium';
 import { logActivity } from './activity-actions';
 import { pushToPartner } from './push';
 
@@ -84,6 +86,8 @@ export async function createRealTask(fiche) {
   let offsets;
   if (wanted.length) offsets = Array.from({ length: 7 }, (_, o) => o).filter(o => wanted.includes((todayDow + o) % 7));
   else offsets = placeDays(PER_WEEK[fiche.frequency] || 1, setup.availability, todayDow, Math.floor(Math.random() * 7));
+  // gratuit : pas au-delà du dimanche (Jeanne, 15 nov 2026 : la semaine d'après se prépare le dimanche) ; Mochi+ : 7 jours
+  if (!isPremium()) { const end = planWeekEnd(); offsets = offsets.filter(o => addDaysIso(o) <= end); }
   const partnerUid = getPartnerUid() || null;
   const fixedUid = fiche.fixed_assignee === partner.id ? partnerUid : uid;
   for (let k = 0; k < offsets.length; k++) {
