@@ -31,6 +31,7 @@ import { isPremium } from '../../src/demo-premium';
 import { weekNeedsRestart } from '../../src/horizon';
 import { usePremiumVersion } from '../../src/purchases';
 import { TaskIcon } from '../../src/components/task-icon';
+import { EnTete } from '../../src/components/home/en-tete';
 import { LOCALE, fmtClock } from '../../src/lang';
 import { unreadSuivi } from '../../src/suivi-unread';
 import { setMochiBox, useMochiAway } from '../../src/day-screen';
@@ -248,6 +249,7 @@ export default function Home() {
               </Pressable>
             ) : null}
             <View style={{ marginTop: (checkedIn ? 16 : 6) * layout.air }}><Gauges T={T} t={t} energy={en} hearts={hearts} formLabel={t.formLabels[hearts] || ''} hint={m.stage !== 'egg' && !full && day <= 7 ? t.energyHint : null} onFormPress={m.stage === 'egg' ? undefined : () => router.push('/forme')} /></View>
+            <EnTete T={T} />{/* « En tête » : saisie express du « j'y ai pensé » (prototype 15 nov 2026) */}
             <View style={s.sectionHead}>
               <Pressable onPress={() => router.push('/(tabs)/planning')} hitSlop={6}><Text style={[type.section, { color: T.ink }]}>{t.today}</Text></Pressable>
               <Label T={T}>{meta}</Label>

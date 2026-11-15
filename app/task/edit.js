@@ -64,12 +64,12 @@ const toReal = (f, base = {}) => ({ ...base, ...f, frequency: freqOf(f.window_da
 
 // `page` : même fiche, présentée en écran plein (proposition C, 9 sept 2026) au lieu d'une sheet
 export function TaskEditBody({ page = false }) {
-  const { id, setup: setupId } = useLocalSearchParams();
+  const { id, setup: setupId, title: titleParam } = useLocalSearchParams(); // title : depuis « En tête » (15 nov 2026)
   const insets = useSafeAreaInsets();
   const isNew = !id && !setupId;
   const [noteOpen, setNoteOpen] = useState(false);
   const onGrowLayout = useSheetGrow(false, noteOpen, page ? null : CREATE_SHEET_MIN);
-  const [f, setF] = useState(() => (setupId ? fromSetupTask(setupId) : EMPTY));
+  const [f, setF] = useState(() => (setupId ? fromSetupTask(setupId) : titleParam ? { ...EMPTY, title: String(titleParam) } : EMPTY));
   const [base, setBase] = useState(null); // fiche réelle d'origine (rien n'est perdu à l'enregistrement)
   useEffect(() => { if (id) loadRealTask(id).then(rt => { if (rt) { setBase(rt); setF(fromReal(rt)); } }); }, [id]);
   const patch = p => { dirty.current = true; setF(x => ({ ...x, ...p })); };

@@ -1890,5 +1890,25 @@
   "daysOne": "day together",
   "sub": "With {name}, and Mochi in the middle.",
   "closeA11y": "Close"
+ },
+ "thoughts": {
+  "title": "On your mind",
+  "placeholder": "Something on your mind?",
+  "count": "thought of: you {me} · {name} {partner}",
+  "done": "Done",
+  "take": "I'll handle it",
+  "toTask": "Make it a task",
+  "takenBy": "{name} is on it",
+  "you": "you",
+  "agoNow": "just now",
+  "agoMin": "{n} min ago",
+  "agoHour": "{n}h ago",
+  "agoDay": "{n}d ago",
+  "demo": [
+   "Cat's vaccine",
+   "Out of milk",
+   "Mom's birthday on Saturday"
+  ],
+  "takenMe": "you're on it"
  }
 }

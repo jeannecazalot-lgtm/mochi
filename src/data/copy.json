@@ -2721,5 +2721,25 @@
     "daysOne": "jour ensemble",
     "sub": "Avec {name}, et Mochi au milieu.",
     "closeA11y": "Fermer"
+  },
+  "thoughts": {
+    "title": "En tête",
+    "placeholder": "Une chose en tête ?",
+    "count": "pensé à : toi {me} · {name} {partner}",
+    "done": "C'est fait",
+    "take": "Je m'en occupe",
+    "toTask": "En faire une tâche",
+    "takenBy": "{name} s'en occupe",
+    "you": "toi",
+    "agoNow": "à l'instant",
+    "agoMin": "il y a {n} min",
+    "agoHour": "il y a {n} h",
+    "agoDay": "il y a {n} j",
+    "demo": [
+      "Vaccin du chat",
+      "Plus de lait",
+      "Anniversaire de maman samedi"
+    ],
+    "takenMe": "tu t'en occupes"
   }
 }
