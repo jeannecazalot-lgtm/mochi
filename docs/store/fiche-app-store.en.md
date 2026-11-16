@@ -2,8 +2,8 @@
 
 Adapted from the French listing (docs/store/fiche-app-store.md), not translated word for word.
 
-**Name** (30): Mindpair
-**Subtitle** (30): Share chores & the mental load
+**Name** (30): Mindpair: Couple Chores Pet  ← à appliquer à la prochaine version soumise (validé par Jeanne le 16 nov 2026 ; v1.0 en revue : « Mindpair »)
+**Subtitle** (30): Share the mental load, fairly  ← idem (v1.0 : « Share chores & the mental load »)
 **Promotional text** (170): Plan your chores together, let Mochi split them fairly, and raise him as a team. Running a home, minus the nagging.
 
 **Description**:
@@ -27,7 +27,7 @@ The essentials are free. Mochi+ adds a week that's ready to go (your tasks come 
 Terms of Use: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 Privacy Policy: https://jeannecazalot-lgtm.github.io/privacy.html#en
 
-**Keywords** (100): couple,household,chore chart,to-do,cleaning,family,planner,roommates,fair,partner,tasks,home,split
+**Keywords** (100): spouse,household,chore chart,to-do,cleaning,family,planner,roommates,partner,tasks,home,split  ← « couple » et « fair » retirés (déjà dans le nom / le sous-titre), « spouse » ajouté ; à appliquer avec le nouveau nom
 
 **Support URL**: https://jeannecazalot-lgtm.github.io/support.html#en
 **Marketing URL**: (none)
