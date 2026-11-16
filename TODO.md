@@ -571,3 +571,11 @@ Soumission « Waiting for Review » : iOS App 1.0 (build 25) + groupe Mochi+ + M
 - 16 nov (16 h Paris / 7 h Los Angeles) — foyer de démo réinstallé pour le lundi 16 (contrôle : 4 cœurs, 108 perles, semaine dernière non clôturée → récap à la 1re ouverture, pensées de test effacées, 3 missions pour Alex aujourd'hui). Statut de la revue non vérifié (session App Store Connect expirée).
 - 16 nov (après-midi) — **Vérifs bouclées sur iPad, mode jour, FR (compte de démo)** : barre fixe en jour OK (fond clair, texte encre quand on défile) ; « En tête » → noter « Prendre RDV dentiste » → la toucher → fiche pré-remplie, défile jusqu'à « Créer la tâche » → créée (mardi, Alex) → la pensée disparaît, liée en base à la tâche (task_id, 1 occurrence le 17) ; Balance : « Pensé à cette semaine : toi 1 · Sam 0 » sous « Pourquoi ». Corrigé au passage : le texte d'aide de l'Énergie chevauchait le trait sur 2 lignes. Foyer de démo réinstallé ensuite (tests effacés).
 
+16 nov 2026 (fin d'après-midi) — **Retours Jeanne (lundi, début de semaine, foyer de son téléphone)**. Diagnostic en base (lecture seule) :
+- Son téléphone est sur le foyer **7fdc1e8f « Jeqnne + Ketley (anonyme) »** créé le 9 nov — un foyer de test, pas celui de la vraie Ketley (dbc6c9d9 : Ketley e-mail + Jeanne anonyme, inactif depuis le 10 nov). À lui dire ; ne rien supprimer sans elle.
+- **Missions doublées** : en base, 1 seule mission par tâche et par jour (contrainte unique). Le doublon est LOCAL : `push()` (src/store.js) sur 23505 met à jour par id, ne trouve rien, et la copie locale au nouvel id reste à vie dans le cache. Bug réel à corriger (sur doublon : retirer la ligne locale, recharger).
+- Missions du lundi 16 / mardi 17 déjà là avant « Préparer la semaine » : créées les 9-10 nov par l'ancien code (avant la règle « s'arrête au dimanche » du 13 nov). Données héritées, pas le comportement actuel.
+- **Retards** : « En retard » (Planning, Accueil) affiche toutes les ratées passées, y compris celles de la semaine close → à limiter à la semaine en cours (« chaque nouvelle semaine, on fait le vide »).
+- Balance le lundi : « Rien de coché depuis lundi » et « Vous êtes à l'équilibre » à 0/0, « Les 7 derniers jours » vides, récap + Mochi empilés (« pas joli »).
+- Écran Semaine : pas d'ajout de mission possible, Mochi+ trop discret.
+
