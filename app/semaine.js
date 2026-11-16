@@ -1,8 +1,8 @@
 // Écran Semaine (10 nov 2026) — sans Mochi+, les missions ne se reconduisent pas toutes seules (Jeanne :
 // « en gratuit on repart de zéro chaque semaine, en payant tout est pré-rempli »). Ici, on relance la semaine
 // en un geste : les tâches de la semaine passée sont déjà cochées, on décoche ce qui ne revient pas.
-import React, { useEffect, useState } from 'react';
-import { router } from 'expo-router';
+import React, { useCallback, useRef, useState } from 'react';
+import { router, useFocusEffect } from 'expo-router';
 import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
@@ -15,6 +15,7 @@ import { occStore } from '../src/demo-core';
 import { useTokens, type, layout } from '../src/theme-v3';
 import copy from '../src/copy';
 import { track } from '../src/track';
+import { MochiImage } from '../src/components/mochi-img';
 
 const t = copy.semaine;
 const fill = (s, v) => String(s).replace(/\{(\w+)\}/g, (_, k) => v[k] ?? '');
@@ -26,7 +27,16 @@ export default function Semaine() {
   const [on, setOn] = useState([]);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState('');
-  useEffect(() => { restartableTasks().then(ts => { setTasks(ts); setOn(ts.map(x => x.id)); }).catch(() => setTasks([])); }, []);
+  // rechargé au retour de « + Ajouter une mission » (16 nov 2026) : la nouvelle mission arrive cochée
+  const known = useRef(null);
+  useFocusEffect(useCallback(() => {
+    restartableTasks().then(ts => {
+      const before = known.current; // lu AVANT la mise à jour (le calcul différé de setOn le voyait déjà remplacé)
+      known.current = ts.map(x => x.id);
+      setTasks(ts);
+      setOn(prev => (before === null ? ts.map(x => x.id) : [...prev, ...ts.filter(x => !before.includes(x.id)).map(x => x.id)]));
+    }).catch(() => setTasks([]));
+  }, []));
   const toggle = id => setOn(o => (o.includes(id) ? o.filter(x => x !== id) : [...o, id]));
   const launch = async () => {
     setBusy(true);
@@ -54,16 +64,30 @@ export default function Semaine() {
               <CheckDot on={on.includes(x.id)} onPress={() => toggle(x.id)} />
             </Pressable>
           ))}
+          {/* ajouter une mission sans quitter l'écran (Jeanne, 16 nov 2026) */}
+          <Pressable onPress={() => router.push('/task/edit')} style={[s.row, { borderColor: T.line }]}>
+            <View style={{ width: 22, alignItems: 'center' }}><Text style={{ fontSize: 22, lineHeight: 24, color: T.accent }}>+</Text></View>
+            <Text style={[type.body, { color: T.accent, fontWeight: '600', flex: 1 }]}>{t.add}</Text>
+          </Pressable>
         </View>
+        {/* Mochi+ mis en avant (Jeanne, 16 nov 2026 : « ça pourrait être mieux mis en avant ») */}
+        <Pressable onPress={() => router.push('/paywall?from=semaine')} style={({ pressed }) => [s.plus, { backgroundColor: T.seg, opacity: pressed ? 0.85 : 1 }]}>
+          <MochiImage size={56} mood="wink" />
+          <View style={{ flex: 1 }}>
+            <Text style={[type.body, { color: T.ink, fontWeight: '700' }]}>{t.plusTitle}</Text>
+            <Text style={[type.label, { color: T.muted, marginTop: 4, lineHeight: 18 }]}>{t.plusSub}</Text>
+            <Text style={[type.label, { color: T.accent, fontWeight: '700', marginTop: 8 }]}>{t.plusCta} ›</Text>
+          </View>
+        </Pressable>
       </ScrollView>
       <View style={{ paddingHorizontal: X, paddingBottom: insets.bottom + 10, paddingTop: 8 }}>
         {msg ? <Text style={[type.sub, { color: T.ok, textAlign: 'center', marginBottom: 8 }]}>{msg}</Text> : null}
         <CTAPrimary big label={fill(t.cta, { n: on.length })} onPress={launch} disabled={busy || !on.length} />
-        <Pressable onPress={() => router.push('/paywall')} hitSlop={8} style={{ marginTop: 12, alignItems: 'center' }}>
-          <Text style={{ fontSize: 13.5, color: T.muted, textAlign: 'center' }}>{t.plus} <Text style={{ color: T.accent, fontWeight: '600' }}>{t.plusCta}</Text></Text>
-        </Pressable>
       </View>
     </View>
   );
 }
-const s = StyleSheet.create({ row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, borderBottomWidth: StyleSheet.hairlineWidth } });
+const s = StyleSheet.create({
+  row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, borderBottomWidth: StyleSheet.hairlineWidth },
+  plus: { flexDirection: 'row', alignItems: 'center', gap: 14, marginTop: 24, padding: 16, borderRadius: 18 },
+});

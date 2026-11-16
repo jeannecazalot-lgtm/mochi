@@ -11,7 +11,7 @@ import { startRealtime } from '../../src/realtime';
 import { loadPartner } from '../../src/identity';
 import { loadThresholds } from '../../src/thresholds';
 import { sweepMissed } from '../../src/malus-actions';
-import { pull } from '../../src/store';
+import { pull, healOccurrenceDuplicates, onDuplicateCleaned } from '../../src/store';
 import { occStore } from '../../src/demo-core';
 import { registerPushToken } from '../../src/push';
 import { askNotificationPermission } from '../../src/notifications';
@@ -30,11 +30,13 @@ export default function TabsLayout() {
     const refresh = async () => {
       const hid = setup.householdId;
       if (!hid) return;
+      await healOccurrenceDuplicates(hid).catch(() => false); // doublons locaux d'avant le 16 nov
       try { await Promise.all(['tasks', 'occurrences', 'task_pains', 'swap_requests', 'malus', 'expenses', 'activity', 'events', 'household_members', 'setup_drafts', 'mochi_state', 'mochi_events', 'mochi_inventory', 'thoughts'].map(tb => pull(tb, hid))); } catch (e) { /* hors ligne */ }
       occStore.bump();
       loadPartner(hid); // un binôme arrivé pendant que l'app dormait
       sweepMissed().catch(() => {});
     };
+    const offDup = onDuplicateCleaned(() => occStore.bump()); // une mission en double retirée : l'écran se met à jour
     loadNightMode(); // réglage de la personne (auto / toujours / jamais)
     loadSetup().then(async () => {
       if (!setup.householdId) return;
@@ -55,7 +57,7 @@ export default function TabsLayout() {
       refresh();
     });
     const sub = AppState.addEventListener('change', st => { if (st === 'active') loadSetup().then(refresh); });
-    return () => sub.remove();
+    return () => { sub.remove(); offDup(); };
   }, []);
   return (
     <View style={{ flex: 1 }}>

@@ -2375,7 +2375,7 @@
     "heroTasks": "{pct} % · {n} missions",
     "heroTasksOne": "{pct} % · 1 mission",
     "empty": "Rien de coché depuis lundi.",
-    "chartTitle": "Les 7 derniers jours",
+    "chartTitle": "Cette semaine",
     "missedTitle": "Ratées cette semaine",
     "missedNone": "Aucune mission ratée cette semaine.",
     "missedSub": "{who} · depuis {n} j",
@@ -2405,7 +2405,11 @@
     "solo": "La balance compare ce que vous faites à deux. Elle démarre quand ton binôme a rejoint le foyer.",
     "missedHeart": "− {n} cœur",
     "missedHearts": "− {n} cœurs",
-    "thoughtsLine": "Pensé à cette semaine : toi {me} · {name} {partner}"
+    "thoughtsLine": "Pensé à cette semaine : toi {me} · {name} {partner}",
+    "startMonday": "C'est le début de la semaine. Mochi compte à chaque coche.",
+    "startEmpty": "Rien de coché pour l’instant cette semaine.",
+    "emptyMonday": "Nouvelle semaine : la balance repart de zéro.",
+    "howEmpty": "Rien à rééquilibrer pour l’instant."
   },
   "checkin": {
     "_labels": {
@@ -2625,7 +2629,10 @@
     "none": "Aucune mission à relancer. Ajoutez-en depuis le +.",
     "plus": "Avec Mochi+, votre semaine se remplit toute seule.",
     "plusCta": "Découvrir Mochi+",
-    "done": "C'est parti : {n} missions pour la semaine."
+    "done": "C'est parti : {n} missions pour la semaine.",
+    "add": "Ajouter une mission",
+    "plusTitle": "Avec Mochi+, votre semaine se prépare toute seule",
+    "plusSub": "Chaque lundi, vos missions reviennent d’elles-mêmes. Plus rien à relancer."
   },
   "forme": {
     "_labels": {
@@ -2713,7 +2720,8 @@
     "thanked": "Merci envoyé à {name}",
     "suggestTake": "La semaine prochaine, tu prends {task} ?",
     "suggestGive": "La semaine prochaine, {name} pourrait prendre {task}.",
-    "suggestKeep": "Même rythme la semaine prochaine."
+    "suggestKeep": "Même rythme la semaine prochaine.",
+    "balanceLink": "Revoir le récap de la semaine dernière ›"
   },
   "dayScreen": {
     "_labels": {
