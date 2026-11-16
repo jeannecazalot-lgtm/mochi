@@ -36,12 +36,13 @@ export function Gauges({ T, t, energy, hearts, formLabel, hint, onFormPress }) {
   const A = layout.air;
   return (
     <View style={{ marginHorizontal: layout.x, borderTopWidth: StyleSheet.hairlineWidth, borderColor: T.line }}>
-      <View style={[s.row, { paddingVertical: 12 * A, borderColor: T.line }]}>
+      <View style={[s.row, { paddingVertical: 12 * A, borderColor: T.line }, hint ? { borderBottomWidth: 0, paddingBottom: 6 * A } : null]}>
         <Label T={T} style={{ width: 60 }}>{t.energy}</Label>
         <Meter T={T} n={energy.done} of={energy.total} />
         <Num T={T}>{energy.done}<Text style={{ color: T.muted, fontWeight: '500' }}> / {energy.total}</Text></Num>
       </View>
-      {hint ? <Label T={T} style={{ marginTop: -10 * A, paddingBottom: 12 * A }}>{hint}</Label> : null}
+      {/* 16 nov 2026 : le texte d'aide passait SUR le trait (marge négative) dès qu'il tenait sur 2 lignes ; le trait passe dessous */}
+      {hint ? <Label T={T} style={{ paddingBottom: 12 * A, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: T.line }}>{hint}</Label> : null}
       {/* la forme se touche : pourquoi il est malade ou en forme (Jeanne, 13 nov 2026) */}
       <Pressable onPress={onFormPress} disabled={!onFormPress} accessibilityRole="button" style={({ pressed }) => [s.row, { paddingVertical: 12 * A, borderColor: T.line, opacity: pressed ? 0.6 : 1 }]}>
         <Label T={T} style={{ width: 60 }}>{t.form}</Label>

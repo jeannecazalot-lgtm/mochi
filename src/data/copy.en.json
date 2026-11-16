@@ -1106,7 +1106,7 @@
   "heroTasks": "{pct}% · {n} tasks",
   "heroTasksOne": "{pct}% · 1 task",
   "empty": "Nothing checked off since Monday.",
-  "chartTitle": "The last 7 days",
+  "chartTitle": "This week",
   "missedTitle": "Missed this week",
   "missedNone": "No missed tasks this week.",
   "missedSub": "{who} · {n}d overdue",
@@ -1135,7 +1135,11 @@
   "giveBtn": "Hand over",
   "solo": "The Balance compares what you each do. It starts once your partner joins the household.",
   "missedHeart": "− {n} heart",
-  "missedHearts": "− {n} hearts"
+  "missedHearts": "− {n} hearts",
+  "startMonday": "It's the start of the week. Mochi counts every check.",
+  "startEmpty": "Nothing checked off yet this week.",
+  "emptyMonday": "New week: the balance starts from zero.",
+  "howEmpty": "Nothing to rebalance yet."
  },
  "malus": {
   "header": "Penalties",
@@ -1759,7 +1763,10 @@
   "none": "No tasks to bring back. Add some with the +.",
   "plus": "With Mochi+, your week fills itself.",
   "plusCta": "Explore Mochi+",
-  "done": "And you're off: {n} tasks this week."
+  "done": "And you're off: {n} tasks this week.",
+  "add": "Add a task",
+  "plusTitle": "With Mochi+, your week plans itself",
+  "plusSub": "Every Monday, your tasks come back on their own. Nothing to restart."
  },
  "late": {
   "days": "Overdue · {n} days",
@@ -1883,7 +1890,8 @@
   "thanked": "Thanks sent to {name}",
   "suggestTake": "Next week, could you take {task}?",
   "suggestGive": "Next week, {name} could take {task}.",
-  "suggestKeep": "Same rhythm next week."
+  "suggestKeep": "Same rhythm next week.",
+  "balanceLink": "See last week's recap ›"
  },
  "dayScreen": {
   "days": "days together",

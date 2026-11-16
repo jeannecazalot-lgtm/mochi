@@ -73,8 +73,36 @@ async function push(table, row) {
   if (!dup) return error;
   let q = supabase.from(table).update(row);
   for (const k of PK[table] || ['id']) q = q.eq(k, row[k]);
-  const { error: e2 } = await q;
-  return e2 || null;
+  const { data: upd, error: e2 } = await q.select();
+  if (e2) return e2;
+  // doublon sur une AUTRE clé que l'id (occurrences : tâche + jour + type) : la ligne existe déjà en base sous un autre id.
+  // La copie locale au nouvel id restait à vie dans le cache (missions doublées chez Jeanne, 16 nov 2026) : on la retire
+  // et on recharge la table pour récupérer la vraie ligne.
+  if (!PK[table] && (!upd || !upd.length)) {
+    const rows = (await read(table)).filter(r => r.id !== row.id);
+    await AsyncStorage.setItem(K.table(table), JSON.stringify(rows));
+    if (row.household_id) { await AsyncStorage.removeItem(K.sync(table)).catch(() => {}); setTimeout(() => pull(table, row.household_id).then(() => dupListeners.forEach(f => f(table))).catch(() => {}), 0); }
+  }
+  return null;
+}
+
+const dupListeners = new Set();
+export const onDuplicateCleaned = f => { dupListeners.add(f); return () => dupListeners.delete(f); };
+
+// réparation au lancement : des doublons d'occurrences restés dans le cache (avant le correctif du 16 nov 2026)
+// → on repart de la base pour cette table. Ne touche jamais à la base.
+export async function healOccurrenceDuplicates(householdId) {
+  if (!householdId) return false;
+  const rows = await read('occurrences');
+  const seen = new Set(); let dup = false;
+  for (const r of rows) { const k = `${r.task_id}|${r.due_date}|${r.kind || 'exec'}`; if (seen.has(k)) { dup = true; break; } seen.add(k); }
+  if (!dup) return false;
+  const q = JSON.parse((await AsyncStorage.getItem(K.queue)) || '[]');
+  if (q.some(m => m.table === 'occurrences')) return false; // des envois en attente : on attend qu'ils partent
+  await AsyncStorage.setItem(K.table('occurrences'), '[]');
+  await AsyncStorage.removeItem(K.sync('occurrences'));
+  await pull('occurrences', householdId);
+  return true;
 }
 
 let flushing = false;

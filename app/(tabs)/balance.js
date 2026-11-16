@@ -98,7 +98,9 @@ export default function Balance() {
   const monday = d => { const x = new Date(d); x.setHours(12, 0, 0, 0); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; };
   const weekN = real && mochi?.hatched_at ? Math.max(1, Math.round((monday(new Date()) - monday(new Date(mochi.hatched_at))) / (7 * 86400e3)) + 1) : !real ? week.num : null;
   const m = mochi || DEMO_MOCHI;
-  const stateLabel = state === 'balanced' ? h.mochiBalanced : fill(state === 'leaning' ? (top === me ? h.mochiLeaningMe : h.mochiLeaningOther) : (top === me ? h.mochiUnbalancedMe : h.mochiUnbalancedOther), { name: top.first_name });
+  // 16 nov 2026 (Jeanne : « on est lundi, ça n'a pas de sens ») : tant que rien n'est coché, on parle du début de semaine
+  const emptyWeek = !!real && parts.every(p => !p.minutes); const isMonday = dowOf(localIso()) === 0;
+  const stateLabel = emptyWeek ? (isMonday ? t.startMonday : t.startEmpty) : state === 'balanced' ? h.mochiBalanced : fill(state === 'leaning' ? (top === me ? h.mochiLeaningMe : h.mochiLeaningOther) : (top === me ? h.mochiUnbalancedMe : h.mochiUnbalancedOther), { name: top.first_name });
   const mood = state === 'unbalanced' ? 'sad' : state === 'leaning' ? 'neutral' : undefined;
   const k = Math.max(0, STAGES.indexOf(m.stage)); const hw = m.healthy_weeks || 0;
   const nextAt = m.stage === 'mini' ? STAGE_AT.mochi : m.stage === 'mochi' ? STAGE_AT.maxi : m.stage === 'maxi' ? STAGE_AT.dore : null;
@@ -128,21 +130,17 @@ export default function Balance() {
             <Text style={[type.name, { color: T.ink, flex: 1 }]}>{t.title}</Text>
             <Label T={T}>{weekN ? fill(t.week, { n: weekN, range: week.range }) : week.range}</Label>
           </View>
-          {lastWeekRecap ? (
-            <Pressable onPress={() => router.push('/recap')} style={({ pressed }) => [{ marginHorizontal: X, marginTop: 14 * A, borderRadius: 16, backgroundColor: T.seg, paddingVertical: 12, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 12, opacity: pressed ? 0.7 : 1 }]}>
-              <MochiImage size={40} mood="wink" />
-              <View style={{ flex: 1 }}><Text style={[type.body, { color: T.ink, fontWeight: '600' }]}>{copy.recap.balanceRow}</Text><Label T={T} style={{ marginTop: 2 }}>{copy.recap.balanceRowSub}</Label></View>
-              <Text style={{ fontSize: 20, color: T.muted }}>›</Text>
-            </Pressable>
-          ) : null}
 
           {real && !getPartnerUid() ? (
             <View style={{ paddingHorizontal: X, paddingTop: 18 * A }}><Text style={[type.sub, { color: T.muted }]}>{t.solo}</Text><Pressable onPress={() => router.push('/(setup)/invite?from=home')} style={{ marginTop: 12, alignSelf: 'flex-start', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 999, backgroundColor: T.ink }}><Text style={[type.body, { color: T.bg }]}>{copy.homeV3.soloCta}</Text></Pressable></View>
           ) : (<>
           {/* 1 · QUI EN FAIT LE PLUS : Mochi penche vers qui porte plus, puis le temps de chacun */}
           <Pressable onPress={() => router.push('/chambre')} style={{ paddingHorizontal: X, paddingTop: 18 * A, flexDirection: 'row', alignItems: 'center', gap: 16 }}>
-            <MochiImage size={64} lean={lean} mood={mood} />
-            <Text style={[type.sub, { color: T.ink, flex: 1 }]}>{stateLabel}</Text>
+            <MochiImage size={64} lean={emptyWeek ? 0 : lean} mood={emptyWeek ? undefined : mood} />
+            <View style={{ flex: 1 }}>
+              <Text style={[type.sub, { color: T.ink }]}>{stateLabel}</Text>
+              {lastWeekRecap ? <Pressable onPress={() => router.push('/recap')} hitSlop={8} style={{ marginTop: 6 }}><Text style={[type.label, { color: T.accent, fontWeight: '600' }]}>{copy.recap.balanceLink}</Text></Pressable> : null}
+            </View>
           </Pressable>
 
           {/* héros : temps de chacun */}
@@ -156,7 +154,7 @@ export default function Balance() {
                 </View>); })}
             </View>
             <Split T={T} parts={parts.map(p => ({ ratio: p.pct / 100, color: p.member.color }))} />
-            {real && parts.every(p => !p.minutes) ? <Label T={T} style={{ marginTop: 10 }}>{t.empty}</Label> : null}
+            {emptyWeek ? <Label T={T} style={{ marginTop: 10 }}>{isMonday ? t.emptyMonday : t.empty}</Label> : null}
             {real && planned ? <Label T={T} style={{ marginTop: 10 }}>{fill(copy.balance.plannedWeek, { total: fmtMin(planned.me + planned.partner + planned.both), me: fmtMin(planned.me + Math.round(planned.both / 2)), partner: fmtMin(planned.partner + Math.round(planned.both / 2)), name: partner.first_name })}</Label> : null}
             
           </View>
@@ -187,7 +185,7 @@ export default function Balance() {
           {real ? (
             <View style={{ marginHorizontal: X, marginTop: 18 * A, borderTopWidth: StyleSheet.hairlineWidth, borderColor: T.line, paddingTop: 16 * A }}>
               <Text style={[type.section, { color: T.ink }]}>{t.howTitle}</Text>
-              {state === 'balanced' ? <Text style={[type.sub, { color: T.muted, marginTop: 8 }]}>{t.howBalanced}</Text> : (
+              {emptyWeek ? <Text style={[type.sub, { color: T.muted, marginTop: 8 }]}>{t.howEmpty}</Text> : state === 'balanced' ? <Text style={[type.sub, { color: T.muted, marginTop: 8 }]}>{t.howBalanced}</Text> : (
                 <View style={{ marginTop: 12 }}>
                   {msg ? <Text style={[type.sub, { color: T.ink }]}>{msg}</Text> : suggest?.n ? <>
                     <Pressable onPress={async () => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {}); const r = await rebalanceWeek(); setMsg(r.ok ? fill(t.rebalanced, { n: r.n, name: partner.first_name }) : t.rebalanceNone); }} style={({ pressed }) => [{ alignSelf: 'flex-start', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 999, backgroundColor: T.ink, opacity: pressed ? 0.8 : 1 }]}><Text style={[type.body, { color: T.bg }]}>{t.rebalance}</Text></Pressable>
@@ -210,8 +208,8 @@ export default function Balance() {
             <Text style={[type.section, { color: T.ink }]}>{t.chartTitle}</Text>
             <View style={{ marginTop: 12, gap: 8 }}>
               {chartDays.map((d, i) => { const total = members.reduce((a, mm) => a + (d.by[mm.id] || 0), 0); return (
-                <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                  <Label T={T} style={{ width: 16, textAlign: 'center' }}>{d.d}</Label>
+                <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, opacity: weekIsos[i] > localIso() ? 0.35 : 1 }}>
+                  <Label T={T} style={[{ width: 16, textAlign: 'center' }, weekIsos[i] === localIso() && { color: T.ink, fontWeight: '700' }]}>{d.d}</Label>
                   <View style={{ flex: 1 }}><Split T={T} height={6} parts={members.map(mm => ({ ratio: total ? (d.by[mm.id] || 0) / total : 0, color: mm.color }))} /></View>
                   <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: moodColor(retain?.moods?.[weekIsos[i]]) }} />
                 </View>); })}

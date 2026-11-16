@@ -31,6 +31,7 @@ import { isPremium } from '../../src/demo-premium';
 import { weekNeedsRestart } from '../../src/horizon';
 import { usePremiumVersion } from '../../src/purchases';
 import { TaskIcon } from '../../src/components/task-icon';
+import { inCurrentWeek } from '../../src/late-groups';
 import { LOCALE, fmtClock } from '../../src/lang';
 import { unreadSuivi } from '../../src/suivi-unread';
 import { setMochiBox, useMochiAway } from '../../src/day-screen';
@@ -152,7 +153,7 @@ export default function Home() {
       const refusedIds = new Set(swaps.filter(sw => sw.status === 'refused' && sw.from_user === uid && String(sw.resolved_at || '').slice(0, 10) === today).map(sw => sw.occurrence_id));
       const remind = reminderMarks(acts, uid);
       const toVm = o => { const tk = byId[o.task_id] || {}; const q = `occ=${o.id}&tid=${o.task_id}&title=${encodeURIComponent(tk.title || '')}&emoji=${encodeURIComponent(tk.emoji || '•')}&mins=${tk.duration_min || 15}`; return { id: o.id, emoji: tk.emoji || '•', title: tk.title || '…', mental: !!tk.mental_load, together: !o.assignee_id, mins: tk.duration_min || 15, href: `/mission?${q}`, remind: remind[o.id] || null, pending: pendingIds.has(o.id) ? fill(t.pending, { name: partner.first_name }) : refusedIds.has(o.id) ? fill(t.refused, { name: partner.first_name }) : null }; };
-      setLate(groupLate(occs.filter(o => isLive(o) && o.due_date < today && o.status !== 'done' && mine(o))).map(g => {
+      setLate(groupLate(occs.filter(o => isLive(o) && o.due_date < today && inCurrentWeek(o) && o.status !== 'done' && mine(o))).map(g => {
         const o = g.latest; const tk = byId[o.task_id] || {};
         const q = `occ=${o.id}&tid=${o.task_id}&title=${encodeURIComponent(tk.title || '')}&emoji=${encodeURIComponent(tk.emoji || '•')}&mins=${tk.duration_min || 15}`;
         return { id: o.id, emoji: tk.emoji || '•', title: tk.title || '…', mental: !!tk.mental_load, sub: lateCaption(g.n, daysBetweenIso(g.oldest.due_date, today)), together: !o.assignee_id, mins: tk.duration_min || 15, href: `/retard?${q}&due=${g.oldest.due_date}&ids=${g.ids.join(',')}&n=${g.n}`, late: true, ids: g.ids, remind: g.ids.map(x => remind[x]).find(Boolean) || null };

@@ -1,6 +1,7 @@
 // Retards groupés (décision Jeanne 14 sept 2026) : une ligne par tâche et par personne,
 // « Vaisselle · En retard · 5 jours » au lieu de cinq lignes. Partagé par Accueil, Planning, À faire.
 import copy from './copy';
+import { mondayOf } from './week';
 const fill = (str, vars) => String(str).replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ''));
 
 // occs : occurrences en retard (toute date < aujourd'hui, pas faites), n'importe quel ordre
@@ -22,3 +23,7 @@ export function lateCaption(n, daysSinceOldest, points) {
 }
 
 export const daysBetweenIso = (fromIso, toIso) => Math.max(0, Math.round((new Date(`${toIso}T12:00:00`) - new Date(`${fromIso}T12:00:00`)) / 86400000));
+
+// « chaque nouvelle semaine, on fait le vide » (Jeanne, 16 nov 2026) : une fois la semaine close par le récap,
+// ses ratées ne s'affichent plus en retard. Seuls comptent les retards depuis lundi.
+export const inCurrentWeek = o => String(o.due_date) >= mondayOf();

@@ -26,7 +26,7 @@ import { localIso } from '../../src/dates';
 import { toggleOccurrence, isLive } from '../../src/occ-actions';
 import { isPremium } from '../../src/demo-premium';
 import copy from '../../src/copy';
-import { groupLate, lateCaption, daysBetweenIso } from '../../src/late-groups';
+import { groupLate, lateCaption, daysBetweenIso, inCurrentWeek } from '../../src/late-groups';
 import { reminderMarks } from '../../src/reminder-marks';
 import { space, motion, radius } from '../../src/theme';
 import { TaskIcon } from '../../src/components/task-icon';
@@ -198,6 +198,7 @@ export default function Planning() {
         if (!isLive(o) || !o.due_date) continue; // une occurrence sans date ne doit pas casser l'écran
         const tk = byTask[o.task_id] || {};
         const isDone = o.status === 'done' || missionDone.has(o.id);
+        if (o.due_date < todayIso && !isDone && !inCurrentWeek(o)) continue; // semaine close : on fait le vide (16 nov 2026)
         const late = o.due_date < todayIso && !isDone;
         const who = o.assignee_id ? (o.assignee_id === uid ? me : partner) : null;
         const q = `occ=${o.id}&tid=${o.task_id}&title=${encodeURIComponent(tk.title || '')}&emoji=${encodeURIComponent(tk.emoji || '•')}&mins=${tk.duration_min || 15}`;
