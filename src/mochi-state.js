@@ -14,6 +14,7 @@ import { localIso, addDaysIso } from './dates';
 import { weekStartIso } from './malus-actions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import items from './items';
+import { track } from './track';
 
 export const STAGES = ['egg', 'mini', 'mochi', 'maxi', 'dore'];
 export const STAGE_AT = { mochi: 2, maxi: 6, dore: 14 };           // semaines « qui comptent » cumulées (7 nov 2026, Jeanne : Finch grandit dès 7 jours)
@@ -65,6 +66,7 @@ export const pearlsFor = (occ, task) => (!occ.assignee_id ? PEARLS.together : ta
 // ── une mission vient d'être cochée (appelé par l'écran après toggleOccurrence) ──────────
 export async function onMissionDone(occ, task, { wasMissed = false } = {}) {
   const m = await getMochi(); if (!m) return;
+  track('task_done', { late: !!wasMissed, mental: !!task?.mental_load });
   const delta = pearlsFor(occ, task);
   await event('pearls', { occurrence_id: occ.id, payload: { delta, reason: 'mission' } });
   const changes = { pearls: (m.pearls || 0) + delta };
@@ -81,6 +83,7 @@ export async function checkHatch() {
   const members = await read('household_members');
   if (members.filter(x => x.household_id === hid()).length < 2) return false;
   await event('hatch', { actor_id: null });
+  track('duo_formed');
   await patch({ stage: 'mini', hatched_at: nowIso() });
   return true;
 }

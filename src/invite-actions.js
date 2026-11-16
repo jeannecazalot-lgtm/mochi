@@ -9,6 +9,7 @@ import { ensureSession } from './profile';
 import { uuid, pull, resetAll } from './store';
 import { loadSetup, setup, saveHouseholdId, clearSetup, saveInvited, saveJoined, clearSetupTasks } from './setup-state';
 import { loadPartner, loadIdentity, resetPartner } from './identity';
+import { track } from './track';
 
 // Lien universel (3 sept 2026) : hébergé sur GitHub Pages (AASA du domaine →
 // l'app s'ouvre au tap si installée, sinon page d'atterrissage avec le code).
@@ -85,6 +86,7 @@ export async function joinWithCode(code) {
     await resetAll(); // nouveau foyer : cache, filigranes et file repartent de zéro
     await Promise.all(['tasks', 'occurrences', 'task_pains', 'swap_requests', 'malus'].map(tb => pull(tb, hid)));
     await loadPartner(hid); // le prénom/photo de l'autre remplace le binôme simulé
+    track('partner_joined');
     pushToPartner('joined', {}, '/(setup)/taches'); // l'autre est prévenu : on choisit les missions ensemble (9 nov 2026)
     return { ok: true, householdId: hid };
   } catch (e) { return { ok: false, reason: e?.message || 'réseau' }; }

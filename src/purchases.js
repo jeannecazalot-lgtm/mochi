@@ -12,6 +12,7 @@
 // ═══════════════════════════════════════════════════════════════════
 import { Platform } from 'react-native';
 import { useSyncExternalStore } from 'react';
+import { track } from './track';
 
 const KEY = process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY;
 const ENTITLEMENT = 'duoplus';   // NE PAS renommer sans changer le dashboard en même temps
@@ -95,8 +96,10 @@ export async function purchase(offerId = 'pass') {
     if (!o) return { success: false, error: 'no-offering' };
     const { customerInfo } = await Purchases.purchasePackage(o.pkg);
     sync(customerInfo);
+    track(isActive(customerInfo) ? 'purchase_done' : 'purchase_failed', { offer: offerId });
     return { success: isActive(customerInfo) };
   } catch (e) {
+    track(e?.userCancelled ? 'purchase_cancelled' : 'purchase_failed', { offer: offerId });
     return { success: false, cancelled: Boolean(e?.userCancelled), error: e?.message };
   }
 }
@@ -106,6 +109,7 @@ export async function restore() {
   try {
     const info = await Purchases.restorePurchases();
     sync(info);
+    track('restore', { success: isActive(info) });
     return { success: isActive(info) };
   } catch (e) { return { success: false, error: e?.message }; }
 }

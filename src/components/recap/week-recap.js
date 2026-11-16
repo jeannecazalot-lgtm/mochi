@@ -26,6 +26,7 @@ import * as Haptics from 'expo-haptics';
 import { logActivity } from '../../activity-actions';
 import { pushToPartner } from '../../push';
 import copy from '../../copy';
+import { track } from '../../track';
 
 const fill = (s, v) => String(s).replace(/\{(\w+)\}/g, (_, k) => v[k] ?? '');
 const at = iso => new Date(iso + 'T12:00:00');
@@ -78,6 +79,7 @@ export function WeekRecap({ ev, demo = false, onDone, ctaLabel, embedded = false
   const [d, setD] = useState(demo ? DEMO : null);
   const [thanked, setThanked] = useState(false);
   useEffect(() => { if (!demo) loadRecap(ev).then(setD).catch(() => setD(null)); }, [ev]);
+  useEffect(() => { if (!demo) track('recap_opened', { embedded: !!embedded, week_start: ev?.payload?.week_start || null }); }, [ev]); // mesure
   const wk = ev.payload || {};
   const ws = wk.week_start || mondayOf(addDaysIso(-6)); // démo : la semaine qui vient de finir
   const m = d?.mochi || { stage: 'mini', healthy_weeks: 0 };
@@ -104,6 +106,7 @@ export function WeekRecap({ ev, demo = false, onDone, ctaLabel, embedded = false
     setThanked(true); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
     const reply = fill(copy.activity.replies?.thanks || 'Merci', { name: partner.first_name }).trim();
     logActivity({ type: 'ping_reply', preset_key: 'thanks', payload: { from: 'recap', week_start: ws } }).catch(() => {});
+    track('thanks_sent', { from: 'recap' });
     pushToPartner('reaction', { reply }).catch?.(() => {});
   };
   // 4 · les gains, en une ligne discrète

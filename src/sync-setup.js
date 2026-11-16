@@ -25,6 +25,7 @@ import { slotWindow } from './task-actions';
 import { pushToPartner } from './push';
 import { rodageEnd, daysBetween } from './week';
 import { extendHorizon } from './horizon';
+import { track } from './track';
 
 const DAY = 86400000;
 
@@ -87,7 +88,7 @@ export async function syncSetup(result) {
   const { data: mine } = await supabase.from('household_members').select('household_id').eq('user_id', uid).maybeSingle();
   const householdId = mine?.household_id || uuid();
   saveHouseholdId(householdId);
-  if (!mine) await mutate('households', { id: householdId, created_by: uid });
+  if (!mine) { await mutate('households', { id: householdId, created_by: uid }); track('household_created'); }
   // déjà membre (foyer rejoint) : on met à jour dispos/temps SANS toucher au slot —
   // forcer slot 1 entrait en conflit avec le créateur et bloquait toute la file
   // (bot + simulateur, 5 sept 2026 : « C'est parti » du rejoignant n'écrivait rien)
