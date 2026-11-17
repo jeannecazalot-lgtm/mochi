@@ -585,3 +585,9 @@ Soumission « Waiting for Review » : iOS App 1.0 (build 25) + groupe Mochi+ + M
 
 - 16 nov (soir) — **Nom retenu par Jeanne : Halfin** (« half in », chacun sa moitié ; thème charge mentale, format Finch « Halfin: Mental Load for Two »). Mochi reste le nom de la créature. Vérifié : aucune app « Halfin » sur l'App Store (12 pays) ni Google Play ; TMview (UE + US + autres) : aucune marque « Halfin » seule — proches : HALFING classe 9 en Argentine seulement, noms composés hors logiciel (Mexique, Corée, Russie) ; halfin.app et gethalfin.com libres (halfin.com pris). Sens : « al fin / alfine » = « enfin » en espagnol/italien ; « halfin » = ancien pseudo Twitter de Hal Finney (bitcoin). **Jeanne réserve les deux domaines.** À décider : renommer à la prochaine version (la version en revue reste « Mindpair ») ou retirer la soumission pour renommer tout de suite.
 - 16 nov (soir, suite) — Halfin finalement écarté (« bon nom fonctionnel, pas coup de cœur », trop froid) ; nouvelles pistes chaleureuses (Plumie, Twigly, Lightie) rejetées (« j'aime rien »). **Mindpair confirmé** par Jeanne (« Oui, on garde »). Domaines Halfin : inutile de les acheter.
+
+## 17 nov 2026 — **Mindpair 1.0 acceptée par Apple** (jalon)
+- Annoncé par Jeanne. Statut non revu dans App Store Connect (session expirée). Sortie MANUELLE : la version ne sera en ligne qu'après « Publier cette version ».
+- `main` contient bien tout ce qui est en ligne (les 3 commits de `correctif-fiche-ipad` y sont, à l'identique) + « En tête » et la barre fixe de l'Accueil → la prochaine EAS Update part de `main`.
+- Fin des réinstallations quotidiennes du foyer de démo ; garder le compte review@ et réinstaller le foyer avant chaque nouvelle soumission.
+- À faire : publier la version (Jeanne), publier « En tête » + barre fixe (EAS Update depuis `main`), supprimer `~/mochi-correctif` (`git worktree remove`), rétro du jalon, choix du sous-titre pour la v1.1.
